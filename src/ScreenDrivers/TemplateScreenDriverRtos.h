@@ -1,0 +1,196 @@
+// TemplateScreenDriverRtos.h
+
+#ifndef _TEMPLATE_SCREEN_DRIVER_RTOS_h
+#define _TEMPLATE_SCREEN_DRIVER_RTOS_h
+
+#if defined(ARDUINO_ARCH_ESP32)
+#define TEMPLATE_SCREEN_DRIVER_RTOS
+
+#include "../Model/IScreenDriver.h"
+
+/// <summary>
+/// Wraps an Inline ScreenDriver with threaded buffer push.
+/// Non-blocking push and wait until push is done.
+/// </summary>
+/// <typeparam name="InlineScreenDriver"></typeparam>
+/// <typeparam name="stackHeight"></typeparam>
+/// <typeparam name="priority"></typeparam>
+/// <typeparam name="coreAffinity"></typeparam>
+template<typename InlineScreenDriver,
+	const uint32_t stackHeight = 1500,
+	const portBASE_TYPE priority = 1,
+	const uint32_t coreAffinity = tskNO_AFFINITY>
+class TemplateScreenDriverRtos : public InlineScreenDriver
+{
+private:
+	using BaseClass = InlineScreenDriver;
+
+private:
+	const SemaphoreHandle_t Mutex;
+
+private:
+	uint8_t* FrameBuffer = nullptr;
+	uint8_t* TaskFrameBuffer = nullptr;
+
+	void (*TaskCallback)(void* parameter) = nullptr;
+	TaskHandle_t BufferTaskHandle = NULL;
+
+	volatile bool TaskReady = false;
+
+public:
+	TemplateScreenDriverRtos()
+		: BaseClass()
+		, Mutex(xSemaphoreCreateMutex())
+	{}
+
+	virtual const bool Start() final
+	{
+		Stop();
+
+		if (TaskCallback != nullptr
+			&& Mutex != NULL
+			&& BaseClass::Start())
+		{
+			xTaskCreatePinnedToCore(TaskCallback, "BufferTask", stackHeight, NULL, priority, &BufferTaskHandle, coreAffinity);
+
+			if (BufferTaskHandle != NULL)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	virtual void Stop() final
+	{
+		if (BufferTaskHandle != NULL)
+		{
+			if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+			{
+				TaskReady = false;
+				xSemaphoreGive(Mutex);
+			}
+
+			vTaskDelete(BufferTaskHandle);
+		}
+
+		TaskFrameBuffer = nullptr;
+		TaskReady = false;
+
+		BaseClass::Stop();
+	}
+
+	virtual const bool CanPushBuffer() final
+	{
+		if (BaseClass::CanPushBuffer())
+		{
+			bool taskReady = false;
+			bool pushing = true;
+			if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+			{
+				taskReady = TaskReady;
+				pushing = FrameBuffer != nullptr;
+				xSemaphoreGive(Mutex);
+			}
+
+			return taskReady && !pushing;
+		}
+
+		return false;
+	}
+
+	virtual void StartBuffer() final
+	{}
+
+	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+	{
+		if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+		{
+			FrameBuffer = (uint8_t*)frameBuffer;
+			xSemaphoreGive(Mutex);
+		}
+
+		vTaskResume(BufferTaskHandle);
+
+		return 0;
+	}
+
+	virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+	{
+		bool pushing = true;
+		if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+		{
+			pushing = FrameBuffer != nullptr;
+			xSemaphoreGive(Mutex);
+		}
+
+		return pushing;
+	}
+
+	virtual void EndBuffer() final
+	{}
+
+	virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) final
+	{
+		TaskCallback = taskCallback;
+	}
+
+	virtual void BufferTaskCallback(void* parameter) final
+	{
+		for (;;)
+		{
+			if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+			{
+				TaskFrameBuffer = FrameBuffer;
+				xSemaphoreGive(Mutex);
+
+				if (TaskReady && TaskFrameBuffer != nullptr)
+				{
+					BaseClass::StartBuffer();
+
+					const uint32_t pushSleep = BaseClass::PushBuffer(TaskFrameBuffer);
+					vTaskDelay((pushSleep / 1000) / portTICK_PERIOD_MS);
+
+					while (BaseClass::PushingBuffer(TaskFrameBuffer))
+					{
+						yield();
+					}
+
+					BaseClass::EndBuffer();
+					TaskFrameBuffer = nullptr;
+					yield();
+
+					if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+					{
+						FrameBuffer = nullptr;
+						xSemaphoreGive(Mutex);
+
+						vTaskSuspend(BufferTaskHandle);
+					}
+				}
+				else
+				{
+					if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+					{
+						TaskReady = true;
+						xSemaphoreGive(Mutex);
+
+						vTaskSuspend(BufferTaskHandle);
+					}
+				}
+			}
+		}
+
+		TaskFrameBuffer = nullptr;
+		if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+		{
+			TaskReady = false;
+			xSemaphoreGive(Mutex);
+		}
+
+		vTaskDelete(BufferTaskHandle);
+	}
+};
+#endif
+#endif

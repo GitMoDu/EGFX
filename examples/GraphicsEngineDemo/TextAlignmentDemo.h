@@ -3,9 +3,9 @@
 #ifndef _TEXT_ALIGNMENT_DEMO_h
 #define _TEXT_ALIGNMENT_DEMO_h
 
-#include <ArduinoGraphicsCore.h>
+#include <ArduinoGraphicsDrawer.h>
 
-class TextAlignmentDemo : public FrameElementDrawer
+class TextAlignmentDemo : public ElementDrawer
 {
 private:
 	enum class DrawElementsEnum : uint8_t
@@ -16,63 +16,64 @@ private:
 
 	static constexpr uint32_t TextScalePeriodMicros = 4000000;
 	static constexpr uint32_t TextPositionPeriodMicros = TextScalePeriodMicros * 2;
+	static constexpr uint32_t TextColorPeriodMicros = 10000000;
 
 	RgbColor Color{};
 	FontStyle DynamicFont;
 
 public:
-	TextAlignmentDemo(IFramePrimitives* frame)
-		: FrameElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	TextAlignmentDemo(IFrameBuffer* frame)
+		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{}
 
 	/// <summary>
 	/// ElementIndex can be used to separate draw calls, avoiding hogging the co-operative scheduler.
 	/// </summary>
-	virtual void DrawCall(const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
+	virtual void DrawCall(DrawState* drawState) final
 	{
-		switch (elementIndex)
+		switch (drawState->ElementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::DynamicText:
-			DrawRoamingText(frameTime);
+			DrawRoamingText(drawState);
 			break;
 		default:
 			break;
 		}
 	}
 
-	void DrawRoamingText(const uint32_t frameTime)
+	void DrawRoamingText(DrawState* drawState)
 	{
-		if (IsDirectDraw)
-		{
-			Frame->ClearFrame();
-		}
-
 		const uint8_t y = 1;
-		const uint8_t minHeight = 7;
-		const uint8_t maxHeight = ((GetShortestDimension() - 1) / 3) - 1;
-		const uint16_t sizeProgress = GetProgress<TextScalePeriodMicros>(frameTime);
-		const uint8_t textHeight = minHeight + ScaleProgress(TriangleResponse(sizeProgress), (uint8_t)(maxHeight - minHeight));
-		const uint32_t number = frameTime / 1000;
-
-		DynamicFont.SetStyle(UINT8_MAX, UINT8_MAX, 0, textHeight);
+		const uint8_t minHeight = TinyFont::FONT_SIZE;
+		const uint8_t maxHeight = GetShortestDimension() / 3;
+		const uint16_t sizeProgress = drawState->GetProgress<TextScalePeriodMicros>();
+		const uint8_t textHeight = minHeight + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(sizeProgress), (uint8_t)(maxHeight - minHeight));
+		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
 
 		const uint8_t sectionCount = 4;
-		const uint16_t moveProgress = GetProgress<TextPositionPeriodMicros>(frameTime);
+		const uint16_t moveProgress = drawState->GetProgress<TextPositionPeriodMicros>();
 		const uint8_t section = (moveProgress / (UINT16_MAX / sectionCount));
+
+		const uint16_t number = drawState->FrameCounter;
+
+		DynamicFont.SetStyle(0, 0, 0, textHeight);
+		DynamicFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
+		DynamicFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
+		DynamicFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
 		switch (section)
 		{
 		case 0:
-			GraphicsText::NumberTopLeft(Frame, 0, y, DynamicFont, (uint32_t)(number));
+			NumberRenderer::NumberTopLeft(Frame, DynamicFont, 0, y, number);
 			break;
 		case 1:
-			GraphicsText::NumberTopRight(Frame, Width - 1, y, DynamicFont, (const uint32_t)(number));
+			NumberRenderer::NumberTopRight(Frame, DynamicFont, Frame->GetWidth() - 1, y, number);
 			break;
 		case 2:
-			GraphicsText::NumberBottomRight(Frame, Width - 1, Height - 1, DynamicFont, (const uint32_t)(number));
+			NumberRenderer::NumberBottomRight(Frame, DynamicFont, Frame->GetWidth() - 1, Frame->GetHeight() - 1, number);
 			break;
 		case 3:
-			GraphicsText::NumberBottomLeft(Frame, 0, Height - 1, DynamicFont, (const uint32_t)(number));
+			NumberRenderer::NumberBottomLeft(Frame, DynamicFont, 0, Frame->GetHeight() - 1, number);
 		default:
 			break;
 		}

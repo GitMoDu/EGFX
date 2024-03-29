@@ -20,32 +20,39 @@ private:
 	IFrameDraw* Demo2;
 	IFrameDraw* Demo3;
 	IFrameDraw* Demo4;
+	IFrameDraw* Demo5;
 	uint8_t Index = 0;
 
 public:
 	DemoCyclerTask(Scheduler* scheduler,
 		IFrameEngine* engine,
-		IFrameDraw* demo0,
+		IFrameDraw* demo0 = nullptr,
 		IFrameDraw* demo1 = nullptr,
 		IFrameDraw* demo2 = nullptr,
 		IFrameDraw* demo3 = nullptr,
-		IFrameDraw* demo4 = nullptr)
-		: Task(DemoStepDurationMillis, TASK_FOREVER, scheduler, true)
+		IFrameDraw* demo4 = nullptr,
+		IFrameDraw* demo5 = nullptr)
+		: Task(0, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
 		, Demo0(demo0)
 		, Demo1(demo1)
 		, Demo2(demo2)
 		, Demo3(demo3)
 		, Demo4(demo4)
+		, Demo5(demo5)
 	{}
 
-	bool Callback()
+	bool Callback() final
 	{
+		Task::delay(DemoStepDurationMillis);
 		switch (Index)
 		{
 		case 0:
-			Engine->SetDrawer(Demo0);
-			Index++;
+			if (Demo0 != nullptr)
+			{
+				Engine->SetDrawer(Demo0);
+				Index++;
+			}
 			break;
 		case 1:
 			if (Demo1 != nullptr)
@@ -56,6 +63,7 @@ public:
 			else
 			{
 				Index = 0;
+				Engine->SetDrawer(Demo0);
 			}
 			break;
 		case 2:
@@ -66,6 +74,7 @@ public:
 			}
 			else
 			{
+				Engine->SetDrawer(Demo0);
 				Index = 0;
 			}
 			break;
@@ -77,6 +86,7 @@ public:
 			}
 			else
 			{
+				Engine->SetDrawer(Demo0);
 				Index = 0;
 			}
 			break;
@@ -88,10 +98,24 @@ public:
 			}
 			else
 			{
+				Engine->SetDrawer(Demo0);
+				Index = 0;
+			}
+			break;
+		case 5:
+			if (Demo5 != nullptr)
+			{
+				Engine->SetDrawer(Demo5);
+				Index++;
+			}
+			else
+			{
+				Engine->SetDrawer(Demo0);
 				Index = 0;
 			}
 			break;
 		default:
+			Engine->SetDrawer(Demo0);
 			Index = 0;
 			break;
 		}

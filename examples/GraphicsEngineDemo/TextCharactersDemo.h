@@ -3,34 +3,31 @@
 #ifndef _TEXT_CHARACTERS_DEMO_h
 #define _TEXT_CHARACTERS_DEMO_h
 
-#include <ArduinoGraphicsCore.h>
+#include <ArduinoGraphicsDrawer.h>
 
-class TextCharactersDemo : public FrameElementDrawer
+class TextCharactersDemo : public ElementDrawer
 {
 private:
 	enum class DrawElementsEnum : uint8_t
 	{
-		FixedText,
-		RoamingText,
+		UpperCase1,
+		UpperCase2,
+		LowerCase1,
+		LowerCase2,
 		DrawElementsCount
 	};
 
 	static constexpr uint32_t TextColorPeriodMicros = 3000000;
 	static constexpr uint32_t NumberPeriodMicros = UINT32_MAX;
 	static constexpr uint32_t NumberRange = 100000;
-
+	static constexpr uint8_t SmallTextDimension = 9;
 
 	RgbColor Color{};
 	FontStyle SmallFont;
-	FontStyle DynamicFont;
-
-	const uint8_t SmallTextDimension = 8;
-	const uint8_t RemainderDimension;
 
 public:
-	TextCharactersDemo(IFramePrimitives* frame)
-		: FrameElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
-		, RemainderDimension(Height - ((SmallTextDimension + 1) * 3))
+	TextCharactersDemo(IFrameBuffer* frame)
+		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
 		SmallFont.SetStyle(0, 0, 0, SmallTextDimension);
 	}
@@ -38,56 +35,135 @@ public:
 	/// <summary>
 	/// ElementIndex can be used to separate draw calls, avoiding hogging the co-operative scheduler.
 	/// </summary>
-	virtual void DrawCall(const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
+	virtual void DrawCall(DrawState* drawState) final
 	{
-		switch (elementIndex)
+		switch (drawState->ElementIndex)
 		{
-		case (uint8_t)DrawElementsEnum::FixedText:
-			DrawFixedText(frameTime);
+		case (uint8_t)DrawElementsEnum::UpperCase1:
+			DrawUpperCase1(drawState);
 			break;
-		case (uint8_t)DrawElementsEnum::RoamingText:
-			DrawRoamingText(frameTime);
+		case (uint8_t)DrawElementsEnum::UpperCase2:
+			DrawUpperCase2(drawState);
+			break;
+		case (uint8_t)DrawElementsEnum::LowerCase1:
+			DrawLowerCase1(drawState);
+			break;
+		case (uint8_t)DrawElementsEnum::LowerCase2:
+			DrawLowerCase2(drawState);
 			break;
 		default:
 			break;
 		}
 	}
 
-	void DrawFixedText(const uint32_t frameTime)
+private:
+	void DrawUpperCase1(DrawState* drawState)
 	{
-		const uint16_t colorProgress = GetProgress<TextColorPeriodMicros>(frameTime);
+		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
 
-		SmallFont.Color.r = ScaleProgress(TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		SmallFont.Color.g = ScaleProgress(TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		SmallFont.Color.b = ScaleProgress(TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
+		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
+		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		GraphicsText::TextTopLeft(Frame, 0, 0, SmallFont, F("1234567890"));
-		GraphicsText::TextTopLeft(Frame, 0, SmallTextDimension + 1, SmallFont, F("ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-		GraphicsText::TextTopLeft(Frame, 0, (SmallTextDimension + 1) * 2, SmallFont, F("abcdefghijklmnopqrstuvwxyz"));
+		if (ShowUpperCase1())
+		{
+			if (ShowFullSet())
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, 0, F("ABCDEFGHIJKLM"));
+			}
+			else
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, 0, F("ABCDEFG"));
+			}
+		}
 	}
 
-	void DrawRoamingText(const uint32_t frameTime)
+	void DrawUpperCase2(DrawState* drawState)
 	{
-		const uint8_t minHeight = 7;
-		const uint8_t maxHeight = RemainderDimension - 1;
+		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
 
-		const uint16_t sizeProgress = GetProgress<10000000>(frameTime);
-		const uint8_t textHeight = minHeight + (((uint32_t)sizeProgress * (maxHeight - minHeight)) / UINT16_MAX);
-		DynamicFont.SetStyle(UINT8_MAX, UINT8_MAX, 0, textHeight);
+		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
+		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
+		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		const uint8_t y = Height - 1 - (RemainderDimension / 2) - (textHeight / 2);
-		const uint16_t numberProgress = GetProgress<NumberPeriodMicros>(frameTime);
-		const uint32_t number = ((uint32_t)numberProgress * NumberRange) / UINT16_MAX;
-
-		if (IsDirectDraw)
+		if (ShowUpperCase2())
 		{
-			Color.r = 0;
-			Color.g = 0;
-			Color.b = 0;
-			Frame->RectangleFill(0, Height - 1 - (RemainderDimension / 2) - (maxHeight / 2), Width - 1, Height - 1, Color);
+			if (ShowFullSet())
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, SmallFont.Height + 1, F("NOPQRSTUVWXYZ"));
+			}
+			else
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, SmallFont.Height + 1, F("NOPQRST"));
+			}
 		}
+	}
 
-		GraphicsText::NumberTopLeft(Frame, 0, y, DynamicFont, (uint32_t)number);
+	void DrawLowerCase1(DrawState* drawState)
+	{
+		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+
+		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
+		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
+		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+
+		if (ShowLowerCase1())
+		{
+			if (ShowFullSet())
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("abcdefghijklm"));
+			}
+			else
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("abcdefg"));
+			}
+		}
+	}
+
+	void DrawLowerCase2(DrawState* drawState)
+	{
+		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+
+		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
+		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
+		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+
+		if (ShowLowerCase2())
+		{
+			if (ShowFullSet())
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("nopqrstuvwxyz"));
+			}
+			else
+			{
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("nopqrst"));
+			}
+		}
+	}
+
+	const bool ShowFullSet()
+	{
+		return Frame->GetWidth() > SmallFont.GetTextWidth(13) + 1;
+	}
+
+	const bool ShowUpperCase1()
+	{
+		return Frame->GetHeight() >= SmallFont.Height;
+	}
+
+	const bool ShowUpperCase2()
+	{
+		return ShowUpperCase1() && (Frame->GetHeight() > ((SmallFont.Height * 2) + 1));
+	}
+
+	const bool ShowLowerCase1()
+	{
+		return ShowUpperCase2() && (Frame->GetHeight() > ((SmallFont.Height * 3) + 2));
+	}
+
+	const bool ShowLowerCase2()
+	{
+		return ShowLowerCase1() && (Frame->GetHeight() > ((SmallFont.Height * 4) + 3));
 	}
 };
 #endif

@@ -8,58 +8,87 @@
 
 #include <ArduinoGraphicsCore.h>
 
+// Enable to log (on Serial/Serial1).
+// Logs out-of-sync frames and render timeouts.
+// Also does a single log of the duration of a frame-buffer DMA transfer.
+//#define GRAPHICS_ENGINE_DEBUG
+
+// Enable Engine measure and GetStatus(). Required for GRAPHICS_ENGINE_DEBUG.
+#if defined(GRAPHICS_ENGINE_DEBUG)
+#define GRAPHICS_ENGINE_MEASURE
+#endif
+
 /// <summary>
 /// Task based Graphics Engine.
-/// Can work with both ScreenDriver and FrameBuffer sources/sinks.
-/// Single Image Buffer updating and rendering.
-/// TODO: Measure some statistics only in debug mode.
+/// Frame Buffer rendering from Drawer.
+/// Buffer pushing using ScreenDriver.
 /// </summary>
 class GraphicsEngineTask : private Task, public virtual IFrameEngine
 {
 private:
 	enum class EngineStateEnum : uint8_t
 	{
-		ClearFrame,
-		WaitForClear,
+		WaitForScreenStart,
+		Clear,
 		Render,
-		WaitForPush,
+		FrameLimit,
+		PushBufferStart,
 		PushBuffer,
-		VSync,
-		WaitForDisplay
+		PushingBuffer,
+		VSync
 	};
 
-	static constexpr uint32_t TimeoutPeriod = 1000000;
-
 private:
-	IFramePrimitives* Source;
-	IFrameSink* Sink;
-	IFrameDraw* Drawer;
+	IFrameBuffer* FrameBuffer;
+	IScreenDriver* ScreenDriver;
+	IFrameDraw* Drawer = nullptr;
 
-private:
+#if defined(GRAPHICS_ENGINE_MEASURE)
 	EngineStatusStruct EngineStatus{};
-	EngineStatusStruct EngineStatusRunTime{};
+	uint32_t ClearDuration = 0;
+	uint32_t FrameDuration = 0;
+	uint32_t RenderDuration = 0;
+	uint32_t LongestRenderCall = 0;
+	uint32_t LongestPushCall = 0;
+
+	uint32_t PushStart = 0;
+#endif
 
 private:
 	const uint32_t TargetPeriod;
-
-private:
 	uint32_t FrameTime = 0;
-	uint32_t RenderAccumulated = 0;
-	EngineStateEnum EngineState = EngineStateEnum::WaitForDisplay;
+	uint32_t FrameStart = 0;
+	uint16_t FrameCounter = 0;
+
+	EngineStateEnum EngineState = EngineStateEnum::WaitForScreenStart;
 
 public:
 	GraphicsEngineTask(Scheduler* scheduler,
-		IFramePrimitives* source,
-		IFrameSink* sink,
-		const uint32_t targetPeriodMicros = 16666,
-		IFrameDraw* drawer = nullptr)
+		IFrameBuffer* source,
+		IScreenDriver* screenDriver,
+		const uint32_t targetPeriodMicros = 16666)
 		: IFrameEngine()
-		, Task(0, TASK_FOREVER, scheduler, false)
-		, Source(source)
-		, Sink(sink)
-		, Drawer(drawer)
+		, Task(TASK_IMMEDIATE, TASK_FOREVER, scheduler, false)
+		, FrameBuffer(source)
+		, ScreenDriver(screenDriver)
 		, TargetPeriod(targetPeriodMicros)
 	{}
+
+	void SetBufferTaskCallback(void (*taskCallback)(void* parameter))
+	{
+		if (ScreenDriver != nullptr)
+		{
+			ScreenDriver->SetBufferTaskCallback(taskCallback);
+		}
+	}
+
+	void BufferTaskCallback(void* parameter)
+	{
+		if (ScreenDriver != nullptr)
+		{
+			ScreenDriver->BufferTaskCallback(parameter);
+		}
+	}
 
 public: // IFrameEngine implementation.
 	virtual void SetDrawer(IFrameDraw* drawer) final
@@ -68,104 +97,95 @@ public: // IFrameEngine implementation.
 		{
 			Drawer = drawer;
 
-			if (Task::isEnabled())
+			if (EngineState == EngineStateEnum::Render)
 			{
-				EngineState = EngineStateEnum::ClearFrame;
-				FrameTime = micros();
+				EngineState = EngineStateEnum::WaitForScreenStart;
 			}
+		}
+	}
+
+	virtual void SetInverted(const bool inverted) final
+	{
+		if (FrameBuffer != nullptr)
+		{
+			FrameBuffer->SetInverted(inverted);
 		}
 	}
 
 	virtual const bool Start() final
 	{
-		if (Source != nullptr
-			&& Sink != nullptr
-			//&& RenderSource != nullptr
-			&& Source->GetWidth() == Sink->GetWidth()
-			&& Source->GetHeight() == Sink->GetHeight()
-			&& Sink->GetWidth() > 0
-			&& Sink->GetWidth() < UINT8_MAX
-			&& Sink->GetHeight() > 0
-			&& Sink->GetHeight() < UINT8_MAX)
+		if (FrameBuffer != nullptr
+			&& FrameBuffer->GetWidth() == ScreenDriver->GetWidth()
+			&& FrameBuffer->GetHeight() == ScreenDriver->GetHeight()
+			&& ScreenDriver->GetWidth() > 0
+			&& ScreenDriver->GetWidth() < UINT8_MAX)
 		{
-			if (Sink->Start())
+			if (ScreenDriver->Start())
 			{
 				Task::enable();
 				Task::forceNextIteration();
 
-				EngineState = EngineStateEnum::ClearFrame;
+				FrameCounter = 0;
+				EngineState = EngineStateEnum::WaitForScreenStart;
 
-				EngineStatusRunTime.ClearDuration = 0;
-				EngineStatusRunTime.RenderDuration = 0;
-				EngineStatusRunTime.PushDuration = 0;
-				EngineStatusRunTime.LongestDrawCall = 0;
-				EngineStatusRunTime.FrameDuration = 0;
-				EngineStatusRunTime.FrameCounter = 0;
-				FrameTime = micros();
-
+#if defined(GRAPHICS_ENGINE_MEASURE)
+				EngineStatus.Clear();
+#endif
 				return true;
 			}
-#ifdef DEBUG
+#if defined(GRAPHICS_ENGINE_DEBUG)
 			else
 			{
 				Serial.println(F("Sink Start failed."));
 			}
 #endif
 		}
-#ifdef DEBUG
+#if defined(GRAPHICS_ENGINE_DEBUG)
 		else
 		{
-			Serial.println(F("Sink Validation failed."));
+			Serial.println(F("ScreenDriver Validation failed."));
 
-			if (Source != nullptr)
+			if (FrameBuffer != nullptr)
 			{
-				Serial.print(F("Source: "));
-				Serial.print(Source->GetWidth());
+				Serial.print(F("FrameBuffer: "));
+				Serial.print(FrameBuffer->GetWidth());
 				Serial.print('x');
-				Serial.println(Source->GetHeight());
+				Serial.println(FrameBuffer->GetHeight());
 			}
 
-			if (Sink != nullptr)
-			{
-				Serial.print(F("Sink: "));
-				Serial.print(Sink->GetWidth());
-				Serial.print('x');
-				Serial.println(Sink->GetHeight());
-			}
+			Serial.print(F("ScreenDriver: "));
+			Serial.print(ScreenDriver->GetWidth());
+			Serial.print('x');
+			Serial.println(ScreenDriver->GetHeight());
 
-			if (Source == nullptr)
-				Serial.println(F("IFramePrimitives == nullptr"));
-			if (Sink == nullptr)
-				Serial.println(F("IFrameSink == nullptr"));
-			if ((Source->GetWidth() != Sink->GetWidth()) || (Source->GetHeight() != Sink->GetHeight()))
-				Serial.println(F("IFrame dimensions don't match."));
-			if ((Sink->GetWidth() == 0)
-				|| (Sink->GetWidth() == UINT8_MAX)
-				|| (Sink->GetHeight() == 0)
-				|| (Sink->GetHeight() == UINT8_MAX))
+			if (FrameBuffer == nullptr)
+				Serial.println(F("IFrameBuffer == nullptr"));
+			if ((FrameBuffer->GetWidth() != ScreenDriver->GetWidth()) || (FrameBuffer->GetHeight() != ScreenDriver->GetHeight()))
+				Serial.println(F("FrameBuffer dimensions don't match ScreenDriver."));
+			if ((ScreenDriver->GetWidth() == 0)
+				|| (ScreenDriver->GetWidth() == UINT8_MAX))
 				Serial.println(F("Invalid dimensions."));
 		}
 #endif
 		Stop();
-
-		Serial.println(F("Sink Start stopped."));
 
 		return false;
 	}
 
 	virtual void Stop() final
 	{
-		if (Sink != nullptr)
+		if (ScreenDriver != nullptr)
 		{
-			Sink->Stop();
+			ScreenDriver->Stop();
 		}
 		Task::disable();
 	}
 
-public:
 	virtual void GetEngineStatus(EngineStatusStruct& status) final
 	{
+#if defined(GRAPHICS_ENGINE_MEASURE)
 		EngineStatus.CopyTo(status);
+#endif
 	}
 
 public:
@@ -175,107 +195,94 @@ public:
 
 		switch (EngineState)
 		{
-		case EngineStateEnum::ClearFrame:
-			Source->ClearFrame();
-			EngineStatusRunTime.ClearDuration = micros() - timestamp;
-			EngineState = EngineStateEnum::WaitForClear;
-			RenderAccumulated = 0;
-			EngineStatusRunTime.LongestDrawCall = 0;
-			Task::forceNextIteration();
-			break;
-		case EngineStateEnum::WaitForClear:
-			if (Sink->CanPushFrame())
+		case EngineStateEnum::WaitForScreenStart:
+			if (ScreenDriver->CanPushBuffer())
 			{
-				EngineState = EngineStateEnum::Render;
+				EngineState = EngineStateEnum::Clear;
+				FrameStart = timestamp;
 			}
-			Task::forceNextIteration();
+			Task::delay(0);
+			break;
+		case EngineStateEnum::Clear:
+			FrameBuffer->ClearFrameBuffer();
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			ClearDuration = micros() - timestamp;
+			LongestRenderCall = 0;
+#endif
+			FrameTime = timestamp;
+			EngineState = EngineStateEnum::Render;
+			Task::delay(0);
 			break;
 		case EngineStateEnum::Render:
-			if (Render(timestamp))
+			if (Drawer != nullptr)
 			{
-				EngineState = EngineStateEnum::WaitForPush;
-				Task::forceNextIteration();
-			}
-#if defined(DEBUG)
-			else if (timestamp - FrameTime >= TimeoutPeriod)
-			{
-				Serial.println(F("Frame render is taking too long."));
-			}
-#endif
-			break;
-		case EngineStateEnum::WaitForPush:
-			if (Sink->CanPushFrame())
-			{
-				EngineState = EngineStateEnum::PushBuffer;
-			}
-			Task::forceNextIteration();
-			break;
-		case EngineStateEnum::PushBuffer:
-			if (Sink->CanPushFrame())
-			{
-				if (Sink->PushFrame(Source->GetFrameBuffer()))
+				if (Drawer->DrawToFrame(FrameTime, FrameCounter))
 				{
-					EngineStatusRunTime.PushDuration = micros() - timestamp;
-					EngineState = EngineStateEnum::VSync;
-					EngineStatusRunTime.FrameCounter++;
-					Task::forceNextIteration();
-				}
-				else
-				{
-					//TODO: Log Error: Error while pushing frame.
-					Stop();
-				}
-			}
-#if defined(DEBUG)
-			else if (timestamp - FrameTime >= TimeoutPeriod)
-			{
-				Serial.println(F("Buffer push is taking too long"));
-				Stop();
-			}
+#if defined(GRAPHICS_ENGINE_MEASURE)
+					RenderDuration = micros() - FrameTime;
 #endif
-			break;
-		case EngineStateEnum::VSync:
-			if (timestamp - FrameTime >= TargetPeriod)
-			{
-				EngineStatusRunTime.FrameDuration = timestamp - FrameTime;
-				EngineStatusRunTime.RenderDuration = RenderAccumulated;
-				FrameTime = timestamp;
-				EngineState = EngineStateEnum::WaitForDisplay;
-				Task::forceNextIteration();
-
-#if defined(DEBUG)
-				if (EngineStatusRunTime.FrameDuration >= TargetPeriod + 100)
-				{
-					Serial.print(F("Full Frame is taking too long: "));
-					Serial.print(EngineStatusRunTime.FrameDuration);
-					Serial.println(F(" us"));
+					Task::delay(0);
+					EngineState = EngineStateEnum::FrameLimit;
 				}
+#if defined(GRAPHICS_ENGINE_MEASURE)
+				UpdateLongestRender(micros() - timestamp);
 #endif
-			}
-			else if (TargetPeriod - (timestamp - FrameTime) > 1000)
-			{
-				// More than 1ms until push, sleep until we're at the last millisecond.
-				Task::delay(((TargetPeriod - (timestamp - FrameTime)) / 1000) - 1);
 			}
 			else
 			{
-				Task::forceNextIteration();
+				Task::delay(0);
+				EngineState = EngineStateEnum::FrameLimit;
 			}
 			break;
-		case EngineStateEnum::WaitForDisplay:
-			if (Source->IsDirectDraw())
+		case EngineStateEnum::FrameLimit:
+			if (FrameLimit(timestamp))
 			{
-				EngineState = EngineStateEnum::WaitForClear;
-				EngineStatusRunTime.CopyTo(EngineStatus);
-				RenderAccumulated = 0;
-				EngineStatusRunTime.LongestDrawCall = 0;
+
+				EngineState = EngineStateEnum::PushBufferStart;
+				Task::delay(0);
 			}
-			else if (Sink->CanPushFrame())
+			break;
+		case EngineStateEnum::PushBufferStart:
+			if (ScreenDriver->CanPushBuffer())
 			{
-				EngineState = EngineStateEnum::ClearFrame;
-				EngineStatusRunTime.CopyTo(EngineStatus);
+				ScreenDriver->StartBuffer();
+
+#if defined(GRAPHICS_ENGINE_MEASURE)
+				PushStart = timestamp;
+				LongestPushCall = 0;
+				UpdateLongestPush(micros() - timestamp);
+#endif
+
+				EngineState = EngineStateEnum::PushBuffer;
+				Task::delay(0);
 			}
-			Task::forceNextIteration();
+			break;
+		case EngineStateEnum::PushBuffer:
+			Task::delay(ScreenDriver->PushBuffer(FrameBuffer->GetFrameBuffer()) / 1000);
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			UpdateLongestPush(micros() - timestamp);
+#endif
+			EngineState = EngineStateEnum::PushingBuffer;
+			break;
+		case EngineStateEnum::PushingBuffer:
+			Task::delay(0);
+			if (!ScreenDriver->PushingBuffer(FrameBuffer->GetFrameBuffer()))
+			{
+				EngineState = EngineStateEnum::VSync;
+			}
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			UpdateLongestPush(micros() - timestamp);
+#endif
+			break;
+		case EngineStateEnum::VSync:
+			ScreenDriver->EndBuffer();
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			UpdateLongestPush(micros() - timestamp);
+			UpdateEngineStatus(timestamp - PushStart);
+#endif
+			FrameCounter++;
+			EngineState = EngineStateEnum::Clear;
+			Task::delay(0);
 			break;
 		default:
 			Task::disable();
@@ -287,26 +294,72 @@ public:
 	}
 
 private:
-	const bool Render(const uint32_t timestamp)
+	const bool FrameLimit(const uint32_t timestamp)
 	{
-		if (Drawer != nullptr)
+		const uint32_t frameDuration = timestamp - FrameStart;
+
+		if (frameDuration >= TargetPeriod)
 		{
-			const bool finished = Drawer->DrawToFrame(FrameTime, EngineStatusRunTime.FrameCounter);
-			const uint32_t duration = micros() - timestamp;
-
-			if (duration > EngineStatusRunTime.LongestDrawCall)
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			FrameDuration = frameDuration;
+#endif
+			if (frameDuration >= (TargetPeriod * 2))
 			{
-				EngineStatusRunTime.LongestDrawCall = duration;
-			}
-			RenderAccumulated += duration;
-			Task::forceNextIteration();
+				const uint16_t skipped = (frameDuration - TargetPeriod) / TargetPeriod;
 
-			return finished;
+				FrameStart = timestamp;
+				FrameCounter += skipped;
+
+#if defined(GRAPHICS_ENGINE_DEBUG)
+				Serial.print(F("Frame(s) skipped: "));
+				Serial.println(skipped);
+#endif
+			}
+			else
+			{
+				FrameStart += TargetPeriod;
+			}
+
+			return true;
 		}
 		else
 		{
-			return true;
+			// Sleep until we're at the last millisecond.
+			const uint32_t sleepDuration = (TargetPeriod - frameDuration) / 1000;
+			Task::delay(sleepDuration);
+
+			return false;
 		}
 	}
+
+#if defined(GRAPHICS_ENGINE_MEASURE)
+	void UpdateEngineStatus(const uint32_t pushDuration)
+	{
+		EngineStatus.ClearDuration = ClearDuration;
+		EngineStatus.RenderDuration = RenderDuration;
+		EngineStatus.LongestRenderCall = LongestRenderCall;
+		EngineStatus.PushDuration = pushDuration;
+		EngineStatus.LongestPushCall = LongestPushCall;
+		EngineStatus.FrameDuration = FrameDuration;
+		EngineStatus.TargetDuration = TargetPeriod;
+	}
+
+	void UpdateLongestRender(const uint32_t renderCallDuration)
+	{
+		if (renderCallDuration > LongestRenderCall)
+		{
+			LongestRenderCall = renderCallDuration;
+		}
+	}
+
+	void UpdateLongestPush(const uint32_t pushCallDuration)
+	{
+		if (pushCallDuration > LongestPushCall)
+		{
+			LongestPushCall = pushCallDuration;
+		}
+	}
+
+#endif
 };
 #endif

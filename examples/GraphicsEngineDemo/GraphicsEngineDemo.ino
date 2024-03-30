@@ -21,7 +21,7 @@
 #define TFT_I2C		2
 #define TFT_SCL		UINT8_MAX
 #define TFT_SDA		UINT8_MAX
-#define TFT_I2C_HZ	800000
+#define TFT_I2C_HZ	1000000
 #elif defined(ARDUINO_ARCH_AVR)
 #define TFT_CS		10
 #define TFT_DC		6
@@ -72,13 +72,13 @@ Scheduler SchedulerBase;
 
 // Uncomment Driver and matching framebuffer type.
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_72x40x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ, 16> ScreenDriver{};
+//ScreenDriverSSD1306_72x40x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C_Rtos<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 
 //ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_128x64x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ, 16> ScreenDriver{};
-ScreenDriverSSD1306_128x64x1_I2C_Rtos<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight, MonochromeColorConverter1<>, DisplayMirrorEnum::NoMirror>;
+//ScreenDriverSSD1306_128x64x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+//ScreenDriverSSD1306_128x64x1_I2C_Rtos<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight, MonochromeColorConverter1<1>, DisplayMirrorEnum::NoMirror>;
 
 // In-memory frame-buffer.
 #if defined(USE_DYNAMIC_FRAME_BUFFER)

@@ -266,7 +266,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
 	const uint8_t i2cChannel = 0,
 	const uint32_t i2cSpeed = 400000,
-	const uint8_t i2cChunkSize = 8>
+	const uint8_t i2cChunkSize = 16>
 class ScreenDriverSSD1306_72x40x1_I2C_Async : public AbstractScreenDriverSSD1306_I2C_Async<SSD1306_72x40::Width, SSD1306_72x40::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed, i2cChunkSize>
 {
 private:

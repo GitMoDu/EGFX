@@ -10,13 +10,15 @@
 
 /// <summary>
 /// Wraps an Inline ScreenDriver with threaded buffer push.
-/// Non-blocking push and wait until push is done.
+/// Non - blocking push and wait until push is done.
 /// </summary>
 /// <typeparam name="InlineScreenDriver"></typeparam>
+/// <typeparam name="pushSleepDuration">Allows the main task scheduller to skip after a push start (in microseconds).</typeparam>
 /// <typeparam name="stackHeight"></typeparam>
 /// <typeparam name="priority"></typeparam>
 /// <typeparam name="coreAffinity"></typeparam>
 template<typename InlineScreenDriver,
+	const uint32_t pushSleepDuration = 0,
 	const uint32_t stackHeight = 1500,
 	const portBASE_TYPE priority = 1,
 	const uint32_t coreAffinity = tskNO_AFFINITY>
@@ -113,7 +115,7 @@ public:
 
 		vTaskResume(BufferTaskHandle);
 
-		return 0;
+		return pushSleepDuration;
 	}
 
 	virtual const bool PushingBuffer(const uint8_t* frameBuffer) final

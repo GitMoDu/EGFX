@@ -101,15 +101,17 @@ public:
 	{}
 
 protected:
-	const bool Initialize(const uint8_t* configBatch, const size_t configBatchSize)
+	const bool Initialize(const bool backlightInternal = false)
 	{
 		CommandReset();
 
 		delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
 
 		CommandStart();
-		WireInstance.write(configBatch, configBatchSize);
+		WireInstance.write(SSD1306::ConfigBatch, SSD1306::ConfigBatchSize);
 		CommandEnd();
+
+		SetBacklightMode(backlightInternal);
 
 		return true;
 	}
@@ -152,6 +154,22 @@ private:
 		WireInstance.write((SSD1306::Height / 8) - 1);
 		CommandEnd();
 	}
+
+	void SetBacklightMode(const bool backlightInternal)
+	{
+		CommandStart();
+		WireInstance.write((uint8_t)SSD1306::CommandEnum::CommandStart);
+		WireInstance.write((uint8_t)SSD1306::CommandEnum::Backlight);
+		if (backlightInternal)
+		{
+			WireInstance.write((uint8_t)SSD1306::BacklightEnum::Internal);
+		}
+		else
+		{
+			WireInstance.write((uint8_t)SSD1306::BacklightEnum::External);
+		}
+		CommandEnd();
+	}
 };
 
 
@@ -190,7 +208,7 @@ private:
 public:
 	AbstractScreenDriverSSD1306_I2C_Async() : BaseClass() {}
 
-	const bool Start()
+	virtual const bool Start()
 	{
 		return CHUNK_SIZE <= BufferSize
 			&& CHUNK_SIZE <= I2C_BUFFER_SIZE
@@ -247,6 +265,84 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
 	const uint8_t i2cChannel = 0,
 	const uint32_t i2cSpeed = 400000>
+class ScreenDriverSSD1306_64x32x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_64x32::Width, SSD1306_64x32::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed>
+{
+private:
+	using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_64x32::Width, SSD1306_64x32::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed>;
+
+public:
+	ScreenDriverSSD1306_64x32x1_I2C() : BaseClass() {}
+
+	virtual const bool Start()
+	{
+		return BaseClass::Start() && BaseClass::Initialize(false);
+	}
+};
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000,
+	const uint8_t i2cChunkSize = 8>
+class ScreenDriverSSD1306_64x32x1_I2C_Async : public AbstractScreenDriverSSD1306_I2C_Async<SSD1306_64x32::Width, SSD1306_64x32::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed, i2cChunkSize>
+{
+private:
+	using BaseClass = AbstractScreenDriverSSD1306_I2C_Async<SSD1306_64x32::Width, SSD1306_64x32::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed, i2cChunkSize>;
+
+public:
+	ScreenDriverSSD1306_64x32x1_I2C_Async() : BaseClass() {}
+
+	virtual const bool Start() final
+	{
+		return BaseClass::Start() && BaseClass::Initialize(false);
+	}
+};
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000>
+class ScreenDriverSSD1306_64x48x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_64x48::Width, SSD1306_64x48::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed>
+{
+private:
+	using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_64x48::Width, SSD1306_64x48::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed>;
+
+public:
+	ScreenDriverSSD1306_64x48x1_I2C() : BaseClass() {}
+
+	virtual const bool Start()
+	{
+		return BaseClass::Start() && BaseClass::Initialize(false);
+	}
+};
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000,
+	const uint8_t i2cChunkSize = 8>
+class ScreenDriverSSD1306_64x48x1_I2C_Async : public AbstractScreenDriverSSD1306_I2C_Async<SSD1306_64x48::Width, SSD1306_64x48::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed, i2cChunkSize>
+{
+private:
+	using BaseClass = AbstractScreenDriverSSD1306_I2C_Async<SSD1306_64x48::Width, SSD1306_64x48::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed, i2cChunkSize>;
+
+public:
+	ScreenDriverSSD1306_64x48x1_I2C_Async() : BaseClass() {}
+
+	virtual const bool Start() final
+	{
+		return BaseClass::Start() && BaseClass::Initialize(false);
+	}
+};
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000>
 class ScreenDriverSSD1306_72x40x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_72x40::Width, SSD1306_72x40::Height, pinSCL, pinSDA, pinRST, SSD1306::I2CAddress, i2cChannel, i2cSpeed>
 {
 private:
@@ -257,7 +353,7 @@ public:
 
 	virtual const bool Start()
 	{
-		return BaseClass::Start() && BaseClass::Initialize(SSD1306_72x40::ConfigBatch, SSD1306_72x40::ConfigBatchSize);
+		return BaseClass::Start() && BaseClass::Initialize(true);
 	}
 };
 
@@ -277,10 +373,9 @@ public:
 
 	virtual const bool Start() final
 	{
-		return BaseClass::Start() && BaseClass::Initialize(SSD1306_72x40::ConfigBatch, SSD1306_72x40::ConfigBatchSize);
+		return BaseClass::Start() && BaseClass::Initialize(true);
 	}
 };
-
 
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
@@ -297,7 +392,7 @@ public:
 
 	virtual const bool Start()
 	{
-		return BaseClass::Start() && BaseClass::Initialize(SSD1306_128x64::ConfigBatch, SSD1306_128x64::ConfigBatchSize);
+		return BaseClass::Start() && BaseClass::Initialize(false);
 	}
 };
 
@@ -317,11 +412,33 @@ public:
 
 	virtual const bool Start() final
 	{
-		return BaseClass::Start() && BaseClass::Initialize(SSD1306_128x64::ConfigBatch, SSD1306_128x64::ConfigBatchSize);
+		return BaseClass::Start() && BaseClass::Initialize(false);
 	}
 };
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000,
+	const uint32_t pushSleepDuration = 0,
+	uint32_t stackHeight = 1500,
+	portBASE_TYPE priority = 1>
+class ScreenDriverSSD1306_64x32x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_64x32x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
+{};
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000,
+	const uint32_t pushSleepDuration = 0,
+	uint32_t stackHeight = 1500,
+	portBASE_TYPE priority = 1>
+class ScreenDriverSSD1306_64x48x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_64x48x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
+{};
+
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
@@ -344,5 +461,4 @@ template<const uint8_t pinSCL = UINT8_MAX,
 class ScreenDriverSSD1306_128x64x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
 {};
 #endif
-
 #endif

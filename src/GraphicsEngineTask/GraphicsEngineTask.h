@@ -59,6 +59,7 @@ private:
 	uint32_t FrameTime = 0;
 	uint32_t FrameStart = 0;
 	uint16_t FrameCounter = 0;
+	uint16_t DrawCallCounter = 0;
 
 	EngineStateEnum EngineState = EngineStateEnum::WaitForScreenStart;
 
@@ -208,12 +209,16 @@ public:
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			ClearDuration = micros() - timestamp;
 			LongestRenderCall = 0;
+			DrawCallCounter = 0;
 #endif
 			FrameTime = timestamp;
 			EngineState = EngineStateEnum::Render;
 			Task::delay(0);
 			break;
 		case EngineStateEnum::Render:
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			DrawCallCounter++;
+#endif
 			if (Drawer != nullptr)
 			{
 				if (Drawer->DrawToFrame(FrameTime, FrameCounter))
@@ -342,6 +347,7 @@ private:
 		EngineStatus.LongestPushCall = LongestPushCall;
 		EngineStatus.FrameDuration = FrameDuration;
 		EngineStatus.TargetDuration = TargetPeriod;
+		EngineStatus.DrawCallCount = DrawCallCounter;
 	}
 
 	void UpdateLongestRender(const uint32_t renderCallDuration)

@@ -56,6 +56,10 @@ public:
 				Serial.println(F("% load)"));
 
 				Serial.print('\t');
+				Serial.print(F("DrawCalls "));
+				Serial.println(EngineStatus.DrawCallCount);
+
+				Serial.print('\t');
 				Serial.print(F("Clear "));
 				Serial.print(EngineStatus.ClearDuration);
 				Serial.print(F(" us ("));

@@ -17,20 +17,20 @@
 #define TFT_SPI		1
 #define TFT_CLK		UINT8_MAX
 #define TFT_MOSI	UINT8_MAX
-#define TFT_SPI_HZ	F_CPU/2
-#define TFT_I2C		2
+#define TFT_SPI_HZ	F_CPU/8
+#define TFT_I2C		1
 #define TFT_SCL		UINT8_MAX
 #define TFT_SDA		UINT8_MAX
-#define TFT_I2C_HZ	1000000
+#define TFT_I2C_HZ	1200000
 #elif defined(ARDUINO_ARCH_AVR)
 #define TFT_CS		10
-#define TFT_DC		6
-#define TFT_RST		7
+#define TFT_DC		9
+#define TFT_RST		8
 #define TFT_SPI		0
 #define TFT_CLK		UINT8_MAX
 #define TFT_MOSI	UINT8_MAX
 #define TFT_SPI_HZ	0
-#define TFT_I2C		2
+#define TFT_I2C		UINT8_MAX
 #define TFT_SCL		UINT8_MAX
 #define TFT_SDA		UINT8_MAX
 #define TFT_I2C_HZ	1000000
@@ -71,14 +71,14 @@ Scheduler SchedulerBase;
 //
 
 // Uncomment Driver and matching framebuffer type.
+//ScreenDriverSSD1306_64x32x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+//ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_72x40x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_72x40x1_I2C_Rtos<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-
-//ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_128x64x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_128x64x1_I2C_Rtos<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight, MonochromeColorConverter1<1>, DisplayMirrorEnum::NoMirror>;
+
+//ScreenDriverSSD1331_96x64x8_SPI< TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 // In-memory frame-buffer.
 #if defined(USE_DYNAMIC_FRAME_BUFFER)

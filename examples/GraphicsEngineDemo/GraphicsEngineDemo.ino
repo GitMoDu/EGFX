@@ -11,50 +11,48 @@
 #define SERIAL_BAUD_RATE 115200
 
 #if defined(ARDUINO_ARCH_STM32F1)
+#define TFT_SPI		1
 #define TFT_CS		7
 #define TFT_DC		8
 #define TFT_RST     9
-#define TFT_SPI		1
 #define TFT_CLK		UINT8_MAX
 #define TFT_MOSI	UINT8_MAX
-#define TFT_SPI_HZ	F_CPU/8
 #define TFT_I2C		1
+#define TFT_SPI_HZ	F_CPU/8
 #define TFT_SCL		UINT8_MAX
 #define TFT_SDA		UINT8_MAX
-#define TFT_I2C_HZ	1200000
+#define TFT_I2C_HZ	1000000
 #elif defined(ARDUINO_ARCH_AVR)
+#define TFT_SPI		0
+#define TFT_SPI_HZ	0
 #define TFT_CS		10
 #define TFT_DC		9
 #define TFT_RST		8
-#define TFT_SPI		0
 #define TFT_CLK		UINT8_MAX
 #define TFT_MOSI	UINT8_MAX
-#define TFT_SPI_HZ	0
 #define TFT_I2C		UINT8_MAX
 #define TFT_SCL		UINT8_MAX
 #define TFT_SDA		UINT8_MAX
 #define TFT_I2C_HZ	1000000
 #elif defined(ARDUINO_ARCH_ESP32)
+#define TFT_SPI		0
+#define TFT_SPI_HZ	48000000
 #define TFT_CS		19
 #define TFT_DC		20
 #define TFT_RST		21
-#define TFT_SPI		0
 #define TFT_CLK		26
 #define TFT_MOSI	48
-#define TFT_SPI_HZ	48000000
 #define TFT_I2C		1
+#define TFT_I2C_HZ	1000000
 #define TFT_SCL		18
 #define TFT_SDA		17
-#define TFT_I2C_HZ	1000000
 #endif
-
 
 #define _TASK_OO_CALLBACKS
 #define _TASK_SLEEP_ON_IDLE_RUN // Enable 1 ms SLEEP_IDLE powerdowns between tasks if no callback methods were invoked during the pass.
 #include <TaskScheduler.h>
 
 #include <ArduinoGraphicsDrivers.h>
-#include <ArduinoGraphicsDriverWrappers.h>
 #include <ArduinoGraphicsEngineTask.h>
 
 #include "PrimitiveDemo.h"
@@ -75,9 +73,10 @@ Scheduler SchedulerBase;
 //ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight, MonochromeColorConverter1<1>, DisplayMirrorEnum::NoMirror>;
+ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
-//ScreenDriverSSD1331_96x64x8_SPI< TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//ScreenDriverSSD1331_96x64x8_SPI<TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 // In-memory frame-buffer.

@@ -36,6 +36,8 @@ public:
 		, WireInstance(i2cChannel)
 #elif defined(ARDUINO_ARCH_STM32F1)
 		, WireInstance(i2cChannel)
+#elif defined(ARDUINO_ARCH_RP2040)
+		, WireInstance(GetI2cHost(), pinSDA, pinSCL)
 #else
 		, WireInstance()
 #endif
@@ -44,6 +46,13 @@ public:
 	//TODO: Optional in-driver I2C begin.
 	virtual const bool Start()
 	{
+#if defined(ARDUINO_ARCH_RP2040)
+		if (GetI2cHost() == nullptr)
+		{
+			return false;
+		}
+#endif
+
 		PinReset();
 
 #if defined(ARDUINO_ARCH_ESP32)
@@ -82,5 +91,24 @@ protected:
 			digitalWrite(pinRST, HIGH);
 		}
 	}
+
+#if defined(ARDUINO_ARCH_RP2040)
+private:
+	i2c_inst_t* GetI2cHost()
+	{
+		if (i2cChannel == 0)
+		{
+			return i2c0;
+		}
+		else if (i2cChannel == 1)
+		{
+			return i2c1;
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+#endif
 };
 #endif

@@ -14,7 +14,7 @@
 /// <typeparam name="displayAxis">Display mirror option.</typeparam>
 /// <typeparam name="displayRotation">Display rotation option.</typeparam>
 template<const uint8_t frameWidth, const uint8_t frameHeight
-	, typename ColorConverter = MonochromeColorConverter1<>
+	, typename ColorConverter = BinaryColorConverter1
 	, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
 	, DisplayRotationEnum displayRotation = DisplayRotationEnum::NoRotation>
 class MonochromeFrameBuffer final
@@ -37,7 +37,7 @@ public:
 		: BaseClass(buffer)
 	{}
 
-	virtual void Fill(const RgbColor& color) final
+	void Fill(const RgbColor& color) final
 	{
 		const uint8_t rawColor = ColorConverter::GetRawColor(color);
 		if (((bool)(rawColor > 0) ^ (bool)Inverted))
@@ -51,12 +51,12 @@ public:
 	}
 
 protected:
-	virtual void WritePixel(const color_t rawColor, const uint8_t x, const uint8_t y) final
+	void WritePixel(const color_t rawColor, const uint8_t x, const uint8_t y) final
 	{
 		const uint8_t yByte = y / 8;
 		const uint8_t yBit = y % 8;
 
-		const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
+		const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
 
 		if (((bool)(rawColor > 0) ^ (bool)Inverted))
 		{
@@ -75,7 +75,7 @@ protected:
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	/// <param name="width"></param>
-	virtual void LineHorizontal(const color_t rawColor, const uint8_t x, const uint8_t y, const uint8_t width) final
+	void LineHorizontal(const color_t rawColor, const uint8_t x, const uint8_t y, const uint8_t width) final
 	{
 		uint8_t x1 = 0;
 		uint8_t yByte = 0;
@@ -107,19 +107,20 @@ protected:
 			break;
 		}
 
+		const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
+
 		if (((bool)(rawColor > 0) ^ (bool)Inverted))
 		{
 			for (uint_fast8_t i = 0; i < width; i++)
 			{
-				const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x1 + i;
-				Buffer[offset] |= 1 << yBit;
+				Buffer[offset + i] |= 1 << yBit;
 			}
 		}
 		else
 		{
 			for (uint_fast8_t i = 0; i < width; i++)
 			{
-				const size_t  offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x1 + i;
+				Buffer[offset + i] &= ~(1 << yBit);
 				Buffer[offset] &= ~(1 << yBit);
 			}
 		}

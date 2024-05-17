@@ -69,20 +69,20 @@ protected:
 	/// </summary>
 	virtual void LineHorizontal(const color_t rawColor, const uint8_t x, const uint8_t y, const uint8_t width) final
 	{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 		if (x >= frameWidth
 			|| y >= frameHeight
 			|| width > frameWidth - x)
 		{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 			Serial.println(F("LH x,y "));
 			Serial.print(x);
 			Serial.print(',');
 			Serial.print(y);
 			Serial.print('\t');
 			Serial.println(width);
-			return;
-}
 #endif
+			return;
+		}
 		size_t offset = 0;
 
 		//TODO: Handle rotation. This switches Width and Height around.

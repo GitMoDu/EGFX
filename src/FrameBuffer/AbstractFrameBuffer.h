@@ -90,17 +90,17 @@ public:
 private:
 	void Pixel(const color_t rawColor, const uint8_t x, const uint8_t y)
 	{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 		if (x >= FrameWidth
 			|| y >= FrameHeight)
 		{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 			Serial.print(F("x,y "));
 			Serial.print(x);
 			Serial.print(',');
 			Serial.println(y);
+#endif
 			return;
 		}
-#endif
 		//TODO: Handle rotation. This switches Width and Height around.
 		switch (DisplayMirror)
 		{
@@ -126,20 +126,20 @@ protected:
 	/// </summary>
 	virtual void LineVertical(const color_t rawColor, const uint8_t x, const uint8_t y, const uint8_t height)
 	{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 		if (x >= FrameWidth
 			|| y >= FrameHeight
 			|| height > FrameHeight - y)
 		{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 			Serial.println(F("LV x,y "));
 			Serial.print(x);
 			Serial.print(',');
 			Serial.print(y);
 			Serial.print('\t');
 			Serial.println(height);
+#endif
 			return;
 		}
-#endif
 		for (uint_fast8_t i = 0; i < height; i++)
 		{
 			Pixel(rawColor, x, y + i);
@@ -151,20 +151,20 @@ protected:
 	/// </summary>
 	virtual void LineHorizontal(const color_t rawColor, const uint8_t x, const uint8_t y, const uint8_t width)
 	{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 		if (x >= FrameWidth
 			|| y >= FrameHeight
 			|| width > FrameWidth - x)
 		{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 			Serial.println(F("LH x,y "));
 			Serial.print(x);
 			Serial.print(',');
 			Serial.print(y);
 			Serial.print('\t');
 			Serial.println(width);
+#endif
 			return;
 		}
-#endif
 		for (uint_fast8_t i = 0; i < width; i++)
 		{
 			Pixel(rawColor, x + i, y);
@@ -207,12 +207,12 @@ public:
 
 	virtual void RectangleFill(const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
 	{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 		if (x1 > x2
 			|| x2 >= FrameWidth
 			|| y1 > y2
 			|| y2 >= FrameHeight)
 		{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 			Serial.println(F("RF x,y "));
 			Serial.print(x1);
 			Serial.print(',');
@@ -221,9 +221,9 @@ public:
 			Serial.print(x2);
 			Serial.print(',');
 			Serial.println(y2);
+#endif
 			return;
 		}
-#endif
 
 		const color_t rawColor = ColorConverter::GetRawColor(color);
 		for (uint_fast8_t y = y1; y <= y2; y++)
@@ -234,12 +234,12 @@ public:
 
 	virtual void Rectangle(const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2) final
 	{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 		if (x1 > x2
 			|| x2 >= FrameWidth
 			|| y1 > y2
 			|| y2 >= FrameHeight)
 		{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 			Serial.println(F("R x,y"));
 			Serial.print(x1);
 			Serial.print(',');
@@ -248,9 +248,9 @@ public:
 			Serial.print(x2);
 			Serial.print(',');
 			Serial.println(y2);
+#endif
 			return;
 		}
-#endif
 
 		const color_t rawColor = ColorConverter::GetRawColor(color);
 		LineHorizontal(rawColor, x1, y1, x2 - x1);

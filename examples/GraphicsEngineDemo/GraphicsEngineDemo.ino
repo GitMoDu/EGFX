@@ -7,7 +7,7 @@
 #define DEBUG
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation frame buffer.
 #define GRAPHICS_ENGINE_MEASURE // Enabled engine measuring and logging.
-#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
+//#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
 #define SERIAL_BAUD_RATE 115200
 
 #if defined(ARDUINO_ARCH_STM32F1)
@@ -55,14 +55,19 @@
 #include <ArduinoGraphicsDrivers.h>
 #include <ArduinoGraphicsEngineTask.h>
 
+
+#include "DemoCyclerTask.h"
 #include "PrimitiveDemo.h"
 #include "TextCharactersDemo.h"
 #include "TextAlignmentDemo.h"
 #include "TextFlowDemo.h"
+#include "SpriteDemo.h"
+#include "TransformDemo.h"
+#include "BitmapDemo.h"
+#include "TextSpriteDemo.h"
 
-#include "ScreenDriverTester.h"
 
-#include "DemoCyclerTask.h"
+#include "CloneDemo.h"
 
 // Process scheduler.
 Scheduler SchedulerBase;
@@ -72,8 +77,8 @@ Scheduler SchedulerBase;
 //ScreenDriverSSD1306_64x32x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+//ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 //ScreenDriverSSD1331_96x64x8_SPI<TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
@@ -87,21 +92,51 @@ uint8_t Buffer[FrameBufferType::BufferSize]{};
 #endif
 FrameBufferType FrameBuffer(Buffer);
 
+#if defined(ARDUINO_ARCH_AVR)
+static constexpr uint32_t FramePeriod = 33333;
+#else
 static constexpr uint32_t FramePeriod = 16666;
+#endif
 GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, FramePeriod);
 //
 
 // Drawer demos.
-ScreenDriverTester ScreenTester(&FrameBuffer);
-PrimitiveDemo PrimitiveDemoDrawer(&FrameBuffer);
+SpriteDemo SpriteDemoDrawer(&FrameBuffer);
+TransformDemo TransformDemoDrawer(&FrameBuffer);
 TextAlignmentDemo TextAlignmentDemoDrawer(&FrameBuffer);
+BitmapDemo BitmapDemoDrawer(&FrameBuffer);
+#if defined(ARDUINO_ARCH_AVR)
+#if !defined(GRAPHICS_ENGINE_MEASURE)
+PrimitiveDemo PrimitiveDemoDrawer(&FrameBuffer);
+#endif
+#if !defined(DEBUG)
+CloneDemo CloneDemoDrawer(&FrameBuffer);
+#endif
+#else
+PrimitiveDemo PrimitiveDemoDrawer(&FrameBuffer);
 TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
+TextSpriteDemo TextSpriteDemoDrawer(&FrameBuffer);
+CloneDemo CloneDemoDrawer(&FrameBuffer);
+#endif
 
-DemoCyclerTask<5000> DemoCycler(&SchedulerBase, &GraphicsEngine,
-	&PrimitiveDemoDrawer,
+
+DemoCyclerTask<7000> DemoCycler(&SchedulerBase, &GraphicsEngine,
+	&SpriteDemoDrawer,
+	&TransformDemoDrawer,
 	&TextAlignmentDemoDrawer,
-	&TextCharactersDemoDrawer,
-	&ScreenTester
+	&BitmapDemoDrawer
+#if defined(ARDUINO_ARCH_AVR) 
+#if !defined(GRAPHICS_ENGINE_MEASURE)
+	, & PrimitiveDemoDrawer
+#endif
+#if !defined(DEBUG)
+	, & CloneDemoDrawer
+#endif
+#else
+	, & PrimitiveDemoDrawer
+	, & CloneDemoDrawer
+	, & TextSpriteDemoDrawer
+#endif
 );
 //
 

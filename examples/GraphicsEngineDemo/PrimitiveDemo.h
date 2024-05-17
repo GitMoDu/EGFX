@@ -34,7 +34,7 @@ public:
 	/// <summary>
 	/// ElementIndex can be used to separate draw calls, avoiding hogging the co-operative scheduler.
 	/// </summary>
-	virtual void DrawCall(DrawState* drawState) final
+	void DrawCall(DrawState* drawState) final
 	{
 		switch (drawState->ElementIndex)
 		{
@@ -58,6 +58,7 @@ public:
 		}
 	}
 
+private:
 	void DrawDiagonalLines(DrawState* drawState)
 	{
 		Color.r = UINT8_MAX / 4;
@@ -114,9 +115,8 @@ public:
 
 	void DrawWandererSquare(DrawState* drawState)
 	{
-		const uint16_t sectionProgress = drawState->GetProgress<MovePeriodMicros * MoveCount>();
-		const uint8_t section = (((uint32_t)sectionProgress * MoveCount) / UINT16_MAX);
-		const uint16_t progress = ProgressScaler::GetProgress<MovePeriodMicros>((drawState->FrameTime - (MovePeriodMicros * section)));
+		const uint16_t section = ProgressScaler::ScaleProgress(drawState->GetProgress<MovePeriodMicros * MoveCount>(), MoveCount);
+		const uint16_t progress = drawState->GetProgress<MovePeriodMicros>();
 		const uint8_t wandererSize = GetWandererDimension();
 
 		uint8_t x = 0;

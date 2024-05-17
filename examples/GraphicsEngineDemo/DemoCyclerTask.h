@@ -21,6 +21,8 @@ private:
 	IFrameDraw* Demo3;
 	IFrameDraw* Demo4;
 	IFrameDraw* Demo5;
+	IFrameDraw* Demo6;
+	IFrameDraw* Demo7;
 	uint8_t Index = 0;
 
 public:
@@ -31,7 +33,9 @@ public:
 		IFrameDraw* demo2 = nullptr,
 		IFrameDraw* demo3 = nullptr,
 		IFrameDraw* demo4 = nullptr,
-		IFrameDraw* demo5 = nullptr)
+		IFrameDraw* demo5 = nullptr,
+		IFrameDraw* demo6 = nullptr,
+		IFrameDraw* demo7 = nullptr)
 		: Task(0, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
 		, Demo0(demo0)
@@ -40,6 +44,8 @@ public:
 		, Demo3(demo3)
 		, Demo4(demo4)
 		, Demo5(demo5)
+		, Demo6(demo6)
+		, Demo7(demo7)
 	{}
 
 	bool Callback() final
@@ -106,6 +112,30 @@ public:
 			if (Demo5 != nullptr)
 			{
 				Engine->SetDrawer(Demo5);
+				Index++;
+			}
+			else
+			{
+				Engine->SetDrawer(Demo0);
+				Index = 0;
+			}
+			break;
+		case 6:
+			if (Demo6 != nullptr)
+			{
+				Engine->SetDrawer(Demo6);
+				Index++;
+			}
+			else
+			{
+				Engine->SetDrawer(Demo0);
+				Index = 0;
+			}
+			break;
+		case 7:
+			if (Demo7 != nullptr)
+			{
+				Engine->SetDrawer(Demo7);
 				Index++;
 			}
 			else

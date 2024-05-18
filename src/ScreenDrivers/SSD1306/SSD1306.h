@@ -23,7 +23,13 @@ namespace SSD1306
 		BufferStart = 0x40,
 		Column = 0x21,
 		Page = 0x22,
-		Backlight = 0xAD
+		SetContrast = 0x81,
+		ShowFullWhite = 0xA4,
+		RamDisplay = 0xA5,
+		InvertDisplay = 0xA5,
+		Backlight = 0xAD,
+		DisplayOff = 0xAE,
+		DisplayOn = 0xAF
 	};
 
 	enum class BacklightEnum : uint8_t

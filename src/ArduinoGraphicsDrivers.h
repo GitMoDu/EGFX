@@ -3,4 +3,5 @@
 
 #include "ScreenDrivers/ScreenDriverSSD1306_I2C.h"
 
+#include "ScreenDrivers/ScreenDriverSSD1306_SPI.h"
 #endif

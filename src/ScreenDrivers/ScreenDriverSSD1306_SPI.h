@@ -10,18 +10,18 @@ template<const uint8_t width,
 	const uint8_t height,
 	const uint8_t pinDC,
 	const uint8_t pinCS,
+	const uint8_t pinRST,
 	const uint8_t pinCLK,
 	const uint8_t pinMOSI,
-	const uint8_t pinRST,
 	const uint8_t spiChannel,
 	const uint32_t spiSpeed>
-class AbstractScreenDriverSSD1306_SPI : public AbstractScreenDriverSPI<width, height, pinDC, pinCS, pinCLK, pinMOSI, pinRST, spiChannel, spiSpeed>
+class AbstractScreenDriverSSD1306_SPI : public AbstractScreenDriverSPI<width, height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
 {
 public:
 	static constexpr size_t BufferSize = GraphicsBuffer::GetMonochromeBufferSize(width, height);
 
 private:
-	using BaseClass = AbstractScreenDriverSPI<width, height, pinDC, pinCS, pinCLK, pinMOSI, pinRST, spiChannel, spiSpeed>;
+	using BaseClass = AbstractScreenDriverSPI<width, height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
 
 public:
 	using BaseClass::ScreenWidth;
@@ -64,11 +64,7 @@ public:
 
 	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
 	{
-#if defined(ARDUINO_ARCH_RP2040)
 		SpiInstance.transfer((void*)frameBuffer, BufferSize);
-#else
-		SpiInstance.transfer(frameBuffer, BufferSize);
-#endif
 
 		return 0;
 	}
@@ -91,11 +87,7 @@ protected:
 		delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
 
 		CommandStart(Settings);
-#if defined(ARDUINO_ARCH_RP2040)
 		SpiInstance.transfer((void*)SSD1306::ConfigBatch, SSD1306::ConfigBatchSize);
-#else
-		SpiInstance.transfer(SSD1306::ConfigBatch, SSD1306::ConfigBatchSize);
-#endif
 		CommandEnd();
 
 		SetBacklightMode(backlightInternal);
@@ -152,15 +144,15 @@ private:
 
 template<const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
 	const uint8_t pinCLK = UINT8_MAX,
 	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t pinRST = UINT8_MAX,
 	const uint8_t spiChannel = 0,
 	const uint32_t spiSpeed = 4000000>
-class ScreenDriverSSD1306_128x64x1_SPI : public AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinCLK, pinMOSI, pinRST, spiChannel, spiSpeed>
+class ScreenDriverSSD1306_128x64x1_SPI : public AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
 {
 private:
-	using BaseClass = AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinCLK, pinMOSI, pinRST, spiChannel, spiSpeed>;
+	using BaseClass = AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
 
 public:
 	ScreenDriverSSD1306_128x64x1_SPI() : BaseClass() {}

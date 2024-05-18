@@ -11,9 +11,9 @@ template<const uint8_t width,
 	const uint8_t height,
 	const uint8_t pinDC,
 	const uint8_t pinCS,
+	const uint8_t pinRST,
 	const uint8_t pinCLK,
 	const uint8_t pinMOSI,
-	const uint8_t pinRST,
 	const uint8_t spiChannel,
 	const uint32_t spiSpeed>
 class AbstractScreenDriverSPI : public virtual IScreenDriver
@@ -38,9 +38,9 @@ public:
 	AbstractScreenDriverSPI()
 		: IScreenDriver()
 #if defined(ARDUINO_ARCH_ESP32)
-		, SpiInstance(pinCLK, pinMOSI, -1)
+		, SpiInstance(spiChannel)
 #elif defined(ARDUINO_ARCH_STM32F1)
-		, SpiInstance(SPIChannel)
+		, SpiInstance(spiChannel)
 #elif defined(ARDUINO_ARCH_RP2040)
 		, SpiInstance(GetSpiHost(), UINT8_MAX, pinCS, pinCLK, pinMOSI)
 #else

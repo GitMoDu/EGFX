@@ -163,4 +163,94 @@ public:
 	}
 };
 
+template<const uint8_t width,
+	const uint8_t height,
+	const uint8_t pinDC,
+	const uint8_t pinCS,
+	const uint8_t pinRST,
+	const uint8_t pinCLK,
+	const uint8_t pinMOSI,
+	const uint8_t spiChannel,
+	const uint32_t spiSpeed,
+	const uint8_t spiChunkDivisor = 2>
+class AbstractScreenDriverSSD1306_SPI_Async : public AbstractScreenDriverSSD1306_SPI<width, height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
+{
+private:
+	using BaseClass = AbstractScreenDriverSSD1306_SPI<width, height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
+
+public:
+	using BaseClass::BufferSize;
+
+protected:
+	using BaseClass::SpiInstance;
+
+private:
+	static constexpr size_t CHUNK_SIZE = BufferSize / spiChunkDivisor;
+	static constexpr size_t WHOLE_SIZE = (BufferSize / CHUNK_SIZE) * CHUNK_SIZE;
+	static constexpr size_t REMAINDER_SIZE = BufferSize - WHOLE_SIZE;
+	static constexpr size_t REMAINDER_START = WHOLE_SIZE;
+
+private:
+	size_t PushIndex = 0;
+
+public:
+	AbstractScreenDriverSSD1306_SPI_Async() : BaseClass() {}
+
+	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+	{
+		PushIndex = 0;
+
+		if (WHOLE_SIZE > 0)
+		{
+			SpiInstance.transfer((void*)frameBuffer, CHUNK_SIZE);
+			PushIndex += CHUNK_SIZE;
+		}
+
+		return 0;
+	}
+
+	virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+	{
+		if (PushIndex < WHOLE_SIZE)
+		{
+			SpiInstance.transfer((void*)&frameBuffer[PushIndex], CHUNK_SIZE);
+			PushIndex += CHUNK_SIZE;
+
+			return true;
+		}
+		else
+		{
+			if (REMAINDER_SIZE > 0)
+			{
+				SpiInstance.transfer((void*)&frameBuffer[REMAINDER_START], REMAINDER_SIZE);
+			}
+
+			return false;
+		}
+	}
+};
+
+template<const uint8_t pinDC = UINT8_MAX,
+	const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t pinCLK = UINT8_MAX,
+	const uint8_t pinMOSI = UINT8_MAX,
+	const uint8_t spiChannel = 0,
+	const uint32_t spiSpeed = 4000000,
+	const uint8_t spiChunkDivisor = 2>
+class ScreenDriverSSD1306_128x64x1_SPI_Async : public AbstractScreenDriverSSD1306_SPI_Async<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed, spiChunkDivisor>
+{
+private:
+	using BaseClass = AbstractScreenDriverSSD1306_SPI_Async<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed, spiChunkDivisor>;
+
+public:
+	ScreenDriverSSD1306_128x64x1_SPI_Async() : BaseClass() {}
+
+	virtual const bool Start() final
+	{
+		return BaseClass::Start() && BaseClass::Initialize(false);
+	}
+};
+
+
 #endif

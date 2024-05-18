@@ -5,6 +5,7 @@
 
 #include "AbstractScreenDriverSPI.h"
 #include "SSD1306\SSD1306.h"
+#include "TemplateScreenDriverRtos.h"
 
 template<const uint8_t width,
 	const uint8_t height,
@@ -142,27 +143,6 @@ private:
 	}
 };
 
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
-	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
-	const uint32_t spiSpeed = 4000000>
-class ScreenDriverSSD1306_128x64x1_SPI : public AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
-{
-private:
-	using BaseClass = AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
-
-public:
-	ScreenDriverSSD1306_128x64x1_SPI() : BaseClass() {}
-
-	virtual const bool Start()
-	{
-		return BaseClass::Start() && BaseClass::Initialize();
-	}
-};
-
 template<const uint8_t width,
 	const uint8_t height,
 	const uint8_t pinDC,
@@ -236,6 +216,27 @@ template<const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinCLK = UINT8_MAX,
 	const uint8_t pinMOSI = UINT8_MAX,
 	const uint8_t spiChannel = 0,
+	const uint32_t spiSpeed = 4000000>
+class ScreenDriverSSD1306_128x64x1_SPI : public AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
+{
+private:
+	using BaseClass = AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
+
+public:
+	ScreenDriverSSD1306_128x64x1_SPI() : BaseClass() {}
+
+	virtual const bool Start()
+	{
+		return BaseClass::Start() && BaseClass::Initialize();
+	}
+};
+
+template<const uint8_t pinDC = UINT8_MAX,
+	const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t pinCLK = UINT8_MAX,
+	const uint8_t pinMOSI = UINT8_MAX,
+	const uint8_t spiChannel = 0,
 	const uint32_t spiSpeed = 4000000,
 	const uint8_t spiChunkDivisor = 2>
 class ScreenDriverSSD1306_128x64x1_SPI_Async : public AbstractScreenDriverSSD1306_SPI_Async<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed, spiChunkDivisor>
@@ -252,5 +253,19 @@ public:
 	}
 };
 
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
+template<const uint8_t pinDC = UINT8_MAX,
+	const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t pinCLK = UINT8_MAX,
+	const uint8_t pinMOSI = UINT8_MAX,
+	const uint8_t spiChannel = 0,
+	const uint32_t spiSpeed = 4000000,
+	const uint32_t pushSleepDuration = 0,
+	uint32_t stackHeight = 1500,
+	portBASE_TYPE priority = 1>
+class ScreenDriverSSD1306_128x64x1_SPI_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_128x64x1_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, pushSleepDuration, stackHeight, priority>
+{};
+#endif
 
 #endif

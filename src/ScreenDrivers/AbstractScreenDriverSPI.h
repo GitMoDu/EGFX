@@ -27,7 +27,12 @@ protected:
 	static constexpr uint32_t SPISpeed = spiSpeed;
 
 protected:
+#if defined(ARDUINO_ARCH_RP2040)
+	SPIClassRP2040 SpiInstance;
+#else
 	SPIClass SpiInstance;
+#endif
+
 
 public:
 	AbstractScreenDriverSPI()
@@ -36,6 +41,8 @@ public:
 		, SpiInstance(pinCLK, pinMOSI, -1)
 #elif defined(ARDUINO_ARCH_STM32F1)
 		, SpiInstance(SPIChannel)
+#elif defined(ARDUINO_ARCH_RP2040)
+		, SpiInstance(GetSpiHost(), UINT8_MAX, pinCS, pinCLK, pinMOSI)
 #else
 		, SpiInstance()
 #endif
@@ -135,5 +142,24 @@ protected:
 		digitalWrite(pinCS, HIGH);
 		digitalWrite(pinDC, LOW);
 	}
+
+#if defined(ARDUINO_ARCH_RP2040)
+private:
+	spi_inst_t* GetSpiHost()
+	{
+		if (spiChannel == 0)
+		{
+			return spi0;
+		}
+		else if (spiChannel == 1)
+		{
+			return spi1;
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+#endif
 };
 #endif

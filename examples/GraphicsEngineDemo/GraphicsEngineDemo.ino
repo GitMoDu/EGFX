@@ -126,9 +126,9 @@ CloneDemo CloneDemoDrawer(&FrameBuffer);
 #endif
 #else
 PrimitiveDemo PrimitiveDemoDrawer(&FrameBuffer);
+CloneDemo CloneDemoDrawer(&FrameBuffer);
 TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
 TextSpriteDemo TextSpriteDemoDrawer(&FrameBuffer);
-CloneDemo CloneDemoDrawer(&FrameBuffer);
 #endif
 
 DemoCyclerTask<7000> DemoCycler(&SchedulerBase, &GraphicsEngine,
@@ -138,15 +138,16 @@ DemoCyclerTask<7000> DemoCycler(&SchedulerBase, &GraphicsEngine,
 	&BitmapDemoDrawer
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(GRAPHICS_ENGINE_MEASURE)
-	, & PrimitiveDemoDrawer
+	, &PrimitiveDemoDrawer
 #endif
 #if !defined(DEBUG)
-	, & CloneDemoDrawer
+	, &CloneDemoDrawer
 #endif
 #else
-	, & PrimitiveDemoDrawer
-	, & CloneDemoDrawer
-	, & TextSpriteDemoDrawer
+	, &PrimitiveDemoDrawer
+	, &CloneDemoDrawer
+	, &TextSpriteDemoDrawer
+	, &TextCharactersDemoDrawer
 #endif
 );
 //

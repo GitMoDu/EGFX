@@ -23,7 +23,6 @@ private:
 
 	SpriteFont5x5Renderer FontRenderer{};
 
-
 public:
 	TextSpriteDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)

@@ -26,9 +26,9 @@ private:
 	static constexpr uint32_t ScaleDuration = 1500000;
 	static constexpr uint32_t RotationDuration = 4000000;
 
-	GridShader<HeartSprite> Heart{};
+	SingleColorShader<HeartSprite> Heart{};
 	PyramidSprite Pyramid{};
-	RectangleSprite<14, 7> Rectangle{};
+	GridShader<RectangleSprite<14, 7>> Rectangle{};
 
 	uint8_t Rotation = 0;
 	int8_t Angle = 0;
@@ -38,7 +38,9 @@ public:
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
 		Heart.SetColor(UINT8_MAX, 0, 0);
-		Heart.SetColor2(UINT8_MAX / 8, 0, 0);
+
+		Rectangle.SetColor(0, 0, UINT8_MAX);
+		Rectangle.SetColor2(0, UINT8_MAX, 0);
 	}
 
 	void DrawCall(DrawState* drawState) final

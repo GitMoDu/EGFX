@@ -33,7 +33,7 @@ private:
 	static constexpr uint32_t ScrollVerticalDuration = 3674000;
 
 private:
-	ExplosionSprite AnimatedExplosion{};
+	SingleColorShader<ExplosionSprite> AnimatedExplosion{};
 	ArrowSprite Arrow{};
 	TransparentGridEffect<SingleColorShader<RingSprite>> Ring{};
 
@@ -41,9 +41,6 @@ public:
 	SpriteDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		//Heart.SetColor(UINT8_MAX, 0, 0);
-		//Heart.SetColor2(UINT8_MAX/8, 0, 0);
-
 		Ring.SetColor(UINT8_MAX, 0, UINT8_MAX);
 		Ring.SetTransparency(1);
 	}
@@ -82,25 +79,31 @@ private:
 		case 2:
 		case 3:
 		case 4:
+			AnimatedExplosion.SetColor(0, UINT8_MAX, UINT8_MAX);
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask);
 			break;
 		case 5:
+			AnimatedExplosion.SetColor(UINT8_MAX, INT8_MAX, INT8_MAX);
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask2);
 			break;
 		case 7:
+			AnimatedExplosion.SetColor(UINT8_MAX, 0, 0);
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask2);
 			break;
 		case 8:
 		case 9:
+			AnimatedExplosion.SetColor(UINT8_MAX, UINT8_MAX, 0);
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask3);
 			break;
 		case 10:
 		case 11:
+			AnimatedExplosion.SetColor(UINT8_MAX, INT8_MAX, 0);
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask4);
 			break;
 		case 12:
 		case 13:
 		case 14:
+			AnimatedExplosion.SetColor(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask5);
 			break;
 		default:

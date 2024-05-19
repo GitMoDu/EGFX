@@ -17,6 +17,10 @@ Supported Screens:
   - 64x48x1 I2C
   - 72x40x1 I2C
   - 128x64x1 I2C
+  - 128x64x1 SPI
+
+- SSD1331
+  - 96x64x8 SPI
     
 
 Draw Primitives are provided directly by the chosen frame-buffer:

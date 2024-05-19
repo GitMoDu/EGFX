@@ -18,7 +18,7 @@
 #define TFT_CLK		UINT8_MAX
 #define TFT_MOSI	UINT8_MAX
 #define TFT_I2C		1
-#define TFT_SPI_HZ	F_CPU/8
+#define TFT_SPI_HZ	F_CPU/4
 #define TFT_SCL		UINT8_MAX
 #define TFT_SDA		UINT8_MAX
 #define TFT_I2C_HZ	1000000

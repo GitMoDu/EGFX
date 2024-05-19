@@ -32,16 +32,6 @@ public:
 			Mask = mask;
 		}
 	}
-
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
-	{
-		color.r = UINT8_MAX;
-		color.g = UINT8_MAX;
-		color.b = UINT8_MAX;
-
-		return true;
-	}
 };
 
 template<const uint8_t Width,
@@ -62,7 +52,7 @@ public:
 
 	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y) final
 	{
-		if (BaseClass::GetColor(color, x, y))
+		if (GetColor(color, x, y))
 		{
 			const uint8_t yByte = y * BitScale;
 			const uint8_t xByte = (x / 8);
@@ -74,6 +64,16 @@ public:
 		}
 
 		return false;
+	}
+
+protected:
+	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	{
+		color.r = UINT8_MAX;
+		color.g = UINT8_MAX;
+		color.b = UINT8_MAX;
+
+		return true;
 	}
 };
 
@@ -97,7 +97,7 @@ public:
 
 	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y) final
 	{
-		if (BaseClass::GetColor(color, x, y))
+		if (GetColor(color, x, y))
 		{
 			const uint8_t yByte = y * BitScale;
 			const uint8_t xByte = (x / 8);
@@ -109,6 +109,16 @@ public:
 		}
 
 		return false;
+	}
+
+protected:
+	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	{
+		color.r = UINT8_MAX;
+		color.g = UINT8_MAX;
+		color.b = UINT8_MAX;
+
+		return true;
 	}
 };
 #else

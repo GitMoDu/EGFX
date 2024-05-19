@@ -31,9 +31,6 @@ protected:
 	using BaseClass::Inverted;
 	using typename BaseClass::color_t;
 
-private:
-	static constexpr uint8_t InvertMask = UINT8_MAX;
-
 public:
 	Color16FrameBuffer(uint8_t buffer[BufferSize] = nullptr)
 		: BaseClass(buffer)

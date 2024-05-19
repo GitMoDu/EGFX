@@ -47,7 +47,7 @@
 #define TFT_SCL		18
 #define TFT_SDA		17
 #elif defined(ARDUINO_ARCH_RP2040)
-#define TFT_CS		18
+#define TFT_CS		19
 #define TFT_DC		20
 #define TFT_RST		21
 #define TFT_SPI		1
@@ -90,10 +90,10 @@ Scheduler SchedulerBase;
 //ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
-//ScreenDriverSSD1331_96x64x8_SPI<TFT_DC, TFT_CS, TFT_CLK, TFT_MOSI, TFT_RST, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//ScreenDriverSSD1331_96x64x8_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 // In-memory frame-buffer.
@@ -130,7 +130,6 @@ TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
 TextSpriteDemo TextSpriteDemoDrawer(&FrameBuffer);
 CloneDemo CloneDemoDrawer(&FrameBuffer);
 #endif
-
 
 DemoCyclerTask<7000> DemoCycler(&SchedulerBase, &GraphicsEngine,
 	&SpriteDemoDrawer,

@@ -53,9 +53,9 @@ protected:
 	{
 		const size_t offset = ((size_t)y * width) + x;
 
-		color.r = RgbBitmap[offset] >> 24;
-		color.g = (RgbBitmap[offset] >> 16) & UINT8_MAX;
-		color.b = (RgbBitmap[offset] >> 8) & UINT8_MAX;
+		color.r = (RgbBitmap[offset] >> 16) & UINT8_MAX;
+		color.g = (RgbBitmap[offset] >> 8) & UINT8_MAX;
+		color.b = RgbBitmap[offset];
 
 		return true;
 	}
@@ -74,7 +74,7 @@ protected:
 	using BaseClass::RgbBitmap;
 
 public:
-	FlashBitmapSprite(const uint32_t* rgbBitmap = nullptr) 
+	FlashBitmapSprite(const uint32_t* rgbBitmap = nullptr)
 		: BaseClass(rgbBitmap)
 	{}
 
@@ -102,7 +102,7 @@ template<const uint8_t width,
 class FlashBitmapSprite : public BitmapSprite<width, height>
 {
 public:
-	FlashBitmapSprite(const uint32_t* rgbBitmap = nullptr) 
+	FlashBitmapSprite(const uint32_t* rgbBitmap = nullptr)
 		: BitmapSprite<width, height>(rgbBitmap)
 	{}
 };

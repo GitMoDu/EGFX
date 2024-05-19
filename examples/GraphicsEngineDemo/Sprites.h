@@ -11,28 +11,6 @@
 
 namespace SpriteSource
 {
-//	namespace Square
-//	{
-//		static constexpr uint8_t Mask[]
-//#if defined(ARDUINO_ARCH_AVR)
-//			PROGMEM
-//#endif 
-//		{
-//			0b11111111,
-//			0b11111111,
-//			0b11111111,
-//			0b11111111,
-//			0b11111111,
-//			0b11111111,
-//			0b11111111,
-//			0b11111111,
-//			0b11111111
-//		};
-//
-//		static constexpr uint8_t Width = 8;
-//		static constexpr uint8_t Height = sizeof(Mask);
-//	}
-
 	namespace Arrow
 	{
 		static constexpr uint8_t Mask[]
@@ -293,12 +271,6 @@ namespace DemoSprites
 		RainDropSprite() : FlashBitMaskSprite<SpriteSource::RainDrop::Width, SpriteSource::RainDrop::Height>(SpriteSource::RainDrop::Mask)
 		{}
 	};
-
-	//struct SquareSprite : public FlashBitMaskSprite<SpriteSource::Square::Width, SpriteSource::Square::Height>
-	//{
-	//	SquareSprite() : FlashBitMaskSprite<SpriteSource::Square::Width, SpriteSource::Square::Height>(SpriteSource::Square::Mask)
-	//	{}
-	//};
 
 	struct DogeSprite : public FlashBitmapSprite<SpriteSource::Doge::Width, SpriteSource::Doge::Height>
 	{

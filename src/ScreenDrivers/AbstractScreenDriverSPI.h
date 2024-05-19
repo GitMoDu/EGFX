@@ -33,7 +33,6 @@ protected:
 	SPIClass SpiInstance;
 #endif
 
-
 public:
 	AbstractScreenDriverSPI()
 		: IScreenDriver()
@@ -56,8 +55,6 @@ public:
 		{
 			return false;
 		}
-
-		PinReset();
 
 		//TODO: Optional in-driver SPI begin.
 #if defined(ARDUINO_ARCH_ESP32)
@@ -111,7 +108,7 @@ public:
 	}
 
 protected:
-	void PinReset()
+	void PinReset(const uint8_t waitPeriod = 10)
 	{
 		pinMode(pinDC, OUTPUT);
 		digitalWrite(pinDC, LOW);
@@ -122,9 +119,9 @@ protected:
 		{
 			digitalWrite(pinRST, HIGH);
 			pinMode(pinRST, OUTPUT);
-			delayMicroseconds(10);
+			delayMicroseconds(waitPeriod);
 			digitalWrite(pinRST, LOW);
-			delayMicroseconds(10);
+			delayMicroseconds(waitPeriod);
 			digitalWrite(pinRST, HIGH);
 		}
 	}

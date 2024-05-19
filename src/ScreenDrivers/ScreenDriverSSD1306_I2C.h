@@ -4,7 +4,6 @@
 #define _SCREEN_DRIVER_SSD1306_I2C_h
 
 #include "AbstractScreenDriverI2C.h"
-
 #include "TemplateScreenDriverRtos.h"
 #include "SSD1306\SSD1306.h"
 

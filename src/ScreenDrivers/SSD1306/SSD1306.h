@@ -15,6 +15,7 @@ namespace SSD1306
 	static constexpr uint8_t Height = 64;
 
 	static constexpr uint32_t RESET_DELAY_MICROS = 250;
+	static constexpr uint8_t RESET_WAIT_MICROS = 10;
 
 	enum class CommandEnum : uint8_t
 	{

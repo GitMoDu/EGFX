@@ -4,8 +4,8 @@
 #define _SCREEN_DRIVER_SSD1306_SPI_h
 
 #include "AbstractScreenDriverSPI.h"
-#include "SSD1306\SSD1306.h"
 #include "TemplateScreenDriverRtos.h"
+#include "SSD1306\SSD1306.h"
 
 template<const uint8_t width,
 	const uint8_t height,
@@ -32,6 +32,7 @@ protected:
 	using BaseClass::SpiInstance;
 	using BaseClass::CommandStart;
 	using BaseClass::CommandEnd;
+	using BaseClass::PinReset;
 
 private:
 	SPISettings Settings;
@@ -39,18 +40,13 @@ private:
 public:
 	AbstractScreenDriverSSD1306_SPI()
 		: BaseClass()
-		, Settings(spiSpeed, MSBFIRST, SPI_MODE1)
+		, Settings(spiSpeed, MSBFIRST, SPI_MODE0)
 	{}
-
-	virtual const bool Start()
-	{
-		return BaseClass::Start();
-	}
 
 	virtual void Stop()
 	{
-		CommandReset();
-		SpiInstance.end();
+		CommandEnd();
+		BaseClass::Stop();
 	}
 
 	virtual const bool CanPushBuffer()
@@ -83,9 +79,15 @@ public:
 protected:
 	const bool Initialize(const bool backlightInternal = false)
 	{
-		CommandReset();
+		PinReset(SSD1306::RESET_WAIT_MICROS);
+
+		CommandStart(Settings);
+		CommandEnd();
+		CommandStart(Settings);
+		CommandEnd();
 
 		delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
+		CommandReset();
 
 		CommandStart(Settings);
 		SpiInstance.transfer((void*)SSD1306::ConfigBatch, SSD1306::ConfigBatchSize);
@@ -99,11 +101,6 @@ protected:
 private:
 	void CommandReset()
 	{
-		CommandStart(Settings);
-		CommandEnd();
-		CommandStart(Settings);
-		CommandEnd();
-
 		CommandStart(Settings);
 		SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::CommandStart);
 		SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::Reset);
@@ -121,7 +118,7 @@ private:
 
 		SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::Page);
 		SpiInstance.transfer((uint8_t)0);
-		SpiInstance.transfer((uint8_t)(SSD1306::Height / 8) - 1);
+		SpiInstance.transfer((uint8_t)((SSD1306::Height / 8) - 1));
 
 		digitalWrite(pinDC, HIGH);
 	}

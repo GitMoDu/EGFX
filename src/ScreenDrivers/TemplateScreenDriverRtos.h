@@ -3,10 +3,13 @@
 #ifndef _TEMPLATE_SCREEN_DRIVER_RTOS_h
 #define _TEMPLATE_SCREEN_DRIVER_RTOS_h
 
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_RP2040)
 #define TEMPLATE_SCREEN_DRIVER_RTOS
 
 #include "../Model/IScreenDriver.h"
+#include <FreeRTOS.h>
+#include <task.h>
+#include <semphr.h>
 
 /// <summary>
 /// Wraps an Inline ScreenDriver with threaded buffer push.
@@ -53,7 +56,11 @@ public:
 			&& Mutex != NULL
 			&& BaseClass::Start())
 		{
+#if defined(ARDUINO_ARCH_ESP32)
 			xTaskCreatePinnedToCore(TaskCallback, "BufferTask", stackHeight, NULL, priority, &BufferTaskHandle, coreAffinity);
+#elif defined(ARDUINO_ARCH_RP2040)
+			xTaskCreateAffinitySet((TaskFunction_t)TaskCallback, "BufferTask", stackHeight, NULL, priority, coreAffinity, &BufferTaskHandle);
+#endif
 
 			if (BufferTaskHandle != NULL)
 			{

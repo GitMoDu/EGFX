@@ -24,7 +24,7 @@ private:
 	};
 
 	static constexpr uint8_t MaxRadius = 13;
-	static constexpr uint8_t RingWidth = 2;
+	static constexpr uint8_t RingWidth = 4;
 	static constexpr uint8_t MinRadius = 3;
 
 	static constexpr uint32_t AnimateDuration = 1100000;

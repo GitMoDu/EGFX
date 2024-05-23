@@ -18,6 +18,7 @@ private:
 	};
 
 	TransparentColorEffect<DogeSprite> Doge{};
+	DogeBitSprite DogeBit{};
 
 public:
 	BitmapDemo(IFrameBuffer* frame)
@@ -34,7 +35,14 @@ public:
 		switch (drawState->ElementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::Bitmap:
-			DrawBitmap(drawState);
+			if (ProgressScaler::ScaleProgress(drawState->GetProgress(2000000), (uint8_t)2) > 0)
+			{
+				DrawBitmap(drawState);
+			}
+			else
+			{
+				DrawBitmask(drawState);
+			}
 			break;
 		default:
 			break;
@@ -55,7 +63,20 @@ private:
 
 		SpriteRenderer::Draw(Frame, &Doge, x, y);
 	}
+
+	void DrawBitmask(DrawState* drawState)
+	{
+		const uint8_t usableX = Frame->GetWidth() - Doge.Width - 1;
+		const uint8_t usableY = Frame->GetHeight() - Doge.Height - 1;
+
+		const uint16_t progressX = drawState->GetProgress<7000000>();
+		const uint16_t progressY = drawState->GetProgress<3000000>();
+
+		const uint8_t x = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressX), usableX);
+		const uint8_t y = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressY), usableY);
+
+		SpriteRenderer::Draw(Frame, &DogeBit, x, y);
+	}
 };
 
 #endif
-

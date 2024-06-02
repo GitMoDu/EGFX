@@ -263,7 +263,7 @@ public:
 			}
 			break;
 		case EngineStateEnum::PushBuffer:
-			Task::delay(ScreenDriver->PushBuffer(FrameBuffer->GetFrameBuffer()) / 1000);
+			Task::delay(ScreenDriver->PushBuffer(FrameBuffer->GetFrameBuffer()));
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			UpdateLongestPush(micros() - timestamp);
 #endif

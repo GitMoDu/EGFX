@@ -3,21 +3,48 @@
 #ifndef _SPRITE_FONT_RENDERER_h
 #define _SPRITE_FONT_RENDERER_h
 
-#include <String.h>
+#include <WString.h>
 
-template<const uint8_t fontWidth,
-	const uint8_t fontHeight>
+template<typename SpriteType>
 class AbstractSpriteFontRenderer
 {
 public:
-	static constexpr uint8_t FontWidth = fontWidth;
-	static constexpr uint8_t FontHeight = fontHeight;
+	static constexpr uint8_t FontWidth = SpriteType::Width;
+	static constexpr uint8_t FontHeight = SpriteType::Height;
 
 private:
-	static constexpr uint8_t BitScale = ((fontWidth - 1) / 8) + 1;
+	class ColorSprite : public SpriteType
+	{
+	private:
+		RgbColor Color{ UINT8_MAX ,UINT8_MAX ,UINT8_MAX };
+
+	public:
+		ColorSprite() : SpriteType()
+		{}
+
+		void SetColor(const RgbColor& color)
+		{
+			Color.r = color.r;
+			Color.g = color.g;
+			Color.b = color.b;
+		}
+
+	protected:
+		virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		{
+			color.r = Color.r;
+			color.g = Color.g;
+			color.b = Color.b;
+
+			return true;
+		}
+	};
+
+private:
+	ColorSprite SpriteSource{};
 
 protected:
-	virtual const uint8_t* GetMask(const int8_t character) { return nullptr; }
+	virtual void SetCharacter(SpriteType& spriteSource, const int8_t character) { }
 
 public:
 	AbstractSpriteFontRenderer()
@@ -32,6 +59,82 @@ public:
 	void TextBottomRight(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char* str)
 	{
 		TextTopRight(frame, x, y - FontHeight, str);
+	}
+
+	void TextBottomLeft(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	{
+		TextTopLeft(frame, color, x, y - FontHeight, ifsh);
+	}
+
+	void TextBottomRight(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	{
+		TextTopRight(frame, color, x, y - FontHeight, ifsh);
+	}
+
+	void TextTopLeft(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	{
+#if defined(ARDUINO_ARCH_AVR)
+		if (ifsh != NULL
+			&& x < frame->GetWidth() - FontWidth
+			&& y < frame->GetHeight() - FontHeight)
+		{
+			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
+			uint8_t offset = 0;
+			while (x < frame->GetWidth() - offset)
+			{
+				const int8_t character = pgm_read_byte(ptr++);
+				if (character == Break)
+				{
+					break;
+				}
+				else
+				{
+					Write(frame, color, x + offset, y, character);
+					offset += FontWidth + 1;
+				}
+			}
+		}
+#else
+		TextTopLeft(frame, color, x, y, reinterpret_cast<const char*>(ifsh));
+#endif	
+	}
+
+	void TextTopRight(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	{
+#if defined(ARDUINO_ARCH_AVR)
+		if (ifsh != NULL
+			&& x < frame->GetWidth()
+			&& y < frame->GetHeight() - FontHeight)
+		{
+			const uint8_t x1 = x - FontHeight;
+
+			size_t size = 0;
+			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
+			while (true)
+			{
+				const int8_t character = pgm_read_byte(ptr + size);
+				if (character == Break)
+				{
+					break;
+				}
+				else
+				{
+					size++;
+				}
+			}
+			ptr += size - 1;
+			uint8_t offset = 0;
+			while (size--
+				&& x > offset)
+			{
+				const int8_t character = pgm_read_byte(ptr--);
+				Write(frame, color, x1 - offset, y, character);
+				offset += FontWidth + 1;
+			}
+		}
+#else
+		TextTopRight(frame, color, x, y, reinterpret_cast<const char*>(ifsh));
+#endif		
 	}
 
 	void TextTopLeft(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char* str)
@@ -74,41 +177,18 @@ public:
 		}
 	}
 
-	void Write(IFrameBuffer* frame, const RgbColor& color, const uint8_t positionX, const uint8_t positionY, const char character)
+	void Write(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char character)
 	{
-		const uint8_t* mask = GetMask(character);
+		SetCharacter(SpriteSource, character);
+		SpriteSource.SetColor(color);
 
-		if (mask == nullptr)
+		if (character == '\t'
+			|| character == ' ')
 		{
 			return;
 		}
 
-		uint8_t yByte = 0;
-		uint8_t xByte = 0;
-		uint8_t offset = 0;
-
-		uint8_t xBit = 0;
-
-		for (uint8_t x = 0; x < FontWidth; x++)
-		{
-			for (uint8_t y = 0; y < FontHeight; y++)
-			{
-				yByte = y * BitScale;
-				xByte = (x / 8);
-				offset = yByte + xByte;
-				xBit = 7 - (x % 8);
-
-#if defined(ARDUINO_ARCH_AVR)
-				if (((pgm_read_byte(&mask[offset]) >> xBit) & 0x01) != 0)
-#else
-				if (((mask[offset] >> xBit) & 0x01) != 0)
-#endif
-				{
-					frame->Pixel(color, positionX + x, positionY + y);
-				}
-			}
-		}
+		SpriteRenderer::Draw(frame, &SpriteSource, x, y);
 	}
 };
-
 #endif

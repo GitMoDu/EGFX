@@ -58,18 +58,14 @@ struct SpriteRenderer
 		const uint8_t height = sprite->GetHeight();
 
 		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
 
 		for (uint8_t x = 0; x < width; x++)
 		{
 			for (uint8_t y = 0; y < height; y++)
 			{
-				xNew = x;
-				yNew = y;
 				if (sprite->Get(color, x, y))
 				{
-					frame->Pixel(color, positionX + xNew, positionY + yNew);
+					frame->Pixel(color, positionX + x, positionY + y);
 				}
 			}
 		}
@@ -83,20 +79,14 @@ struct SpriteRenderer
 		const uint8_t height = sprite->GetHeight();
 
 		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
-
-
 		for (uint8_t x = 0; x < width; x++)
 		{
 			for (uint8_t y = 0; y < height; y++)
 			{
-				xNew = x;
-				yNew = y;
 				if (sprite->Get(color, x, y))
 				{
-					frame->Pixel(color, position1X + xNew, position1Y + yNew);
-					frame->Pixel(color, position2X + xNew, position2Y + yNew);
+					frame->Pixel(color, position1X + x, position1Y + y);
+					frame->Pixel(color, position2X + x, position2Y + y);
 				}
 			}
 		}

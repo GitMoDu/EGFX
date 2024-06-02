@@ -28,10 +28,7 @@ public:
 
 	void SetBitmap(const ColorType* rgbBitmap)
 	{
-		if (rgbBitmap != nullptr)
-		{
-			RgbBitmap = rgbBitmap;
-		}
+		RgbBitmap = rgbBitmap;
 	}
 
 	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
@@ -39,6 +36,15 @@ public:
 		return GetColor(color, x, y);
 	}
 
+	const uint8_t GetWidth()
+	{
+		return (RgbBitmap != nullptr) * width;
+	}
+
+	const uint8_t GetHeight()
+	{
+		return (RgbBitmap != nullptr) * height;
+	}
 };
 
 template<const uint8_t width,

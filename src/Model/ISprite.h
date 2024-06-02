@@ -34,12 +34,12 @@ public:
 	AbstractSprite() : ISprite()
 	{}
 
-	const uint8_t GetWidth() final
+	const uint8_t GetWidth()
 	{
 		return Width;
 	}
 
-	const uint8_t GetHeight() final
+	const uint8_t GetHeight()
 	{
 		return Height;
 	}

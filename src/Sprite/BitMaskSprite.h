@@ -20,17 +20,24 @@ protected:
 	const uint8_t* Mask = nullptr;
 
 public:
-	AbstractBitMaskSprite(const uint8_t* mask)
+	AbstractBitMaskSprite(const uint8_t* mask = nullptr)
 		: AbstractSprite<width, height>()
 		, Mask(mask)
 	{}
 
 	void SetMask(const uint8_t* mask)
 	{
-		if (Mask != nullptr)
-		{
-			Mask = mask;
-		}
+		Mask = mask;
+	}
+
+	const uint8_t GetWidth()
+	{
+		return (Mask != nullptr) * width;
+	}
+
+	const uint8_t GetHeight()
+	{
+		return (Mask != nullptr) * height;
 	}
 };
 
@@ -38,7 +45,7 @@ template<const uint8_t Width,
 	const uint8_t Height>
 class BitMaskSprite : public AbstractBitMaskSprite<Width, Height>
 {
-private: 
+private:
 	using BaseClass = AbstractBitMaskSprite<Width, Height>;
 
 private:
@@ -76,7 +83,6 @@ protected:
 		return true;
 	}
 };
-
 
 #if defined(ARDUINO_ARCH_AVR)
 template<const uint8_t Width,

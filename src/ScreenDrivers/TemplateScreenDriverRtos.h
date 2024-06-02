@@ -61,7 +61,6 @@ public:
 #elif defined(ARDUINO_ARCH_RP2040)
 			xTaskCreateAffinitySet((TaskFunction_t)TaskCallback, "BufferTask", stackHeight, NULL, priority, coreAffinity, &BufferTaskHandle);
 #endif
-
 			if (BufferTaskHandle != NULL)
 			{
 				return true;
@@ -159,7 +158,7 @@ public:
 					BaseClass::StartBuffer();
 
 					const uint32_t pushSleep = BaseClass::PushBuffer(TaskFrameBuffer);
-					vTaskDelay((pushSleep / 1000) / portTICK_PERIOD_MS);
+					vTaskDelay(pushSleep / portTICK_PERIOD_MS);
 
 					while (BaseClass::PushingBuffer(TaskFrameBuffer))
 					{

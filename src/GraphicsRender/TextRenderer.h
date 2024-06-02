@@ -11,9 +11,6 @@
 /// </summary>
 class TextRenderer
 {
-private:
-	static constexpr int8_t Break = (int8_t)'\0';
-
 public:
 	static void TextTopLeft(IFrameBuffer* frame, const FontStyle& font, const uint8_t x1, const uint8_t y1, const __FlashStringHelper* ifsh)
 	{
@@ -27,7 +24,7 @@ public:
 			while (x1 < frame->GetWidth() - offset)
 			{
 				const int8_t character = pgm_read_byte(ptr++);
-				if (character == Break)
+				if (character == Character::Break)
 				{
 					break;
 				}
@@ -57,7 +54,7 @@ public:
 			while (true)
 			{
 				const int8_t character = pgm_read_byte(ptr + size);
-				if (character == Break)
+				if (character == Character::Break)
 				{
 					break;
 				}

@@ -4,6 +4,7 @@
 #define _SPRITE_FONT_RENDERER_h
 
 #include <WString.h>
+#include "../Model/Character.h"
 
 template<typename SpriteType>
 class AbstractSpriteFontRenderer
@@ -83,7 +84,7 @@ public:
 			while (x < frame->GetWidth() - offset)
 			{
 				const int8_t character = pgm_read_byte(ptr++);
-				if (character == Break)
+				if (character == Character::Break)
 				{
 					break;
 				}
@@ -113,7 +114,7 @@ public:
 			while (true)
 			{
 				const int8_t character = pgm_read_byte(ptr + size);
-				if (character == Break)
+				if (character == Character::Break)
 				{
 					break;
 				}

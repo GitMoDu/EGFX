@@ -5,6 +5,7 @@
 
 #include "../Model/IFrameBuffer.h"
 #include "../Model/FontStyle.h"
+#include "../Model/Character.h"
 #include "DigitRenderer.h"
 
 /// <summary>
@@ -12,51 +13,46 @@
 /// </summary>
 class FontRenderer
 {
-private:
-	static constexpr uint8_t NumbersCount = 10;
-	static constexpr int8_t NumbersStart = '0';
-	static constexpr int8_t NumbersEnd = NumbersStart + NumbersCount;
-
 public:
 	static void Write(IFrameBuffer* frameBuffer, const FontStyle& font, const uint8_t x1, const uint8_t y1, const int8_t character)
 	{
 		if (x1 < frameBuffer->GetWidth()
 			&& y1 < frameBuffer->GetHeight())
 		{
-			if (character >= NumbersStart
-				&& character < NumbersEnd)
+			if (character >= Character::NumbersStart
+				&& character < Character::NumbersEnd)
 			{
-				DigitRenderer::Digit(frameBuffer, font, x1, y1, (uint8_t)(character - NumbersStart));
+				DigitRenderer::Digit(frameBuffer, font, x1, y1, (uint8_t)(character - Character::NumbersStart));
 			}
 			else
 			{
 				switch (character)
 				{
-				case '-':
+				case (int8_t)'-':
 					DrawDash(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 'A':
+				case (int8_t)'A':
 					DrawA(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 'T':
+				case (int8_t)'T':
 					DrawT(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 'X':
+				case (int8_t)'X':
 					DrawX(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 'Z':
+				case (int8_t)'Z':
 					DrawZ(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 'a':
+				case (int8_t)'a':
 					Drawa(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 't':
+				case (int8_t)'t':
 					Drawt(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 'x':
+				case (int8_t)'x':
 					Drawx(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
-				case 'z':
+				case (int8_t)'z':
 					Drawz(frameBuffer, font.Color, x1, y1, x1 + font.Width, y1 + font.Height);
 					break;
 				default:

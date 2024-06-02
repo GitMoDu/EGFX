@@ -26,8 +26,7 @@ private:
 public:
 	TextSpriteDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
-	{
-	}
+	{}
 
 	/// <summary>
 	/// ElementIndex can be used to separate draw calls, avoiding hogging the co-operative scheduler.
@@ -92,7 +91,7 @@ private:
 
 		FontRenderer.TextTopLeft(Frame, Color,
 			0, (FontRenderer.FontHeight + 1) * 2,
-			"UVWXYZ!?"
+			"UVWXYZ!?.,"
 		);
 	}
 

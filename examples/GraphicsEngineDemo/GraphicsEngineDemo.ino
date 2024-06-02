@@ -89,9 +89,8 @@
 #include "TransformDemo.h"
 #include "BitmapDemo.h"
 #include "TextSpriteDemo.h"
-
-
 #include "CloneDemo.h"
+
 
 // Process scheduler.
 Scheduler SchedulerBase;
@@ -101,12 +100,15 @@ Scheduler SchedulerBase;
 //ScreenDriverSSD1306_64x32x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
-//using FrameBufferType = MonochromeFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 //ScreenDriverSSD1331_96x64x8_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+
+//ScreenDriverSSD1331_96x64x16_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 // In-memory frame-buffer.
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
@@ -119,7 +121,7 @@ FrameBufferType FrameBuffer(Buffer);
 #if defined(ARDUINO_ARCH_AVR)
 static constexpr uint32_t FramePeriod = 33333;
 #else
-static constexpr uint32_t FramePeriod = 16666;
+static constexpr uint32_t FramePeriod = 20000;
 #endif
 GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, FramePeriod);
 //
@@ -150,16 +152,16 @@ DemoCyclerTask<7000> DemoCycler(&SchedulerBase, &GraphicsEngine,
 	&BitmapDemoDrawer
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(GRAPHICS_ENGINE_MEASURE)
-	, &PrimitiveDemoDrawer
+	, & PrimitiveDemoDrawer
 #endif
 #if !defined(DEBUG)
-	, &CloneDemoDrawer
+	, & CloneDemoDrawer
 #endif
 #else
-	, &PrimitiveDemoDrawer
-	, &CloneDemoDrawer
-	, &TextSpriteDemoDrawer
-	, &TextCharactersDemoDrawer
+	, & PrimitiveDemoDrawer
+	, & CloneDemoDrawer
+	, & TextSpriteDemoDrawer
+	, & TextCharactersDemoDrawer
 #endif
 );
 //
@@ -200,7 +202,7 @@ void setup()
 	if (!GraphicsEngine.Start())
 	{
 		halt();
-	}
+}
 
 #ifdef DEBUG
 	Serial.println(F("Screen Test Setup OK"));

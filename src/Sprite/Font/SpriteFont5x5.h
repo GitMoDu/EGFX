@@ -1,13 +1,15 @@
-// Fonts.h
+// SpriteFont5x5.h
 
-#ifndef _FONTS_h
-#define _FONTS_h
+#ifndef _SPRITE_FONT_5X5_h
+#define _SPRITE_FONT_5X5_h
 
 #include <stdint.h>
 
 #if defined(ARDUINO_ARCH_AVR)
 #include <avr/pgmspace.h>
 #endif
+
+#include <Sprite/BitMaskSprite.h>
 
 namespace Font5x5
 {
@@ -326,6 +328,19 @@ namespace Font5x5
 		0b11111000
 	};
 
+	static constexpr uint8_t Number0[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b01110000,
+		0b10011000,
+		0b10101000,
+		0b11001000,
+		0b01110000
+	};
+
+
 	static constexpr uint8_t Number1[Height]
 #if defined(ARDUINO_ARCH_AVR)
 		PROGMEM
@@ -427,7 +442,7 @@ namespace Font5x5
 		PROGMEM
 #endif 
 	{
-		0b01111000,
+		0b01110000,
 		0b10001000,
 		0b01111000,
 		0b00001000,
@@ -457,24 +472,151 @@ namespace Font5x5
 		0b00000000,
 		0b00100000
 	};
+
+	static constexpr uint8_t SymbolDecimalPoint[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b01000000
+	};
+
+	static constexpr uint8_t SymbolDecimalComma[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b01000000,
+		0b10000000
+	};
+
+	static constexpr uint8_t SymbolPercent[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b11001000,
+		0b11010000,
+		0b00100000,
+		0b01011000,
+		0b10011000
+	};
+
+	static constexpr uint8_t SymbolParenthesisOpen[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b00001000,
+		0b00010000,
+		0b00010000,
+		0b00010000,
+		0b00001000
+	};
+
+	static constexpr uint8_t SymbolParenthesisClose[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b10000000,
+		0b01000000,
+		0b01000000,
+		0b01000000,
+		0b10000000
+	};
+
+	static constexpr uint8_t SymbolBracketsOpen[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b00011000,
+		0b00010000,
+		0b00010000,
+		0b00010000,
+		0b00011000
+	};
+
+	static constexpr uint8_t SymbolBracketsClose[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b11000000,
+		0b01000000,
+		0b01000000,
+		0b01000000,
+		0b11000000
+	};
+
+	static constexpr uint8_t SymbolEquals[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b00000000,
+		0b01110000,
+		0b00000000,
+		0b01110000,
+		0b00000000
+	};
+
+	static constexpr uint8_t SymbolPlus[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b00100000,
+		0b00100000,
+		0b11111000,
+		0b00100000,
+		0b00100000
+	};
+
+	static constexpr uint8_t SymbolMinus[Height]
+#if defined(ARDUINO_ARCH_AVR)
+		PROGMEM
+#endif 
+	{
+		0b00000000,
+		0b00000000,
+		0b01111000,
+		0b00000000,
+		0b00000000
+	};
 };
 
-class SpriteFont5x5Renderer : public AbstractSpriteFontRenderer<Font5x5::Width, Font5x5::Height>
+class SpriteFont5x5Renderer : public AbstractSpriteFontRenderer<FlashBitMaskSprite<Font5x5::Width, Font5x5::Height>>
 {
+private:
+	using SpriteType = FlashBitMaskSprite<Font5x5::Width, Font5x5::Height>;
+
 public:
 	SpriteFont5x5Renderer()
-		: AbstractSpriteFontRenderer<Font5x5::Width, Font5x5::Height>()
+		: AbstractSpriteFontRenderer<SpriteType>()
 	{}
 
 protected:
-	const uint8_t* GetMask(const int8_t character) final
+	void SetCharacter(SpriteType& spriteSource, const int8_t character) final
+	{
+		spriteSource.SetMask(GetMask(character));
+	}
+
+private:
+	const uint8_t* GetMask(const int8_t character) const
 	{
 		switch (character)
 		{
 		case '0':
-		case 'o':
-		case 'O':
-			return Font5x5::LetterO;
+			return Font5x5::Number0;
 		case '1':
 			return Font5x5::Number1;
 		case '2':
@@ -535,6 +677,9 @@ protected:
 		case 'n':
 		case 'N':
 			return Font5x5::LetterN;
+		case 'o':
+		case 'O':
+			return Font5x5::LetterO;
 		case 'p':
 		case 'P':
 			return Font5x5::LetterP;
@@ -562,6 +707,9 @@ protected:
 		case 'y':
 		case 'Y':
 			return Font5x5::LetterY;
+		case 'x':
+		case 'X':
+			return Font5x5::LetterX;
 		case 'z':
 		case 'Z':
 			return Font5x5::LetterZ;
@@ -569,10 +717,28 @@ protected:
 			return Font5x5::SymbolExclamation;
 		case '?':
 			return Font5x5::SymbolQuestion;
-		case 'x':
-		case 'X':
+		case '.':
+			return Font5x5::SymbolDecimalPoint;
+		case ',':
+			return Font5x5::SymbolDecimalComma;
+		case '%':
+			return Font5x5::SymbolPercent;
+		case '(':
+			return Font5x5::SymbolParenthesisOpen;
+		case ')':
+			return Font5x5::SymbolParenthesisClose;
+		case '[':
+			return Font5x5::SymbolBracketsOpen;
+		case ']':
+			return Font5x5::SymbolBracketsClose;
+		case '=':
+			return Font5x5::SymbolEquals;
+		case '+':
+			return Font5x5::SymbolPlus;
+		case '-':
+			return Font5x5::SymbolMinus;
 		default:
-			return Font5x5::LetterX;
+			return nullptr;
 		}
 	}
 };

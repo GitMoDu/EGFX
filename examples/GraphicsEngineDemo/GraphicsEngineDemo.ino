@@ -10,15 +10,27 @@
 //#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
 #define SERIAL_BAUD_RATE 115200
 
-#if defined(ARDUINO_ARCH_STM32F1)
+#if defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)
+#define TFT_SPI		1
+#define TFT_DC		PB0
+#define TFT_RST     PB1
+#define TFT_CS		PA4
+#define TFT_CLK		PA5
+#define TFT_MOSI	PA7
+#define TFT_SPI_HZ	40000000
+#define TFT_I2C		0
+#define TFT_SCL		PB6
+#define TFT_SDA		PB7
+#define TFT_I2C_HZ	1000000
+#elif defined(ARDUINO_ARCH_STM32F1)
 #define TFT_SPI		1
 #define TFT_CS		7
 #define TFT_DC		8
 #define TFT_RST     9
 #define TFT_CLK		UINT8_MAX
 #define TFT_MOSI	UINT8_MAX
-#define TFT_I2C		1
 #define TFT_SPI_HZ	F_CPU/2
+#define TFT_I2C		1
 #define TFT_SCL		UINT8_MAX
 #define TFT_SDA		UINT8_MAX
 #define TFT_I2C_HZ	1000000

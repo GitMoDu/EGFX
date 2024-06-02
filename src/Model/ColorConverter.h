@@ -105,7 +105,7 @@ struct MonochromeColorConverter1 : public AbstractColorConverter1
 };
 
 /// <summary>
-/// Converter for 1 bit color, with fixed threshold at 0.
+/// Fast Converter for 1 bit color, with fixed threshold at 0.
 /// </summary>
 struct BinaryColorConverter1 : public AbstractColorConverter1
 {

@@ -36,9 +36,11 @@ protected:
 public:
 	AbstractScreenDriverSPI()
 		: IScreenDriver()
-#if defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_STM32)
+		, SpiInstance(pinMOSI, PNUM_NOT_DEFINED, pinCLK, pinCS)
+#elif defined(ARDUINO_ARCH_ESP32)
 		, SpiInstance(spiChannel)
-#elif defined(ARDUINO_ARCH_STM32F1)
+#elif defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
 		, SpiInstance(spiChannel)
 #elif defined(ARDUINO_ARCH_RP2040)
 		, SpiInstance(GetSpiHost(), UINT8_MAX, pinCS, pinCLK, pinMOSI)

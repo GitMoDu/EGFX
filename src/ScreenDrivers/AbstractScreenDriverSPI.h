@@ -7,7 +7,9 @@
 
 #include <SPI.h>
 
-template<const uint8_t width,
+template<
+	size_t bufferSize,
+	const uint8_t width,
 	const uint8_t height,
 	const uint8_t pinDC,
 	const uint8_t pinCS,
@@ -19,12 +21,13 @@ template<const uint8_t width,
 class AbstractScreenDriverSPI : public virtual IScreenDriver
 {
 public:
+	static constexpr size_t BufferSize = bufferSize;
 	static constexpr uint8_t ScreenWidth = width;
 	static constexpr uint8_t ScreenHeight = height;
 
 protected:
-	static constexpr uint8_t SPIChannel = spiChannel;
 	static constexpr uint32_t SPISpeed = spiSpeed;
+	static constexpr uint8_t SPIChannel = spiChannel;
 
 protected:
 #if defined(ARDUINO_ARCH_RP2040)
@@ -99,12 +102,40 @@ public:
 		}
 	}
 
-	virtual const uint8_t GetWidth() final
+	virtual const bool CanPushBuffer()
+	{
+		return true;
+	}
+
+	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
+	{
+#if defined(ARDUINO_ARCH_STM32F4)
+		SpiInstance.transfer((uint8_t*)frameBuffer, (uint32_t)bufferSize);
+#elif defined(ARDUINO_ARCH_STM32)
+		SpiInstance.transfer((void*)frameBuffer, bufferSize, true);
+#else
+		SpiInstance.transfer((void*)frameBuffer, bufferSize);
+#endif
+
+		return 0;
+	}
+
+	virtual const bool PushingBuffer(const uint8_t* frameBuffer)
+	{
+		return false;
+	}
+
+	virtual void EndBuffer()
+	{
+		CommandEnd();
+	}
+
+	const uint8_t GetWidth() final
 	{
 		return ScreenWidth;
 	}
 
-	virtual const uint8_t GetHeight() final
+	const uint8_t GetHeight() final
 	{
 		return ScreenHeight;
 	}
@@ -161,4 +192,5 @@ private:
 	}
 #endif
 };
+
 #endif

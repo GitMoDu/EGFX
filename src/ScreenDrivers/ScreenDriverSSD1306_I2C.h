@@ -5,6 +5,7 @@
 
 #include "AbstractScreenDriverI2C.h"
 #include "TemplateScreenDriverRtos.h"
+#include "TemplateScreenDriverI2CDma.h"
 #include "TemplateScreenDriverI2CAsync.h"
 #include "SSD1306\SSD1306.h"
 
@@ -44,6 +45,11 @@ protected:
 	static constexpr uint8_t BUFFER_WHOLE = BufferSize / I2C_BUFFER_SIZE;
 	static constexpr uint8_t BUFFER_REMAINDER = BufferSize % I2C_BUFFER_SIZE;
 	static constexpr size_t REMAINDER_START = (size_t)BUFFER_WHOLE * I2C_BUFFER_SIZE;
+
+#if defined(ARDUINO_ARCH_RP2040)
+private:
+	uint8_t DmaBuffer[I2C_BUFFER_SIZE + 1]{};
+#endif
 
 public:
 	AbstractScreenDriverSSD1306_I2C() : BaseClass()
@@ -126,6 +132,15 @@ protected:
 		WireInstance.write(chunk, chunkSize);
 		CommandEnd();
 	}
+
+#if defined(TEMPLATE_SCREEN_DRIVER_I2C_DMA)
+	void PushChunkDma(const uint8_t* chunk, const size_t chunkSize)
+	{
+		DmaBuffer[0] = (uint8_t)SSD1306::CommandEnum::BufferStart;
+		memcpy(&DmaBuffer[1], chunk, chunkSize);
+		WireInstance.writeAsync(I2CAddress, (const void*)DmaBuffer, chunkSize + 1, true);
+	}
+#endif
 
 private:
 	void CommandReset()
@@ -329,6 +344,17 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	uint32_t stackHeight = 1500,
 	portBASE_TYPE priority = 1>
 class ScreenDriverSSD1306_128x64x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
+{};
+#endif
+
+#if defined(TEMPLATE_SCREEN_DRIVER_I2C_DMA)
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000,
+	const uint32_t pushSleepDuration = 0>
+class ScreenDriverSSD1306_128x64x1_I2C_Dma : public TemplateScreenDriverI2CDma<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>>
 {};
 #endif
 #endif

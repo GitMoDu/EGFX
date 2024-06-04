@@ -270,8 +270,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t i2cChannel = 0,
 	const uint32_t i2cSpeed = 400000,
 	const uint8_t i2cChunkSize = 8>
-class ScreenDriverSSD1306_64x32x1_I2C_Async : public TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_64x32x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>
-{};
+using  ScreenDriverSSD1306_64x32x1_I2C_Async = TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_64x32x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>;
 
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
@@ -279,8 +278,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t i2cChannel = 0,
 	const uint32_t i2cSpeed = 400000,
 	const uint8_t i2cChunkSize = 8>
-class ScreenDriverSSD1306_64x48x1_I2C_Async : public TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_64x48x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>
-{};
+using ScreenDriverSSD1306_64x48x1_I2C_Async = TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_64x48x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>;
 
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
@@ -288,8 +286,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t i2cChannel = 0,
 	const uint32_t i2cSpeed = 400000,
 	const uint8_t i2cChunkSize = 8>
-class ScreenDriverSSD1306_72x40x1_I2C_Async : public TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_72x40x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>
-{};
+using ScreenDriverSSD1306_72x40x1_I2C_Async = TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_72x40x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>;
 
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
@@ -297,9 +294,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t i2cChannel = 0,
 	const uint32_t i2cSpeed = 400000,
 	const uint8_t i2cChunkSize = 8>
-class ScreenDriverSSD1306_128x64x1_I2C_Async : public TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>
-{};
-
+using ScreenDriverSSD1306_128x64x1_I2C_Async = TemplateScreenDriverI2CAsync<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, i2cChunkSize>;
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
 template<const uint8_t pinSCL = UINT8_MAX,
@@ -310,8 +305,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint32_t pushSleepDuration = 0,
 	uint32_t stackHeight = 1500,
 	portBASE_TYPE priority = 1>
-class ScreenDriverSSD1306_64x32x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_64x32x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
-{};
+using ScreenDriverSSD1306_64x32x1_I2C_Rtos = TemplateScreenDriverRtos<ScreenDriverSSD1306_64x32x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>;
 
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
@@ -321,8 +315,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint32_t pushSleepDuration = 0,
 	uint32_t stackHeight = 1500,
 	portBASE_TYPE priority = 1>
-class ScreenDriverSSD1306_64x48x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_64x48x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
-{};
+using ScreenDriverSSD1306_64x48x1_I2C_Rtos = TemplateScreenDriverRtos<ScreenDriverSSD1306_64x48x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>;
 
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
@@ -332,8 +325,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint32_t pushSleepDuration = 0,
 	uint32_t stackHeight = 1500,
 	portBASE_TYPE priority = 1>
-class ScreenDriverSSD1306_72x40x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_72x40x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
-{};
+using ScreenDriverSSD1306_72x40x1_I2C_Rtos = TemplateScreenDriverRtos<ScreenDriverSSD1306_72x40x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>;
 
 template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
@@ -343,8 +335,7 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint32_t pushSleepDuration = 0,
 	uint32_t stackHeight = 1500,
 	portBASE_TYPE priority = 1>
-class ScreenDriverSSD1306_128x64x1_I2C_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>
-{};
+using ScreenDriverSSD1306_128x64x1_I2C_Rtos = TemplateScreenDriverRtos<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>, pushSleepDuration, stackHeight, priority>;
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_I2C_DMA)
@@ -352,9 +343,28 @@ template<const uint8_t pinSCL = UINT8_MAX,
 	const uint8_t pinSDA = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
 	const uint8_t i2cChannel = 0,
-	const uint32_t i2cSpeed = 400000,
-	const uint32_t pushSleepDuration = 0>
-class ScreenDriverSSD1306_128x64x1_I2C_Dma : public TemplateScreenDriverI2CDma<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>>
-{};
+	const uint32_t i2cSpeed = 400000>
+using ScreenDriverSSD1306_64x32x1_I2C_Dma = TemplateScreenDriverI2CDma<ScreenDriverSSD1306_64x32x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>>;
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000>
+using ScreenDriverSSD1306_64x48x1_I2C_Dma = TemplateScreenDriverI2CDma<ScreenDriverSSD1306_64x48x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>>;
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000>
+using ScreenDriverSSD1306_72x40x1_I2C_Dma = TemplateScreenDriverI2CDma<ScreenDriverSSD1306_72x40x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>>;
+
+template<const uint8_t pinSCL = UINT8_MAX,
+	const uint8_t pinSDA = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t i2cChannel = 0,
+	const uint32_t i2cSpeed = 400000>
+using ScreenDriverSSD1306_128x64x1_I2C_Dma = TemplateScreenDriverI2CDma<ScreenDriverSSD1306_128x64x1_I2C<pinSCL, pinSDA, pinRST, i2cChannel, i2cSpeed>>;
 #endif
 #endif

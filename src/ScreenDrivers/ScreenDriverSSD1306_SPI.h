@@ -143,7 +143,7 @@ template<const uint8_t pinDC = UINT8_MAX,
 class ScreenDriverSSD1306_128x64x1_SPI_Async : public TemplateScreenDriverSpiAsync<ScreenDriverSSD1306_128x64x1_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, spiChunkDivisor>
 {};
 
-#if defined(TEMPLATE_SCREEN_DRIVER_DMA)
+#if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
 template<const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinCS = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,

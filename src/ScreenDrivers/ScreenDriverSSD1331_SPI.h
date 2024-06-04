@@ -143,7 +143,7 @@ template<const uint8_t pinDC = UINT8_MAX,
 class ScreenDriverSSD1331_96x64x16_SPI_Async : public TemplateScreenDriverSpiAsync<ScreenDriverSSD1331_96x64x16_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, spiChunkDivisor>
 {};
 
-#if defined(TEMPLATE_SCREEN_DRIVER_DMA)
+#if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
 template<const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinCS = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
@@ -153,6 +153,17 @@ template<const uint8_t pinDC = UINT8_MAX,
 	const uint32_t spiSpeed = 4000000,
 	const uint32_t pushSleepDuration = 0>
 class ScreenDriverSSD1331_96x64x8_SPI_Dma : public TemplateScreenDriverSpiDma<ScreenDriverSSD1331_96x64x8_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, pushSleepDuration>
+{};
+
+template<const uint8_t pinDC = UINT8_MAX,
+	const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinRST = UINT8_MAX,
+	const uint8_t pinCLK = UINT8_MAX,
+	const uint8_t pinMOSI = UINT8_MAX,
+	const uint8_t spiChannel = 0,
+	const uint32_t spiSpeed = 4000000,
+	const uint32_t pushSleepDuration = 0>
+class ScreenDriverSSD1331_96x64x16_SPI_Dma : public TemplateScreenDriverSpiDma<ScreenDriverSSD1331_96x64x16_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, pushSleepDuration>
 {};
 #endif
 

@@ -10,6 +10,7 @@
 
 /// <summary>
 /// Abstract frame buffer, with primitive implementation.
+/// Diagonal (Bresenham) Line implementation based on https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
 /// </summary>
 /// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter.</typeparam>
 /// <typeparam name="frameWidth">Frame buffer width [0;254].</typeparam>
@@ -190,26 +191,77 @@ public:
 			{
 				Pixel(ColorConverter::GetRawColor(color), x1, y1);
 			}
+			else if (y2 > y1)
+			{
+				LineVertical(ColorConverter::GetRawColor(color), x1, y1, y2 - y1);
+			}
 			else
 			{
-				LineVertical(ColorConverter::GetRawColor(color), x1, y1, y2 + 1 - y1);
+				LineVertical(ColorConverter::GetRawColor(color), x1, y2 - 1, y1 - y2);
 			}
 		}
 		else if (y1 == y2)
 		{
-			LineHorizontal(ColorConverter::GetRawColor(color), x1, y1, x2 + 1 - x1);
+			if (x2 > x1)
+			{
+				LineHorizontal(ColorConverter::GetRawColor(color), x1, y1, x2 - x1);
+			}
+			else
+			{
+				LineHorizontal(ColorConverter::GetRawColor(color), x2 + 1, y1, x1 - x2);
+			}
+		}
+		else if (x2 > x1)
+		{
+			if (y2 > y1)
+			{
+				if (x2 - x1 > y2 - y1)
+				{
+					BresenhamRightUp(ColorConverter::GetRawColor(color), x1, y1, y2, x2 - x1);
+				}
+				else
+				{
+					BresenhamUpRight(ColorConverter::GetRawColor(color), x1, y1, x2, y2 - y1);
+				}
+			}
+			else if (x2 - x1 > y1 - y2)
+			{
+				BresenhamRightDown(ColorConverter::GetRawColor(color), x1, y1, y2, x2 - x1);
+			}
+			else
+			{
+				BresenhamUpLeft(ColorConverter::GetRawColor(color), x2, y2, x1, y1 - y2);
+			}
+		}
+		else if (y2 > y1)
+		{
+			if (x1 - x2 > y2 - y1)
+			{
+				BresenhamRightDown(ColorConverter::GetRawColor(color), x2, y2, y1, x1 - x2);
+			}
+			else
+			{
+				BresenhamUpLeft(ColorConverter::GetRawColor(color), x1, y1, x2, y2 - y1);
+			}
 		}
 		else
 		{
-			LineDiagonal(ColorConverter::GetRawColor(color), x1, y1, x2, y2);
+			if (x1 - x2 > y1 - y2)
+			{
+				BresenhamRightUp(ColorConverter::GetRawColor(color), x2, y2, y1, x1 - x2);
+			}
+			else
+			{
+				BresenhamUpRight(ColorConverter::GetRawColor(color), x2, y2, x1, y1 - y2);
+			}
 		}
 	}
 
 	virtual void RectangleFill(const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
 	{
-		if (x1 > x2
+		if (x1 >= x2
 			|| x2 >= FrameWidth
-			|| y1 > y2
+			|| y1 >= y2
 			|| y2 >= FrameHeight)
 		{
 #if defined(GRAPHICS_ENGINE_DEBUG)
@@ -234,9 +286,9 @@ public:
 
 	virtual void Rectangle(const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2) final
 	{
-		if (x1 > x2
+		if (x1 >= x2
 			|| x2 >= FrameWidth
-			|| y1 > y2
+			|| y1 >= y2
 			|| y2 >= FrameHeight)
 		{
 #if defined(GRAPHICS_ENGINE_DEBUG)
@@ -260,101 +312,83 @@ public:
 	}
 
 private:
-	/// <summary>
-	/// Based on https://github.com/Sarah-Hesham-2022/ComputerGraphics-Algorithms-With-CPP
-	/// </summary>
-	void LineDiagonal(const color_t rawColor, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	void BresenhamRightUp(const color_t rawColor, const uint8_t x1, const uint8_t y1, const uint8_t y2, const uint8_t width)
 	{
-		if (Absolute(y2 - y1) < Absolute(x2 - x1))
-		{
-			if (x1 > x2)
-			{
-				PlotLineLow(rawColor, x2, y2, x1, y1);
-			}
-			else
-			{
-				PlotLineLow(rawColor, x1, y1, x2, y2);
-			}
-		}
-		else
-		{
-			if (y1 > y2)
-			{
-				PlotLineHigh(rawColor, x2, y2, x1, y1);
-			}
-			else
-			{
-				PlotLineHigh(rawColor, x1, y1, x2, y2);
-			}
-		}
-	}
-	void PlotLineLow(const color_t rawColor, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
-	{
-		const int_fast8_t dx = x2 - x1;
-		int_fast8_t dy = y2 - y1;
-		int_fast8_t yi = 1;
-		int_fast16_t D = (int_fast16_t)(2 * dy) - dx;
-		uint_fast8_t y = y1;
+		const uint16_t slopeMagnitude = 2 * (y2 - y1);
 
-		if (dy < 0)
-		{
-			yi = -1;
-			dy = -dy;
-		}
+		int16_t slopeError = slopeMagnitude - width;
+		uint8_t y = y1;
 
-		for (uint_fast8_t x = x1; x < x2; x++)
+		for (uint8_t x = x1; x < x1 + width; x++)
 		{
 			Pixel(rawColor, x, y);
-			if (D > 0)
+
+			slopeError += slopeMagnitude;
+			if (slopeError >= 0)
 			{
-				y = y + yi;
-				D = D + (2 * (dy - dx));
-			}
-			else
-			{
-				D = D + 2 * dy;
+				y++;
+				slopeError -= 2 * width;
 			}
 		}
 	}
 
-	void PlotLineHigh(const color_t rawColor, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	void BresenhamRightDown(const color_t rawColor, const uint8_t x1, const uint8_t y1, const uint8_t y2, const uint8_t width)
 	{
-		const int_fast8_t dy = y2 - y1;
-		int_fast8_t dx = x2 - x1;
-		int_fast8_t xi = 1;
-		int_fast16_t D = (int_fast16_t)(2 * dx) - dy;
-		uint_fast8_t x = x1;
+		const uint16_t slopeMagnitude = 2 * (y1 - y2);
 
-		if (dx < 0)
-		{
-			xi = -1;
-			dx = -dx;
-		}
+		int16_t slopeError = slopeMagnitude - width;
+		uint8_t y = y1;
 
-		for (uint_fast8_t y = y1; y < y2; y++)
+		for (uint8_t x = x1; x < x1 + width; x++)
 		{
 			Pixel(rawColor, x, y);
-			if (D > 0)
+
+			slopeError += slopeMagnitude;
+			if (slopeError >= 0)
 			{
-				x = x + xi;
-				D = D + (2 * (dx - dy));
-			}
-			else
-			{
-				D = D + 2 * dx;
+				y--;
+				slopeError -= 2 * width;
 			}
 		}
 	}
 
-	static const uint8_t Absolute(const int8_t value)
+	void BresenhamUpRight(const color_t rawColor, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t height)
 	{
-		if (value >= 0)
+		const uint16_t slopeMagnitude = 2 * (x2 - x1);
+
+		int16_t slopeError = slopeMagnitude - height;
+		uint8_t x = x1;
+
+		for (uint8_t y = y1; y < y1 + height; y++)
 		{
-			return value;
+			Pixel(rawColor, x, y);
+
+			slopeError += slopeMagnitude;
+			if (slopeError >= 0)
+			{
+				x++;
+				slopeError -= 2 * height;
+			}
 		}
-		else
+	}
+
+	void BresenhamUpLeft(const color_t rawColor, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t height)
+	{
+		const uint16_t slopeMagnitude = 2 * (x1 - x2);
+
+		int16_t slopeError = slopeMagnitude - height;
+		uint8_t x = x1;
+
+		for (uint8_t y = y1; y < y1 + height; y++)
 		{
-			return -value;
+			Pixel(rawColor, x, y);
+
+			slopeError += slopeMagnitude;
+			if (slopeError >= 0)
+			{
+				x--;
+				slopeError -= 2 * height;
+			}
 		}
 	}
 };

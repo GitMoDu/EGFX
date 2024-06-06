@@ -16,5 +16,17 @@ namespace Character
 
 	static constexpr uint8_t NumbersCount = 10;
 	static constexpr int8_t NumbersEnd = NumbersStart + NumbersCount;
+
+	static constexpr uint32_t PowerOfTen[]{
+		10,
+		100,
+		1000,
+		10000,
+		100000,
+		1000000,
+		10000000,
+		100000000,
+		1000000000
+	};
 }
 #endif

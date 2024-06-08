@@ -14,12 +14,13 @@ private:
 		DrawElementsCount
 	};
 
-	static constexpr uint32_t TextScalePeriodMicros = 4000000;
-	static constexpr uint32_t TextPositionPeriodMicros = TextScalePeriodMicros * 2;
+	static constexpr uint32_t TextScalePeriodMicros = 1000000;
 	static constexpr uint32_t TextColorPeriodMicros = 10000000;
+	static constexpr uint32_t NumberFactor = 333000;
+	static constexpr uint8_t CornerCount = 4;
 
 	RgbColor Color{};
-	FontStyle DynamicFont;
+	TemplateFontStyle<FontStyle::WIDTH_RATIO_DEFAULT> DynamicFont;
 
 public:
 	TextAlignmentDemo(IFrameBuffer* frame)
@@ -43,20 +44,20 @@ public:
 
 	void DrawRoamingText(DrawState* drawState)
 	{
-		const uint8_t y = 1;
-		const uint8_t minHeight = TinyFont::FONT_SIZE;
-		const uint8_t maxHeight = GetShortestDimension() / 3;
+		const uint8_t y = 0;
+		const uint8_t minHeight = FontStyle::FONT_SIZE_MIN;
+		const uint8_t maxHeight = (Frame->GetHeight() / 2) - 2;
 		const uint16_t sizeProgress = drawState->GetProgress<TextScalePeriodMicros>();
-		const uint8_t textHeight = minHeight + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(sizeProgress), (uint8_t)(maxHeight - minHeight));
+		const uint8_t textHeight = minHeight + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(sizeProgress), (uint8_t)(maxHeight - minHeight + 1));
 		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
 
-		const uint8_t sectionCount = 4;
-		const uint16_t moveProgress = drawState->GetProgress<TextPositionPeriodMicros>();
-		const uint8_t section = (moveProgress / (UINT16_MAX / sectionCount));
 
-		const uint16_t number = drawState->FrameCounter;
+		const uint16_t sectionProgress = drawState->GetProgress<TextScalePeriodMicros * CornerCount>();
+		const uint8_t section = ProgressScaler::ScaleProgress(sectionProgress, (uint8_t)(CornerCount));
 
-		DynamicFont.SetStyle(0, 0, 0, textHeight);
+		const uint32_t number = drawState->FrameTime / NumberFactor;
+
+		DynamicFont.SetSize(textHeight);
 		DynamicFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
 		DynamicFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		DynamicFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
@@ -74,6 +75,7 @@ public:
 			break;
 		case 3:
 			NumberRenderer::NumberBottomLeft(Frame, DynamicFont, 0, Frame->GetHeight() - 1, number);
+			break;
 		default:
 			break;
 		}

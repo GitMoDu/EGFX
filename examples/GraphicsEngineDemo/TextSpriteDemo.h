@@ -21,7 +21,8 @@ private:
 
 	RgbColor Color{};
 
-	SpriteFont5x5Renderer FontRenderer{};
+	SpriteFont5x5Renderer TextDrawer{};
+	SpriteFont3x5Renderer NumberDrawer{};
 
 public:
 	TextSpriteDemo(IFrameBuffer* frame)
@@ -61,7 +62,7 @@ private:
 		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		FontRenderer.TextTopLeft(Frame, Color,
+		TextDrawer.TextTopLeft(Frame, Color,
 			0, 0,
 			"ABCDEFGHIJ"
 		);
@@ -75,8 +76,8 @@ private:
 		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		FontRenderer.TextTopLeft(Frame, Color,
-			0, FontRenderer.FontHeight + 1,
+		TextDrawer.TextTopLeft(Frame, Color,
+			0, TextDrawer.FontHeight + 1,
 			"KLMNOPQRST"
 		);
 	}
@@ -89,8 +90,8 @@ private:
 		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		FontRenderer.TextTopLeft(Frame, Color,
-			0, (FontRenderer.FontHeight + 1) * 2,
+		TextDrawer.TextTopLeft(Frame, Color,
+			0, (TextDrawer.FontHeight + 1) * 2,
 			"UVWXYZ!?.,"
 		);
 	}
@@ -103,9 +104,9 @@ private:
 		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		FontRenderer.TextTopLeft(Frame, Color,
-			0, (FontRenderer.FontHeight + 1) * 4,
-			"0123456789"
+		NumberDrawer.TextTopLeft(Frame, Color,
+			0, (TextDrawer.FontHeight + 1) * 3,
+			"0123456789.,+-="
 		);
 	}
 };

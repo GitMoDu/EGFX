@@ -14,6 +14,7 @@ private:
 		UpperCase2,
 		LowerCase1,
 		LowerCase2,
+		Numbers,
 		DrawElementsCount
 	};
 
@@ -31,9 +32,6 @@ public:
 		SmallFont.SetHeight(FontStyle::FONT_SIZE_REGULAR + 2, FontStyle::WIDTH_RATIO_THIN);
 	}
 
-	/// <summary>
-	/// ElementIndex can be used to separate draw calls, avoiding hogging the co-operative scheduler.
-	/// </summary>
 	virtual void DrawCall(DrawState* drawState) final
 	{
 		switch (drawState->ElementIndex)
@@ -49,6 +47,9 @@ public:
 			break;
 		case (uint8_t)DrawElementsEnum::LowerCase2:
 			DrawLowerCase2(drawState);
+			break;
+		case (uint8_t)DrawElementsEnum::Numbers:
+			DrawNumbers(drawState);
 			break;
 		default:
 			break;
@@ -93,7 +94,7 @@ private:
 			}
 			else
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, SmallFont.Height + 1, F("NOPQRST"));
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, SmallFont.Height + 1, F("HIJKLMN"));
 			}
 		}
 	}
@@ -114,7 +115,7 @@ private:
 			}
 			else
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("abcdefg"));
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("OPQRSTU"));
 			}
 		}
 	}
@@ -135,8 +136,22 @@ private:
 			}
 			else
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("nopqrst"));
+				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("VWXYZ-,."));
 			}
+		}
+	}
+
+	void DrawNumbers(DrawState* drawState)
+	{
+		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+
+		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
+		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
+		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+
+		if (ShowNumbers())
+		{
+			TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 4, F("1234567890"));
 		}
 	}
 
@@ -163,6 +178,11 @@ private:
 	const bool ShowLowerCase2()
 	{
 		return ShowLowerCase1() && (Frame->GetHeight() > ((SmallFont.Height * 4) + 3));
+	}
+
+	const bool ShowNumbers()
+	{
+		return ShowLowerCase2() && (Frame->GetHeight() > ((SmallFont.Height * 5) + 4));
 	}
 };
 #endif

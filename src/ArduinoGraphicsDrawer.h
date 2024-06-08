@@ -32,6 +32,7 @@
 #include "Sprite/Equation/RectangleSprite.h"
 
 #include "Sprite/Font/SpriteFont5x5.h"
+#include "Sprite/Font/SpriteFont3x5.h"
 
 
 

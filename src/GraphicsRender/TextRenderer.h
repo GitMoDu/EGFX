@@ -21,7 +21,7 @@ public:
 		{
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
 			uint8_t offset = 0;
-			while (x1 < frame->GetWidth() - offset)
+			while (x1 < frame->GetWidth() - offset - font.Width - font.Kerning)
 			{
 				const int8_t character = pgm_read_byte(ptr++);
 				if (character == Character::Break)
@@ -108,7 +108,7 @@ public:
 			uint8_t* ch = (uint8_t*)str;
 			uint8_t offset = 0;
 			while (size--
-				&& x1 < frame->GetWidth() - offset)
+				&& x1 < frame->GetWidth() - offset - font.Width - font.Kerning)
 			{
 				FontRenderer::Write(frame, font, x1 + offset, y1, (const uint8_t)*ch++);
 				offset += font.Width + font.Kerning;

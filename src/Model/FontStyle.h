@@ -6,171 +6,121 @@
 #include <stdint.h>
 #include "RgbColor.h"
 
-namespace TinyFont
-{
-	static constexpr uint16_t FONT_SIZE = 7;
-	static constexpr uint16_t WIDTH_RATIO = 223;
-};
-
-namespace DefaultFont
-{
-
-	static constexpr uint16_t FONT_SIZE = 9;
-	static constexpr uint16_t WIDTH_RATIO = 176;
-	static constexpr uint16_t KERNING_RATIO = 32;
-};
-
-namespace HugeFont
-{
-	static constexpr uint16_t FONT_SIZE = 28;
-	static constexpr uint16_t WIDTH_RATIO = 112;
-};
-
 class FontStyle
 {
 public:
-	static constexpr uint16_t MIN_FONT_SIZE = TinyFont::FONT_SIZE;
-	static constexpr uint16_t MAX_FONT_SIZE = HugeFont::FONT_SIZE;
+	static constexpr uint16_t WIDTH_RATIO_WIDE = 287;
+	static constexpr uint8_t WIDTH_RATIO_DEFAULT = 191;
+	static constexpr uint8_t WIDTH_RATIO_THIN = 144;
 
-	static constexpr uint16_t MIN_FONT_HEIGHT = 7;
-	static constexpr uint16_t MIN_FONT_WIDTH = 4;
+	static constexpr uint8_t KERNING_RATIO_DEFAULT = 32;
+
+private:
+	static constexpr uint8_t FONT_HEIGHT_MIN = 5;
+
+public:
+	static constexpr uint8_t FONT_SIZE_MIN = FONT_HEIGHT_MIN;
+	static constexpr uint8_t FONT_SIZE_REGULAR = FONT_HEIGHT_MIN + 2;
+	static constexpr uint8_t FONT_SIZE_MAX = INT8_MAX;
 
 public:
 	RgbColor Color;
 
-	uint8_t Height = 0;
-	uint8_t Width = 0;
-	uint8_t Kerning = 0;
+	uint8_t Height = FONT_HEIGHT_MIN;
+	uint8_t Width = GetFontWidth(WIDTH_RATIO_DEFAULT, FONT_HEIGHT_MIN);
+	uint8_t Kerning = GetKerning(KERNING_RATIO_DEFAULT, Width);
 
 public:
+	FontStyle()
+		: Color(INT8_MAX, INT8_MAX, INT8_MAX)
+	{}
+	const uint8_t GetTextWidth(const uint8_t characterCount) const
+	{
+		return GetTextWidth(characterCount, Width, Kerning);
+	}
+
 	void SetStyle(const RgbColor& color,
 		const uint8_t height,
-		const uint16_t widthRatio = DefaultFont::WIDTH_RATIO,
-		const uint8_t kerningRatio = DefaultFont::KERNING_RATIO)
+		const int8_t widthRatio = WIDTH_RATIO_DEFAULT,
+		const uint8_t kerningRatio = KERNING_RATIO_DEFAULT)
 	{
 		SetStyle(color.r, color.g, color.b,
 			height, widthRatio, kerningRatio);
-	}
-
-	void SetStyleByWidth(const RgbColor& color,
-		const uint8_t height,
-		const uint8_t width,
-		const uint8_t kerningRatio = DefaultFont::KERNING_RATIO)
-	{
-		SetStyleByWidth(color.r, color.g, color.b,
-			height, width, kerningRatio);
-	}
-
-	void SetStyleByWidth(const uint8_t r,
-		const uint8_t g,
-		const uint8_t b,
-		const uint8_t height,
-		const uint8_t width,
-		const uint8_t kerningRatio = DefaultFont::KERNING_RATIO)
-	{
-		if (height < MIN_FONT_HEIGHT)
-		{
-			Height = MIN_FONT_HEIGHT;
-		}
-		else if (height > MAX_FONT_SIZE)
-		{
-			Height = MAX_FONT_SIZE;
-		}
-		else
-		{
-			Height = height;
-		}
-
-		if (width < MIN_FONT_WIDTH)
-		{
-			Width = MIN_FONT_WIDTH;
-		}
-		else if (width > MAX_FONT_SIZE)
-		{
-			Width = MAX_FONT_SIZE;
-		}
-		else
-		{
-			Width = width;
-		}
-
-		if (Width > Height)
-		{
-			Kerning = GetRatioValue(kerningRatio, Height);
-		}
-		else
-		{
-			Kerning = GetRatioValue(kerningRatio, Width);
-		}
-
-		Color.r = r;
-		Color.g = g;
-		Color.b = b;
-	}
-
-	const uint8_t GetTextWidth(const uint8_t characterCount)
-	{
-		if (characterCount > 0)
-		{
-			return (characterCount * Width) + (Kerning * (characterCount - 1));
-		}
-		else
-		{
-			return 0;
-		}
 	}
 
 	void SetStyle(const uint8_t r,
 		const uint8_t g,
 		const uint8_t b,
 		const uint8_t height,
-		const uint16_t widthRatio = DefaultFont::WIDTH_RATIO,
-		const uint8_t kerningRatio = DefaultFont::KERNING_RATIO)
+		const uint16_t widthRatio = KERNING_RATIO_DEFAULT,
+		const uint8_t kerningRatio = KERNING_RATIO_DEFAULT)
 	{
-		if (height < MIN_FONT_HEIGHT)
+		Color.r = r;
+		Color.g = g;
+		Color.b = b;
+
+		SetHeight(height, widthRatio, kerningRatio);
+	}
+
+	void SetHeight(const uint8_t height,
+		const uint16_t widthRatio = FontStyle::WIDTH_RATIO_DEFAULT,
+		const uint8_t kerningRatio = FontStyle::KERNING_RATIO_DEFAULT)
+	{
+		if (height <= FontStyle::FONT_SIZE_MIN)
 		{
-			Height = MIN_FONT_HEIGHT;
+			Height = FontStyle::FONT_SIZE_MIN;
 		}
-		else if (height > MAX_FONT_SIZE)
+		else if (height >= FontStyle::FONT_SIZE_MAX)
 		{
-			Height = MAX_FONT_SIZE;
+			Height = FontStyle::FONT_SIZE_MAX;
 		}
 		else
 		{
 			Height = height;
 		}
 
-		Width = GetWidth(widthRatio, Height);
+		Width = GetFontWidth(widthRatio, Height);
 
 		if (Width > Height)
 		{
-			Kerning = GetRatioValue(kerningRatio, Height);
+			Kerning = GetKerning(kerningRatio, Height);
 		}
 		else
 		{
-			Kerning = GetRatioValue(kerningRatio, Width);
+			Kerning = GetKerning(kerningRatio, Width);
 		}
-
-		Color.r = r;
-		Color.g = g;
-		Color.b = b;
 	}
 
 public:
-	static constexpr uint8_t GetWidth(const uint16_t widthRatio, const uint8_t value)
+	static constexpr uint8_t GetFontWidth(const uint16_t widthRatio, const uint8_t height)
 	{
-		return (((uint16_t)value) * widthRatio) / UINT8_MAX;
+		return (((uint16_t)height) * widthRatio) / UINT8_MAX;
 	}
 
-	static constexpr uint8_t GetHeight(const uint16_t widthRatio, const uint8_t value)
+	static constexpr uint8_t GetFontHeight(const uint16_t widthRatio, const uint8_t width)
 	{
-		return (((uint16_t)value) * (UINT8_MAX + widthRatio)) / UINT8_MAX;
+		return (((uint16_t)width) * (UINT8_MAX + widthRatio)) / UINT8_MAX;
 	}
 
-private:
-	static constexpr uint8_t GetRatioValue(const uint8_t strokeRatio, const uint8_t value)
+	static constexpr uint8_t GetKerning(const uint8_t ratio, const uint8_t value)
 	{
-		return 1 + (((uint16_t)value) * strokeRatio) / UINT8_MAX;
+		return 1 + (((uint16_t)value) * ratio) / UINT8_MAX;
+	}
+
+	static constexpr uint8_t GetTextWidth(const uint8_t characterCount, const uint8_t width, const uint8_t kerning)
+	{
+		return (characterCount > 0) * ((characterCount * width) + (kerning * (characterCount - 1)));
+	}
+};
+
+template<const uint16_t widthRatio = FontStyle::WIDTH_RATIO_DEFAULT,
+	const uint8_t kerningRatio = FontStyle::KERNING_RATIO_DEFAULT>
+class TemplateFontStyle : public FontStyle
+{
+public:
+	void SetSize(const uint8_t size)
+	{
+		FontStyle::SetHeight(size, widthRatio, kerningRatio);
 	}
 };
 #endif

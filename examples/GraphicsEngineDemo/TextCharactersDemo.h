@@ -20,16 +20,15 @@ private:
 	static constexpr uint32_t TextColorPeriodMicros = 3000000;
 	static constexpr uint32_t NumberPeriodMicros = UINT32_MAX;
 	static constexpr uint32_t NumberRange = 100000;
-	static constexpr uint8_t SmallTextDimension = TinyFont::FONT_SIZE + 3;
 
 	RgbColor Color{};
-	FontStyle SmallFont;
+	FontStyle SmallFont{};
 
 public:
 	TextCharactersDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		SmallFont.SetStyle(0, 0, 0, SmallTextDimension, TinyFont::WIDTH_RATIO);
+		SmallFont.SetHeight(FontStyle::FONT_SIZE_REGULAR + 2, FontStyle::WIDTH_RATIO_THIN);
 	}
 
 	/// <summary>

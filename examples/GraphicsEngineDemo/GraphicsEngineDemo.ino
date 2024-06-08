@@ -202,7 +202,7 @@ void setup()
 	if (!GraphicsEngine.Start())
 	{
 		halt();
-}
+	}
 
 #ifdef DEBUG
 	Serial.println(F("Screen Test Setup OK"));

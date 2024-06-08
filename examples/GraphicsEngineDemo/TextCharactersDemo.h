@@ -29,7 +29,7 @@ public:
 	TextCharactersDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		SmallFont.SetHeight(FontStyle::FONT_SIZE_REGULAR + 2, FontStyle::WIDTH_RATIO_THIN);
+		SmallFont.SetHeight(FontStyle::FONT_SIZE_REGULAR);
 	}
 
 	virtual void DrawCall(DrawState* drawState) final

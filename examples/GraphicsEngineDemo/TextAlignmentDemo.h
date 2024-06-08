@@ -14,7 +14,7 @@ private:
 		DrawElementsCount
 	};
 
-	static constexpr uint32_t TextScalePeriodMicros = 1000000;
+	static constexpr uint32_t TextScalePeriodMicros = 3000000;
 	static constexpr uint32_t TextColorPeriodMicros = 10000000;
 	static constexpr uint32_t NumberFactor = 333000;
 	static constexpr uint8_t CornerCount = 4;

@@ -22,8 +22,24 @@ struct SpriteRenderer
 		const uint8_t positionX, const uint8_t positionY,
 		const int16_t parameter)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		if (positionX >= frame->GetWidth()
+			|| positionY >= frame->GetHeight())
+		{
+			return;
+		}
+
+		uint8_t width = sprite->GetWidth();
+		uint8_t height = sprite->GetHeight();
+
+		if (frame->GetWidth() - width < positionX)
+		{
+			width = frame->GetWidth() - positionX;
+		}
+
+		if (frame->GetHeight() - height < positionY)
+		{
+			height = frame->GetHeight() - positionY;
+		}
 
 		RgbColor color{};
 		uint8_t xNew = 0;
@@ -54,11 +70,26 @@ struct SpriteRenderer
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
 		const uint8_t positionX, const uint8_t positionY)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		if (positionX >= frame->GetWidth()
+			|| positionY >= frame->GetHeight())
+		{
+			return;
+		}
+
+		uint8_t width = sprite->GetWidth();
+		uint8_t height = sprite->GetHeight();
+
+		if (frame->GetWidth() - width < positionX)
+		{
+			width = frame->GetWidth() - positionX;
+		}
+
+		if (frame->GetHeight() - height < positionY)
+		{
+			height = frame->GetHeight() - positionY;
+		}
 
 		RgbColor color{};
-
 		for (uint8_t x = 0; x < width; x++)
 		{
 			for (uint8_t y = 0; y < height; y++)

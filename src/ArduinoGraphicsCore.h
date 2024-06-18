@@ -5,6 +5,7 @@
 
 #include "Model/IFrameBuffer.h"
 #include "Model/IFrameEngine.h"
+#include "Model/IScreenDriver.h"
 
 #include "FrameBuffer/Color16FrameBuffer.h"
 #include "FrameBuffer/Color8FrameBuffer.h"

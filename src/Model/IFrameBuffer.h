@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include "RgbColor.h"
+#include "DisplayOrientation.h"
 
 class IFrameBuffer
 {

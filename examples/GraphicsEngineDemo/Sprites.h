@@ -221,7 +221,7 @@ namespace SpriteSource
 
 	namespace Doge565
 	{
-		static constexpr uint16_t Bitmap[] PROGMEM
+		static constexpr uint16_t Bitmap[]
 #if defined(ARDUINO_ARCH_AVR)
 			PROGMEM
 #endif 

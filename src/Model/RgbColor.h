@@ -22,5 +22,12 @@ struct RgbColor
 		, g(_g)
 		, b(_b)
 	{}
+
+	void FromRGB32(const uint32_t rgb32)
+	{
+		r = (rgb32 >> 16) & UINT8_MAX;
+		g = (rgb32 >> 8) & UINT8_MAX;;
+		b = (rgb32 >> 0) & UINT8_MAX;;
+	}
 };
 #endif

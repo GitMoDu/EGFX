@@ -104,22 +104,20 @@ namespace SpriteShaderEffect
 		{
 			if (BaseClass::GetColor(color, x, y))
 			{
-				if (Brightness == 0)
-				{
-					return true;
-				}
-				else if (Brightness > 0)
+				if (Brightness > 0)
 				{
 					color.r = LimitedAdd(color.r);
 					color.g = LimitedAdd(color.g);
 					color.b = LimitedAdd(color.b);
 				}
-				else
+				else if (Brightness < 0)
 				{
 					color.r = LimitedSubtract(color.r);
 					color.g = LimitedSubtract(color.g);
 					color.b = LimitedSubtract(color.b);
 				}
+
+				return true;
 			}
 
 			return false;

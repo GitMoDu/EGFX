@@ -70,12 +70,12 @@ public:
 #endif
 	}
 
-	virtual const uint8_t GetWidth() final
+	virtual const uint8_t GetWidth() const final
 	{
 		return ScreenWidth;
 	}
 
-	virtual const uint8_t GetHeight() final
+	virtual const uint8_t GetHeight() const final
 	{
 		return ScreenHeight;
 	}

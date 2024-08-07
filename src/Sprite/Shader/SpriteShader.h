@@ -5,17 +5,19 @@
 
 #include "../../Model/RgbColor.h"
 
+/// <summary>
+/// Template-chainable shaders, for an underlying SpriteType.
+/// </summary>
 namespace SpriteShader
 {
 	template<typename SpriteType>
 	class AbstractOneColorShader : public SpriteType
 	{
 	protected:
-		RgbColor ShaderColor;
+		RgbColor ShaderColor{ INT8_MAX, INT8_MAX, INT8_MAX };
 
 	public:
 		AbstractOneColorShader()
-			: ShaderColor(INT8_MAX, INT8_MAX, INT8_MAX)
 		{}
 
 	public:
@@ -26,7 +28,7 @@ namespace SpriteShader
 			ShaderColor.b = b;
 		}
 
-		void SetColor(RgbColor& color)
+		void SetColor(const RgbColor& color)
 		{
 			ShaderColor.r = color.r;
 			ShaderColor.g = color.g;
@@ -35,17 +37,31 @@ namespace SpriteShader
 	};
 
 	template<typename SpriteType>
-	class AbstractTwoColorShader : public AbstractOneColorShader<SpriteType>
+	class AbstractTwoColorShader : public SpriteType
 	{
 	protected:
-		RgbColor ShaderColor2;
+		RgbColor ShaderColor1{ INT8_MAX, INT8_MAX, INT8_MAX };
+		RgbColor ShaderColor2{ INT8_MAX, INT8_MAX, INT8_MAX };
 
 	public:
-		AbstractTwoColorShader() : AbstractOneColorShader<SpriteType>()
-			, ShaderColor2(0, 0, 0)
+		AbstractTwoColorShader() : SpriteType()
 		{}
 
 	public:
+		void SetColor1(const uint8_t r, const uint8_t g, const uint8_t b)
+		{
+			ShaderColor1.r = r;
+			ShaderColor1.g = g;
+			ShaderColor1.b = b;
+		}
+
+		void SetColor1(const RgbColor& color)
+		{
+			ShaderColor1.r = color.r;
+			ShaderColor1.g = color.g;
+			ShaderColor1.b = color.b;
+		}
+
 		void SetColor2(const uint8_t r, const uint8_t g, const uint8_t b)
 		{
 			ShaderColor2.r = r;
@@ -53,7 +69,7 @@ namespace SpriteShader
 			ShaderColor2.b = b;
 		}
 
-		void SetColor2(RgbColor& color)
+		void SetColor2(const RgbColor& color)
 		{
 			ShaderColor2.r = color.r;
 			ShaderColor2.g = color.g;
@@ -62,82 +78,98 @@ namespace SpriteShader
 	};
 
 	template<typename SpriteType>
-	class SingleColorShader : public AbstractOneColorShader<SpriteType>
+	class ColorShader : public AbstractOneColorShader<SpriteType>
 	{
 	private:
 		using AbstractOneColorShader<SpriteType>::ShaderColor;
 
 	public:
-		SingleColorShader() : AbstractOneColorShader<SpriteType>()
+		ColorShader() : AbstractOneColorShader<SpriteType>()
 		{}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			color.r = ShaderColor.r;
-			color.g = ShaderColor.g;
-			color.b = ShaderColor.b;
+			if (SpriteType::Get(color, x, y))
+			{
+				color.r = ShaderColor.r;
+				color.g = ShaderColor.g;
+				color.b = ShaderColor.b;
 
-			return true;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	};
 
+	/// <summary>
+	/// Shades the pixel by color1 or color2
+	/// </summary>
+	/// <typeparam name="SpriteType"></typeparam>
 	template<typename SpriteType>
 	class GridShader : public AbstractTwoColorShader<SpriteType>
 	{
 	private:
-		using AbstractTwoColorShader<SpriteType>::ShaderColor;
+		using AbstractTwoColorShader<SpriteType>::ShaderColor1;
 		using AbstractTwoColorShader<SpriteType>::ShaderColor2;
 
 	public:
 		GridShader() : AbstractTwoColorShader<SpriteType>()
 		{}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			const bool even = (x + y) % 2 == 1;
-
-			if (even)
+			if (SpriteType::Get(color, x, y))
 			{
-				color.r = ShaderColor.r;
-				color.g = ShaderColor.g;
-				color.b = ShaderColor.b;
+				const bool even = (x + y) % 2 == 1;
+
+				if (even)
+				{
+					color.r = ShaderColor1.r;
+					color.g = ShaderColor1.g;
+					color.b = ShaderColor1.b;
+				}
+				else
+				{
+					color.r = ShaderColor2.r;
+					color.g = ShaderColor2.g;
+					color.b = ShaderColor2.b;
+				}
+
+				return true;
 			}
 			else
 			{
-				color.r = ShaderColor2.r;
-				color.g = ShaderColor2.g;
-				color.b = ShaderColor2.b;
+				return false;
 			}
-
-			return true;
 		}
 	};
-
 
 	template<typename SpriteType>
 	class HorizontalGradientShader : public AbstractTwoColorShader<SpriteType>
 	{
 	private:
-		using AbstractTwoColorShader<SpriteType>::ShaderColor;
+		using AbstractTwoColorShader<SpriteType>::ShaderColor1;
 		using AbstractTwoColorShader<SpriteType>::ShaderColor2;
 
 	public:
 		HorizontalGradientShader() : AbstractTwoColorShader<SpriteType>()
 		{}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			color.r = (((uint16_t)x * ShaderColor2.r) / (SpriteType::Width - 1))
-				+ (((uint16_t)(SpriteType::Width - 1 - x) * ShaderColor.r) / (SpriteType::Width - 1));
-			color.g = (((uint16_t)x * ShaderColor2.g) / (SpriteType::Width - 1))
-				+ (((uint16_t)(SpriteType::Width - 1 - x) * ShaderColor.g) / (SpriteType::Width - 1));
-			color.b = (((uint16_t)x * ShaderColor2.b) / (SpriteType::Width - 1))
-				+ (((uint16_t)(SpriteType::Width - 1 - x) * ShaderColor.b) / (SpriteType::Width - 1));
+			if (SpriteType::Get(color, x, y))
+			{
+				RgbColorUtil::InterpolateRgb(color, ShaderColor1, ShaderColor2, (((uint16_t)x * UINT8_MAX) / (SpriteType::Width - 1)));
 
-			return true;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	};
 
@@ -145,24 +177,25 @@ namespace SpriteShader
 	class VerticalGradientShader : public AbstractTwoColorShader<SpriteType>
 	{
 	private:
-		using AbstractTwoColorShader<SpriteType>::ShaderColor;
+		using AbstractTwoColorShader<SpriteType>::ShaderColor1;
 		using AbstractTwoColorShader<SpriteType>::ShaderColor2;
 
 	public:
 		VerticalGradientShader() : AbstractTwoColorShader<SpriteType>()
 		{}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			color.r = (((uint16_t)y * ShaderColor2.r) / (SpriteType::Height - 1))
-				+ (((uint16_t)(SpriteType::Height - 1 - y) * ShaderColor.r) / (SpriteType::Height - 1));
-			color.g = (((uint16_t)y * ShaderColor2.g) / (SpriteType::Height - 1))
-				+ (((uint16_t)(SpriteType::Height - 1 - y) * ShaderColor.g) / (SpriteType::Height - 1));
-			color.b = (((uint16_t)y * ShaderColor2.b) / (SpriteType::Height - 1))
-				+ (((uint16_t)(SpriteType::Height - 1 - y) * ShaderColor.b) / (SpriteType::Height - 1));
+			if (SpriteType::Get(color, x, y))
+			{
+				RgbColorUtil::InterpolateRgb(color, ShaderColor1, ShaderColor2, (((uint16_t)y * UINT8_MAX) / (SpriteType::Height - 1)));
 
-			return true;
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	};
 }

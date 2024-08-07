@@ -38,29 +38,24 @@ public:
 		}
 	}
 
-	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y) final
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
-		if (GetColor(color, x, y))
+		const int16_t dx = -(int16_t)Radius + x + 1;
+		const int16_t dy = -(int16_t)Radius + y + 1;
+		const uint16_t distance = (uint16_t)((dx * dx) + (dy * dy));
+
+		if (distance <= DiameterPow)
 		{
-			const int16_t dx = -(int16_t)Radius + x + 1;
-			const int16_t dy = -(int16_t)Radius + y + 1;
-			const uint16_t distance = (uint16_t)((dx * dx) + (dy * dy));
+			color.r = UINT8_MAX;
+			color.g = UINT8_MAX;
+			color.b = UINT8_MAX;
 
-			return distance <= DiameterPow;
+			return true;
 		}
-
-		return false;
-
-	}
-
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
-	{
-		color.r = UINT8_MAX;
-		color.g = UINT8_MAX;
-		color.b = UINT8_MAX;
-
-		return true;
+		else
+		{
+			return false;
+		}
 	}
 };
 #endif

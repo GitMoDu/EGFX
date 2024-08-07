@@ -14,12 +14,6 @@ class AbstractBitmapSprite : public AbstractSprite<width, height>
 protected:
 	const ColorType* RgbBitmap;
 
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
-	{
-		return false;
-	}
-
 public:
 	AbstractBitmapSprite(const ColorType* rgbBitmap)
 		: AbstractSprite<width, height>()
@@ -29,11 +23,6 @@ public:
 	void SetBitmap(const ColorType* rgbBitmap)
 	{
 		RgbBitmap = rgbBitmap;
-	}
-
-	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
-	{
-		return GetColor(color, x, y);
 	}
 
 	const uint8_t GetWidth() const
@@ -61,8 +50,7 @@ public:
 	BitmapRgb888Sprite(const uint32_t* rgbBitmap = nullptr) : BaseClass(rgbBitmap)
 	{}
 
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
 		const size_t offset = ((size_t)y * width) + x;
 
@@ -88,12 +76,12 @@ public:
 	BitmapRgb565Sprite(const uint16_t* rgbBitmap = nullptr) : BaseClass(rgbBitmap)
 	{}
 
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
 		const size_t offset = ((size_t)y * width) + x;
 
 		const uint16_t value = RgbBitmap[offset];
+
 		color.r = (value & 0xF800) >> 8;
 		color.g = (value & 0x07E0) >> 3;
 		color.b = (value & 0x1F) << 3;
@@ -119,8 +107,7 @@ public:
 		: BaseClass(rgbBitmap)
 	{}
 
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
 		const size_t offset = (((size_t)y * width) + x) * sizeof(uint32_t);
 		const uint8_t* bitmap = (const uint8_t*)RgbBitmap;
@@ -148,8 +135,7 @@ public:
 		: BaseClass(rgbBitmap)
 	{}
 
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
 		const size_t offset = (((size_t)y * width) + x) * sizeof(uint16_t);
 		const uint8_t* bitmap = (const uint8_t*)RgbBitmap;

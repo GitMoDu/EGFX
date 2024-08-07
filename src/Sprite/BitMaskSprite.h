@@ -57,30 +57,24 @@ public:
 		: BaseClass(mask)
 	{}
 
-	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y) final
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
-		if (GetColor(color, x, y))
+		const uint8_t yByte = y * BitScale;
+		const uint8_t xByte = (x / 8);
+		const uint8_t offset = yByte + xByte;
+
+		const uint8_t xBit = 7 - (x % 8);
+
+		if (((Mask[offset] >> xBit) & 0x01) != 0)
 		{
-			const uint8_t yByte = y * BitScale;
-			const uint8_t xByte = (x / 8);
-			const uint8_t offset = yByte + xByte;
+			color.r = UINT8_MAX;
+			color.g = UINT8_MAX;
+			color.b = UINT8_MAX;
 
-			const uint8_t xBit = 7 - (x % 8);
-
-			return ((Mask[offset] >> xBit) & 0x01) != 0;
+			return true;
 		}
 
 		return false;
-	}
-
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
-	{
-		color.r = UINT8_MAX;
-		color.g = UINT8_MAX;
-		color.b = UINT8_MAX;
-
-		return true;
 	}
 };
 
@@ -117,8 +111,7 @@ public:
 		return false;
 	}
 
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
 		color.r = UINT8_MAX;
 		color.g = UINT8_MAX;

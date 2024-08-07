@@ -13,13 +13,7 @@ public:
 	RectangleSprite() : AbstractSprite<width, height>()
 	{}
 
-	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y) final
-	{
-		return GetColor(color, x, y);
-	}
-
-protected:
-	virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
 		color.r = UINT8_MAX;
 		color.g = UINT8_MAX;
@@ -28,5 +22,4 @@ protected:
 		return true;
 	}
 };
-
 #endif

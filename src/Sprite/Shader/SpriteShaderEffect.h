@@ -30,10 +30,9 @@ namespace SpriteShaderEffect
 			Modulus = pixelSkip + 1;
 		}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			return BaseClass::GetColor(color, x, y)
+			return BaseClass::Get(color, x, y)
 				&& ((Modulus < 2) ||
 					((x % Modulus == 0) && ((y + 1) % Modulus == 0)));
 		}
@@ -99,10 +98,9 @@ namespace SpriteShaderEffect
 			Brightness = brightness;
 		}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			if (BaseClass::GetColor(color, x, y))
+			if (BaseClass::Get(color, x, y))
 			{
 				if (Brightness > 0)
 				{
@@ -171,10 +169,9 @@ namespace SpriteShaderEffect
 			Contrast = contrast;
 		}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			if (BaseClass::GetColor(color, x, y))
+			if (BaseClass::Get(color, x, y))
 			{
 				if (Contrast == 0)
 				{

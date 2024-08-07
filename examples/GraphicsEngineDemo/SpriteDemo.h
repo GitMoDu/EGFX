@@ -11,21 +11,50 @@ using namespace DemoSprites;
 using namespace SpriteShader;
 using namespace SpriteShaderEffect;
 
+template<typename Layout>
 class SpriteDemo : public ElementDrawer
 {
 private:
 	enum class DrawElementsEnum : uint8_t
 	{
-		AnimatedHeart,
+		AnimatedExplosion,
 		VerticalArrow,
 		HorizontalArrow,
 		DynamicRing,
 		DrawElementsCount
 	};
 
-	static constexpr uint8_t MaxRadius = 13;
-	static constexpr uint8_t RingWidth = 4;
-	static constexpr uint8_t MinRadius = 5;
+	struct ArrowLayout : public LayoutElement<Layout::X(), Layout::Y(), Layout::Width(), Layout::Height()>
+	{
+		static constexpr uint8_t UsableY()
+		{
+			return Layout::Height() - ArrowSprite::Height - 1;
+		}
+
+		static constexpr uint8_t UsableX()
+		{
+			return Layout::Width() - ArrowSprite::Width - 1;
+		}
+	};
+
+	using ExplosionLayout = LayoutElement<(Layout::Width() - ExplosionSprite::Width - 1) / 2,
+		(Layout::Height() - ExplosionSprite::Height) / 2 - 1,
+		ExplosionSprite::Width, ExplosionSprite::Height
+	>;
+
+
+	struct RingLayout
+	{
+		static constexpr uint8_t MaxRadius() { return 13; }
+		static constexpr uint8_t RingWidth() { return 4; }
+		static constexpr uint8_t MinRadius() { return 5; }
+
+		static constexpr uint8_t RadiusRange()
+		{
+			return MaxRadius() - MinRadius();
+		}
+	};
+
 
 	static constexpr uint32_t AnimateDuration = 1100000;
 	static constexpr uint32_t RingResizeDuration = 1712300;
@@ -33,9 +62,9 @@ private:
 	static constexpr uint32_t ScrollVerticalDuration = 3674000;
 
 private:
-	SingleColorShader<ExplosionSprite> AnimatedExplosion{};
+	ColorShader<ExplosionSprite> AnimatedExplosion{};
 	ArrowSprite Arrow{};
-	TransparentGridEffect<SingleColorShader<RingSprite>> Ring{};
+	TransparentGridEffect<ColorShader<RingSprite>> Ring{};
 
 public:
 	SpriteDemo(IFrameBuffer* frame)
@@ -49,8 +78,8 @@ public:
 	{
 		switch (drawState->ElementIndex)
 		{
-		case (uint8_t)DrawElementsEnum::AnimatedHeart:
-			DrawHeart(drawState);
+		case (uint8_t)DrawElementsEnum::AnimatedExplosion:
+			DrawAnimatedExplosion(drawState);
 			break;
 		case (uint8_t)DrawElementsEnum::VerticalArrow:
 			DrawVerticalArrow(drawState);
@@ -67,7 +96,7 @@ public:
 	}
 
 private:
-	void DrawHeart(DrawState* drawState)
+	void DrawAnimatedExplosion(DrawState* drawState)
 	{
 		const uint16_t progress = drawState->GetProgress<AnimateDuration>();
 		const uint8_t frame = ProgressScaler::ScaleProgress(progress, (uint8_t)20);
@@ -111,25 +140,23 @@ private:
 			break;
 		}
 
-		SpriteRenderer::Draw(Frame, &AnimatedExplosion,
-			(Frame->GetWidth() - AnimatedExplosion.Width - 1) / 2, (Frame->GetHeight() - AnimatedExplosion.Height) / 2 - 1);
+		SpriteRenderer::Draw(Frame, &AnimatedExplosion, ExplosionLayout::X(), ExplosionLayout::Y());
 	}
 
 	void DrawVerticalArrow(DrawState* drawState)
 	{
 		const uint16_t progress = drawState->GetProgress<ScrollVerticalDuration>();
-		const uint8_t usableY = Frame->GetHeight() - Arrow.Height - 1;
-		const uint8_t y = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), usableY);
+		const uint8_t y = ArrowLayout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableY());
 
 		if (progress >= INT16_MAX)
 		{
-			SpriteRenderer::Draw(Frame, &Arrow, 0, y);
+			SpriteRenderer::Draw(Frame, &Arrow, ArrowLayout::X(), y);
 		}
 		else
 		{
-			SpriteRenderer::TransformDraw<InvertTransform::InvertY<Arrow.Width, Arrow.Height>>(
+			SpriteRenderer::TransformDraw<InvertTransform::InvertY<ArrowSprite::Width, ArrowSprite::Height>>(
 				Frame, &Arrow,
-				0, y,
+				ArrowLayout::X(), y,
 				0);
 		}
 	}
@@ -137,21 +164,20 @@ private:
 	void DrawHorizontalArrow(DrawState* drawState)
 	{
 		const uint16_t progress = drawState->GetProgress<ScrollHorizontalDuration>();
-		const uint8_t usableX = Frame->GetWidth() - Arrow.Height - 1;
-		const uint8_t x = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), usableX);
+		const uint8_t x = ArrowLayout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableX());
 
 		if (progress >= INT16_MAX)
 		{
-			SpriteRenderer::TransformDraw<InvertTransform::Flip<Arrow.Width, Arrow.Height>>(
+			SpriteRenderer::TransformDraw<InvertTransform::Flip<ArrowSprite::Width, ArrowSprite::Height>>(
 				Frame, &Arrow,
-				x, 0,
+				x, ArrowLayout::Y(),
 				0);
 		}
 		else
 		{
-			SpriteRenderer::TransformDraw<InvertTransform::FlipInvertX<Arrow.Width, Arrow.Height>>(
+			SpriteRenderer::TransformDraw<InvertTransform::FlipInvertX<ArrowSprite::Width, ArrowSprite::Height>>(
 				Frame, &Arrow,
-				x, 0,
+				x, ArrowLayout::Y(),
 				0);
 		}
 	}
@@ -159,14 +185,14 @@ private:
 	void DrawDynamicRing(DrawState* drawState)
 	{
 		const uint16_t progress = drawState->GetProgress<RingResizeDuration>();
-		const uint8_t outerRadius = MinRadius + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(MaxRadius - MinRadius));
-		const uint8_t innerRadius = outerRadius - RingWidth;
+		const uint8_t outerRadius = RingLayout::MinRadius() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), RingLayout::RadiusRange());
+		const uint8_t innerRadius = outerRadius - RingLayout::RingWidth();
 
-		const uint16_t progressX = drawState->GetProgress<ScrollHorizontalDuration * 5>();
-		const uint16_t progressY = drawState->GetProgress<ScrollVerticalDuration * 3>();
+		const uint16_t progressX = ProgressScaler::TriangleResponse(drawState->GetProgress<ScrollHorizontalDuration * 5>());
+		const uint16_t progressY = ProgressScaler::TriangleResponse(drawState->GetProgress<ScrollVerticalDuration * 3>());
 
-		const uint8_t x = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressX), Frame->GetWidth());
-		const uint8_t y = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressY), Frame->GetHeight());
+		const uint8_t x = Layout::X() + ProgressScaler::ScaleProgress(progressX, Layout::Width());
+		const uint8_t y = Layout::Y() + ProgressScaler::ScaleProgress(progressY, Layout::Height());
 
 		Ring.SetRadius(innerRadius, outerRadius);
 

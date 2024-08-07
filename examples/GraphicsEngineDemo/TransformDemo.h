@@ -11,6 +11,7 @@ using namespace DemoSprites;
 using namespace SpriteShader;
 using namespace SpriteShaderEffect;
 
+template<typename Layout>
 class TransformDemo : public ElementDrawer
 {
 private:
@@ -26,9 +27,15 @@ private:
 	static constexpr uint32_t ScaleDuration = 1500000;
 	static constexpr uint32_t RotationDuration = 4000000;
 
-	SingleColorShader<HeartSprite> Heart{};
-	PyramidSprite Pyramid{};
-	GridShader<RectangleSprite<14, 7>> Rectangle{};
+	struct RectangleLayout
+	{
+		static constexpr uint8_t Width() { return 14; }
+		static constexpr uint8_t Height() { return 7; }
+	};
+
+	ColorShader<HeartSprite> Heart{};
+	HorizontalGradientShader<PyramidSprite> Pyramid{};
+	GridShader<RectangleSprite<RectangleLayout::Width(), RectangleLayout::Height()>> Rectangle{};
 
 	uint8_t Rotation = 0;
 	int8_t Angle = 0;
@@ -39,8 +46,11 @@ public:
 	{
 		Heart.SetColor(UINT8_MAX, 0, 0);
 
-		Rectangle.SetColor(0, 0, UINT8_MAX);
+		Rectangle.SetColor1(0, 0, UINT8_MAX);
 		Rectangle.SetColor2(0, UINT8_MAX, 0);
+
+		Pyramid.SetColor1(0xFF, 0x5A, 0x23);
+		Pyramid.SetColor2(0xFF,0xd3, 0x91);
 	}
 
 	void DrawCall(DrawState* drawState) final
@@ -69,19 +79,19 @@ private:
 
 		if (ProgressScaler::ScaleProgress(sectionProgress, (uint8_t)2) == 0)
 		{
-			const int8_t skew = -(int16_t)Rectangle.Width + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(Rectangle.Width * 2));
+			const int8_t skew = -(int16_t)RectangleLayout::Width() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Width() * 2));
 
-			SpriteRenderer::TransformDraw<SkewTransform::Horizontal<Rectangle.Width, Rectangle.Height>>(
+			SpriteRenderer::TransformDraw<SkewTransform::Horizontal<RectangleLayout::Width(), RectangleLayout::Height()>>(
 				Frame, &Rectangle,
-				(Rectangle.Width / 2), Rectangle.Height,
+				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height(),
 				skew);
 		}
 		else
 		{
-			const int8_t skew = -(int16_t)Rectangle.Height + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(Rectangle.Height * 2));
-			SpriteRenderer::TransformDraw<SkewTransform::Vertical<Rectangle.Width, Rectangle.Height, 0>>(
+			const int8_t skew = -(int16_t)RectangleLayout::Height() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Height() * 2));
+			SpriteRenderer::TransformDraw<SkewTransform::Vertical<RectangleLayout::Width(), RectangleLayout::Height(), 0>>(
 				Frame, &Rectangle,
-				(Rectangle.Width / 2), Rectangle.Height,
+				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height(),
 				skew);
 		}
 	}
@@ -89,24 +99,25 @@ private:
 	void DrawScale(DrawState* drawState)
 	{
 		const uint16_t progress = ProgressScaler::TriangleResponse(drawState->GetProgress<ScaleDuration>());
-		const int8_t scaleDown = ProgressScaler::ScaleProgress(progress, (uint8_t)(Heart.Width - 1));
+		const int8_t scaleDown = ProgressScaler::ScaleProgress(progress, (uint8_t)(HeartSprite::Width - 1));
 
-		SpriteRenderer::TransformDraw<ScaleTransform::DownScaleXY<Heart.Width, Heart.Height>>(
+		SpriteRenderer::TransformDraw<ScaleTransform::DownScaleXY<HeartSprite::Width, HeartSprite::Height>>(
 			Frame,
 			&Heart,
-			(scaleDown / 2), (((uint16_t)Frame->GetHeight() * 2) / 3) - (Heart.Height / 2) + (scaleDown / 2),
+			Layout::X() + (scaleDown / 2), Layout::Y() + (((uint16_t)Layout::Height() * 2) / 3) - (HeartSprite::Height / 2) + (scaleDown / 2),
 			scaleDown);
 	}
 
 	void DrawRotate(DrawState* drawState)
 	{
-		const uint16_t progress = ProgressScaler::TriangleResponse(drawState->GetProgress<RotationDuration>());
-		const int16_t angle = -(int16_t)180 + ProgressScaler::ScaleProgress(progress, (uint16_t)360);
+		//const uint16_t progress = ProgressScaler::TriangleResponse(drawState->GetProgress<RotationDuration>());
+		const uint16_t progress = drawState->GetProgress<RotationDuration>();
+		const int16_t angle = ProgressScaler::ScaleProgress(progress, (uint16_t)360);
 
-		SpriteRenderer::TransformDraw<RotateTransform::Rotate<Pyramid.Width, Pyramid.Height>>(
+		SpriteRenderer::TransformDraw<RotateTransform::Rotate<PyramidSprite::Width, PyramidSprite::Height>>(
 			Frame, &Pyramid,
-			(Frame->GetWidth() - Pyramid.Width) / 2,
-			(Frame->GetHeight() - Pyramid.Height) / 2,
+			(Layout::Width() - PyramidSprite::Width) / 2,
+			(Layout::Height() - PyramidSprite::Height) / 2,
 			angle);
 	}
 };

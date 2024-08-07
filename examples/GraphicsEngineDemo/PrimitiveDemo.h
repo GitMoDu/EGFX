@@ -5,6 +5,7 @@
 
 #include <ArduinoGraphicsDrawer.h>
 
+template<typename Layout>
 class PrimitiveDemo : public ElementDrawer
 {
 private:
@@ -23,6 +24,21 @@ private:
 	static constexpr uint32_t BreathPeriodMicros = 2500000;
 	static constexpr uint32_t SquareAlignmentColorPeriodMicros = 1000000 * 3;
 	static constexpr uint32_t SquareColorPeriodMicros = 1000000 * 10;
+
+	static constexpr uint8_t GetWandererDimension()
+	{
+		return GetShortest() / 4;
+	}
+
+	static constexpr uint8_t GetAlignmentCircleDiameter()
+	{
+		return	GetShortest() - (2 * (GetWandererDimension() + 1));
+	}
+
+	static constexpr uint8_t GetShortest()
+	{
+		return ((Layout::Height() >= Layout::Width()) * (Layout::Width())) | ((Layout::Height() < Layout::Width()) * (Layout::Height()));
+	}
 
 	RgbColor Color;
 
@@ -65,25 +81,27 @@ private:
 		Color.g = 0;
 		Color.b = 0;
 
-		Frame->Line(Color, 0, 0, Frame->GetWidth() - 1, Frame->GetHeight() - 1);
-		Frame->Line(Color, 0, Frame->GetHeight() - 1, Frame->GetWidth() - 1, 0);
+		Frame->Line(Color, Layout::X(), Layout::Y(),
+			Layout::X() + Layout::Width() - 1, Layout::Y() + Layout::Height() - 1);
+		Frame->Line(Color, Layout::X(), Layout::Y() + Layout::Height() - 1, Layout::Width() - 1, 0);
 	}
 
 	void DrawAlignmentRectangle()
 	{
-		const uint8_t wandererSize = GetWandererDimension();
+		static constexpr uint8_t wandererSize = GetWandererDimension();
 		Color.r = UINT8_MAX;
 		Color.g = UINT8_MAX;
 		Color.b = UINT8_MAX;
-		Frame->Rectangle(Color, wandererSize + 1, wandererSize + 1, Frame->GetWidth() - wandererSize - 1, Frame->GetHeight() - wandererSize - 1);
+		Frame->Rectangle(Color, Layout::X() + wandererSize + 1, Layout::Y() + wandererSize + 1,
+			Layout::X() + Layout::Width() - wandererSize - 1, Layout::Y() + Layout::Height() - wandererSize - 1);
 	}
 
 	void DrawAlignmentSquare(DrawState* drawState)
 	{
-		const uint8_t squareSize = GetShortestDimension() - ((GetWandererDimension() + 2) * 2);
+		static constexpr uint8_t squareSize = GetShortest() - ((GetWandererDimension() + 2) * 2);
 
-		const uint8_t x = (Frame->GetWidth() - squareSize) / 2;
-		const uint8_t y = (Frame->GetHeight() - squareSize) / 2;
+		static constexpr uint8_t x = Layout::X() + ((Layout::Width() - squareSize) / 2);
+		static constexpr uint8_t y = Layout::Y() + ((Layout::Height() - squareSize) / 2);
 
 		const uint16_t colorProgress = drawState->GetProgress<SquareAlignmentColorPeriodMicros>();
 
@@ -96,13 +114,14 @@ private:
 
 	void DrawBreathSquare(DrawState* drawState)
 	{
-		const uint8_t minSquareSize = 2;
-		const uint8_t maxSquareSize = GetShortestDimension() - ((GetWandererDimension() + 3) * 2);
+		static constexpr uint8_t minSquareSize = 2;
+		static constexpr uint8_t maxSquareSize = GetShortest() - ((GetWandererDimension() + 3) * 2);
+
 		const uint16_t breathProgress = ProgressScaler::TriangleResponse(drawState->GetProgress<BreathPeriodMicros>());
 		const uint8_t squareSize = (((uint32_t)breathProgress * maxSquareSize) / UINT16_MAX) + (((uint32_t)(UINT16_MAX - breathProgress) * minSquareSize) / UINT16_MAX);
 
-		const uint8_t x = ((Frame->GetWidth() - squareSize) / 2);
-		const uint8_t y = ((Frame->GetHeight() - squareSize) / 2);
+		const uint8_t x = ((Layout::Width() - squareSize) / 2);
+		const uint8_t y = ((Layout::Height() - squareSize) / 2);
 
 		const uint16_t colorProgress = drawState->GetProgress<SquareColorPeriodMicros>();
 
@@ -125,29 +144,29 @@ private:
 		switch (section)
 		{
 		case 0:
-			x = ((uint32_t)progress * (Frame->GetWidth() - 1 - wandererSize)) / UINT16_MAX;
+			x = ((uint32_t)progress * (Layout::Width() - 1 - wandererSize)) / UINT16_MAX;
 			y = 0;
 			Color.r = UINT8_MAX;
 			Color.g = 0;
 			Color.b = 0;
 			break;
 		case 1:
-			x = Frame->GetWidth() - wandererSize - 1;
-			y = ((uint32_t)progress * (Frame->GetHeight() - 1 - wandererSize)) / UINT16_MAX;
+			x = Layout::Width() - wandererSize - 1;
+			y = ((uint32_t)progress * (Layout::Height() - 1 - wandererSize)) / UINT16_MAX;
 			Color.r = 0;
 			Color.g = UINT8_MAX;
 			Color.b = 0;
 			break;
 		case 2:
-			x = ((uint32_t)(UINT16_MAX - progress) * (Frame->GetWidth() - 1 - wandererSize)) / UINT16_MAX;
-			y = Frame->GetHeight() - wandererSize - 1;
+			x = ((uint32_t)(UINT16_MAX - progress) * (Layout::Width() - 1 - wandererSize)) / UINT16_MAX;
+			y = Layout::Height() - wandererSize - 1;
 			Color.r = 0;
 			Color.g = 0;
 			Color.b = UINT8_MAX;
 			break;
 		case 3:
 			x = 0;
-			y = ((uint32_t)(UINT16_MAX - progress) * (Frame->GetHeight() - 1 - wandererSize)) / UINT16_MAX;
+			y = ((uint32_t)(UINT16_MAX - progress) * (Layout::Height() - 1 - wandererSize)) / UINT16_MAX;
 
 			switch (drawState->FrameCounter % 3)
 			{
@@ -172,18 +191,8 @@ private:
 			break;
 		}
 
-		Frame->RectangleFill(Color, x, y, x + wandererSize, y + wandererSize);
+		Frame->RectangleFill(Color, Layout::X() + x, Layout::Y() + y, Layout::X() + x + wandererSize, Layout::Y() + y + wandererSize);
 	}
 
-private:
-	const uint8_t GetWandererDimension() const
-	{
-		return GetShortestDimension() / 4;
-	}
-
-	const uint8_t GetAlignmentCircleDiameter() const
-	{
-		return	GetShortestDimension() - (2 * (GetWandererDimension() + 1));
-	}
 };
 #endif

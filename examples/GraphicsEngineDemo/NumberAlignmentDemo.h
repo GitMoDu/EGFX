@@ -1,11 +1,12 @@
-// TextAlignmentDemo.h
+// NumberAlignmentDemo.h
 
-#ifndef _TEXT_ALIGNMENT_DEMO_h
-#define _TEXT_ALIGNMENT_DEMO_h
+#ifndef _NUMBER_ALIGNMENT_DEMO_h
+#define _NUMBER_ALIGNMENT_DEMO_h
 
 #include <ArduinoGraphicsDrawer.h>
 
-class TextAlignmentDemo : public ElementDrawer
+template<typename Layout>
+class NumberAlignmentDemo : public ElementDrawer
 {
 private:
 	enum class DrawElementsEnum : uint8_t
@@ -23,7 +24,7 @@ private:
 	TemplateFontStyle<FontStyle::WIDTH_RATIO_DEFAULT> DynamicFont;
 
 public:
-	TextAlignmentDemo(IFrameBuffer* frame)
+	NumberAlignmentDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{}
 
@@ -44,9 +45,10 @@ public:
 
 	void DrawRoamingText(DrawState* drawState)
 	{
+		static constexpr uint8_t minHeight = FontStyle::FONT_SIZE_MIN;
+		static constexpr uint8_t maxHeight = (Layout::Height() / 2) - 2;
+
 		const uint8_t y = 0;
-		const uint8_t minHeight = FontStyle::FONT_SIZE_MIN;
-		const uint8_t maxHeight = (Frame->GetHeight() / 2) - 2;
 		const uint16_t sizeProgress = drawState->GetProgress<TextScalePeriodMicros>();
 		const uint8_t textHeight = minHeight + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(sizeProgress), (uint8_t)(maxHeight - minHeight + 1));
 		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
@@ -65,16 +67,16 @@ public:
 		switch (section)
 		{
 		case 0:
-			NumberRenderer::NumberTopLeft(Frame, DynamicFont, 0, y, number);
+			NumberRenderer::NumberTopLeft(Frame, DynamicFont, Layout::X(), Layout::Y() + y, number);
 			break;
 		case 1:
-			NumberRenderer::NumberTopRight(Frame, DynamicFont, Frame->GetWidth() - 1, y, number);
+			NumberRenderer::NumberTopRight(Frame, DynamicFont, Layout::X() + Layout::Width() - 1, Layout::Y() + y, number);
 			break;
 		case 2:
-			NumberRenderer::NumberBottomRight(Frame, DynamicFont, Frame->GetWidth() - 1, Frame->GetHeight() - 1, number);
+			NumberRenderer::NumberBottomRight(Frame, DynamicFont, Layout::X() + Layout::Width() - 1, Layout::Y() + Layout::Height() - 1, number);
 			break;
 		case 3:
-			NumberRenderer::NumberBottomLeft(Frame, DynamicFont, 0, Frame->GetHeight() - 1, number);
+			NumberRenderer::NumberBottomLeft(Frame, DynamicFont, Layout::X(), Layout::Y() + Layout::Height() - 1, number);
 			break;
 		default:
 			break;

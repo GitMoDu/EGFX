@@ -8,21 +8,21 @@
 
 #include <ArduinoGraphicsCore.h>
 
+/// <summary>
+/// Add up to 10 different drawers to automatically rotate every DemoStepDurationMillis.
+/// </summary>
+/// <typeparam name="DemoStepDurationMillis">Demo rotation period, in microseconds.</typeparam>
 template<const uint32_t DemoStepDurationMillis = 10000>
 class DemoCyclerTask : private Task
 {
+public:
+	static const uint8_t MaxDemoCount = 10;
+
 private:
 	IFrameEngine* Engine;
 
 private:
-	IFrameDraw* Demo0;
-	IFrameDraw* Demo1;
-	IFrameDraw* Demo2;
-	IFrameDraw* Demo3;
-	IFrameDraw* Demo4;
-	IFrameDraw* Demo5;
-	IFrameDraw* Demo6;
-	IFrameDraw* Demo7;
+	IFrameDraw* Demos[MaxDemoCount];
 	uint8_t Index = 0;
 
 public:
@@ -35,120 +35,33 @@ public:
 		IFrameDraw* demo4 = nullptr,
 		IFrameDraw* demo5 = nullptr,
 		IFrameDraw* demo6 = nullptr,
-		IFrameDraw* demo7 = nullptr)
+		IFrameDraw* demo7 = nullptr,
+		IFrameDraw* demo8 = nullptr,
+		IFrameDraw* demo9 = nullptr
+	)
 		: Task(0, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
-		, Demo0(demo0)
-		, Demo1(demo1)
-		, Demo2(demo2)
-		, Demo3(demo3)
-		, Demo4(demo4)
-		, Demo5(demo5)
-		, Demo6(demo6)
-		, Demo7(demo7)
+		, Demos{ demo0, demo1, demo2, demo3, demo4, demo5, demo6, demo7, demo8, demo9 }
 	{}
 
 	bool Callback() final
 	{
-		Task::delay(DemoStepDurationMillis);
-		switch (Index)
+#if defined(DEBUG)
+		Serial.print(F("Demo: "));
+		Serial.println(Index);
+#endif
+
+		Engine->SetDrawer(Demos[Index]);
+
+		IFrameDraw* demo = nullptr;
+		while (demo == nullptr)
 		{
-		case 0:
-			if (Demo0 != nullptr)
-			{
-				Engine->SetDrawer(Demo0);
-				Index++;
-			}
-			break;
-		case 1:
-			if (Demo1 != nullptr)
-			{
-				Engine->SetDrawer(Demo1);
-				Index++;
-			}
-			else
-			{
-				Index = 0;
-				Engine->SetDrawer(Demo0);
-			}
-			break;
-		case 2:
-			if (Demo2 != nullptr)
-			{
-				Engine->SetDrawer(Demo2);
-				Index++;
-			}
-			else
-			{
-				Engine->SetDrawer(Demo0);
-				Index = 0;
-			}
-			break;
-		case 3:
-			if (Demo3 != nullptr)
-			{
-				Engine->SetDrawer(Demo3);
-				Index++;
-			}
-			else
-			{
-				Engine->SetDrawer(Demo0);
-				Index = 0;
-			}
-			break;
-		case 4:
-			if (Demo4 != nullptr)
-			{
-				Engine->SetDrawer(Demo4);
-				Index++;
-			}
-			else
-			{
-				Engine->SetDrawer(Demo0);
-				Index = 0;
-			}
-			break;
-		case 5:
-			if (Demo5 != nullptr)
-			{
-				Engine->SetDrawer(Demo5);
-				Index++;
-			}
-			else
-			{
-				Engine->SetDrawer(Demo0);
-				Index = 0;
-			}
-			break;
-		case 6:
-			if (Demo6 != nullptr)
-			{
-				Engine->SetDrawer(Demo6);
-				Index++;
-			}
-			else
-			{
-				Engine->SetDrawer(Demo0);
-				Index = 0;
-			}
-			break;
-		case 7:
-			if (Demo7 != nullptr)
-			{
-				Engine->SetDrawer(Demo7);
-				Index++;
-			}
-			else
-			{
-				Engine->SetDrawer(Demo0);
-				Index = 0;
-			}
-			break;
-		default:
-			Engine->SetDrawer(Demo0);
-			Index = 0;
-			break;
+			Index++;
+			Index = Index % MaxDemoCount;
+			demo = Demos[Index];
 		}
+
+		Task::delay(DemoStepDurationMillis);
 
 		return true;
 	}

@@ -83,11 +83,12 @@
 #include "DemoCyclerTask.h"
 #include "PrimitiveDemo.h"
 #include "TextCharactersDemo.h"
-#include "TextAlignmentDemo.h"
+#include "NumberAlignmentDemo.h"
 #include "TextFlowDemo.h"
 #include "SpriteDemo.h"
 #include "TransformDemo.h"
 #include "BitmapDemo.h"
+#include "BitmaskDemo.h"
 #include "TextSpriteDemo.h"
 #include "CloneDemo.h"
 
@@ -100,15 +101,14 @@ Scheduler SchedulerBase;
 //ScreenDriverSSD1306_64x32x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
-using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+//ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+//using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
-//ScreenDriverSSD1331_96x64x8_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//ScreenDriverSSD1331_96x64x8_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
-//ScreenDriverSSD1331_96x64x16_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
-//using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+// The layout of drawers can be set independently of screen dimensions.
+using FullLayout = LayoutElement<0, 0, FrameBufferType::FrameWidth, FrameBufferType::FrameHeight>;
 
 // In-memory frame-buffer.
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
@@ -121,47 +121,50 @@ FrameBufferType FrameBuffer(Buffer);
 #if defined(ARDUINO_ARCH_AVR)
 static constexpr uint32_t FramePeriod = 33333;
 #else
-static constexpr uint32_t FramePeriod = 20000;
+static constexpr uint32_t FramePeriod = 16665;
 #endif
 GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, FramePeriod);
 //
 
 // Drawer demos.
-SpriteDemo SpriteDemoDrawer(&FrameBuffer);
-TransformDemo TransformDemoDrawer(&FrameBuffer);
-TextAlignmentDemo TextAlignmentDemoDrawer(&FrameBuffer);
-BitmapDemo BitmapDemoDrawer(&FrameBuffer);
-#if defined(ARDUINO_ARCH_AVR)
-#if !defined(GRAPHICS_ENGINE_MEASURE)
-PrimitiveDemo PrimitiveDemoDrawer(&FrameBuffer);
-#endif
-#if !defined(DEBUG)
-CloneDemo CloneDemoDrawer(&FrameBuffer);
-#endif
-#else
-PrimitiveDemo PrimitiveDemoDrawer(&FrameBuffer);
-CloneDemo CloneDemoDrawer(&FrameBuffer);
-TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
-TextSpriteDemo TextSpriteDemoDrawer(&FrameBuffer);
-#endif
+BitmaskDemo<FullLayout> BitmaskDemoDrawer(&FrameBuffer);
+TransformDemo<FullLayout> TransformDemoDrawer(&FrameBuffer);
+NumberAlignmentDemo<FullLayout> NumberAlignmentDemoDrawer(&FrameBuffer);
 
-DemoCyclerTask<7000> DemoCycler(&SchedulerBase, &GraphicsEngine,
-	&SpriteDemoDrawer,
-	&TransformDemoDrawer,
-	&TextAlignmentDemoDrawer,
-	&BitmapDemoDrawer
 #if defined(ARDUINO_ARCH_AVR) 
-#if !defined(GRAPHICS_ENGINE_MEASURE)
-	, & PrimitiveDemoDrawer
-#endif
-#if !defined(DEBUG)
-	, & CloneDemoDrawer
+#if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
+SpriteDemo<FullLayout> SpriteDemoDrawer(&FrameBuffer);
+TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
+PrimitiveDemo<FullLayout> PrimitiveDemoDrawer(&FrameBuffer);
 #endif
 #else
+SpriteDemo<FullLayout> SpriteDemoDrawer(&FrameBuffer);
+TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
+PrimitiveDemo<FullLayout> PrimitiveDemoDrawer(&FrameBuffer);
+BitmapDemo<FullLayout> BitmapDemoDrawer(&FrameBuffer);
+TextSpriteDemo TextSpriteDemoDrawer(&FrameBuffer);
+CloneDemo<FullLayout> CloneDemoDrawer(&FrameBuffer);
+#endif
+//
+
+// Demo Cycler task.
+DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine,
+	&BitmaskDemoDrawer,
+	&TransformDemoDrawer,
+	&NumberAlignmentDemoDrawer
+#if defined(ARDUINO_ARCH_AVR) 
+#if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
+	, & TextCharactersDemoDrawer
+	, & PrimitiveDemoDrawer
+	, & SpriteDemoDrawer
+#endif
+#else
+	, & TextCharactersDemoDrawer
+	, & TextSpriteDemoDrawer
+	, & SpriteDemoDrawer
 	, & PrimitiveDemoDrawer
 	, & CloneDemoDrawer
-	, & TextSpriteDemoDrawer
-	, & TextCharactersDemoDrawer
+	, & BitmapDemoDrawer
 #endif
 );
 //

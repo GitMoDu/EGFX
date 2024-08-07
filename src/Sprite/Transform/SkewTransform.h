@@ -14,7 +14,14 @@ namespace SkewTransform
 	{
 		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
 		{
-			x += ((((int16_t)ReferenceY - 1) - y) * parameter) / (Height - 1);
+			if (y < Height)
+			{
+				x += ((((int16_t)ReferenceY - 1) - y) * parameter) / (Height - 1);
+			}
+			else
+			{
+				return false;
+			}
 
 			return true;
 		}
@@ -27,7 +34,14 @@ namespace SkewTransform
 	{
 		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
 		{
-			y += ((((int16_t)ReferenceX - 1) - x) * parameter) / (Width - 1);
+			if (x < Width)
+			{
+				y += ((((int16_t)ReferenceX - 1) - x) * parameter) / (Width - 1);
+			}
+			else
+			{
+				return false;
+			}
 
 			return true;
 		}

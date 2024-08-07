@@ -1,6 +1,8 @@
 #ifndef _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
 #define _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
 
+#include "Model/RgbColorUtil.h"
+
 #include "Model/IFrameDraw.h"
 #include "Model/ISprite.h"
 #include "Model/FontStyle.h"

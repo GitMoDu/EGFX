@@ -8,7 +8,7 @@
 
 namespace RotateTransform
 {
-	static constexpr uint8_t SinTable[]	PROGMEM
+	static constexpr uint8_t SinTable[] PROGMEM
 	{
 		18, 22, 27, 31, 35, 40, 44, 49, 53, 57, 62, 66, 70, 75, 79, 83, 87 ,91 ,96, 100, 104, 108, 112, 116, 120, 124, 128, 131, 135, 139, 143, 146, 150, 153, 157, 160, 164, 167, 171, 174, 177, 180, 183, 186, 190, 192
 	};

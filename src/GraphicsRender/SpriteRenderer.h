@@ -45,6 +45,67 @@ struct SpriteRenderer
 	}
 
 	/// <summary>
+	/// Draw sprite with coordinates(?) transform.
+	/// </summary>
+	/// <typeparam name="TransformType"></typeparam>
+	/// <param name="frame"></param>
+	/// <param name="sprite"></param>
+	/// <param name="positionX"></param>
+	/// <param name="positionY"></param>
+	/// <param name="parameter"></param>
+	template<typename TransformType>
+	static void TransformDrawPartial(IFrameBuffer* frame, ISprite* sprite,
+		const uint8_t positionX, const uint8_t positionY,
+		const int16_t parameter,
+		const uint8_t offsetX, const uint8_t offsetY,
+		const uint8_t width, const uint8_t height)
+	{
+		RgbColor color{};
+		uint8_t xNew = 0;
+		uint8_t yNew = 0;
+
+		for (uint8_t x = offsetX; x < offsetX + width; x++)
+		{
+			for (uint8_t y = offsetY; y < offsetY + height; y++)
+			{
+				xNew = x;
+				yNew = y;
+				if (sprite->Get(color, x, y)
+					&& TransformType::Transform(xNew, yNew, parameter))
+				{
+					frame->Pixel(color, positionX + xNew, positionY + yNew);
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Single sprite draw.
+	/// </summary>
+	/// <param name="frame"></param>
+	/// <param name="sprite"></param>
+	/// <param name="positionX"></param>
+	/// <param name="positionY"></param>
+	static void DrawPartial(IFrameBuffer* frame, ISprite* sprite,
+		const uint8_t positionX, const uint8_t positionY,
+		const uint8_t offsetX, const uint8_t offsetY,
+		const uint8_t width, const uint8_t height)
+	{
+		RgbColor color{};
+
+		for (uint8_t x = offsetX; x < offsetX + width; x++)
+		{
+			for (uint8_t y = offsetY; y < offsetY + height; y++)
+			{
+				if (sprite->Get(color, x, y))
+				{
+					frame->Pixel(color, positionX + x, positionY + y);
+				}
+			}
+		}
+	}
+
+	/// <summary>
 	/// Single sprite draw.
 	/// </summary>
 	/// <param name="frame"></param>

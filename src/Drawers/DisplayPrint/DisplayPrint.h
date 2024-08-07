@@ -23,9 +23,6 @@ private:
 	FontRendererType Renderer{};
 
 private:
-	RgbColor Color{ INT8_MAX, INT8_MAX, INT8_MAX };
-
-private:
 	IFrameBuffer* Frame;
 
 	uint8_t ElementIndex = 0;
@@ -37,9 +34,9 @@ public:
 		, Frame(frame)
 	{}
 
-	void SetColor(RgbColor& color)
+	FontRendererType& GetRenderer()
 	{
-		Color.SetFrom(color);
+		return Renderer;
 	}
 
 	void DrawCall(const uint8_t elementIndex)
@@ -78,7 +75,7 @@ private:
 
 		for (uint8_t i = 0; i < Layout::CharacterCount(); i++)
 		{
-			Renderer.Write(Frame, Color, x, y, Buffer.TextBuffer[offset + i]);
+			Renderer.Write(Frame, x, y, Buffer.TextBuffer[offset + i]);
 			x += FontRendererType::FontWidth() + FontRendererType::FontKerning();
 		}
 	}
@@ -90,7 +87,7 @@ private:
 
 		for (uint8_t i = 0; i < Layout::CharacterCount(); i++)
 		{
-			Renderer.Write(Frame, Color, x, y, Buffer.LineBuffer[i]);
+			Renderer.Write(Frame, x, y, Buffer.LineBuffer[i]);
 			x += FontRendererType::FontWidth() + FontRendererType::FontKerning();
 		}
 	}
@@ -149,9 +146,9 @@ public:
 		return PrintDrawer;
 	}
 
-	void SetColor(RgbColor& color)
+	FontRendererType& GetRenderer()
 	{
-		PrintDrawer.SetColor(color);
+		return PrintDrawer.GetRenderer();
 	}
 };
 

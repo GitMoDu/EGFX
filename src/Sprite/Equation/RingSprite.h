@@ -8,8 +8,8 @@
 class RingSprite : public ISprite
 {
 private:
-	uint16_t InnerDiameterPow = 0;
-	uint16_t OuterDiameterPow = 0;
+	uint16_t InnerRadiusPow = 0;
+	uint16_t OuterRadiusPow = 0;
 	uint8_t OuterRadius = 0;
 
 public:
@@ -34,31 +34,36 @@ public:
 
 			if (outerRadius > 1)
 			{
-				OuterDiameterPow = ((uint16_t)outerRadius * outerRadius) - 1;
+				OuterRadiusPow = ((uint16_t)outerRadius * outerRadius) - 1;
 			}
 			else
 			{
-				OuterDiameterPow = (uint16_t)outerRadius * outerRadius;
+				OuterRadiusPow = (uint16_t)outerRadius * outerRadius;
 			}
 
-			InnerDiameterPow = ((uint16_t)innerRadius * innerRadius) - 1;
+			InnerRadiusPow = ((uint16_t)innerRadius * innerRadius) - 1;
 		}
 		else
 		{
 			OuterRadius = 0;
-			InnerDiameterPow = 0;
-			OuterDiameterPow = 0;
+			InnerRadiusPow = 0;
+			OuterRadiusPow = 0;
 		}
+	}
+
+	const bool IsInsideRing(const uint8_t x, const uint8_t y)
+	{
+		const int16_t dx = -(int16_t)OuterRadius + x;
+		const int16_t dy = -(int16_t)OuterRadius + y;
+		const uint16_t distancePow = (uint16_t)((dx * dx) + (dy * dy));
+
+		return distancePow <= OuterRadiusPow
+			&& distancePow >= InnerRadiusPow;
 	}
 
 	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
-		const int16_t dx = -(int16_t)OuterRadius + x;
-		const int16_t dy = -(int16_t)OuterRadius + y;
-		const uint16_t distance = (uint16_t)((dx * dx) + (dy * dy));
-
-		if (distance <= OuterDiameterPow
-			&& distance >= InnerDiameterPow)
+		if (IsInsideRing(x, y))
 		{
 			color.r = UINT8_MAX;
 			color.g = UINT8_MAX;

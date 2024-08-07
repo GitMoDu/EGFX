@@ -7,6 +7,9 @@
 #include "Sprites.h"
 
 using namespace DemoSprites;
+using namespace SpriteShader;
+using namespace SpriteShaderEffect;
+using namespace SpriteTransform;
 
 /// <summary>
 /// Bitmap with translation, rotation and brightness animation.
@@ -41,11 +44,13 @@ private:
 		DrawElementsCount = (uint8_t)DrawBitmapN + DogeSprite::Height
 	};
 
+private:
 	BrightnessEffect<TransparentColorEffect<DogeSprite>> Doge{};
+
+	RotateTransform<DogeSprite::Width, DogeSprite::Height> DogeRotator{};
 
 	uint8_t x = 0;
 	uint8_t y = 0;
-	int16_t angle = 0;
 
 public:
 	BitmapDemo(IFrameBuffer* frame)
@@ -81,20 +86,18 @@ private:
 
 		x = Layout::X() + ProgressScaler::ScaleProgress(progressX, BitmapLayout::UsableX());
 		y = Layout::Y() + ProgressScaler::ScaleProgress(progressY, BitmapLayout::UsableY());
-		angle = drawState->FrameCounter % 360;
+
+		DogeRotator.SetRotation(drawState->FrameCounter % 360);
 		Doge.SetBrightness(brightness);
 	}
 
 	void DrawBitmapLine(uint8_t index)
 	{
-		SpriteRenderer::TransformDrawPartial<RotateTransform::Rotate<DogeSprite::Width, DogeSprite::Height>>(
-			Frame, &Doge,
+		SpriteRenderer::TransformDrawPartial(
+			Frame, &Doge, &DogeRotator,
 			x, y,
-			angle,
-			0,
-			index,
-			DogeSprite::Width,
-			1);
+			0, index,
+			DogeSprite::Width, 1);
 	}
 };
 #endif

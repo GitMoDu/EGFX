@@ -3,49 +3,67 @@
 #ifndef _INVERT_TRANSFORM_h
 #define _INVERT_TRANSFORM_h
 
-#include <stdint.h>
+#include "../../Model/ITransform.h"
 
-namespace InvertTransform
+namespace SpriteTransform
 {
 	/// <summary>
 	/// Invert X Axis only.
 	/// </summary>
 	/// <typeparam name="Width"></typeparam>
 	/// <typeparam name="Height"></typeparam>
+	/// <typeparam name="BaseTransform"></typeparam>
 	template<const uint8_t Width,
-		const uint8_t Height>
-	struct InvertX
+		const uint8_t Height,
+		typename BaseTransform = ITransform>
+	struct InvertXTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y)
+		InvertXTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
 		{
-			x = Width - 1 - x;
-			return true;
+			if (BaseTransform::Transform(x, y))
+			{
+				TransformStatic(x, y);
+
+				return true;
+			}
+
+			return false;
 		}
 
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
+		static void TransformStatic(uint8_t& x, uint8_t& y)
 		{
-			return Transform(x, y);
+			x = Width - 1 - x;
 		}
 	};
 
 	/// <summary>
 	/// Invert Y axis only.
 	/// </summary>
-	/// <typeparam name="Width"></typeparam>
 	/// <typeparam name="Height"></typeparam>
-	template<const uint8_t Width,
-		const uint8_t Height>
-	struct InvertY
+	/// <typeparam name="BaseTransform"></typeparam>
+	template<const uint8_t Height,
+		typename BaseTransform = ITransform>
+	struct InvertYTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y)
+		InvertYTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
 		{
-			y = Height - 1 - y;
-			return true;
+			if (BaseTransform::Transform(x, y))
+			{
+				TransformStatic(x, y);
+
+				return true;
+			}
+
+			return false;
 		}
 
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
+		static void TransformStatic(uint8_t& x, uint8_t& y)
 		{
-			return Transform(x, y);
+			y = Height - 1 - y;
 		}
 	};
 
@@ -54,44 +72,56 @@ namespace InvertTransform
 	/// </summary>
 	/// <typeparam name="Width"></typeparam>
 	/// <typeparam name="Height"></typeparam>
-	template<const uint8_t Width,
-		const uint8_t Height>
-	struct Invert
+	template<const uint8_t Width, const uint8_t Height,
+		typename BaseTransform = ITransform>
+	struct InvertTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y)
+		InvertTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		{
+			if (BaseTransform::Transform(x, y))
+			{
+				TransformStatic(x, y);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		static void TransformStatic(uint8_t& x, uint8_t& y)
 		{
 			x = Width - 1 - x;
 			y = Height - 1 - y;
-			return true;
-		}
-
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
-		{
-			return Transform(x, y);
 		}
 	};
 
 	/// <summary>
 	/// Flip X axis with Y axis.
 	/// </summary>
-	/// <typeparam name="Width"></typeparam>
-	/// <typeparam name="Height"></typeparam>
-	template<const uint8_t Width,
-		const uint8_t Height>
-	struct Flip
+	template<typename BaseTransform = ITransform>
+	struct FlipTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y)
+		FlipTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		{
+			if (BaseTransform::Transform(x, y))
+			{
+				TransformStatic(x, y);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		static void TransformStatic(uint8_t& x, uint8_t& y)
 		{
 			const uint8_t xx = x;
 			x = y;
 			y = xx;
-
-			return true;
-		}
-
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
-		{
-			return Transform(x, y);
 		}
 	};
 
@@ -99,24 +129,30 @@ namespace InvertTransform
 	/// Flip axis and invert X axis.
 	/// Equivalent to a +90 degree rotation.
 	/// </summary>
-	/// <typeparam name="Width"></typeparam>
 	/// <typeparam name="Height"></typeparam>
-	template<const uint8_t Width,
-		const uint8_t Height>
-	struct FlipInvertX
+	template<const uint8_t Height,
+		typename BaseTransform = ITransform>
+	struct FlipInvertXTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y)
+		FlipInvertXTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		{
+			if (BaseTransform::Transform(x, y))
+			{
+				TransformStatic(x, y);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		static void TransformStatic(uint8_t& x, uint8_t& y)
 		{
 			const uint8_t xx = x;
 			x = Height - 1 - y;
 			y = xx;
-
-			return true;
-		}
-
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
-		{
-			return Transform(x, y);
 		}
 	};
 
@@ -125,25 +161,30 @@ namespace InvertTransform
 	/// Equivalent to a 270 degree (-90 degree) rotation.
 	/// </summary>
 	/// <typeparam name="Width"></typeparam>
-	/// <typeparam name="Height"></typeparam>
 	template<const uint8_t Width,
-		const uint8_t Height>
-	struct FlipInvertY
+		typename BaseTransform = ITransform>
+	struct FlipInvertYTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y)
+		FlipInvertYTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		{
+			if (BaseTransform::Transform(x, y))
+			{
+				TransformStatic(x, y);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		static void TransformStatic(uint8_t& x, uint8_t& y)
 		{
 			const uint8_t xx = x;
 			x = y;
 			y = Width - 1 - xx;
-
-			return true;
-		}
-
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
-		{
-			return Transform(x, y);
 		}
 	};
 };
-
 #endif

@@ -5,6 +5,7 @@
 
 #include "../Model/ISprite.h"
 #include "../Model/IFrameBuffer.h"
+#include "../Model/ITransform.h"
 
 struct SpriteRenderer
 {
@@ -17,10 +18,9 @@ struct SpriteRenderer
 	/// <param name="positionX"></param>
 	/// <param name="positionY"></param>
 	/// <param name="parameter"></param>
-	template<typename TransformType>
-	static void TransformDraw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t positionX, const uint8_t positionY,
-		const int16_t parameter)
+	//template<typename TransformType>
+	static void TransformDraw(IFrameBuffer* frame, ISprite* sprite, ITransform* transform,
+		const uint8_t positionX, const uint8_t positionY)
 	{
 		const uint8_t width = sprite->GetWidth();
 		const uint8_t height = sprite->GetHeight();
@@ -36,7 +36,7 @@ struct SpriteRenderer
 				xNew = x;
 				yNew = y;
 				if (sprite->Get(color, x, y)
-					&& TransformType::Transform(xNew, yNew, parameter))
+					&& transform->Transform(xNew, yNew))
 				{
 					frame->Pixel(color, positionX + xNew, positionY + yNew);
 				}
@@ -47,16 +47,13 @@ struct SpriteRenderer
 	/// <summary>
 	/// Draw sprite with coordinates(?) transform.
 	/// </summary>
-	/// <typeparam name="TransformType"></typeparam>
 	/// <param name="frame"></param>
 	/// <param name="sprite"></param>
 	/// <param name="positionX"></param>
 	/// <param name="positionY"></param>
 	/// <param name="parameter"></param>
-	template<typename TransformType>
-	static void TransformDrawPartial(IFrameBuffer* frame, ISprite* sprite,
+	static void TransformDrawPartial(IFrameBuffer* frame, ISprite* sprite, ITransform* transform,
 		const uint8_t positionX, const uint8_t positionY,
-		const int16_t parameter,
 		const uint8_t offsetX, const uint8_t offsetY,
 		const uint8_t width, const uint8_t height)
 	{
@@ -71,7 +68,7 @@ struct SpriteRenderer
 				xNew = x;
 				yNew = y;
 				if (sprite->Get(color, x, y)
-					&& TransformType::Transform(xNew, yNew, parameter))
+					&& transform->Transform(xNew, yNew))
 				{
 					frame->Pixel(color, positionX + xNew, positionY + yNew);
 				}

@@ -105,7 +105,9 @@ FrameBufferType FrameBuffer(Buffer);
 GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, 20000);
 
 // Drawer with Print.h interface and statically allocated character buffer.
-DisplayPrint<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight> DisplaySerial(&FrameBuffer);
+using DisplayFont = SpriteFont5x5Renderer;
+using PrintLayout = DisplayPrintLayout<0, 0, FrameBufferType::FrameWidth, FrameBufferType::FrameHeight, DisplayFont>;
+DisplayPrint<PrintLayout, DisplayFont> DisplaySerial(&FrameBuffer);
 
 // Log to Serial task.
 EngineLogTask<500> EngineLog(&SchedulerBase, &GraphicsEngine);

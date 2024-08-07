@@ -10,11 +10,17 @@
 using namespace DemoSprites;
 using namespace SpriteShader;
 using namespace SpriteShaderEffect;
+using namespace SpriteTransform;
 
 template<typename Layout>
 class SpriteDemo : public ElementDrawer
 {
 private:
+	static constexpr uint32_t AnimateDuration = 1100000;
+	static constexpr uint32_t RingResizeDuration = 1712300;
+	static constexpr uint32_t ScrollHorizontalDuration = 7067123;
+	static constexpr uint32_t ScrollVerticalDuration = 3674000;
+
 	enum class DrawElementsEnum : uint8_t
 	{
 		AnimatedExplosion,
@@ -39,15 +45,14 @@ private:
 
 	using ExplosionLayout = LayoutElement<(Layout::Width() - ExplosionSprite::Width - 1) / 2,
 		(Layout::Height() - ExplosionSprite::Height) / 2 - 1,
-		ExplosionSprite::Width, ExplosionSprite::Height
-	>;
+		ExplosionSprite::Width, ExplosionSprite::Height>;
 
 
 	struct RingLayout
 	{
-		static constexpr uint8_t MaxRadius() { return 13; }
-		static constexpr uint8_t RingWidth() { return 4; }
-		static constexpr uint8_t MinRadius() { return 5; }
+		static constexpr uint8_t RingWidth() { return 5; }
+		static constexpr uint8_t MinRadius() { return RingWidth() + 1; }
+		static constexpr uint8_t MaxRadius() { return (MinRadius() * 2) + 1; }
 
 		static constexpr uint8_t RadiusRange()
 		{
@@ -55,16 +60,14 @@ private:
 		}
 	};
 
-
-	static constexpr uint32_t AnimateDuration = 1100000;
-	static constexpr uint32_t RingResizeDuration = 1712300;
-	static constexpr uint32_t ScrollHorizontalDuration = 7067123;
-	static constexpr uint32_t ScrollVerticalDuration = 3674000;
-
 private:
 	ColorShader<ExplosionSprite> AnimatedExplosion{};
 	ArrowSprite Arrow{};
-	TransparentGridEffect<ColorShader<RingSprite>> Ring{};
+	ColorShader<TransparentGridEffect<RingSprite>> Ring{};
+
+	FlipTransform<> ArrowInvert{};
+	FlipInvertXTransform<ArrowSprite::Height> ArrowFlipInvertX{};
+	InvertYTransform<ArrowSprite::Height> ArrowInvertY{};
 
 public:
 	SpriteDemo(IFrameBuffer* frame)
@@ -154,10 +157,7 @@ private:
 		}
 		else
 		{
-			SpriteRenderer::TransformDraw<InvertTransform::InvertY<ArrowSprite::Width, ArrowSprite::Height>>(
-				Frame, &Arrow,
-				ArrowLayout::X(), y,
-				0);
+			SpriteRenderer::TransformDraw(Frame, &Arrow, &ArrowInvertY, ArrowLayout::X(), y);
 		}
 	}
 
@@ -168,17 +168,15 @@ private:
 
 		if (progress >= INT16_MAX)
 		{
-			SpriteRenderer::TransformDraw<InvertTransform::Flip<ArrowSprite::Width, ArrowSprite::Height>>(
-				Frame, &Arrow,
-				x, ArrowLayout::Y(),
-				0);
+			SpriteRenderer::TransformDraw(
+				Frame, &Arrow, &ArrowInvert,
+				x, ArrowLayout::Y());
 		}
 		else
 		{
-			SpriteRenderer::TransformDraw<InvertTransform::FlipInvertX<ArrowSprite::Width, ArrowSprite::Height>>(
-				Frame, &Arrow,
-				x, ArrowLayout::Y(),
-				0);
+			SpriteRenderer::TransformDraw(
+				Frame, &Arrow, &ArrowFlipInvertX,
+				x, ArrowLayout::Y());
 		}
 	}
 
@@ -191,15 +189,12 @@ private:
 		const uint16_t progressX = ProgressScaler::TriangleResponse(drawState->GetProgress<ScrollHorizontalDuration * 5>());
 		const uint16_t progressY = ProgressScaler::TriangleResponse(drawState->GetProgress<ScrollVerticalDuration * 3>());
 
-		const uint8_t x = Layout::X() + ProgressScaler::ScaleProgress(progressX, Layout::Width());
-		const uint8_t y = Layout::Y() + ProgressScaler::ScaleProgress(progressY, Layout::Height());
+		const uint8_t x = Layout::X() + ProgressScaler::ScaleProgress(progressX, Layout::Width()) - outerRadius;
+		const uint8_t y = Layout::Y() + ProgressScaler::ScaleProgress(progressY, Layout::Height()) - outerRadius;
 
 		Ring.SetRadius(innerRadius, outerRadius);
 
-		SpriteRenderer::Draw(
-			Frame, &Ring,
-			x - outerRadius, y - outerRadius
-		);
+		SpriteRenderer::Draw(Frame, &Ring, x, y);
 	}
 };
 #endif

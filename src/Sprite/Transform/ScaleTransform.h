@@ -3,74 +3,124 @@
 #ifndef _SCALE_TRANSFORM_h
 #define _SCALE_TRANSFORM_h
 
-#include <stdint.h>
+#include "../../Model/ITransform.h"
 
-namespace ScaleTransform
+namespace SpriteTransform
 {
 	template<const uint8_t Width,
-		const uint8_t Height>
-	struct DownScaleX
+		typename BaseTransform = ITransform>
+	class DownScaleXTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
-		{
-			const uint8_t skips = (parameter * x) / Width;
+	private:
+		uint8_t DownScale = 0;
 
-			if (skips == 0
-				|| (x % Width) != skips)
+	public:
+		DownScaleXTransform() : BaseTransform() {}
+
+		void SetDownScaleX(const uint8_t downScale)
+		{
+			DownScale = downScale;
+		}
+
+		const uint8_t GetDownScaleX()
+		{
+			return DownScale;
+		}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		{
+			if (BaseTransform::Transform(x, y))
 			{
-				x = x - skips;
-				return true;
+				const uint8_t skips = ((uint16_t)DownScale * x) / Width;
+
+				if (skips == 0
+					|| (x % Width) != skips)
+				{
+					x = x - skips;
+					return true;
+				}
 			}
-			else
+
+			return false;
+		}
+	};
+
+	template<const uint8_t Height,
+		typename BaseTransform = ITransform>
+	class DownScaleYTransform : public BaseTransform
+	{
+	private:
+		uint8_t DownScale = 0;
+
+	public:
+		DownScaleYTransform() : BaseTransform() {}
+
+		void SetDownScaleY(const uint8_t downScale)
+		{
+			DownScale = downScale;
+		}
+
+		const uint8_t GetDownScaleY()
+		{
+			return DownScale;
+		}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		{
+			if (BaseTransform::Transform(x, y))
 			{
-				return false;
+				const uint8_t skips = (DownScale * y) / Height;
+
+				if (skips == 0
+					|| (y % Height) != skips)
+				{
+					y = y - skips;
+					return true;
+				}
 			}
+			return false;
 		}
 	};
 
 	template<const uint8_t Width,
-		const uint8_t Height>
-	struct DownScaleY
+		const uint8_t Height,
+		typename BaseTransform = ITransform>
+	class DownScaleXYTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
-		{
-			const uint8_t skips = (parameter * y) / Height;
+	private:
+		uint8_t DownScale = 0;
 
-			if (skips == 0
-				|| (y % Height) != skips)
-			{
-				y = y - skips;
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+	public:
+		DownScaleXYTransform() : BaseTransform() {}
+
+		void SetDownScaleXY(const uint8_t downScale)
+		{
+			DownScale = downScale;
 		}
-	};
 
-	template<const uint8_t Width,
-		const uint8_t Height>
-	struct DownScaleXY
-	{
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
+		const uint8_t GetDownScaleXY()
 		{
-			const uint8_t skipsX = (parameter * x) / Width;
-			const uint8_t skipsY = (parameter * y) / Height;
+			return DownScale;
+		}
 
-			if ((skipsX == 0 || (x % Width) != skipsX) && (skipsY == 0 || (y % Height) != skipsY))
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		{
+			if (BaseTransform::Transform(x, y))
 			{
-				x = x - skipsX;
-				y = y - skipsY;
+				const uint8_t skipsX = (DownScale * x) / Width;
+				const uint8_t skipsY = (DownScale * y) / Height;
 
-				return true;
+				if ((skipsX == 0 || (x % Width) != skipsX) && (skipsY == 0 || (y % Height) != skipsY))
+				{
+					x = x - skipsX;
+					y = y - skipsY;
+
+					return true;
+				}
 			}
-			else
-			{
-				return false;
-			}
+
+			return false;
 		}
 	};
 };
-
 #endif

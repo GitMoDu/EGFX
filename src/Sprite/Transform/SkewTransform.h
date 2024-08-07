@@ -3,49 +3,98 @@
 #ifndef _SKEW_TRANSFORM_h
 #define _SKEW_TRANSFORM_h
 
-#include <stdint.h>
+#include "../../Model/ITransform.h"
 
-namespace SkewTransform
+namespace SpriteTransform
 {
-	template<const uint8_t Width,
-		const uint8_t Height,
-		const uint8_t ReferenceY = (Height / 2)>
-	struct Horizontal
+	template<const uint8_t Height,
+		typename BaseTransform = ITransform>
+	class SkewHorizontalTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
+	private:
+		uint8_t ReferenceY = Height / 2;
+		int8_t Skew = 0;
+
+	public:
+		SkewHorizontalTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
 		{
-			if (y < Height)
+			if (BaseTransform::Transform(x, y)
+				&& y < Height)
 			{
-				x += ((((int16_t)ReferenceY - 1) - y) * parameter) / (Height - 1);
-			}
-			else
-			{
-				return false;
+				x += ((((int16_t)ReferenceY - 1) - y) * Skew) / (Height - 1);
+
+				return true;
 			}
 
-			return true;
+			return false;
+		}
+
+		void SetSkewX(const int8_t skewPixels)
+		{
+			Skew = skewPixels;
+		}
+
+		const int8_t GetSkewX() const
+		{
+			return Skew;
+		}
+
+		void SetReferenceY(const uint8_t reference)
+		{
+			ReferenceY = reference;
+		}
+
+		const uint8_t GetReferenceY() const
+		{
+			return ReferenceY;
 		}
 	};
 
 	template<const uint8_t Width,
-		const uint8_t Height,
-		const uint8_t ReferenceX = (Width / 2)>
-	struct Vertical
+		typename BaseTransform = ITransform>
+	class SkewVerticalTransform : public BaseTransform
 	{
-		static const bool Transform(uint8_t& x, uint8_t& y, const int16_t parameter)
+	private:
+		uint8_t ReferenceX = Width / 2;
+		int8_t Skew = 0;
+
+	public:
+		SkewVerticalTransform() : BaseTransform() {}
+
+		virtual const bool Transform(uint8_t& x, uint8_t& y)
 		{
-			if (x < Width)
+			if (BaseTransform::Transform(x, y)
+				&& x < Width)
 			{
-				y += ((((int16_t)ReferenceX - 1) - x) * parameter) / (Width - 1);
-			}
-			else
-			{
-				return false;
+				y += ((((int16_t)ReferenceX - 1) - x) * Skew) / (Width - 1);
+
+				return true;
 			}
 
-			return true;
+			return false;
+		}
+
+		void SetSkewY(const int8_t skewPixels)
+		{
+			Skew = skewPixels;
+		}
+
+		const int8_t GetSkewY() const
+		{
+			return Skew;
+		}
+
+		void SetReferenceX(const uint8_t reference)
+		{
+			ReferenceX = reference;
+		}
+
+		const uint8_t GetReferenceX() const
+		{
+			return ReferenceX;
 		}
 	};
 }
-
 #endif

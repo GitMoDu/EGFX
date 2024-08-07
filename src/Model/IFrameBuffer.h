@@ -12,6 +12,7 @@ class IFrameBuffer
 public:
 	virtual const uint8_t GetWidth() { return 0; }
 	virtual const uint8_t GetHeight() { return 0; }
+	virtual const uint32_t GetColorDepth() const { return 0; }
 
 	/// <summary>
 	/// Exposes the frame buffer for pushing to IScreenDriver.

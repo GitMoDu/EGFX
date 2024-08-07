@@ -36,6 +36,11 @@ public:
 		: BaseClass(buffer)
 	{}
 
+	const uint32_t GetColorDepth() const final
+	{
+		return sizeof(color_t) * 8;
+	}
+
 protected:
 	virtual void WritePixel(const color_t rawColor, const uint8_t x, const uint8_t y) final
 	{

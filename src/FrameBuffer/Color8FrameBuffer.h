@@ -37,6 +37,11 @@ public:
 		: BaseClass(buffer)
 	{}
 
+	const uint32_t GetColorDepth() const  final
+	{
+		return sizeof(color_t) * 8;
+	}
+
 	virtual void Fill(const RgbColor& color)
 	{
 		if (Inverted)

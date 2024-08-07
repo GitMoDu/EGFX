@@ -5,79 +5,73 @@
 
 #include <WString.h>
 #include "../Model/Character.h"
+#include "../Sprite/Shader/SpriteShader.h"
 
-template<typename SpriteType>
-class AbstractSpriteFontRenderer
+/// <summary>
+/// Sprite based font renderer, with no color shading.
+/// Fixed dimensions (same as declared in sprite) and pixel kerning.
+/// Implementation of sprite selection is done through virtual call SetCharacter;
+/// By inheriting directy from the Sprite type,
+/// shaders and effects can still be template-chained as if this was a regular sprite.
+/// </summary>
+/// <typeparam name="SpriteType"></typeparam>
+template<typename SpriteType,
+	uint8_t fontKerning = 1>
+class AbstractSpriteFontRenderer : public SpriteType
 {
 public:
-	static constexpr uint8_t FontWidth = SpriteType::Width;
-	static constexpr uint8_t FontHeight = SpriteType::Height;
-
-private:
-	class ColorSprite : public SpriteType
+	static constexpr uint8_t FontWidth()
 	{
-	private:
-		RgbColor Color{ UINT8_MAX ,UINT8_MAX ,UINT8_MAX };
+		return SpriteType::Width;
+	}
 
-	public:
-		ColorSprite() : SpriteType()
-		{}
+	static constexpr uint8_t FontHeight()
+	{
+		return SpriteType::Height;
+	}
 
-		void SetColor(const RgbColor& color)
-		{
-			Color.r = color.r;
-			Color.g = color.g;
-			Color.b = color.b;
-		}
-
-	protected:
-		virtual const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
-		{
-			color.r = Color.r;
-			color.g = Color.g;
-			color.b = Color.b;
-
-			return true;
-		}
-	};
+	static constexpr uint8_t FontKerning()
+	{
+		return fontKerning;
+	}
 
 private:
-	ColorSprite SpriteSource{};
+	using BaseClass = SpriteType;
 
 protected:
-	virtual void SetCharacter(SpriteType& spriteSource, const int8_t character) { }
+	virtual void SetCharacter(const int8_t character) { }
 
 public:
-	AbstractSpriteFontRenderer()
+	AbstractSpriteFontRenderer() : BaseClass()
 	{}
 
 public:
-	void TextBottomLeft(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char* str)
+	void TextBottomLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
 	{
-		TextTopLeft(frame, color, x, y - FontHeight, str);
+		TextTopLeft(frame, x, y - FontHeight(), str);
 	}
 
-	void TextBottomRight(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char* str)
+	void TextBottomRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
 	{
-		TextTopRight(frame, x, y - FontHeight, str);
+		TextTopRight(frame, x, y - FontHeight(), str);
 	}
 
-	void TextBottomLeft(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextBottomLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
 	{
-		TextTopLeft(frame, color, x, y - FontHeight, ifsh);
+		TextTopLeft(frame, x, y - FontHeight(), ifsh);
 	}
 
-	void TextBottomRight(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextBottomRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
 	{
-		TextTopRight(frame, color, x, y - FontHeight, ifsh);
+		TextTopRight(frame, x, y - FontHeight(), ifsh);
 	}
 
-	void TextTopLeft(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextTopLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
-			&& x < frame->GetWidth() - FontWidth
-			&& y < frame->GetHeight() - FontHeight)
+			&& x < frame->GetWidth() - FontWidth()
+			&& y < frame->GetHeight() - FontHeight())
 		{
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
 			uint8_t offset = 0;
@@ -90,24 +84,24 @@ public:
 				}
 				else
 				{
-					Write(frame, color, x + offset, y, character);
-					offset += FontWidth + 1;
+					Write(frame, x + offset, y, character);
+					offset += FontWidth() + FontKerning();
 				}
 			}
 		}
 #else
-		TextTopLeft(frame, color, x, y, reinterpret_cast<const char*>(ifsh));
+		TextTopLeft(frame, x, y, reinterpret_cast<const char*>(ifsh));
 #endif	
 	}
 
-	void TextTopRight(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextTopRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
 			&& x < frame->GetWidth()
-			&& y < frame->GetHeight() - FontHeight)
+			&& y < frame->GetHeight() - FontHeight())
 		{
-			const uint8_t x1 = x - FontHeight;
+			const uint8_t x1 = x - FontHeight();
 
 			size_t size = 0;
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
@@ -129,16 +123,16 @@ public:
 				&& x > offset)
 			{
 				const int8_t character = pgm_read_byte(ptr--);
-				Write(frame, color, x1 - offset, y, character);
-				offset += FontWidth + 1;
+				Write(frame, x1 - offset, y, character);
+				offset += FontWidth() + FontKerning();
 			}
 		}
 #else
-		TextTopRight(frame, color, x, y, reinterpret_cast<const char*>(ifsh));
+		TextTopRight(frame, x, y, reinterpret_cast<const char*>(ifsh));
 #endif		
 	}
 
-	void TextTopLeft(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char* str)
+	void TextTopLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
 	{
 		const uint8_t width = frame->GetWidth();
 		const uint8_t height = frame->GetHeight();
@@ -152,13 +146,13 @@ public:
 			while (size--
 				&& (x < (width - offset)))
 			{
-				Write(frame, color, x + offset, y, (const uint8_t)*ch++);
-				offset += FontWidth + 1;
+				Write(frame, x + offset, y, (const uint8_t)*ch++);
+				offset += FontWidth() + FontKerning();
 			}
 		}
 	}
 
-	void TextTopRight(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char* str)
+	void TextTopRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
 	{
 		const uint8_t width = frame->GetWidth();
 		const uint8_t height = frame->GetHeight();
@@ -172,16 +166,15 @@ public:
 			while (size--
 				&& (x < (width - offset)))
 			{
-				Write(frame, color, x - offset, y, (const uint8_t)*ch--);
-				offset += FontWidth + 1;
+				Write(frame, x - offset, y, (const uint8_t)*ch--);
+				offset += FontWidth() + FontKerning();
 			}
 		}
 	}
 
-	void Write(IFrameBuffer* frame, const RgbColor& color, const uint8_t x, const uint8_t y, const char character)
+	void Write(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char character)
 	{
-		SetCharacter(SpriteSource, character);
-		SpriteSource.SetColor(color);
+		SetCharacter(character);
 
 		if (character == '\t'
 			|| character == ' ')
@@ -189,7 +182,7 @@ public:
 			return;
 		}
 
-		SpriteRenderer::Draw(frame, &SpriteSource, x, y);
+		SpriteRenderer::Draw(frame, this, x, y);
 	}
 };
 #endif

@@ -15,11 +15,9 @@ namespace Font3x5
 {
 	static constexpr uint8_t Width = 3;
 	static constexpr uint8_t Height = 5;
+	static constexpr uint8_t Kerning = 1;
 
-	static constexpr uint8_t Number0[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number0[Height] PROGMEM
 	{
 		0b11100000,
 		0b10100000,
@@ -29,10 +27,7 @@ namespace Font3x5
 	};
 
 
-	static constexpr uint8_t Number1[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number1[Height] PROGMEM
 	{
 		0b11000000,
 		0b01000000,
@@ -41,10 +36,7 @@ namespace Font3x5
 		0b11100000
 	};
 
-	static constexpr uint8_t Number2[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number2[Height] PROGMEM
 	{
 		0b11100000,
 		0b00100000,
@@ -53,10 +45,7 @@ namespace Font3x5
 		0b11100000
 	};
 
-	static constexpr uint8_t Number3[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number3[Height] PROGMEM
 	{
 		0b11100000,
 		0b00100000,
@@ -65,10 +54,7 @@ namespace Font3x5
 		0b11100000
 	};
 
-	static constexpr uint8_t Number4[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number4[Height] PROGMEM
 	{
 		0b10100000,
 		0b10100000,
@@ -77,10 +63,7 @@ namespace Font3x5
 		0b00100000
 	};
 
-	static constexpr uint8_t Number5[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number5[Height] PROGMEM
 	{
 		0b11100000,
 		0b10000000,
@@ -89,10 +72,7 @@ namespace Font3x5
 		0b11000000
 	};
 
-	static constexpr uint8_t Number6[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number6[Height] PROGMEM
 	{
 		0b01100000,
 		0b10000000,
@@ -101,10 +81,7 @@ namespace Font3x5
 		0b11100000
 	};
 
-	static constexpr uint8_t Number7[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number7[Height] PROGMEM
 	{
 		0b11100000,
 		0b00100000,
@@ -113,10 +90,7 @@ namespace Font3x5
 		0b10000000
 	};
 
-	static constexpr uint8_t Number8[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number8[Height] PROGMEM
 	{
 		0b11100000,
 		0b10100000,
@@ -125,10 +99,7 @@ namespace Font3x5
 		0b11100000
 	};
 
-	static constexpr uint8_t Number9[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t Number9[Height] PROGMEM
 	{
 		0b11100000,
 		0b10100000,
@@ -137,10 +108,7 @@ namespace Font3x5
 		0b00100000
 	};
 
-	static constexpr uint8_t SymbolDecimalPoint[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t SymbolDecimalPoint[Height] PROGMEM
 	{
 		0b00000000,
 		0b00000000,
@@ -149,10 +117,7 @@ namespace Font3x5
 		0b01000000
 	};
 
-	static constexpr uint8_t SymbolDecimalComma[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t SymbolDecimalComma[Height] PROGMEM
 	{
 		0b00000000,
 		0b00000000,
@@ -161,10 +126,7 @@ namespace Font3x5
 		0b10000000
 	};
 
-	static constexpr uint8_t SymbolPlus[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t SymbolPlus[Height] PROGMEM
 	{
 		0b00000000,
 		0b01000000,
@@ -173,10 +135,7 @@ namespace Font3x5
 		0b00000000
 	};
 
-	static constexpr uint8_t SymbolMinus[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t SymbolMinus[Height] PROGMEM
 	{
 		0b00000000,
 		0b00000000,
@@ -185,10 +144,7 @@ namespace Font3x5
 		0b00000000
 	};
 
-	static constexpr uint8_t SymbolEquals[Height]
-#if defined(ARDUINO_ARCH_AVR)
-		PROGMEM
-#endif 
+	static constexpr uint8_t SymbolEquals[Height] PROGMEM
 	{
 		0b00000000,
 		0b11100000,
@@ -198,20 +154,17 @@ namespace Font3x5
 	};
 };
 
-class SpriteFont3x5Renderer : public AbstractSpriteFontRenderer<FlashBitMaskSprite<Font3x5::Width, Font3x5::Height>>
+class SpriteFont3x5Renderer : public AbstractSpriteFontRenderer<FlashBitMaskSprite<Font3x5::Width, Font3x5::Height>, Font3x5::Kerning>
 {
-private:
-	using SpriteType = FlashBitMaskSprite<Font3x5::Width, Font3x5::Height>;
-
 public:
 	SpriteFont3x5Renderer()
-		: AbstractSpriteFontRenderer<SpriteType>()
+		: AbstractSpriteFontRenderer<FlashBitMaskSprite<Font3x5::Width, Font3x5::Height>, Font3x5::Kerning>()
 	{}
 
 protected:
-	void SetCharacter(SpriteType& spriteSource, const int8_t character) final
+	void SetCharacter(const int8_t character) final
 	{
-		spriteSource.SetMask(GetMask(character));
+		SetMask(GetMask(character));
 	}
 
 private:

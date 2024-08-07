@@ -9,8 +9,8 @@
 class ISprite
 {
 public:
-	virtual const uint8_t GetWidth() { return 0; }
-	virtual const uint8_t GetHeight() { return 0; }
+	virtual const uint8_t GetWidth() const { return 0; }
+	virtual const uint8_t GetHeight() const { return 0; }
 
 	/// <summary>
 	/// Color getter for sprite.
@@ -34,12 +34,12 @@ public:
 	AbstractSprite() : ISprite()
 	{}
 
-	const uint8_t GetWidth()
+	virtual const uint8_t GetWidth() const
 	{
 		return Width;
 	}
 
-	const uint8_t GetHeight()
+	virtual const uint8_t GetHeight() const
 	{
 		return Height;
 	}

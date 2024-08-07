@@ -30,12 +30,12 @@ public:
 		Mask = mask;
 	}
 
-	const uint8_t GetWidth()
+	const uint8_t GetWidth() const
 	{
 		return (Mask != nullptr) * width;
 	}
 
-	const uint8_t GetHeight()
+	const uint8_t GetHeight() const
 	{
 		return (Mask != nullptr) * height;
 	}

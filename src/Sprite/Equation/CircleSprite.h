@@ -15,12 +15,12 @@ public:
 	CircleSprite() : ISprite()
 	{}
 
-	const uint8_t GetWidth() final
+	const uint8_t GetWidth() const final
 	{
 		return Radius * 2;
 	}
 
-	const uint8_t GetHeight() final
+	const uint8_t GetHeight() const final
 	{
 		return GetWidth();
 	}

@@ -36,12 +36,12 @@ public:
 		return GetColor(color, x, y);
 	}
 
-	const uint8_t GetWidth()
+	const uint8_t GetWidth() const
 	{
 		return (RgbBitmap != nullptr) * width;
 	}
 
-	const uint8_t GetHeight()
+	const uint8_t GetHeight() const
 	{
 		return (RgbBitmap != nullptr) * height;
 	}

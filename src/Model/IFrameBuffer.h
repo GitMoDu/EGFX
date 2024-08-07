@@ -10,9 +10,10 @@
 class IFrameBuffer
 {
 public:
-	virtual const uint8_t GetWidth() { return 0; }
-	virtual const uint8_t GetHeight() { return 0; }
 	virtual const uint32_t GetColorDepth() const { return 0; }
+
+	virtual const uint8_t GetWidth() const { return 0; }
+	virtual const uint8_t GetHeight() const { return 0; }
 
 	/// <summary>
 	/// Exposes the frame buffer for pushing to IScreenDriver.
@@ -77,7 +78,7 @@ public:
 	/// <param name="x2"></param>
 	/// <param name="y2"></param>
 	virtual void RectangleFill(const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2) {}
-	
+
 	/// <summary>
 	/// Draw a triangle outline.
 	/// </summary>

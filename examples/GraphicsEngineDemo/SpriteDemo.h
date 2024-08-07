@@ -62,7 +62,7 @@ private:
 
 private:
 	ColorShader<ExplosionSprite> AnimatedExplosion{};
-	ArrowSprite Arrow{};
+	ColorShader<ArrowSprite> Arrow{};
 	ColorShader<TransparentGridEffect<RingSprite>> Ring{};
 
 	FlipTransform<> ArrowInvert{};
@@ -75,6 +75,8 @@ public:
 	{
 		Ring.SetColor(UINT8_MAX, 0, UINT8_MAX);
 		Ring.SetTransparency(1);
+
+		Arrow.SetColor(0, UINT8_MAX, 0);
 	}
 
 	void DrawCall(DrawState* drawState) final

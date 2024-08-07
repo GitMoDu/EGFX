@@ -65,16 +65,7 @@ public:
 
 		const uint8_t xBit = 7 - (x % 8);
 
-		if (((Mask[offset] >> xBit) & 0x01) != 0)
-		{
-			color.r = UINT8_MAX;
-			color.g = UINT8_MAX;
-			color.b = UINT8_MAX;
-
-			return true;
-		}
-
-		return false;
+		return ((Mask[offset] >> xBit) & 0x01) != 0;
 	}
 };
 
@@ -95,29 +86,15 @@ public:
 		: BaseClass(mask)
 	{}
 
-	const bool Get(RgbColor& color, const uint8_t x, const uint8_t y) final
-	{
-		if (GetColor(color, x, y))
-		{
-			const uint8_t yByte = y * BitScale;
-			const uint8_t xByte = (x / 8);
-			const uint8_t offset = yByte + xByte;
-
-			const uint8_t xBit = 7 - (x % 8);
-
-			return ((pgm_read_byte(&Mask[offset]) >> xBit) & 0x01) != 0;
-		}
-
-		return false;
-	}
-
 	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
-		color.r = UINT8_MAX;
-		color.g = UINT8_MAX;
-		color.b = UINT8_MAX;
+		const uint8_t yByte = y * BitScale;
+		const uint8_t xByte = (x / 8);
+		const uint8_t offset = yByte + xByte;
 
-		return true;
+		const uint8_t xBit = 7 - (x % 8);
+
+		return ((pgm_read_byte(&Mask[offset]) >> xBit) & 0x01) != 0;
 	}
 };
 #else

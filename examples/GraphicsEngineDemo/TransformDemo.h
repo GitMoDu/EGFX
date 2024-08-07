@@ -30,7 +30,7 @@ private:
 
 	struct RectangleLayout
 	{
-		static constexpr uint8_t Width() { return 14; }
+		static constexpr uint8_t Width() { return 15; }
 		static constexpr uint8_t Height() { return 7; }
 	};
 
@@ -38,7 +38,8 @@ private:
 	HorizontalGradientShader<PyramidSprite> Pyramid{};
 	GridShader<RectangleSprite<RectangleLayout::Width(), RectangleLayout::Height()>> Rectangle{};
 
-	SkewHorizontalTransform<RectangleLayout::Height()> RectangleSkewer{};
+	SkewHorizontalTransform<RectangleLayout::Height()> RectangleHorizontalSkewer{};
+	SkewVerticalTransform<RectangleLayout::Width()> RectangleVerticalSkewer{};
 	DownScaleXYTransform<HeartSprite::Width, HeartSprite::Height> HeartDownScaler{};
 	RotateTransform<PyramidSprite::Width, PyramidSprite::Height> PyramidRotator{};
 
@@ -53,6 +54,9 @@ public:
 
 		Rectangle.SetColor1(0, 0, UINT8_MAX);
 		Rectangle.SetColor2(0, UINT8_MAX, 0);
+
+		RectangleHorizontalSkewer.SetReferenceY(RectangleLayout::Height() / 2);
+		RectangleVerticalSkewer.SetReferenceX(0);
 
 		Pyramid.SetColor1(0xFF, 0x5A, 0x23);
 		Pyramid.SetColor2(0xFF, 0xd3, 0x91);
@@ -85,19 +89,21 @@ private:
 		if (ProgressScaler::ScaleProgress(sectionProgress, (uint8_t)2) == 0)
 		{
 			const int8_t skew = -(int16_t)RectangleLayout::Width() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Width() * 2));
-			RectangleSkewer.SetSkewX(skew);
-			RectangleSkewer.SetReferenceY(RectangleLayout::Height() / 2);
+			RectangleHorizontalSkewer.SetSkewX(skew);
+			
+			SpriteRenderer::TransformDraw(Frame, &Rectangle, &RectangleHorizontalSkewer,
+				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
 		}
 		else
 		{
 			const int8_t skew = -(int16_t)RectangleLayout::Height() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Height() * 2));
-			RectangleSkewer.SetSkewX(skew);
-			RectangleSkewer.SetReferenceY(0);
-
+			RectangleVerticalSkewer.SetSkewY(skew);
+			
+			SpriteRenderer::TransformDraw(Frame, &Rectangle, &RectangleVerticalSkewer,
+				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
 		}
 
-		SpriteRenderer::TransformDraw(Frame, &Rectangle, &RectangleSkewer,
-			Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
+	
 	}
 
 	void DrawScale(DrawState* drawState)

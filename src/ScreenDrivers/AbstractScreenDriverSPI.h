@@ -130,12 +130,12 @@ public:
 		CommandEnd();
 	}
 
-	const uint8_t GetWidth() final
+	const uint8_t GetWidth() const final
 	{
 		return ScreenWidth;
 	}
 
-	const uint8_t GetHeight() final
+	const uint8_t GetHeight() const final
 	{
 		return ScreenHeight;
 	}

@@ -8,6 +8,84 @@
 namespace SpriteShaderEffect
 {
 	/// <summary>
+	/// Masks the pixels with a rectangle crop.
+	/// </summary>
+	/// <typeparam name="BaseClass"></typeparam>
+	template<typename BaseClass>
+	class CropRectangleEffect : public BaseClass
+	{
+	private:
+		uint8_t X = 0;
+		uint8_t Y = 0;
+		uint8_t Width = 0;
+		uint8_t Height = 0;
+
+	public:
+		CropRectangleEffect() : BaseClass()
+		{}
+
+		void SetRectangleCrop(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height)
+		{
+			X = x;
+			Y = y;
+			Width = width;
+			Height = height;
+		}
+
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		{
+			return x >= X && x < (X + Width) && y >= Y && y < (Y + Height)
+				&& BaseClass::Get(color, x, y);
+		}
+	};
+
+	/// <summary>
+	/// Masks the pixels with a circle crop.
+	/// </summary>
+	/// <typeparam name="BaseClass"></typeparam>
+	template<typename BaseClass>
+	class CropCircleEffect : public BaseClass
+	{
+	private:
+		uint16_t RadiusPow = 0;
+		int8_t OffsetX = 0;
+		int8_t OffsetY = 0;
+
+	public:
+		CropCircleEffect() : BaseClass()
+		{}
+
+		void SetCircleCrop(const int8_t offsetX, const int8_t offsetY, const uint8_t radius)
+		{
+			OffsetX = offsetX;
+			OffsetY = offsetY;
+			if (radius > 1)
+			{
+				RadiusPow = ((uint16_t)radius * radius) - 1;
+			}
+			else
+			{
+				RadiusPow = ((uint16_t)radius * radius);
+			}
+		}
+
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		{
+			return IsInsideCircle(x, y) && BaseClass::Get(color, x, y);
+		}
+
+	private:
+		const bool IsInsideCircle(const uint8_t x, const uint8_t y)
+		{
+			const int16_t xx = x - OffsetX;
+			const int16_t yy = y - OffsetY;
+			const uint16_t distancePow = (((uint16_t)xx * xx) + ((uint16_t)yy * yy));
+
+			return distancePow <= RadiusPow;
+		}
+	};
+
+	/// <summary>
 	/// Applies a dithered transparency effect to the sprite.
 	/// </summary>
 	/// <typeparam name="BaseClass">The underlying SpriteShader.</typeparam>

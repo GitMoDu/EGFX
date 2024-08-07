@@ -5,6 +5,11 @@
 
 #include <ArduinoGraphicsDrawer.h>
 
+/// <summary>
+/// Sprite Font Renderer with animated color and shading.
+/// </summary>
+/// <typeparam name="Layout"></typeparam>
+template<typename Layout>
 class TextSpriteDemo : public ElementDrawer
 {
 private:
@@ -17,11 +22,21 @@ private:
 		DrawElementsCount
 	};
 
+	struct TextLayout : Layout
+	{
+		using Line1 = LayoutElement<Layout::X(), Layout::Y(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
+		using Line2 = LayoutElement<Layout::X(), Line1::Y() + Line1::Height() + SpriteFont5x5Renderer::FontKerning(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
+		using Line3 = LayoutElement<Layout::X(), Line2::Y() + Line2::Height() + SpriteFont5x5Renderer::FontKerning(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
+		using Numbers = LayoutElement<Layout::X(), Line3::Y() + Line2::Height() + SpriteFont5x5Renderer::FontKerning(), Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
+	};
+
+private:
 	static constexpr uint32_t TextColorPeriodMicros = 3000000;
 
+private:
 	RgbColor Color{};
 
-	HorizontalGradientShader<SpriteFont5x5Renderer> TextDrawer{};
+	VerticalGradientShader<SpriteFont5x5Renderer> TextDrawer{};
 	ColorShader<SpriteFont3x5Renderer> NumberDrawer{};
 
 public:
@@ -55,62 +70,53 @@ public:
 private:
 	void DrawLine1(DrawState* drawState)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
-
-		Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>());
 		TextDrawer.SetColor2(Color);
 
 		TextDrawer.TextTopLeft(Frame,
-			0, 0,
+			TextLayout::Line1::X(), TextLayout::Line1::Y(),
 			"ABCDEFGHIJ"
 		);
 	}
 
 	void DrawLine2(DrawState* drawState)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>() + INT16_MAX / 3;
-
-		Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + (INT16_MAX / 3));
 		TextDrawer.SetColor2(Color);
 
 		TextDrawer.TextTopLeft(Frame,
-			0, TextDrawer.FontHeight() + 1,
+			TextLayout::Line2::X(), TextLayout::Line2::Y(),
 			"KLMNOPQRST"
 		);
 	}
 
 	void DrawLine3(DrawState* drawState)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>() + ((2 * INT16_MAX) / 3);
-
-		Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + (2 * (INT16_MAX / 3)));
 		TextDrawer.SetColor2(Color);
 
 		TextDrawer.TextTopLeft(Frame,
-			0, (TextDrawer.FontHeight() + 1) * 2,
+			TextLayout::Line3::X(), TextLayout::Line3::Y(),
 			"UVWXYZ!?.,"
 		);
 	}
 
 	void DrawNumbers(DrawState* drawState)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>() + INT16_MAX;
-
-		Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + INT16_MAX);
 		NumberDrawer.SetColor(Color);
 
 		NumberDrawer.TextTopLeft(Frame,
-			0, (TextDrawer.FontHeight() + 1) * 3,
+			TextLayout::Numbers::X(), TextLayout::Numbers::Y(),
 			"0123456789.,+-="
 		);
+	}
+
+	void SetColorByProgress(const uint16_t colorProgress)
+	{
+		Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
+		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
+		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 	}
 };
 #endif

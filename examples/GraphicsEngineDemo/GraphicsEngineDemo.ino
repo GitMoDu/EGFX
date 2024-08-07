@@ -142,7 +142,7 @@ SpriteDemo<FullLayout> SpriteDemoDrawer(&FrameBuffer);
 TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
 PrimitiveDemo<FullLayout> PrimitiveDemoDrawer(&FrameBuffer);
 BitmapDemo<FullLayout> BitmapDemoDrawer(&FrameBuffer);
-TextSpriteDemo TextSpriteDemoDrawer(&FrameBuffer);
+TextSpriteDemo<FullLayout> TextSpriteDemoDrawer(&FrameBuffer);
 CloneDemo<FullLayout> CloneDemoDrawer(&FrameBuffer);
 #endif
 //

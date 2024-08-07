@@ -40,6 +40,7 @@ namespace SpriteShaderEffect
 
 	/// <summary>
 	/// Applies a transparency effect to the sprite when the color matches.
+	/// Get(color) is rejected on transparent pixels.
 	/// </summary>
 	/// <typeparam name="BaseClass">The underlying SpriteShader.</typeparam>
 	template<typename BaseClass>
@@ -66,17 +67,15 @@ namespace SpriteShaderEffect
 			Transparent.b = color.b;
 		}
 
-	protected:
-		const bool GetColor(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			return BaseClass::GetColor(color, x, y)
+			return BaseClass::Get(color, x, y)
 				&& (color.r != Transparent.r || color.g != Transparent.g || color.b != Transparent.b);
 		}
 	};
 
 	/// <summary>
-	/// Applies a brightness lighten/darken effect to the sprite.
-	/// I.e. Shifts RGB values up/down.
+	/// Applies a lighten/darken effect to the sprite by shifting RGB values up/down.
 	/// </summary>
 	/// <typeparam name="BaseClass">The underlying SpriteShader.</typeparam>
 	template<typename BaseClass>
@@ -90,12 +89,16 @@ namespace SpriteShaderEffect
 		{}
 
 		/// <summary>
-		/// 
+		/// Brightness shift.
 		/// </summary>
-		/// <param name="brightness">Absolute shift in RGB space.</param>
+		/// <param name="brightness">[INT8_MIN+1; INT8_MAX] Absolute shift in RGB space.</param>
 		void SetBrightness(const int8_t brightness)
 		{
 			Brightness = brightness;
+			if (Brightness == INT8_MIN)
+			{
+				Brightness = INT8_MIN + 1;
+			}
 		}
 
 		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
@@ -149,11 +152,15 @@ namespace SpriteShaderEffect
 
 	/// <summary>
 	/// Applies a constrast adjust effect to the sprite.
+	/// I.e. Shifts RGB values away/towards center.
 	/// </summary>
 	/// <typeparam name="BaseClass">The underlying SpriteShader.</typeparam>
 	template<typename BaseClass>
 	class ConstrastEffect : public BaseClass
 	{
+	private:
+		static constexpr uint8_t MaxContrastRatio = 4;
+
 	private:
 		int8_t Contrast = 0;
 
@@ -162,11 +169,16 @@ namespace SpriteShaderEffect
 		{}
 
 		/// <summary>
+		/// Set relative Contrast.
 		/// </summary>
-		/// <param name="contrast">[INT8_MIN, -1] Scales down to 0x. [1;INT8_MAX] Scales up to 2x.</param>
+		/// <param name="contrast">[INT8_MIN+1, -1] Scales down to 0x. [1;INT8_MAX] Scales up to MaxContrastRatio = 4x.</param>
 		void SetContrast(const int8_t contrast)
 		{
 			Contrast = contrast;
+			if (Contrast == INT8_MIN)
+			{
+				Contrast = INT8_MIN + 1;
+			}
 		}
 
 		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
@@ -179,17 +191,19 @@ namespace SpriteShaderEffect
 				}
 				else if (Contrast > 0)
 				{
-					const uint8_t upScale = (uint8_t)Contrast * 2;
-					color.r = LimitedScaleUp(color.r, upScale);
-					color.g = LimitedScaleUp(color.g, upScale);
-					color.b = LimitedScaleUp(color.b, upScale);
+					color.r = ConstrastUp(color.r, Contrast);
+					color.g = ConstrastUp(color.g, Contrast);
+					color.b = ConstrastUp(color.b, Contrast);
+
+					return true;
 				}
 				else
 				{
-					const uint8_t downScale = (uint8_t)(INT8_MIN - Contrast) * 2;
-					color.r = LimitedScaleUp(color.r, downScale);
-					color.g = LimitedScaleUp(color.g, downScale);
-					color.b = LimitedScaleUp(color.b, downScale);
+					color.r = ConstrastDown(color.r, -Contrast);
+					color.g = ConstrastDown(color.g, -Contrast);
+					color.b = ConstrastDown(color.b, -Contrast);
+
+					return true;
 				}
 			}
 
@@ -197,36 +211,62 @@ namespace SpriteShaderEffect
 		}
 
 	private:
-		static const uint8_t LimitedScaleUp(const uint8_t value, const uint8_t scale)
+		static const uint8_t ConstrastUp(const uint8_t value, const int8_t scale)
 		{
-			if (value == 0)
+			const int8_t delta = value - INT8_MAX;
+
+			if (delta == 0)
 			{
 				return value;
 			}
-			else
+			else if (delta > 0)
 			{
-				const uint16_t scaled = value + (((uint16_t)value * scale) / UINT8_MAX);
+				const uint16_t deltaScaled = ((((uint16_t)delta * MaxContrastRatio) * scale) >> 7);
 
-				if (scaled < (UINT8_MAX - value))
+				if ((deltaScaled < UINT8_MAX)
+					&& value < (UINT8_MAX - deltaScaled))
 				{
-					return scaled + value;
+					return value + deltaScaled;
 				}
 				else
 				{
 					return UINT8_MAX;
 				}
 			}
+			else
+			{
+				const uint16_t deltaScaled = (((uint16_t)(-(int16_t)delta) * MaxContrastRatio) * scale) >> 7;
+
+				if (value > deltaScaled)
+				{
+					return value - deltaScaled;
+				}
+				else
+				{
+					return 0;
+				}
+			}
 		}
 
-		static const uint8_t LimitedScaleDown(const uint8_t value, const uint8_t scale)
+		static const uint8_t ConstrastDown(const uint8_t value, const int8_t scale)
 		{
-			if (value == INT8_MAX)
+			const int8_t delta = value - INT8_MAX;
+
+			if (delta == 0)
 			{
 				return value;
 			}
+			else if (delta > 0)
+			{
+				const uint8_t deltaScaled = (((uint16_t)delta) * scale) >> 7;
+
+				return value - deltaScaled;
+			}
 			else
 			{
-				return ((uint16_t)value * scale) / UINT8_MAX;
+				const uint8_t deltaScaled = ((uint16_t)(-((int16_t)delta * scale))) >> 7;
+
+				return value + deltaScaled;
 			}
 		}
 	};

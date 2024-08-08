@@ -7,6 +7,7 @@
 #include <TaskSchedulerDeclarations.h>
 
 #include <ArduinoGraphicsCore.h>
+#include "DisplaySyncType.h"
 
 // Enable to log (on Serial/Serial1).
 // Logs out-of-sync frames and render timeouts.
@@ -30,12 +31,13 @@ private:
 	{
 		WaitForScreenStart,
 		Clear,
+		WaitForFrameStart,
 		Render,
-		FrameLimit,
+		Vsync,
 		PushBufferStart,
 		PushBuffer,
 		PushingBuffer,
-		VSync
+		PushBufferEnd
 	};
 
 private:
@@ -63,7 +65,14 @@ private:
 
 	EngineStateEnum EngineState = EngineStateEnum::WaitForScreenStart;
 
+	DisplaySyncType SyncType = DisplaySyncType::VSync;
+
 public:
+	void SetSyncType(const DisplaySyncType syncType)
+	{
+		SyncType = syncType;
+	}
+
 	GraphicsEngineTask(Scheduler* scheduler,
 		IFrameBuffer* source,
 		IScreenDriver* screenDriver,
@@ -212,7 +221,14 @@ public:
 			DrawCallCounter = 0;
 #endif
 			FrameTime = timestamp;
-			EngineState = EngineStateEnum::Render;
+			EngineState = EngineStateEnum::WaitForFrameStart;
+			Task::delay(0);
+			break;
+		case EngineStateEnum::WaitForFrameStart:
+			if (timestamp - FrameStart < INT32_MAX)
+			{
+				EngineState = EngineStateEnum::Render;
+			}
 			Task::delay(0);
 			break;
 		case EngineStateEnum::Render:
@@ -227,7 +243,7 @@ public:
 					RenderDuration = micros() - FrameTime;
 #endif
 					Task::delay(0);
-					EngineState = EngineStateEnum::FrameLimit;
+					EngineState = EngineStateEnum::Vsync;
 				}
 #if defined(GRAPHICS_ENGINE_MEASURE)
 				UpdateLongestRender(micros() - timestamp);
@@ -235,17 +251,38 @@ public:
 			}
 			else
 			{
+				EngineState = EngineStateEnum::Vsync;
 				Task::delay(0);
-				EngineState = EngineStateEnum::FrameLimit;
 			}
 			break;
-		case EngineStateEnum::FrameLimit:
-			if (FrameLimit(timestamp))
+		case EngineStateEnum::Vsync:
+			switch (SyncType)
 			{
-
-				EngineState = EngineStateEnum::PushBufferStart;
-				Task::delay(0);
+			case DisplaySyncType::VSync:
+				if (Vsync(timestamp))
+				{
+					EngineState = EngineStateEnum::PushBufferStart;
+					Task::delay(0);
+				}
+				break;
+			case DisplaySyncType::Vrr:
+				if (Vrr(timestamp))
+				{
+					EngineState = EngineStateEnum::PushBufferStart;
+					Task::delay(0);
+				}
+				break;
+			case DisplaySyncType::NoSync:
+				if (NoSync(timestamp))
+				{
+					EngineState = EngineStateEnum::PushBufferStart;
+					Task::delay(0);
+				}
+				break;
+			default:
+				break;
 			}
+
 			break;
 		case EngineStateEnum::PushBufferStart:
 			if (ScreenDriver->CanPushBuffer())
@@ -257,7 +294,6 @@ public:
 				LongestPushCall = 0;
 				UpdateLongestPush(micros() - timestamp);
 #endif
-
 				EngineState = EngineStateEnum::PushBuffer;
 				Task::delay(0);
 			}
@@ -273,19 +309,18 @@ public:
 			Task::delay(0);
 			if (!ScreenDriver->PushingBuffer(FrameBuffer->GetFrameBuffer()))
 			{
-				EngineState = EngineStateEnum::VSync;
+				EngineState = EngineStateEnum::PushBufferEnd;
 			}
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			UpdateLongestPush(micros() - timestamp);
 #endif
 			break;
-		case EngineStateEnum::VSync:
+		case EngineStateEnum::PushBufferEnd:
 			ScreenDriver->EndBuffer();
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			UpdateLongestPush(micros() - timestamp);
 			UpdateEngineStatus(timestamp - PushStart);
 #endif
-			FrameCounter++;
 			EngineState = EngineStateEnum::Clear;
 			Task::delay(0);
 			break;
@@ -299,30 +334,80 @@ public:
 	}
 
 private:
-	const bool FrameLimit(const uint32_t timestamp)
+	const bool NoSync(const uint32_t timestamp)
 	{
-		const uint32_t frameDuration = timestamp - FrameStart;
+		const uint32_t frameElapsed = timestamp - FrameStart;
+		const uint32_t framesElapsed = frameElapsed / TargetPeriod;
 
-		if (frameDuration >= TargetPeriod)
+		if (frameElapsed >= INT32_MAX)
+		{
+			Task::delay(0);
+			return false;
+		}
+
+#if defined(GRAPHICS_ENGINE_MEASURE)
+		FrameDuration = timestamp - FrameStart;
+#endif
+		FrameStart = timestamp;
+		FrameCounter += framesElapsed;
+
+		return true;
+	}
+
+	const bool Vrr(const uint32_t timestamp)
+	{
+		const uint32_t frameElapsed = timestamp - FrameStart;
+		const uint32_t framesElapsed = frameElapsed / TargetPeriod;
+
+		if (frameElapsed >= INT32_MAX)
+		{
+			Task::delay(0);
+			return false;
+		}
+
+		if (frameElapsed >= TargetPeriod)
 		{
 #if defined(GRAPHICS_ENGINE_MEASURE)
-			FrameDuration = frameDuration;
+			FrameDuration = timestamp - FrameStart;
 #endif
-			if (frameDuration >= (TargetPeriod * 2))
-			{
-				const uint16_t skipped = (frameDuration - TargetPeriod) / TargetPeriod;
+			FrameStart = timestamp;
+			FrameCounter += framesElapsed;
 
-				FrameStart = timestamp;
-				FrameCounter += skipped;
+			return true;
+		}
+		else
+		{
+			// Sleep until we're at the last millisecond.
+			const uint32_t sleepDuration = (TargetPeriod - frameElapsed) / 1000;
+			Task::delay(sleepDuration);
 
-#if defined(GRAPHICS_ENGINE_DEBUG)
-				Serial.print(F("Frame(s) skipped: "));
-				Serial.println(skipped);
+			return false;
+		}
+	}
+
+	const bool Vsync(const uint32_t timestamp)
+	{
+		const uint32_t frameElapsed = timestamp - FrameStart;
+		const uint32_t framesElapsed = frameElapsed / TargetPeriod;
+
+		if (frameElapsed >= INT32_MAX)
+		{
+			Task::delay(0);
+			return false;
+		}
+
+		if (framesElapsed > 0)
+		{
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			FrameDuration = timestamp - FrameStart;
 #endif
-			}
-			else
+			FrameStart += TargetPeriod * framesElapsed;
+			FrameCounter += framesElapsed;
+
+			if (timestamp - FrameStart >= INT32_MAX)
 			{
 				FrameStart += TargetPeriod;
+				FrameCounter += 1;
 			}
 
 			return true;
@@ -330,7 +415,7 @@ private:
 		else
 		{
 			// Sleep until we're at the last millisecond.
-			const uint32_t sleepDuration = (TargetPeriod - frameDuration) / 1000;
+			const uint32_t sleepDuration = (TargetPeriod - frameElapsed) / 1000;
 			Task::delay(sleepDuration);
 
 			return false;

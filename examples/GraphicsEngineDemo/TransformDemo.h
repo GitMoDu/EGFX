@@ -101,9 +101,7 @@ private:
 			
 			SpriteRenderer::TransformDraw(Frame, &Rectangle, &RectangleVerticalSkewer,
 				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
-		}
-
-	
+		}	
 	}
 
 	void DrawScale(DrawState* drawState)

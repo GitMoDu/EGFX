@@ -64,7 +64,7 @@ struct ColorConverter16 : public AbstractColorConverter16
 {
 	static constexpr color_t GetRawColor(const RgbColor& color)
 	{
-		return ((((uint16_t)color.r << 8) & 0xF800) | (((uint16_t)color.g << 3) & 0x07E0) | ((uint16_t)color.b >> 3));
+		return ((uint16_t)(color.r & 0xF8) << 8) | ((uint16_t)(color.g & 0xFC) << 3) | (color.b >> 3);
 	}
 };
 

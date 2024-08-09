@@ -107,6 +107,11 @@ Scheduler SchedulerBase;
 //ScreenDriverSSD1331_96x64x8_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
+
+//ScreenDriverSSD1331_96x64x16_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+
+
 // The layout of drawers can be set independently of screen dimensions.
 using FullLayout = LayoutElement<0, 0, FrameBufferType::FrameWidth, FrameBufferType::FrameHeight>;
 

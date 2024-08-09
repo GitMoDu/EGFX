@@ -44,17 +44,17 @@ public:
 protected:
 	virtual void WritePixel(const color_t rawColor, const uint8_t x, const uint8_t y) final
 	{
-		const size_t offset = (sizeof(color_t) * ((size_t)y * frameWidth)) + x;
+		const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 		if (Inverted)
 		{
-			Buffer[offset] = ~((uint8_t)rawColor);
-			Buffer[offset + 1] = ~((uint8_t)(rawColor >> 8));
+			Buffer[offset] = ~((uint8_t)(rawColor >> 8));
+			Buffer[offset + 1] = ~((uint8_t)rawColor);
 		}
 		else
 		{
-			Buffer[offset] = ((uint8_t)rawColor);
-			Buffer[offset + 1] = ((uint8_t)(rawColor >> 8));
+			Buffer[offset] = ((uint8_t)(rawColor >> 8));
+			Buffer[offset + 1] = ((uint8_t)rawColor);
 		}
 	}
 };

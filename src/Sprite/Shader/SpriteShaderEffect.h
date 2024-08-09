@@ -237,10 +237,11 @@ namespace SpriteShaderEffect
 	class ConstrastEffect : public BaseClass
 	{
 	private:
-		static constexpr uint8_t MaxContrastRatio = 4;
+		static constexpr uint8_t MaxContrastRatio = 6;
 
 	private:
 		int8_t Contrast = 0;
+		uint8_t Center = INT8_MAX;
 
 	public:
 		ConstrastEffect() : BaseClass()
@@ -257,6 +258,11 @@ namespace SpriteShaderEffect
 			{
 				Contrast = INT8_MIN + 1;
 			}
+		}
+
+		void SetContrastCenter(const uint8_t center = INT8_MAX)
+		{
+			Center = center;
 		}
 
 		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
@@ -289,9 +295,9 @@ namespace SpriteShaderEffect
 		}
 
 	private:
-		static const uint8_t ConstrastUp(const uint8_t value, const int8_t scale)
+		const uint8_t ConstrastUp(const uint8_t value, const int8_t scale)
 		{
-			const int8_t delta = value - INT8_MAX;
+			const int16_t delta = value - Center;
 
 			if (delta == 0)
 			{
@@ -326,9 +332,9 @@ namespace SpriteShaderEffect
 			}
 		}
 
-		static const uint8_t ConstrastDown(const uint8_t value, const int8_t scale)
+		const uint8_t ConstrastDown(const uint8_t value, const int8_t scale)
 		{
-			const int8_t delta = value - INT8_MAX;
+			const int16_t delta = value - Center;
 
 			if (delta == 0)
 			{

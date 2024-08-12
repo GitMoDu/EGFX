@@ -141,7 +141,7 @@ public:
 	}
 
 protected:
-	void PinReset(const uint8_t waitPeriod = 10)
+	void PinReset(const uint32_t waitPeriod = 10)
 	{
 		pinMode(pinDC, OUTPUT);
 		digitalWrite(pinDC, LOW);

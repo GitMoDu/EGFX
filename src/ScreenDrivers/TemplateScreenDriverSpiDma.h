@@ -24,7 +24,7 @@ public:
 	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
 	{
 #if defined(ARDUINO_ARCH_STM32F1)
-		SpiInstance.dmaSendAsync((void*)frameBuffer, BufferSize, true);
+		SpiInstance.dmaSendAsync((void*)frameBuffer, (uint16_t)BufferSize, true);
 #elif defined(ARDUINO_ARCH_RP2040)
 		SpiInstance.transferAsync((const void*)frameBuffer, (void*)nullptr, BufferSize);
 #endif

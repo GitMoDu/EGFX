@@ -9,20 +9,30 @@ Supports monochrome, low color and full color frame buffers and screen drivers.
 
 Engine runs on a single task using Task Scheduler (https://github.com/arkhipenko/TaskScheduler).
 Render is done in passes with DrawCalls, limiting the sequential time used for each visual piece render.
-Frame-push can be optimized with optional Screen Driver Async and RTOS variants.
+Frame-push can be optimized with optional Screen Driver DMA, Async and RTOS variants.
 
 Supported Screens:
-- SSD1306
+- SSD1306 OLED
   - 64x32x1 I2C
   - 64x48x1 I2C
   - 72x40x1 I2C
   - 128x64x1 I2C
   - 128x64x1 SPI
 
-- SSD1331
+- SSD1331 OLED
   - 96x64x8 SPI
-    
+  - 96x64x16 SPI 
+ 
+- SSD1351 OLED
+  - 128x128x16 SPI 
 
+- ST7735 LCD
+  - 160x80x16 SPI    
+
+- ST7789 LCD
+  - 240x240x16 SPI
+
+ 
 Draw Primitives are provided directly by the chosen frame-buffer:
 - Point,
 - Line
@@ -34,7 +44,8 @@ Text Rendering is available as a static call with a mono-spaced font and pre-cal
 
 Features
 - Numbers [0;10]
-- ASCII [WIP]
+- Letters
+- Symbols
 
 
 Engine Timings

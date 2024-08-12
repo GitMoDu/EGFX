@@ -47,25 +47,25 @@ namespace SSD1331
 
 	static constexpr uint8_t CommonConfigBatch[]
 	{
-			(uint8_t)CommandEnum::SetStartLine, 0x00,
-			(uint8_t)CommandEnum::SetDisplayOffset, 0x00,
-			(uint8_t)CommandEnum::SetDisplayModeNormal,
-			(uint8_t)CommandEnum::SetMuxRatio, 63,
-			(uint8_t)CommandEnum::SetMasterConfiguration, 0x8E,
-			(uint8_t)CommandEnum::SetPowerSaveMode, 0x0B,
-			(uint8_t)CommandEnum::SetPhasesPeriodAdjustment, 0x31,
-			(uint8_t)CommandEnum::SetDisplayClockDivider, 0xF0,
-			(uint8_t)CommandEnum::SetPrechargeSpeed1, 0x64,
-			(uint8_t)CommandEnum::SetPrechargeSpeed2, 0x78,
-			(uint8_t)CommandEnum::SetPrechargeVoltage, 0x3A,
-			(uint8_t)CommandEnum::SetVCOMH, 0x3E,
-			(uint8_t)CommandEnum::SetMasterCurrentAF, 0x09,
-			(uint8_t)CommandEnum::SetContrastRed, 0x91,
-			(uint8_t)CommandEnum::SetContrastGreen, 0x50,
-			(uint8_t)CommandEnum::SetContrastBlue, 0x7D,
-			(uint8_t)CommandEnum::SetColumnAddress, 0, Width - 1,
-			(uint8_t)CommandEnum::SetRowAddress, 0, Height - 1,
-			(uint8_t)CommandEnum::DisplayOn
+		(uint8_t)CommandEnum::SetStartLine, 0x00,
+		(uint8_t)CommandEnum::SetDisplayOffset, 0x00,
+		(uint8_t)CommandEnum::SetDisplayModeNormal,
+		(uint8_t)CommandEnum::SetMuxRatio, 63,
+		(uint8_t)CommandEnum::SetMasterConfiguration, 0x8E,
+		(uint8_t)CommandEnum::SetPowerSaveMode, 0x0B,
+		(uint8_t)CommandEnum::SetPhasesPeriodAdjustment, 0x31,
+		(uint8_t)CommandEnum::SetDisplayClockDivider, 0xF0,
+		(uint8_t)CommandEnum::SetPrechargeSpeed1, 0x64,
+		(uint8_t)CommandEnum::SetPrechargeSpeed2, 0x78,
+		(uint8_t)CommandEnum::SetPrechargeVoltage, 0x3A,
+		(uint8_t)CommandEnum::SetVCOMH, 0x3E,
+		(uint8_t)CommandEnum::SetMasterCurrentAF, 0x09,
+		(uint8_t)CommandEnum::SetContrastRed, 0x91,
+		(uint8_t)CommandEnum::SetContrastGreen, 0x50,
+		(uint8_t)CommandEnum::SetContrastBlue, 0x7D,
+		(uint8_t)CommandEnum::SetColumnAddress, 0, Width - 1,
+		(uint8_t)CommandEnum::SetRowAddress, 0, Height - 1,
+		(uint8_t)CommandEnum::DisplayOn
 	};
 }
 #endif

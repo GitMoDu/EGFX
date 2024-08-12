@@ -65,7 +65,7 @@
 #define TFT_SPI		1
 #define TFT_CLK		26
 #define TFT_MOSI	27
-#define TFT_SPI_HZ	48000000
+#define TFT_SPI_HZ	F_CPU/2
 #define TFT_I2C		1
 #define TFT_SCL		15
 #define TFT_SDA		14
@@ -102,14 +102,16 @@ Scheduler SchedulerBase;
 //ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+//ScreenDriverSSD1306_128x64x1_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 //ScreenDriverSSD1331_96x64x8_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 
-//ScreenDriverSSD1331_96x64x16_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
-//using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+//ScreenDriverSSD1331_96x64x16_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//ScreenDriverSSD1351_128x128x16_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 
 // The layout of drawers can be set independently of screen dimensions.
@@ -151,7 +153,6 @@ TextSpriteDemo<FullLayout> TextSpriteDemoDrawer(&FrameBuffer);
 CloneDemo<FullLayout> CloneDemoDrawer(&FrameBuffer);
 #endif
 //
-
 // Demo Cycler task.
 DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine,
 	&BitmaskDemoDrawer,
@@ -190,6 +191,11 @@ void halt()
 		;
 }
 
+void BufferTaskCallback(void* parameter)
+{
+	GraphicsEngine.BufferTaskCallback(parameter);
+}
+
 void setup()
 {
 #ifdef DEBUG
@@ -213,7 +219,10 @@ void setup()
 	}
 
 #ifdef DEBUG
-	Serial.println(F("Screen Test Setup OK"));
+	Serial.println(F("Graphics Engine Demo Start."));
+	Serial.print(FrameBuffer.GetColorDepth());
+	Serial.println(F(" bit color depth screen."));
+	;
 #endif
 }
 
@@ -222,7 +231,3 @@ void loop()
 	SchedulerBase.execute();
 }
 
-void BufferTaskCallback(void* parameter)
-{
-	GraphicsEngine.BufferTaskCallback(parameter);
-}

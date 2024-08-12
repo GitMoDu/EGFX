@@ -7,9 +7,14 @@
 #define TEMPLATE_SCREEN_DRIVER_RTOS
 
 #include "../Model/IScreenDriver.h"
+
+#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)
+#include <Arduino.h>
+#elif defined(ARDUINO_ARCH_RP2040)
 #include <FreeRTOS.h>
 #include <task.h>
 #include <semphr.h>
+#endif
 
 /// <summary>
 /// Wraps an Inline ScreenDriver with threaded buffer push.

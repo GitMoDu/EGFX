@@ -10,7 +10,7 @@ namespace GraphicsBuffer
 	template<typename color_t>
 	static constexpr size_t GetBufferSize(const uint8_t width, const uint8_t height)
 	{
-		return (size_t)width * height * sizeof(color_t);
+		return sizeof(color_t) * width * height;
 	}
 
 	template<const uint8_t colorDivisor>
@@ -24,5 +24,4 @@ namespace GraphicsBuffer
 		return GetLowColorBufferSize<8>(width, height);
 	}
 }
-
 #endif

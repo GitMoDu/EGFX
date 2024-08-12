@@ -322,6 +322,7 @@ public:
 			UpdateEngineStatus(timestamp - PushStart);
 #endif
 			EngineState = EngineStateEnum::Clear;
+			FrameCounter++;
 			Task::delay(0);
 			break;
 		default:
@@ -337,7 +338,6 @@ private:
 	const bool NoSync(const uint32_t timestamp)
 	{
 		const uint32_t frameElapsed = timestamp - FrameStart;
-		const uint32_t framesElapsed = frameElapsed / TargetPeriod;
 
 		if (frameElapsed >= INT32_MAX)
 		{
@@ -349,15 +349,13 @@ private:
 		FrameDuration = timestamp - FrameStart;
 #endif
 		FrameStart = timestamp;
-		FrameCounter += framesElapsed;
-
+		
 		return true;
 	}
 
 	const bool Vrr(const uint32_t timestamp)
 	{
 		const uint32_t frameElapsed = timestamp - FrameStart;
-		const uint32_t framesElapsed = frameElapsed / TargetPeriod;
 
 		if (frameElapsed >= INT32_MAX)
 		{
@@ -371,7 +369,6 @@ private:
 			FrameDuration = timestamp - FrameStart;
 #endif
 			FrameStart = timestamp;
-			FrameCounter += framesElapsed;
 
 			return true;
 		}
@@ -402,12 +399,10 @@ private:
 			FrameDuration = timestamp - FrameStart;
 #endif
 			FrameStart += TargetPeriod * framesElapsed;
-			FrameCounter += framesElapsed;
 
 			if (timestamp - FrameStart >= INT32_MAX)
 			{
 				FrameStart += TargetPeriod;
-				FrameCounter += 1;
 			}
 
 			return true;

@@ -59,9 +59,9 @@ public:
 
 	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
-		const uint8_t yByte = y * BitScale;
+		const uint_fast16_t yByte = (uint_fast16_t)y * BitScale;
 		const uint8_t xByte = (x / 8);
-		const uint8_t offset = yByte + xByte;
+		const uint_fast16_t offset = yByte + xByte;
 
 		const uint8_t xBit = 7 - (x % 8);
 
@@ -88,9 +88,9 @@ public:
 
 	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
-		const uint8_t yByte = y * BitScale;
+		const uint_fast16_t yByte = (uint_fast16_t)y * BitScale;
 		const uint8_t xByte = (x / 8);
-		const uint8_t offset = yByte + xByte;
+		const uint_fast16_t offset = yByte + xByte;
 
 		const uint8_t xBit = 7 - (x % 8);
 

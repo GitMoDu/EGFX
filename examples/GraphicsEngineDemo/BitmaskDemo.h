@@ -58,8 +58,6 @@ private:
 	uint8_t x = 0;
 	uint8_t y = 0;
 
-	static constexpr size_t aaa = sizeof(VerticalGradientShader<DogeBitSprite>);
-
 public:
 	BitmaskDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)

@@ -185,8 +185,8 @@ namespace SpriteSource
 			0x00, 0x55, 0x55, 0x00,	0x00, 0x0e, 0xaa, 0x00
 		};
 
-		static constexpr uint8_t Width = 31;
-		static constexpr uint8_t Height = 32;
+		static constexpr uint8_t Width = 32;
+		static constexpr uint8_t Height = sizeof(Mask) / (Width / 8);
 	}
 
 	namespace Doge565

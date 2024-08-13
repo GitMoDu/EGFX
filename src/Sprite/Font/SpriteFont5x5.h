@@ -203,7 +203,7 @@ namespace Font5x5
 		0b10001000,
 		0b10001000,
 		0b10001000,
-		0b01110000
+		0b01111000
 	};
 
 	static constexpr uint8_t LetterV[Height] PROGMEM
@@ -434,11 +434,11 @@ namespace Font5x5
 
 	static constexpr uint8_t SymbolPlus[Height] PROGMEM
 	{
+		0b00000000,
 		0b00100000,
+		0b01110000,
 		0b00100000,
-		0b11111000,
-		0b00100000,
-		0b00100000
+		0b00000000
 	};
 
 	static constexpr uint8_t SymbolMinus[Height] PROGMEM

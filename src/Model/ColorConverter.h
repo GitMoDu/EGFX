@@ -55,6 +55,13 @@ struct ColorConverter8 : public AbstractColorConverter8
 	{
 		return ((color.r & 0xE0) | ((color.g >> 3) & 0x1C) | (color.b >> 6));
 	}
+
+	static const void GetColor(RgbColor& color, const color_t rawColor)
+	{
+		color.r = (rawColor & 0xE0);
+		color.g = (rawColor & 0x1C) << 3;
+		color.b = (rawColor & 0x06) << 5;
+	}
 };
 
 /// <summary>
@@ -64,7 +71,16 @@ struct ColorConverter16 : public AbstractColorConverter16
 {
 	static constexpr color_t GetRawColor(const RgbColor& color)
 	{
-		return ((uint16_t)(color.r & 0xF8) << 8) | ((uint16_t)(color.g & 0xFC) << 3) | (color.b >> 3);
+		return ((uint16_t)(color.r & 0xF8) << 8)
+			| ((uint16_t)(color.g & 0xFC) << 3)
+			| (color.b >> 3);
+	}
+
+	static const void GetColor(RgbColor& color, const color_t rawColor)
+	{
+		color.r = (uint8_t)(rawColor >> 8) & 0xF8;
+		color.g = (rawColor & 0x07E0) >> 3;
+		color.b = ((uint8_t)rawColor & 0x1F) << 3;
 	}
 };
 
@@ -102,6 +118,15 @@ struct MonochromeColorConverter1 : public AbstractColorConverter1
 	{
 		return GrayScaleConverter8::GetRawColor(color) > threshold;
 	}
+
+	static const void GetColor(RgbColor& color, const color_t rawColor)
+	{
+		const uint8_t value = (rawColor > threshold) * UINT8_MAX;
+
+		color.r = value;
+		color.g = value;
+		color.b = value;
+	}
 };
 
 /// <summary>
@@ -112,6 +137,15 @@ struct BinaryColorConverter1 : public AbstractColorConverter1
 	static constexpr color_t GetRawColor(const RgbColor& color)
 	{
 		return color.r > 0 || color.g > 0 || color.b > 0;
+	}
+
+	static const void GetColor(RgbColor& color, const color_t rawColor)
+	{
+		const uint8_t value = (rawColor > 0) * UINT8_MAX;
+
+		color.r = value;
+		color.g = value;
+		color.b = value;
 	}
 };
 #endif

@@ -36,6 +36,8 @@
 
 #include "Sprite/Font/SpriteFont5x5.h"
 #include "Sprite/Font/SpriteFont3x5.h"
+#include "Sprite/Font/SpriteFont2x5.h"
+#include "Sprite/Font/SpriteFont1x5.h"
 
 
 

@@ -22,21 +22,28 @@ private:
 		SmallLine1,
 		SmallLine2,
 		SmallLine3,
-		SmallNumbers,
+		TinyLine1,
+		TinyLine2,
+		MicroLine,
 		DrawElementsCount
 	};
 
 	struct TextLayout : Layout
 	{
-		using BigLine1 = LayoutElement<Layout::X(), Layout::Y(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
-		using BigLine2 = LayoutElement<Layout::X(), BigLine1::Y() + BigLine1::Height() + SpriteFont5x5Renderer::FontKerning(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
-		using BigLine3 = LayoutElement<Layout::X(), BigLine2::Y() + BigLine2::Height() + SpriteFont5x5Renderer::FontKerning(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
-		using BigNumbers = LayoutElement<Layout::X(), BigLine3::Y() + BigLine2::Height() + SpriteFont5x5Renderer::FontKerning(), Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
+		static constexpr uint8_t VerticalKerning = 1;
 
-		using SmallLine1 = LayoutElement<Layout::X(), BigNumbers::Y() + BigNumbers::Height() + SpriteFont5x5Renderer::FontKerning(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
-		using SmallLine2 = LayoutElement<Layout::X(), SmallLine1::Y() + SmallLine1::Height() + SpriteFont3x5Renderer::FontKerning(), Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
-		using SmallLine3 = LayoutElement<Layout::X(), SmallLine2::Y() + SmallLine2::Height() + SpriteFont3x5Renderer::FontKerning(), Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
-		using SmallNumbers = LayoutElement<Layout::X(), SmallLine3::Y() + SmallLine2::Height() + SpriteFont3x5Renderer::FontKerning(), Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
+		using BigLine1 = LayoutElement<Layout::X(), Layout::Y(), Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
+		using BigLine2 = LayoutElement<Layout::X(), BigLine1::Y() + BigLine1::Height() + VerticalKerning, Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
+		using BigLine3 = LayoutElement<Layout::X(), BigLine2::Y() + BigLine2::Height() + VerticalKerning, Layout::Width(), SpriteFont5x5Renderer::FontHeight()>;
+
+		using SmallLine1 = LayoutElement<Layout::X(), BigLine3::Y() + BigLine3::Height() + VerticalKerning, Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
+		using SmallLine2 = LayoutElement<Layout::X(), SmallLine1::Y() + SmallLine1::Height() + VerticalKerning, Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
+		using SmallLine3 = LayoutElement<Layout::X(), SmallLine2::Y() + SmallLine2::Height() + VerticalKerning, Layout::Width(), SpriteFont3x5Renderer::FontHeight()>;
+
+		using TinyLine1 = LayoutElement<Layout::X(), SmallLine3::Y() + SmallLine3::Height() + VerticalKerning, Layout::Width(), SpriteFont2x5Renderer::FontHeight()>;
+		using TinyLine2 = LayoutElement<Layout::X(), TinyLine1::Y() + TinyLine1::Height() + VerticalKerning, Layout::Width(), SpriteFont2x5Renderer::FontHeight()>;
+
+		using MicroLine = LayoutElement<Layout::X(), TinyLine2::Y() + TinyLine2::Height() + VerticalKerning, Layout::Width(), SpriteFont1x5Renderer::FontHeight()>;
 	};
 
 private:
@@ -47,6 +54,8 @@ private:
 
 	VerticalGradientShader<SpriteFont5x5Renderer> BigDrawer{};
 	ColorShader<SpriteFont3x5Renderer> SmallDrawer{};
+	SpriteFont2x5Renderer TinyDrawer{};
+	SpriteFont1x5Renderer MicroDrawer{};
 
 public:
 	TextSpriteDemo(IFrameBuffer* frame)
@@ -68,9 +77,6 @@ public:
 		case (uint8_t)DrawElementsEnum::BigLine3:
 			DrawBigLine3(drawState);
 			break;
-		case (uint8_t)DrawElementsEnum::BigNumbers:
-			DrawBigNumbers(drawState);
-			break;
 		case (uint8_t)DrawElementsEnum::SmallLine1:
 			DrawSmallLine1(drawState);
 			break;
@@ -80,8 +86,23 @@ public:
 		case (uint8_t)DrawElementsEnum::SmallLine3:
 			DrawSmallLine3(drawState);
 			break;
-		case (uint8_t)DrawElementsEnum::SmallNumbers:
-			DrawSmallNumbers(drawState);
+		case (uint8_t)DrawElementsEnum::TinyLine1:
+			if (Frame->GetColorDepth() >= 8)
+			{
+				DrawTinyLine1();
+			}
+			break;
+		case (uint8_t)DrawElementsEnum::TinyLine2:
+			if (Frame->GetColorDepth() >= 8)
+			{
+				DrawTinyLine2();
+			}
+			break;
+		case (uint8_t)DrawElementsEnum::MicroLine:
+			if (Frame->GetColorDepth() >= 8)
+			{
+				DrawMicroLine();
+			}
 			break;
 		default:
 			break;
@@ -96,7 +117,7 @@ private:
 
 		BigDrawer.TextTopLeft(Frame,
 			TextLayout::BigLine1::X(), TextLayout::BigLine1::Y(),
-			F("ABCDEFGHIJ")
+			F("ABCDEFGHIJKLM")
 		);
 	}
 
@@ -107,7 +128,7 @@ private:
 
 		BigDrawer.TextTopLeft(Frame,
 			TextLayout::BigLine2::X(), TextLayout::BigLine2::Y(),
-			F("KLMNOPQRST")
+			F("NOPQRSTUVWXYZ")
 		);
 	}
 
@@ -118,18 +139,7 @@ private:
 
 		BigDrawer.TextTopLeft(Frame,
 			TextLayout::BigLine3::X(), TextLayout::BigLine3::Y(),
-			F("UVWXYZ!?.,")
-		);
-	}
-
-	void DrawBigNumbers(DrawState* drawState)
-	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + INT16_MAX);
-		BigDrawer.SetColor2(Color);
-
-		BigDrawer.TextTopLeft(Frame,
-			TextLayout::BigNumbers::X(), TextLayout::BigNumbers::Y(),
-			F("0123456789.,+-=")
+			F("0123456789!?.,+-=")
 		);
 	}
 
@@ -140,7 +150,7 @@ private:
 
 		SmallDrawer.TextTopLeft(Frame,
 			TextLayout::SmallLine1::X(), TextLayout::SmallLine1::Y(),
-			F("ABCDEFGHIJ")
+			F("ABCDEFGHIJKLM")
 		);
 	}
 
@@ -151,7 +161,7 @@ private:
 
 		SmallDrawer.TextTopLeft(Frame,
 			TextLayout::SmallLine2::X(), TextLayout::SmallLine2::Y(),
-			F("KLMNOPQRST")
+			F("NOPQRSTUVWXYZ")
 		);
 	}
 
@@ -162,19 +172,44 @@ private:
 
 		SmallDrawer.TextTopLeft(Frame,
 			TextLayout::SmallLine3::X(), TextLayout::SmallLine3::Y(),
-			F("UVWXYZ!?.,")
+			F("0123456789!?.,+-=")
 		);
 	}
 
-	void DrawSmallNumbers(DrawState* drawState)
+	void DrawTinyLine1()
 	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + INT16_MAX);
-		SmallDrawer.SetColor(Color);
+		if (TextLayout::TinyLine1::Height() > 0
+			&& TextLayout::TinyLine1::Y() < Layout::Height())
+		{
+			TinyDrawer.TextTopLeft(Frame,
+				TextLayout::TinyLine1::X(), TextLayout::TinyLine1::Y(),
+				F("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+			);
+		}
+	}
 
-		SmallDrawer.TextTopLeft(Frame,
-			TextLayout::SmallNumbers::X(), TextLayout::SmallNumbers::Y(),
-			F("0123456789.,+-=")
-		);
+	void DrawTinyLine2()
+	{
+		if (TextLayout::TinyLine1::Height() > 0
+			&& TextLayout::TinyLine1::Y() < Layout::Height())
+		{
+			TinyDrawer.TextTopLeft(Frame,
+				TextLayout::TinyLine2::X(), TextLayout::TinyLine2::Y(),
+				F("0123456789!?.,+-=")
+			);
+		}
+	}
+
+	void DrawMicroLine()
+	{
+		if (TextLayout::MicroLine::Height() > 0
+			&& TextLayout::MicroLine::Y() < Layout::Height())
+		{
+			MicroDrawer.TextTopLeft(Frame,
+				TextLayout::MicroLine::X(), TextLayout::MicroLine::Y(),
+				F("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?.,+-=")
+			);
+		}
 	}
 
 	void SetColorByProgress(const uint16_t colorProgress)

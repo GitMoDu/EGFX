@@ -137,6 +137,7 @@ public:
 	virtual void SetBrightness(const uint8_t brightness) {}
 
 public:
+	virtual const uint32_t GetFrameDuration() const { return 0; }
 	virtual void GetEngineStatus(EngineStatusStruct& status) {}
 };
 #endif

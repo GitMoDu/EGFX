@@ -54,6 +54,8 @@ private:
 	uint32_t LongestPushCall = 0;
 
 	uint32_t PushStart = 0;
+#else
+	uint32_t FrameDuration = 0;
 #endif
 
 private:
@@ -195,7 +197,15 @@ public: // IFrameEngine implementation.
 	{
 #if defined(GRAPHICS_ENGINE_MEASURE)
 		EngineStatus.CopyTo(status);
+#else
+		status.Clear();
+		status.FrameDuration = GetFrameDuration();
 #endif
+	}
+
+	virtual const uint32_t GetFrameDuration() const final
+	{
+		return FrameDuration;
 	}
 
 public:
@@ -345,11 +355,9 @@ private:
 			return false;
 		}
 
-#if defined(GRAPHICS_ENGINE_MEASURE)
 		FrameDuration = timestamp - FrameStart;
-#endif
 		FrameStart = timestamp;
-		
+
 		return true;
 	}
 
@@ -365,9 +373,7 @@ private:
 
 		if (frameElapsed >= TargetPeriod)
 		{
-#if defined(GRAPHICS_ENGINE_MEASURE)
 			FrameDuration = timestamp - FrameStart;
-#endif
 			FrameStart = timestamp;
 
 			return true;
@@ -395,9 +401,7 @@ private:
 
 		if (framesElapsed > 0)
 		{
-#if defined(GRAPHICS_ENGINE_MEASURE)
 			FrameDuration = timestamp - FrameStart;
-#endif
 			FrameStart += TargetPeriod * framesElapsed;
 
 			if (timestamp - FrameStart >= INT32_MAX)

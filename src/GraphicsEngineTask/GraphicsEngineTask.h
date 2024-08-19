@@ -220,18 +220,25 @@ public:
 			{
 				EngineState = EngineStateEnum::Clear;
 				FrameStart = timestamp;
+#if defined(GRAPHICS_ENGINE_MEASURE)
+				ClearDuration = 0;
+#endif
 			}
 			Task::delay(0);
 			break;
 		case EngineStateEnum::Clear:
-			FrameBuffer->ClearFrameBuffer();
+			if (FrameBuffer->ClearFrameBuffer())
+			{
 #if defined(GRAPHICS_ENGINE_MEASURE)
-			ClearDuration = micros() - timestamp;
-			LongestRenderCall = 0;
-			DrawCallCounter = 0;
+				LongestRenderCall = 0;
+				DrawCallCounter = 0;
 #endif
-			FrameTime = timestamp;
-			EngineState = EngineStateEnum::WaitForFrameStart;
+				FrameTime = timestamp;
+				EngineState = EngineStateEnum::WaitForFrameStart;
+			}
+#if defined(GRAPHICS_ENGINE_MEASURE)
+			ClearDuration += micros() - timestamp;
+#endif
 			Task::delay(0);
 			break;
 		case EngineStateEnum::WaitForFrameStart:
@@ -330,6 +337,7 @@ public:
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			UpdateLongestPush(micros() - timestamp);
 			UpdateEngineStatus(timestamp - PushStart);
+			ClearDuration = 0;
 #endif
 			EngineState = EngineStateEnum::Clear;
 			FrameCounter++;

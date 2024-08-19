@@ -24,7 +24,7 @@ public:
 	/// <summary>
 	/// Clear the frame buffer.
 	/// </summary>
-	virtual void ClearFrameBuffer() {}
+	virtual const bool ClearFrameBuffer() { return false; }
 
 	/// <summary>
 	/// Set inverted color for frame-buffer.

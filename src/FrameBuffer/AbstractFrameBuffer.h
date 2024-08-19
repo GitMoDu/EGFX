@@ -13,11 +13,13 @@
 /// Diagonal (Bresenham) Line implementation based on https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
 /// </summary>
 /// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter.</typeparam>
+/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 /// <typeparam name="frameWidth">Frame buffer width [0;254].</typeparam>
 /// <typeparam name="frameHeight">Frame buffer height [0;254].</typeparam>
 /// <typeparam name="displayAxis">Display mirror option.</typeparam>
 /// <typeparam name="displayRotation">Display rotation option.</typeparam>
 template<typename ColorConverter
+	, const uint8_t clearDivisorPower
 	, const uint8_t frameWidth
 	, const uint8_t frameHeight
 	, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
@@ -34,10 +36,22 @@ public:
 protected:
 	using color_t = typename ColorConverter::color_t;
 
+	static constexpr size_t ClearStepByteCount()
+	{
+		return BufferSize / ClearStepsCount();
+	}
+
+	static constexpr uint8_t ClearStepsCount()
+	{
+		return (uint32_t)(1) << clearDivisorPower;
+	}
+
 protected:
 	uint8_t* Buffer;
 
 protected:
+	uint8_t ClearIndex = 0;
+
 	bool Inverted = 0;
 
 protected:
@@ -70,16 +84,29 @@ public:
 		return (const uint8_t*)Buffer;
 	}
 
-	virtual void ClearFrameBuffer() final
+	virtual const bool ClearFrameBuffer() final
 	{
 		// Background color full, when inverted.
 		if (Inverted)
 		{
-			memset(Buffer, UINT8_MAX, BufferSize);
+			memset(&Buffer[ClearStepByteCount() * ClearIndex], UINT8_MAX, ClearStepByteCount());
 		}
 		else
 		{
-			memset(Buffer, 0, BufferSize);
+			memset(&Buffer[ClearStepByteCount() * ClearIndex], 0, ClearStepByteCount());
+		}
+
+		ClearIndex++;
+
+		if (ClearIndex >= ClearStepsCount())
+		{
+			ClearIndex = 0; // Ready for next clear.
+
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 

@@ -46,10 +46,20 @@ namespace SSD1306_128x64
 	static constexpr uint8_t Height = 64;
 }
 
+namespace SSD1306_128x32
+{
+	static constexpr uint8_t Width = 128;
+	static constexpr uint8_t Height = 32;
+
+	static constexpr int8_t VerticalOffset = -(int8_t)Height / 8;
+}
+
 namespace SSD1306_64x48
 {
 	static constexpr uint8_t Width = 64;
 	static constexpr uint8_t Height = 48;
+
+	static constexpr int8_t VerticalOffset = -(int8_t)Height / 2;
 }
 
 namespace SSD1306_64x32

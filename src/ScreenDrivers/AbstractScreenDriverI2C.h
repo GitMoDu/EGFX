@@ -27,7 +27,11 @@ public:
 	static constexpr uint32_t I2CSpeed = i2cSpeed;
 
 protected:
+#if defined(ARDUINO_ARCH_NRF52)
+	TwoWire& WireInstance;
+#else
 	TwoWire WireInstance;
+#endif
 
 public:
 	AbstractScreenDriverI2C()
@@ -40,6 +44,8 @@ public:
 		, WireInstance(i2cChannel)
 #elif defined(ARDUINO_ARCH_RP2040)
 		, WireInstance(GetI2cHost(), pinSDA, pinSCL)
+#elif defined(ARDUINO_ARCH_NRF52)
+		, WireInstance(GetI2cHost())
 #else
 		, WireInstance()
 #endif
@@ -60,11 +66,22 @@ public:
 #if defined(ARDUINO_ARCH_ESP32)
 		return WireInstance.begin(pinSDA, pinSCL, I2CSpeed);
 #else
+
 		WireInstance.begin();
+
 		if (I2CSpeed > 0)
 		{
 			WireInstance.setClock(i2cSpeed);
 		}
+
+#if defined(ARDUINO_ARCH_NRF52)
+		if (pinSDA != UINT8_MAX
+			&& pinSCL != UINT8_MAX)
+		{
+			Wire.setPins(pinSDA, pinSCL);
+		}
+
+#endif
 
 		return true;
 #endif
@@ -109,6 +126,19 @@ private:
 		else
 		{
 			return nullptr;
+		}
+	}
+#elif defined(ARDUINO_ARCH_NRF52)
+private:
+	TwoWire& GetI2cHost()
+	{
+		if (i2cChannel == 1)
+		{
+			return Wire1;
+		}
+		else
+		{
+			return Wire;
 		}
 	}
 #endif

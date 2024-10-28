@@ -70,6 +70,18 @@
 #define TFT_SCL		15
 #define TFT_SDA		14
 #define TFT_I2C_HZ	1000000
+#elif defined(ARDUINO_ARCH_NRF52)
+#define TFT_SPI		0
+#define TFT_CS		7
+#define TFT_DC		4
+#define TFT_RST		5
+#define TFT_CLK		PIN_SPI_SCK
+#define TFT_MOSI	PIN_SPI_MOSI
+#define TFT_SPI_HZ	F_CPU/2
+#define TFT_I2C		0
+#define TFT_SCL		PIN_WIRE_SCL
+#define TFT_SDA		PIN_WIRE_SDA
+#define TFT_I2C_HZ	400000
 #endif
 
 #define _TASK_OO_CALLBACKS

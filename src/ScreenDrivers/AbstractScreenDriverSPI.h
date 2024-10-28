@@ -32,6 +32,8 @@ protected:
 protected:
 #if defined(ARDUINO_ARCH_RP2040)
 	SPIClassRP2040 SpiInstance;
+#elif defined(ARDUINO_ARCH_NRF52)
+	SPIClass& SpiInstance;
 #else
 	SPIClass SpiInstance;
 #endif
@@ -47,6 +49,8 @@ public:
 		, SpiInstance(spiChannel)
 #elif defined(ARDUINO_ARCH_RP2040)
 		, SpiInstance(GetSpiHost(), UINT8_MAX, pinCS, pinCLK, pinMOSI)
+#elif defined(ARDUINO_ARCH_NRF52)
+		, SpiInstance(GetSpiHost())
 #else
 		, SpiInstance()
 #endif
@@ -76,6 +80,13 @@ public:
 		else if (pinCS != UINT8_MAX)
 		{
 			SpiInstance.begin((int8_t)-1, (int8_t)-1, (int8_t)-1, (int8_t)pinCS);
+		}
+#elif defined(ARDUINO_ARCH_NRF52)
+		if (pinCLK != UINT8_MAX
+			&& pinMOSI != UINT8_MAX)
+		{
+			SpiInstance.begin();
+			SpiInstance.setPins(UINT8_MAX, pinCLK, pinMOSI);
 		}
 #else
 		SpiInstance.begin();
@@ -173,8 +184,8 @@ protected:
 		digitalWrite(pinDC, LOW);
 	}
 
-#if defined(ARDUINO_ARCH_RP2040)
 private:
+#if defined(ARDUINO_ARCH_RP2040)
 	spi_inst_t* GetSpiHost()
 	{
 		if (spiChannel == 0)
@@ -188,6 +199,18 @@ private:
 		else
 		{
 			return nullptr;
+		}
+	}
+#elif defined(ARDUINO_ARCH_NRF52)
+	SPIClass& GetSpiHost()
+	{
+		if (spiChannel == 1)
+		{
+			return SPI1;
+		}
+		else
+		{
+			return SPI;
 		}
 	}
 #endif

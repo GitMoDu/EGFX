@@ -353,7 +353,7 @@ namespace Font2x5
 	{
 		(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 		(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
-		(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IIO,
+		(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 		(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 		(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 	};

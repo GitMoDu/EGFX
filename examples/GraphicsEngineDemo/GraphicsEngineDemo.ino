@@ -137,16 +137,16 @@ GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, F
 
 // Drawer demos.
 BitmaskDemo<FullLayout> BitmaskDemoDrawer(&FrameBuffer);
-TransformDemo<FullLayout> TransformDemoDrawer(&FrameBuffer);
-NumberAlignmentDemo<FullLayout> NumberAlignmentDemoDrawer(&FrameBuffer);
-
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
+TransformDemo<FullLayout> TransformDemoDrawer(&FrameBuffer);
 SpriteDemo<FullLayout> SpriteDemoDrawer(&FrameBuffer);
 TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
 PrimitiveDemo<FullLayout> PrimitiveDemoDrawer(&FrameBuffer);
 #endif
 #else
+TransformDemo<FullLayout> TransformDemoDrawer(&FrameBuffer);
+NumberAlignmentDemo<FullLayout> NumberAlignmentDemoDrawer(&FrameBuffer);
 SpriteDemo<FullLayout> SpriteDemoDrawer(&FrameBuffer);
 TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
 PrimitiveDemo<FullLayout> PrimitiveDemoDrawer(&FrameBuffer);
@@ -155,18 +155,28 @@ TextSpriteDemo<FullLayout> TextSpriteDemoDrawer(&FrameBuffer);
 CloneDemo<FullLayout> CloneDemoDrawer(&FrameBuffer);
 #endif
 //
+
+
+using FpsLayout = LayoutElement<0, 0, FrameBufferType::FrameWidth, FrameBufferType::FrameHeight>;
+DisplayFpsDrawer<FpsLayout,
+	SpriteShader::ColorShader<SpriteFont3x5Renderer>,
+	//SpriteShaderEffect::BrightnessEffect<SpriteFont2x5Renderer>,
+	FpsDrawerPosition::TopRight>
+	FpsDrawer(&FrameBuffer, &GraphicsEngine);
+
 // Demo Cycler task.
-DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine,
-	&BitmaskDemoDrawer,
-	&TransformDemoDrawer,
-	&NumberAlignmentDemoDrawer
+DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine, &FpsDrawer,
+	&BitmaskDemoDrawer
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
+	, &TransformDemoDrawer
 	, & TextCharactersDemoDrawer
 	, & PrimitiveDemoDrawer
 	, & SpriteDemoDrawer
 #endif
 #else
+	, &TransformDemoDrawer
+	, &NumberAlignmentDemoDrawer
 	, & TextCharactersDemoDrawer
 	, & TextSpriteDemoDrawer
 	, & SpriteDemoDrawer
@@ -191,6 +201,7 @@ void halt()
 #endif
 	while (true)
 		;
+
 }
 
 void BufferTaskCallback(void* parameter)

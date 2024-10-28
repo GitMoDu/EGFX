@@ -7,6 +7,7 @@
 #include <TaskSchedulerDeclarations.h>
 
 #include <ArduinoGraphicsCore.h>
+#include <ArduinoGraphicsDrawers.h>
 
 /// <summary>
 /// Add up to 10 different drawers to automatically rotate every DemoStepDurationMillis.
@@ -21,28 +22,38 @@ public:
 private:
 	IFrameEngine* Engine;
 
+	MultiDrawerWrapper<2> DrawerWrapper{};
+
 private:
-	IFrameDraw* Demos[MaxDemoCount];
+	ElementDrawer* FpsOverlay;
+	ElementDrawer* Demos[MaxDemoCount];
 	uint8_t Index = 0;
 
 public:
-	DemoCyclerTask(Scheduler* scheduler,
+	DemoCyclerTask(TS::Scheduler* scheduler,
 		IFrameEngine* engine,
-		IFrameDraw* demo0 = nullptr,
-		IFrameDraw* demo1 = nullptr,
-		IFrameDraw* demo2 = nullptr,
-		IFrameDraw* demo3 = nullptr,
-		IFrameDraw* demo4 = nullptr,
-		IFrameDraw* demo5 = nullptr,
-		IFrameDraw* demo6 = nullptr,
-		IFrameDraw* demo7 = nullptr,
-		IFrameDraw* demo8 = nullptr,
-		IFrameDraw* demo9 = nullptr
+		ElementDrawer* fpsOverlay,
+		ElementDrawer* demo0 = nullptr,
+		ElementDrawer* demo1 = nullptr,
+		ElementDrawer* demo2 = nullptr,
+		ElementDrawer* demo3 = nullptr,
+		ElementDrawer* demo4 = nullptr,
+		ElementDrawer* demo5 = nullptr,
+		ElementDrawer* demo6 = nullptr,
+		ElementDrawer* demo7 = nullptr,
+		ElementDrawer* demo8 = nullptr,
+		ElementDrawer* demo9 = nullptr
 	)
 		: Task(0, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
+		, FpsOverlay(fpsOverlay)
 		, Demos{ demo0, demo1, demo2, demo3, demo4, demo5, demo6, demo7, demo8, demo9 }
-	{}
+	{
+		Engine->SetDrawer(&DrawerWrapper);
+		DrawerWrapper.ClearDrawers();
+		DrawerWrapper.AddDrawer(demo0);
+		DrawerWrapper.AddDrawer(FpsOverlay);
+	}
 
 	bool Callback() final
 	{
@@ -51,7 +62,9 @@ public:
 		Serial.println(Index);
 #endif
 
-		Engine->SetDrawer(Demos[Index]);
+		DrawerWrapper.ClearDrawers();
+		DrawerWrapper.AddDrawer(Demos[Index]);
+		DrawerWrapper.AddDrawer(FpsOverlay);
 
 		IFrameDraw* demo = nullptr;
 		while (demo == nullptr)

@@ -4,13 +4,13 @@
 #define _STATUSLOGGERTASK_h
 
 #define _TASK_OO_CALLBACKS
-#include <TaskSchedulerDeclarations.h>
+#include <TSchedulerDeclarations.hpp>
 
 #include <ArduinoGraphicsCore.h>
 #include <ArduinoGraphicsDrawers.h>
 
 template<const uint32_t LogPeriodMillis = 1000>
-class StatusLoggerTask : private Task
+class StatusLoggerTask : private TS::Task
 {
 private:
 	IFrameEngine* Engine;
@@ -19,10 +19,10 @@ private:
 	IFrameEngine::EngineStatusStruct EngineStatus{};
 
 public:
-	StatusLoggerTask(Scheduler* scheduler,
+	StatusLoggerTask(TS::Scheduler* scheduler,
 		IFrameEngine* engine,
 		Print* serial)
-		: Task(LogPeriodMillis, TASK_FOREVER, scheduler, true)
+		: TS::Task(LogPeriodMillis, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
 		, SerialInstance(serial)
 	{}

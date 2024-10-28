@@ -4,7 +4,7 @@
 #define _GRAPHICS_ENGINE_TASK_h
 
 #define _TASK_OO_CALLBACKS
-#include <TaskSchedulerDeclarations.h>
+#include <TSchedulerDeclarations.hpp>
 
 #include <ArduinoGraphicsCore.h>
 #include "DisplaySyncType.h"
@@ -20,11 +20,11 @@
 #endif
 
 /// <summary>
-/// Task based Graphics Engine.
+/// TS::Task based Graphics Engine.
 /// Frame Buffer rendering from Drawer.
 /// Buffer pushing using ScreenDriver.
 /// </summary>
-class GraphicsEngineTask : private Task, public virtual IFrameEngine
+class GraphicsEngineTask : private TS::Task, public virtual IFrameEngine
 {
 private:
 	enum class EngineStateEnum : uint8_t
@@ -75,12 +75,12 @@ public:
 		SyncType = syncType;
 	}
 
-	GraphicsEngineTask(Scheduler* scheduler,
+	GraphicsEngineTask(TS::Scheduler* scheduler,
 		IFrameBuffer* source,
 		IScreenDriver* screenDriver,
 		const uint32_t targetPeriodMicros = 16666)
 		: IFrameEngine()
-		, Task(TASK_IMMEDIATE, TASK_FOREVER, scheduler, false)
+		, TS::Task(TASK_IMMEDIATE, TASK_FOREVER, scheduler, false)
 		, FrameBuffer(source)
 		, ScreenDriver(screenDriver)
 		, TargetPeriod(targetPeriodMicros)
@@ -134,8 +134,8 @@ public: // IFrameEngine implementation.
 		{
 			if (ScreenDriver->Start())
 			{
-				Task::enable();
-				Task::forceNextIteration();
+				TS::Task::enable();
+				TS::Task::forceNextIteration();
 
 				FrameCounter = 0;
 				EngineState = EngineStateEnum::WaitForScreenStart;
@@ -190,7 +190,7 @@ public: // IFrameEngine implementation.
 		{
 			ScreenDriver->Stop();
 		}
-		Task::disable();
+		TS::Task::disable();
 	}
 
 	virtual void GetEngineStatus(EngineStatusStruct& status) final
@@ -224,7 +224,7 @@ public:
 				ClearDuration = 0;
 #endif
 			}
-			Task::delay(0);
+			TS::Task::delay(0);
 			break;
 		case EngineStateEnum::Clear:
 			if (FrameBuffer->ClearFrameBuffer())
@@ -239,14 +239,14 @@ public:
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			ClearDuration += micros() - timestamp;
 #endif
-			Task::delay(0);
+			TS::Task::delay(0);
 			break;
 		case EngineStateEnum::WaitForFrameStart:
 			if (timestamp - FrameStart < INT32_MAX)
 			{
 				EngineState = EngineStateEnum::Render;
 			}
-			Task::delay(0);
+			TS::Task::delay(0);
 			break;
 		case EngineStateEnum::Render:
 #if defined(GRAPHICS_ENGINE_MEASURE)
@@ -259,7 +259,7 @@ public:
 #if defined(GRAPHICS_ENGINE_MEASURE)
 					RenderDuration = micros() - FrameTime;
 #endif
-					Task::delay(0);
+					TS::Task::delay(0);
 					EngineState = EngineStateEnum::Vsync;
 				}
 #if defined(GRAPHICS_ENGINE_MEASURE)
@@ -269,7 +269,7 @@ public:
 			else
 			{
 				EngineState = EngineStateEnum::Vsync;
-				Task::delay(0);
+				TS::Task::delay(0);
 			}
 			break;
 		case EngineStateEnum::Vsync:
@@ -279,21 +279,21 @@ public:
 				if (Vsync(timestamp))
 				{
 					EngineState = EngineStateEnum::PushBufferStart;
-					Task::delay(0);
+					TS::Task::delay(0);
 				}
 				break;
 			case DisplaySyncType::Vrr:
 				if (Vrr(timestamp))
 				{
 					EngineState = EngineStateEnum::PushBufferStart;
-					Task::delay(0);
+					TS::Task::delay(0);
 				}
 				break;
 			case DisplaySyncType::NoSync:
 				if (NoSync(timestamp))
 				{
 					EngineState = EngineStateEnum::PushBufferStart;
-					Task::delay(0);
+					TS::Task::delay(0);
 				}
 				break;
 			default:
@@ -312,18 +312,18 @@ public:
 				UpdateLongestPush(micros() - timestamp);
 #endif
 				EngineState = EngineStateEnum::PushBuffer;
-				Task::delay(0);
+				TS::Task::delay(0);
 			}
 			break;
 		case EngineStateEnum::PushBuffer:
-			Task::delay(ScreenDriver->PushBuffer(FrameBuffer->GetFrameBuffer()));
+			TS::Task::delay(ScreenDriver->PushBuffer(FrameBuffer->GetFrameBuffer()));
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			UpdateLongestPush(micros() - timestamp);
 #endif
 			EngineState = EngineStateEnum::PushingBuffer;
 			break;
 		case EngineStateEnum::PushingBuffer:
-			Task::delay(0);
+			TS::Task::delay(0);
 			if (!ScreenDriver->PushingBuffer(FrameBuffer->GetFrameBuffer()))
 			{
 				EngineState = EngineStateEnum::PushBufferEnd;
@@ -341,10 +341,10 @@ public:
 #endif
 			EngineState = EngineStateEnum::Clear;
 			FrameCounter++;
-			Task::delay(0);
+			TS::Task::delay(0);
 			break;
 		default:
-			Task::disable();
+			TS::Task::disable();
 			return false;
 			break;
 		}
@@ -359,7 +359,7 @@ private:
 
 		if (frameElapsed >= INT32_MAX)
 		{
-			Task::delay(0);
+			TS::Task::delay(0);
 			return false;
 		}
 
@@ -375,7 +375,7 @@ private:
 
 		if (frameElapsed >= INT32_MAX)
 		{
-			Task::delay(0);
+			TS::Task::delay(0);
 			return false;
 		}
 
@@ -390,7 +390,7 @@ private:
 		{
 			// Sleep until we're at the last millisecond.
 			const uint32_t sleepDuration = (TargetPeriod - frameElapsed) / 1000;
-			Task::delay(sleepDuration);
+			TS::Task::delay(sleepDuration);
 
 			return false;
 		}
@@ -403,7 +403,7 @@ private:
 
 		if (frameElapsed >= INT32_MAX)
 		{
-			Task::delay(0);
+			TS::Task::delay(0);
 			return false;
 		}
 
@@ -423,7 +423,7 @@ private:
 		{
 			// Sleep until we're at the last millisecond.
 			const uint32_t sleepDuration = (TargetPeriod - frameElapsed) / 1000;
-			Task::delay(sleepDuration);
+			TS::Task::delay(sleepDuration);
 
 			return false;
 		}

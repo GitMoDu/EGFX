@@ -4,7 +4,7 @@
 #define _DEMO_CYCLER_TASK_h
 
 #define _TASK_OO_CALLBACKS
-#include <TaskSchedulerDeclarations.h>
+#include <TSchedulerDeclarations.hpp>
 
 #include <ArduinoGraphicsCore.h>
 #include <ArduinoGraphicsDrawers.h>
@@ -14,7 +14,7 @@
 /// </summary>
 /// <typeparam name="DemoStepDurationMillis">Demo rotation period, in microseconds.</typeparam>
 template<const uint32_t DemoStepDurationMillis = 10000>
-class DemoCyclerTask : private Task
+class DemoCyclerTask : private TS::Task
 {
 public:
 	static const uint8_t MaxDemoCount = 10;
@@ -44,7 +44,7 @@ public:
 		ElementDrawer* demo8 = nullptr,
 		ElementDrawer* demo9 = nullptr
 	)
-		: Task(0, TASK_FOREVER, scheduler, true)
+		: TS::Task(0, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
 		, FpsOverlay(fpsOverlay)
 		, Demos{ demo0, demo1, demo2, demo3, demo4, demo5, demo6, demo7, demo8, demo9 }
@@ -74,7 +74,7 @@ public:
 			demo = Demos[Index];
 		}
 
-		Task::delay(DemoStepDurationMillis);
+		TS::Task::delay(DemoStepDurationMillis);
 
 		return true;
 	}

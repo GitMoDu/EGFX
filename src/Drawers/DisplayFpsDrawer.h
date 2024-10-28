@@ -3,6 +3,7 @@
 #ifndef _FPS_DRAWER_h
 #define _FPS_DRAWER_h
 
+#include <ArduinoGraphicsCore.h>
 #include <ArduinoGraphicsDrawer.h>
 
 enum class FpsDrawerPosition

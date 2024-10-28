@@ -85,11 +85,12 @@
 #endif
 
 #define _TASK_OO_CALLBACKS
-#define _TASK_SLEEP_ON_IDLE_RUN // Enable 1 ms SLEEP_IDLE powerdowns between tasks if no callback methods were invoked during the pass.
-#include <TaskScheduler.h>
+#include <TScheduler.hpp>
 
 #include <ArduinoGraphicsDrivers.h>
 #include <ArduinoGraphicsEngineTask.h>
+#include <ArduinoGraphicsCore.h>
+#include <ArduinoGraphicsDrawers.h>
 
 
 #include "DemoCyclerTask.h"
@@ -106,7 +107,7 @@
 
 
 // Process scheduler.
-Scheduler SchedulerBase;
+TS::Scheduler SchedulerBase;
 //
 
 // Uncomment Driver and matching framebuffer type.
@@ -247,7 +248,6 @@ void setup()
 	Serial.println(F("Graphics Engine Demo Start."));
 	Serial.print(FrameBuffer.GetColorDepth());
 	Serial.println(F(" bit color depth screen."));
-	;
 #endif
 }
 

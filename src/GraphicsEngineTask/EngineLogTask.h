@@ -4,12 +4,12 @@
 #define _ENGINE_LOG_TASK_h
 
 #define _TASK_OO_CALLBACKS
-#include <TaskSchedulerDeclarations.h>
+#include <TSchedulerDeclarations.hpp>
 
 #include <ArduinoGraphicsCore.h>
 
 template<const uint32_t LogPeriodMillis = 1000>
-class EngineLogTask : private Task
+class EngineLogTask : private TS::Task
 {
 private:
 	IFrameEngine* Engine;
@@ -17,9 +17,9 @@ private:
 	IFrameEngine::EngineStatusStruct EngineStatus{};
 
 public:
-	EngineLogTask(Scheduler* scheduler,
+	EngineLogTask(TS::Scheduler* scheduler,
 		IFrameEngine* engine)
-		: Task(LogPeriodMillis, TASK_FOREVER, scheduler, true)
+		: TS::Task(LogPeriodMillis, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
 	{}
 

@@ -96,6 +96,10 @@ public:
 				Serial.print(F("LongestPushCall "));
 				Serial.print(EngineStatus.LongestPushCall);
 				Serial.println(F(" us"));
+				Serial.print('\t');
+				Serial.print(F("LongestClearCall "));
+				Serial.print(EngineStatus.LongestClearCall);
+				Serial.println(F(" us"));
 				Serial.println();
 			}
 		}

@@ -56,7 +56,6 @@ public:
 #endif
 	{}
 
-	//TODO: Optional in-driver I2C begin.
 	virtual const bool Start()
 	{
 		if (pinDC == UINT8_MAX

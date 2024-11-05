@@ -4,6 +4,9 @@
 #define _TEMPLATE_SCREEN_DRIVER_RTOS_h
 
 #if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_RP2040)
+#define TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE
+#endif
+#if defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_NRF52)
 #define TEMPLATE_SCREEN_DRIVER_RTOS
 
 #include "../Model/IScreenDriver.h"
@@ -28,8 +31,11 @@
 template<typename InlineScreenDriver,
 	const uint32_t pushSleepDuration = 0,
 	const uint32_t stackHeight = 1500,
-	const portBASE_TYPE priority = 1,
-	const uint32_t coreAffinity = tskNO_AFFINITY>
+	const portBASE_TYPE priority = 1
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+	, const uint32_t coreAffinity = tskNO_AFFINITY
+#endif
+>
 class TemplateScreenDriverRtos : public InlineScreenDriver
 {
 private:
@@ -42,7 +48,7 @@ private:
 	uint8_t* FrameBuffer = nullptr;
 	uint8_t* TaskFrameBuffer = nullptr;
 
-	void (*TaskCallback)(void* parameter) = nullptr;
+	TaskFunction_t TaskCallback = nullptr;
 	TaskHandle_t BufferTaskHandle = NULL;
 
 	volatile bool TaskReady = false;
@@ -65,6 +71,8 @@ public:
 			xTaskCreatePinnedToCore(TaskCallback, "BufferTask", stackHeight, NULL, priority, &BufferTaskHandle, coreAffinity);
 #elif defined(ARDUINO_ARCH_RP2040)
 			xTaskCreateAffinitySet((TaskFunction_t)TaskCallback, "BufferTask", stackHeight, NULL, priority, coreAffinity, &BufferTaskHandle);
+#elif defined(ARDUINO_ARCH_NRF52)
+			xTaskCreate(TaskCallback, "BufferTask", stackHeight, NULL, (UBaseType_t)priority, &BufferTaskHandle);
 #endif
 			if (BufferTaskHandle != NULL)
 			{

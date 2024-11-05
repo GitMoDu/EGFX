@@ -17,6 +17,7 @@ public:
 		uint32_t PushDuration = 0;
 		uint32_t LongestRenderCall = 0;
 		uint32_t LongestPushCall = 0;
+		uint32_t LongestClearCall = 0;
 		uint16_t DrawCallCount = 0;
 
 		const uint32_t GetIdleDuration()
@@ -113,6 +114,7 @@ public:
 			LongestRenderCall = 0;
 			PushDuration = 0;
 			LongestPushCall = 0;
+			LongestClearCall = 0;
 			DrawCallCount = 0;
 		}
 
@@ -125,6 +127,7 @@ public:
 			target.LongestRenderCall = LongestRenderCall;
 			target.PushDuration = PushDuration;
 			target.LongestPushCall = LongestPushCall;
+			target.LongestClearCall = LongestClearCall;
 			target.DrawCallCount = DrawCallCount;
 		}
 	};

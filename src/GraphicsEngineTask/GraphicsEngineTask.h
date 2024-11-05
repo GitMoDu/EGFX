@@ -52,7 +52,9 @@ private:
 	uint32_t RenderDuration = 0;
 	uint32_t LongestRenderCall = 0;
 	uint32_t LongestPushCall = 0;
+	uint32_t LongestClearCall = 0;
 
+	uint32_t ClearLoop = 0;
 	uint32_t PushStart = 0;
 #else
 	uint32_t FrameDuration = 0;
@@ -237,7 +239,12 @@ public:
 				EngineState = EngineStateEnum::WaitForFrameStart;
 			}
 #if defined(GRAPHICS_ENGINE_MEASURE)
-			ClearDuration += micros() - timestamp;
+			ClearLoop = micros() - timestamp;
+			ClearDuration += ClearLoop;
+			if (ClearLoop > LongestClearCall)
+			{
+				LongestClearCall = ClearLoop;
+			}
 #endif
 			TS::Task::delay(0);
 			break;
@@ -338,6 +345,7 @@ public:
 			UpdateLongestPush(micros() - timestamp);
 			UpdateEngineStatus(timestamp - PushStart);
 			ClearDuration = 0;
+			LongestClearCall = 0;
 #endif
 			EngineState = EngineStateEnum::Clear;
 			FrameCounter++;
@@ -437,6 +445,7 @@ private:
 		EngineStatus.LongestRenderCall = LongestRenderCall;
 		EngineStatus.PushDuration = pushDuration;
 		EngineStatus.LongestPushCall = LongestPushCall;
+		EngineStatus.LongestClearCall = LongestClearCall;
 		EngineStatus.FrameDuration = FrameDuration;
 		EngineStatus.TargetDuration = TargetPeriod;
 		EngineStatus.DrawCallCount = DrawCallCounter;

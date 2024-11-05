@@ -41,7 +41,7 @@ public:
 
 	void SetStyle(const RgbColor& color,
 		const uint8_t height,
-		const int8_t widthRatio = WIDTH_RATIO_DEFAULT,
+		const uint16_t widthRatio = WIDTH_RATIO_DEFAULT,
 		const uint8_t kerningRatio = KERNING_RATIO_DEFAULT)
 	{
 		SetStyle(color.r, color.g, color.b,

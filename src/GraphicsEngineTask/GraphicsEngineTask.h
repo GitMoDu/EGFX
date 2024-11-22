@@ -86,7 +86,8 @@ public:
 		, FrameBuffer(source)
 		, ScreenDriver(screenDriver)
 		, TargetPeriod(targetPeriodMicros)
-	{}
+	{
+	}
 
 	void SetBufferTaskCallback(void (*taskCallback)(void* parameter))
 	{
@@ -263,9 +264,6 @@ public:
 			{
 				if (Drawer->DrawCall(FrameBuffer, FrameTime, FrameCounter))
 				{
-#if defined(GRAPHICS_ENGINE_MEASURE)
-					RenderDuration = micros() - FrameTime;
-#endif
 					TS::Task::delay(0);
 					EngineState = EngineStateEnum::Vsync;
 				}
@@ -312,7 +310,6 @@ public:
 			if (ScreenDriver->CanPushBuffer())
 			{
 				ScreenDriver->StartBuffer();
-
 #if defined(GRAPHICS_ENGINE_MEASURE)
 				PushStart = timestamp;
 				LongestPushCall = 0;
@@ -346,6 +343,8 @@ public:
 			UpdateEngineStatus(timestamp - PushStart);
 			ClearDuration = 0;
 			LongestClearCall = 0;
+			LongestRenderCall = 0;
+			RenderDuration = 0;
 #endif
 			EngineState = EngineStateEnum::Clear;
 			FrameCounter++;
@@ -457,6 +456,7 @@ private:
 		{
 			LongestRenderCall = renderCallDuration;
 		}
+		RenderDuration += renderCallDuration;
 	}
 
 	void UpdateLongestPush(const uint32_t pushCallDuration)

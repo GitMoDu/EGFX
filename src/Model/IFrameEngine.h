@@ -20,36 +20,46 @@ public:
 		uint32_t LongestClearCall = 0;
 		uint16_t DrawCallCount = 0;
 
-		const uint32_t GetIdleDuration()
+		const uint32_t GetIdleDuration()  const
 		{
-			if (TargetDuration > 0)
+			if (FrameDuration > 0)
 			{
-				const uint32_t busyDuration = ClearDuration + PushDuration + RenderDuration;
+				const uint32_t busyDuration = GetBusyDuration();
 
-				if (busyDuration < TargetDuration)
+				if (busyDuration < FrameDuration)
 				{
-					return TargetDuration - busyDuration;
+					return FrameDuration - busyDuration;
 				}
 			}
 
 			return 0;
 		}
 
-		const uint8_t GetIdleWeight()
+		const uint8_t GetIdleWeight() const
 		{
 			const uint32_t idleDuration = GetIdleDuration();
 
-			return (idleDuration * UINT8_MAX) / TargetDuration;
+			return (idleDuration * UINT8_MAX) / FrameDuration;
 		}
 
-		const uint8_t GetRenderLoad()
+		const uint8_t GetFrameLoad() const
 		{
-			const uint32_t busyDuration = ClearDuration + PushDuration;
+			return UINT8_MAX - GetIdleWeight();
+		}
+
+		const uint32_t GetBusyDuration() const
+		{
+			return ClearDuration + RenderDuration + PushDuration;
+		}
+
+		const uint8_t GetRenderLoad() const
+		{
+			const uint32_t otherDuration = ClearDuration + PushDuration;
 
 			if (TargetDuration > 0
-				&& busyDuration < TargetDuration)
+				&& otherDuration < TargetDuration)
 			{
-				const uint32_t renderWindow = TargetDuration - busyDuration;
+				const uint32_t renderWindow = TargetDuration - otherDuration;
 
 				if (RenderDuration < renderWindow)
 				{
@@ -66,7 +76,7 @@ public:
 			}
 		}
 
-		const uint8_t GetRenderWeight()
+		const uint8_t GetRenderWeight() const
 		{
 			if (FrameDuration > 0
 				&& (RenderDuration < FrameDuration))
@@ -79,7 +89,7 @@ public:
 			}
 		}
 
-		const uint8_t GetPushWeight()
+		const uint8_t GetPushWeight() const
 		{
 			if (FrameDuration > 0
 				&& (PushDuration < FrameDuration))
@@ -92,7 +102,7 @@ public:
 			}
 		}
 
-		const uint8_t GetClearWeight()
+		const uint8_t GetClearWeight() const
 		{
 			if (FrameDuration > 0
 				&& (ClearDuration < FrameDuration))
@@ -118,7 +128,7 @@ public:
 			DrawCallCount = 0;
 		}
 
-		void CopyTo(EngineStatusStruct& target)
+		void CopyTo(EngineStatusStruct& target) const
 		{
 			target.TargetDuration = TargetDuration;
 			target.FrameDuration = FrameDuration;

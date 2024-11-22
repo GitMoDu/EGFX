@@ -37,6 +37,7 @@ public:
 				const uint8_t renderPercent = ((uint16_t)EngineStatus.GetRenderWeight() * 100) / UINT8_MAX;
 				const uint8_t idlePercent = ((uint16_t)EngineStatus.GetIdleWeight() * 100) / UINT8_MAX;
 				const uint8_t renderLoadPercent = ((uint16_t)EngineStatus.GetRenderLoad() * 100) / UINT8_MAX;
+				const uint8_t frameLoadPercent = ((uint16_t)EngineStatus.GetFrameLoad() * 100) / UINT8_MAX;
 				const uint8_t pushPercent = ((uint16_t)EngineStatus.GetPushWeight() * 100) / UINT8_MAX;
 
 
@@ -53,7 +54,16 @@ public:
 				}
 				Serial.print(fpsRemainder);
 				Serial.print(F(" FPS ("));
+
+
 				Serial.print(renderLoadPercent);
+				Serial.println(F("% budget)"));
+
+				Serial.print('\t');
+				Serial.print(F("Frame "));
+				Serial.print(EngineStatus.GetBusyDuration());
+				Serial.print(F(" us ("));
+				Serial.print(frameLoadPercent);
 				Serial.println(F("% load)"));
 
 				Serial.print('\t');
@@ -87,7 +97,6 @@ public:
 				Serial.print(F(" us ("));
 				Serial.print(idlePercent);
 				Serial.println(F("%)"));
-
 
 				Serial.print('\t');
 				Serial.print(F("LongestRenderCall "));

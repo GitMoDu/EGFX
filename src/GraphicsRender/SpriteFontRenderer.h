@@ -39,11 +39,10 @@ private:
 	using BaseClass = SpriteType;
 
 protected:
-	virtual void SetCharacter(const int8_t character) { }
+	virtual void SetCharacter(const int8_t character) {}
 
 public:
-	AbstractSpriteFontRenderer() : BaseClass()
-	{}
+	AbstractSpriteFontRenderer() : BaseClass() {}
 
 public:
 	void TextBottomLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
@@ -170,6 +169,11 @@ public:
 				offset += FontWidth() + FontKerning();
 			}
 		}
+	}
+
+	void WriteDigit(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const uint8_t number)
+	{
+		Write(frame, x, y, '0' + number);
 	}
 
 	void Write(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char character)

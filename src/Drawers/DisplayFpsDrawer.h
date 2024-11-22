@@ -78,11 +78,11 @@ public:
 				{
 					if (FrameRate > 99)
 					{
-						TextDrawer.Write(frame, GetX(), GetY(), '0' + (FrameRate / 100) % 10);
+						TextDrawer.WriteDigit(frame, GetX(), GetY(),  (FrameRate / 100) % 10);
 					}
-					TextDrawer.Write(frame, GetX() + TextWidth(1), GetY(), '0' + ((FrameRate / 10) % 10));
+					TextDrawer.WriteDigit(frame, GetX() + TextWidth(1), GetY(), ((FrameRate / 10) % 10));
 				}
-				TextDrawer.Write(frame, GetX() + TextWidth(2), GetY(), '0' + (FrameRate % 10));
+				TextDrawer.WriteDigit(frame, GetX() + TextWidth(2), GetY(), (FrameRate % 10));
 			}
 			break;
 		case (uint8_t)DrawElementsEnum::Label:

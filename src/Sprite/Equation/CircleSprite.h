@@ -54,7 +54,7 @@ public:
 
 	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
-		if (IsInsideCircle(x,y))
+		if (IsInsideCircle(x, y))
 		{
 			color.r = UINT8_MAX;
 			color.g = UINT8_MAX;

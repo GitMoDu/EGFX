@@ -39,18 +39,20 @@ public:
 		return ElementsCount;
 	}
 
-	void Disable()
+	virtual void SetEnabled(const bool enabled) final
 	{
-		ElementsCount = 0;
-		ElementIndex = 0;
-	}
-
-	void Enable()
-	{
-		if (ElementsCount != OriginalCount)
+		if (enabled)
 		{
+			if (ElementsCount != OriginalCount)
+			{
+				ElementIndex = 0;
+				ElementsCount = OriginalCount;
+			}
+		}
+		else
+		{
+			ElementsCount = 0;
 			ElementIndex = 0;
-			ElementsCount = OriginalCount;
 		}
 	}
 

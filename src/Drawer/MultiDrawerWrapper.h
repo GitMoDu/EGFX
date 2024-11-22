@@ -31,6 +31,17 @@ public:
 		LayerIndex = 0;
 	}
 
+	virtual void SetEnabled(const bool enabled) final
+	{
+		for (uint_fast8_t i = 0; i < LayersCount; i++)
+		{
+			if (Drawers[i] != nullptr)
+			{
+				Drawers[i]->SetEnabled(enabled);
+			}
+		}
+	}
+
 	const bool AddDrawer(IFrameDraw& drawer)
 	{
 		return AddDrawer(&drawer);

@@ -17,24 +17,27 @@ namespace SpriteShaderEffect
 	private:
 		uint8_t X = 0;
 		uint8_t Y = 0;
-		uint8_t Width = 0;
-		uint8_t Height = 0;
+		uint8_t CropWidth = 0;
+		uint8_t CropHeight = 0;
 
 	public:
 		CropRectangleEffect() : BaseClass()
-		{}
+		{
+			CropWidth = BaseClass::GetWidth();
+			CropHeight = BaseClass::GetHeight();
+		}
 
 		void SetRectangleCrop(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height)
 		{
 			X = x;
 			Y = y;
-			Width = width;
-			Height = height;
+			CropWidth = width;
+			CropHeight = height;
 		}
 
 		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
-			return x >= X && x < (X + Width) && y >= Y && y < (Y + Height)
+			return x >= X && x < (X + CropWidth) && y >= Y && y < (Y + CropHeight)
 				&& BaseClass::Get(color, x, y);
 		}
 	};
@@ -138,7 +141,7 @@ namespace SpriteShaderEffect
 			Transparent.b = b;
 		}
 
-		void SetTransparentColor(RgbColor& color)
+		void SetTransparentColor(const RgbColor& color)
 		{
 			Transparent.r = color.r;
 			Transparent.g = color.g;

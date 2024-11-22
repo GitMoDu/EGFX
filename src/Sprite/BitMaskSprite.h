@@ -23,7 +23,8 @@ public:
 	AbstractBitMaskSprite(const uint8_t* mask = nullptr)
 		: AbstractSprite<width, height>()
 		, Mask(mask)
-	{}
+	{
+	}
 
 	void SetMask(const uint8_t* mask)
 	{
@@ -48,14 +49,15 @@ class BitMaskSprite : public AbstractBitMaskSprite<Width, Height>
 private:
 	using BaseClass = AbstractBitMaskSprite<Width, Height>;
 
-private:
+protected:
 	using BaseClass::Mask;
 	using BaseClass::BitScale;
 
 public:
 	BitMaskSprite(const uint8_t* mask = nullptr)
 		: BaseClass(mask)
-	{}
+	{
+	}
 
 	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
@@ -68,6 +70,49 @@ public:
 		return ((Mask[offset] >> xBit) & 0x01) != 0;
 	}
 };
+
+
+template<const uint8_t Width,
+	const uint8_t Height>
+class BitMaskBufferSprite : public BitMaskSprite<Width, Height>
+{
+private:
+	using BaseClass = BitMaskSprite<Width, Height>;
+
+protected:
+	using BaseClass::BitScale;
+
+private:
+	static constexpr size_t MaskSize = ((size_t)Width * Height) / 8;
+
+	uint8_t Mask[MaskSize]{};
+
+public:
+	BitMaskBufferSprite()
+		: BaseClass(Mask)
+	{
+	}
+
+	void SetAlpha(const uint8_t x, const uint8_t y, const bool value)
+	{
+		const uint_fast16_t yByte = (uint_fast16_t)y * BitScale;
+		const uint8_t xByte = (x / 8);
+		const uint_fast16_t offset = yByte + xByte;
+
+		const uint8_t xBit = 7 - (x % 8);
+
+		if (value)
+		{
+			Mask[offset] |= (1 << xBit);
+		}
+		else
+		{
+			Mask[offset] &= ~(1 << xBit);
+		}
+	}
+};
+
+
 
 #if defined(ARDUINO_ARCH_AVR)
 template<const uint8_t Width,
@@ -84,7 +129,8 @@ private:
 public:
 	FlashBitMaskSprite(const uint8_t* mask = nullptr)
 		: BaseClass(mask)
-	{}
+	{
+	}
 
 	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 	{
@@ -105,7 +151,8 @@ class FlashBitMaskSprite : public BitMaskSprite<Width, Height>
 public:
 	FlashBitMaskSprite(const uint8_t* mask = nullptr)
 		: BitMaskSprite<Width, Height>(mask)
-	{}
+	{
+	}
 };
 #endif
 #endif

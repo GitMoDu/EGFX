@@ -4,6 +4,7 @@
 #define _SPRITE_SHADER_h
 
 #include "../../Model/RgbColor.h"
+#include "../../Model/RgbColorUtil.h"
 
 /// <summary>
 /// Template-chainable shaders, for an underlying SpriteType.
@@ -17,8 +18,9 @@ namespace SpriteShader
 		RgbColor ShaderColor{ INT8_MAX, INT8_MAX, INT8_MAX };
 
 	public:
-		AbstractOneColorShader()
-		{}
+		AbstractOneColorShader() : SpriteType()
+		{
+		}
 
 	public:
 		void SetColor(const uint8_t r, const uint8_t g, const uint8_t b)
@@ -45,7 +47,8 @@ namespace SpriteShader
 
 	public:
 		AbstractTwoColorShader() : SpriteType()
-		{}
+		{
+		}
 
 	public:
 		void SetColor1(const uint8_t r, const uint8_t g, const uint8_t b)
@@ -85,7 +88,8 @@ namespace SpriteShader
 
 	public:
 		ColorShader() : AbstractOneColorShader<SpriteType>()
-		{}
+		{
+		}
 
 		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
@@ -117,7 +121,8 @@ namespace SpriteShader
 
 	public:
 		GridShader() : AbstractTwoColorShader<SpriteType>()
-		{}
+		{
+		}
 
 		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
@@ -156,7 +161,8 @@ namespace SpriteShader
 
 	public:
 		HorizontalGradientShader() : AbstractTwoColorShader<SpriteType>()
-		{}
+		{
+		}
 
 		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
@@ -182,13 +188,63 @@ namespace SpriteShader
 
 	public:
 		VerticalGradientShader() : AbstractTwoColorShader<SpriteType>()
-		{}
+		{
+		}
 
 		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
 		{
 			if (SpriteType::Get(color, x, y))
 			{
 				RgbColorUtil::InterpolateRgb(color, ShaderColor1, ShaderColor2, (((uint16_t)y * UINT8_MAX) / (SpriteType::Height - 1)));
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+	};
+
+	template<typename SpriteType>
+	class AxisLimitTwoColorShader : public AbstractTwoColorShader<SpriteType>
+	{
+	private:
+		using AbstractTwoColorShader<SpriteType>::ShaderColor1;
+		using AbstractTwoColorShader<SpriteType>::ShaderColor2;
+
+	private:
+		uint8_t LimitX = 0;
+		uint8_t LimitY = 0;
+
+	public:
+		AxisLimitTwoColorShader() : AbstractTwoColorShader<SpriteType>()
+		{
+		}
+
+		void SetColorSwitchLimits(const uint8_t limitX = SpriteType::Width, const uint8_t limitY = SpriteType::Height)
+		{
+			LimitX = limitX;
+			LimitY = limitY;
+		}
+
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		{
+			if (SpriteType::Get(color, x, y))
+			{
+				if (x >= LimitX
+					|| y >= LimitY)
+				{
+					color.r = ShaderColor2.r;
+					color.g = ShaderColor2.g;
+					color.b = ShaderColor2.b;
+				}
+				else
+				{
+					color.r = ShaderColor1.r;
+					color.g = ShaderColor1.g;
+					color.b = ShaderColor1.b;
+				}
 
 				return true;
 			}

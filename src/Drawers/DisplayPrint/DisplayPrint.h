@@ -23,37 +23,33 @@ private:
 	FontRendererType Renderer{};
 
 private:
-	IFrameBuffer* Frame;
-
 	uint8_t ElementIndex = 0;
 
 public:
-	DisplayPrint(IFrameBuffer* frame)
-		: IFrameDraw()
-		, Print()
-		, Frame(frame)
-	{}
+	DisplayPrint() : IFrameDraw(), Print()
+	{
+	}
 
 	FontRendererType& GetRenderer()
 	{
 		return Renderer;
 	}
 
-	void DrawCall(const uint8_t elementIndex)
+	void DrawCall(IFrameBuffer* frame, const uint8_t elementIndex)
 	{
 		if (elementIndex == 0)
 		{
-			DrawLineBuffer();
+			DrawLineBuffer(frame);
 		}
 		else
 		{
-			DrawHistory(elementIndex - 1);
+			DrawHistory(frame, elementIndex - 1);
 		}
 	}
 
-	const bool DrawToFrame(const uint32_t frameTime, const uint16_t frameCounter) final
+	const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 	{
-		DrawCall(ElementIndex);
+		DrawCall(frame, ElementIndex);
 
 		ElementIndex++;
 		if (ElementIndex >= Layout::ElementsCount())
@@ -67,7 +63,7 @@ public:
 	}
 
 private:
-	void DrawHistory(const uint8_t line)
+	void DrawHistory(IFrameBuffer* frame, const uint8_t line)
 	{
 		const size_t offset = Buffer.GetLineOffset(line);
 		const uint8_t y = Layout::Y() + Layout::Height() - ((2 + line) * (FontRendererType::FontHeight() + 1));
@@ -75,19 +71,19 @@ private:
 
 		for (uint8_t i = 0; i < Layout::CharacterCount(); i++)
 		{
-			Renderer.Write(Frame, x, y, Buffer.TextBuffer[offset + i]);
+			Renderer.Write(frame, x, y, Buffer.TextBuffer[offset + i]);
 			x += FontRendererType::FontWidth() + FontRendererType::FontKerning();
 		}
 	}
 
-	void DrawLineBuffer()
+	void DrawLineBuffer(IFrameBuffer* frame)
 	{
 		const uint8_t y = Layout::Y() + Layout::Height() - FontRendererType::FontHeight() - 1;
 		uint8_t x = Layout::X();
 
 		for (uint8_t i = 0; i < Layout::CharacterCount(); i++)
 		{
-			Renderer.Write(Frame, x, y, Buffer.LineBuffer[i]);
+			Renderer.Write(frame, x, y, Buffer.LineBuffer[i]);
 			x += FontRendererType::FontWidth() + FontRendererType::FontKerning();
 		}
 	}
@@ -134,11 +130,12 @@ public:
 	DisplayPrintElement(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)Layout::ElementsCount())
 		, PrintDrawer(frame)
-	{}
-
-	virtual void DrawCall(DrawState* drawState) final
 	{
-		PrintDrawer.DrawCall(drawState->ElementIndex);
+	}
+
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
+	{
+		PrintDrawer.DrawCall(frame, elementIndex);
 	}
 
 	Print& GetSerial()

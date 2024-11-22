@@ -17,73 +17,56 @@ private:
 	RgbColor Color;
 
 public:
-	ScreenDriverTester(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	ScreenDriverTester()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 		, Color(UINT8_MAX, UINT8_MAX, UINT8_MAX)
-	{}
+	{
+	}
 
 	static constexpr uint32_t ResizeDuration = 5000000;
 
 	static constexpr uint8_t ScaleSkip = 2;
 
-	virtual void DrawCall(DrawState* drawState) final
+protected:
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		const uint16_t progress = drawState->GetProgress<ResizeDuration>();
-		const uint8_t x = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(Frame->GetWidth() - 1));
-		const uint8_t y = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(Frame->GetHeight() - 1));
-		uint8_t section = ProgressScaler::ScaleProgress(drawState->GetProgress<ResizeDuration * 4>(), (uint8_t)4);
+		const uint16_t progress = ProgressScaler::GetProgress<ResizeDuration>(frameTime);
+		const uint8_t x = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(frame->GetWidth() - 1));
+		const uint8_t y = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(frame->GetHeight() - 1));
+		uint8_t section = ProgressScaler::ScaleProgress(ProgressScaler::GetProgress<ResizeDuration * 4>(frameTime), (uint8_t)4);
 
-		//section = 2;
-
-		Frame->Line(Color, x, 0, x, Frame->GetHeight() - 1);
-		Frame->Line(Color, 0, y, Frame->GetWidth() - 1, y);
+		frame->Line(Color, x, 0, x, frame->GetHeight() - 1);
+		frame->Line(Color, 0, y, frame->GetWidth() - 1, y);
 
 		switch (section)
 		{
 		case 0:
-			for (size_t i = 0; i < Frame->GetHeight() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetHeight() / ScaleSkip; i++)
 			{
-				Frame->Line(Color, 0, i * ScaleSkip, x, (Frame->GetHeight() / 2) - 1);
+				frame->Line(Color, 0, i * ScaleSkip, x, (frame->GetHeight() / 2) - 1);
 			}
-			//Frame->Line(Color, x, 0, x, Frame->GetHeight() - 1);
 			break;
 		case 1:
-			for (size_t i = 0; i < Frame->GetHeight() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetHeight() / ScaleSkip; i++)
 			{
-				Frame->Line(Color, Frame->GetWidth() - 1, i * ScaleSkip, x, (Frame->GetHeight() / 2) - 1);
+				frame->Line(Color, frame->GetWidth() - 1, i * ScaleSkip, x, (frame->GetHeight() / 2) - 1);
 			}
-			//Frame->Line(Color, x, 0, x, Frame->GetHeight() - 1);
 			break;
 		case 2:
-			for (size_t i = 0; i < Frame->GetWidth() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetWidth() / ScaleSkip; i++)
 			{
-				Frame->Line(Color, (Frame->GetWidth() / 2) - 1, y, i * ScaleSkip, Frame->GetHeight() - 1);
+				frame->Line(Color, (frame->GetWidth() / 2) - 1, y, i * ScaleSkip, frame->GetHeight() - 1);
 			}
-			//Frame->Line(Color, 0, y, Frame->GetWidth() - 1, y);
 			break;
 		case 3:
-			for (size_t i = 0; i < Frame->GetWidth() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetWidth() / ScaleSkip; i++)
 			{
-				Frame->Line(Color, i * ScaleSkip, 0, (Frame->GetWidth() / 2) - 1, y);
+				frame->Line(Color, i * ScaleSkip, 0, (frame->GetWidth() / 2) - 1, y);
 			}
-			//Frame->Line(Color, 0, y, Frame->GetWidth() - 1, y);
 			break;
 		default:
 			break;
 		}
-		//switch (drawState->ElementIndex)
-		//{
-		//case (uint8_t)DrawElementsEnum::FullWhite:
-
-		//	//if (drawState->GetProgress<500000>() < UINT16_MAX / 2)
-		//	//{
-		//	//	Frame->Fill(Color);
-		//	//}
-
-		//	break;
-		//default:
-		//	break;
-		//}
 	}
 };
 #endif

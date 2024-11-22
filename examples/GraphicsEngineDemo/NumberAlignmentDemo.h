@@ -24,40 +24,41 @@ private:
 	TemplateFontStyle<FontStyle::WIDTH_RATIO_DEFAULT> DynamicFont;
 
 public:
-	NumberAlignmentDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
-	{}
+	NumberAlignmentDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
+	{
+	}
 
 	/// <summary>
 	/// ElementIndex can be used to separate draw calls, avoiding hogging the co-operative scheduler.
 	/// </summary>
-	virtual void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::DynamicText:
-			DrawRoamingText(drawState);
+			DrawRoamingText(frame, frameTime);
 			break;
 		default:
 			break;
 		}
 	}
 
-	void DrawRoamingText(DrawState* drawState)
+	void DrawRoamingText(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		static constexpr uint8_t minHeight = FontStyle::FONT_SIZE_MIN;
 		static constexpr uint8_t maxHeight = (Layout::Height() / 2) - 2;
 
 		const uint8_t y = 0;
-		const uint16_t sizeProgress = drawState->GetProgress<TextScalePeriodMicros>();
+		const uint16_t sizeProgress = ProgressScaler::GetProgress<TextScalePeriodMicros>(frameTime);
 		const uint8_t textHeight = minHeight + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(sizeProgress), (uint8_t)(maxHeight - minHeight + 1));
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+		const uint16_t colorProgress = ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime);
 
 
-		const uint16_t sectionProgress = drawState->GetProgress<TextScalePeriodMicros * CornerCount>();
+		const uint16_t sectionProgress = ProgressScaler::GetProgress<TextScalePeriodMicros * CornerCount>(frameTime);
 		const uint8_t section = ProgressScaler::ScaleProgress(sectionProgress, (uint8_t)(CornerCount));
 
-		const uint32_t number = drawState->FrameTime / NumberFactor;
+		const uint32_t number = frameTime / NumberFactor;
 
 		DynamicFont.SetSize(textHeight);
 		DynamicFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
@@ -67,16 +68,16 @@ public:
 		switch (section)
 		{
 		case 0:
-			NumberRenderer::NumberTopLeft(Frame, DynamicFont, Layout::X(), Layout::Y() + y, number);
+			NumberRenderer::NumberTopLeft(frame, DynamicFont, Layout::X(), Layout::Y() + y, number);
 			break;
 		case 1:
-			NumberRenderer::NumberTopRight(Frame, DynamicFont, Layout::X() + Layout::Width() - 1, Layout::Y() + y, number);
+			NumberRenderer::NumberTopRight(frame, DynamicFont, Layout::X() + Layout::Width() - 1, Layout::Y() + y, number);
 			break;
 		case 2:
-			NumberRenderer::NumberBottomRight(Frame, DynamicFont, Layout::X() + Layout::Width() - 1, Layout::Y() + Layout::Height() - 1, number);
+			NumberRenderer::NumberBottomRight(frame, DynamicFont, Layout::X() + Layout::Width() - 1, Layout::Y() + Layout::Height() - 1, number);
 			break;
 		case 3:
-			NumberRenderer::NumberBottomLeft(Frame, DynamicFont, Layout::X(), Layout::Y() + Layout::Height() - 1, number);
+			NumberRenderer::NumberBottomLeft(frame, DynamicFont, Layout::X(), Layout::Y() + Layout::Height() - 1, number);
 			break;
 		default:
 			break;

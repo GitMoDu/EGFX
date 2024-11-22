@@ -46,8 +46,8 @@ private:
 
 	enum class DrawElementsEnum : uint8_t
 	{
-		PrepareBitmap = 0,
-		DrawBitmapN = 1,
+		PrepareBitmap,
+		DrawBitmapN,
 		DrawElementsCount = (uint8_t)DrawBitmapN + BitmapLayout::BitmapDrawSteps()
 	};
 
@@ -59,40 +59,40 @@ private:
 	uint8_t y = 0;
 
 public:
-	BitmaskDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	BitmaskDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{}
 
-	void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::PrepareBitmap:
-			PrepareBitmask(drawState);
+			PrepareBitmask(frame, frameTime);
 			break;
 		default:
-			if (drawState->ElementIndex >= (uint8_t)DrawElementsEnum::DrawBitmapN
-				&& drawState->ElementIndex - (uint8_t)DrawElementsEnum::DrawBitmapN < BitmapLayout::BitmapDrawSteps())
+			if (elementIndex >= (uint8_t)DrawElementsEnum::DrawBitmapN
+				&& elementIndex - (uint8_t)DrawElementsEnum::DrawBitmapN < BitmapLayout::BitmapDrawSteps())
 			{
-				DrawBitmaskSection(drawState->ElementIndex - (uint8_t)DrawElementsEnum::DrawBitmapN);
+				DrawBitmaskSection(frame, elementIndex - (uint8_t)DrawElementsEnum::DrawBitmapN);
 			}
 			break;
 		}
 	}
 
 private:
-	void PrepareBitmask(DrawState* drawState)
+	void PrepareBitmask(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progressX = ProgressScaler::TriangleResponse(drawState->GetProgress<TranslationXDuration>());
-		const uint16_t progressY = ProgressScaler::TriangleResponse(drawState->GetProgress<TranslationYDuration>());
+		const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationXDuration>(frameTime));
+		const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationYDuration>(frameTime));
 
 		x = Layout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressX), BitmapLayout::UsableX());
 		y = Layout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressY), BitmapLayout::UsableY());
 
-		const uint16_t colorProgress = drawState->GetProgress<ColorDuration>();
-
-		if (Frame->GetColorDepth() > 1)
+		if (frame->GetColorDepth() > 1)
 		{
+			const uint16_t colorProgress = ProgressScaler::GetProgress<ColorDuration>(frameTime);
+
 			Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
 			Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 			Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
@@ -107,10 +107,10 @@ private:
 		DogeBit.SetColor(Color);
 	}
 
-	void DrawBitmaskSection(uint8_t index)
+	void DrawBitmaskSection(IFrameBuffer* frame, const uint8_t index)
 	{
 		SpriteRenderer::DrawPartial(
-			Frame, &DogeBit,
+			frame, &DogeBit,
 			x,
 			y,
 			0,

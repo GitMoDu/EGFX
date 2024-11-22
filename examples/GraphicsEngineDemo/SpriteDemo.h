@@ -70,8 +70,8 @@ private:
 	InvertYTransform<ArrowSprite::Height> ArrowInvertY{};
 
 public:
-	SpriteDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	SpriteDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
 		Ring.SetColor(UINT8_MAX, 0, UINT8_MAX);
 		Ring.SetTransparency(1);
@@ -79,21 +79,21 @@ public:
 		Arrow.SetColor(0, UINT8_MAX, 0);
 	}
 
-	void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::AnimatedExplosion:
-			DrawAnimatedExplosion(drawState);
+			DrawAnimatedExplosion(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::VerticalArrow:
-			DrawVerticalArrow(drawState);
+			DrawVerticalArrow(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::HorizontalArrow:
-			DrawHorizontalArrow(drawState);
+			DrawHorizontalArrow(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::DynamicRing:
-			DrawDynamicRing(drawState);
+			DrawDynamicRing(frame, frameTime);
 			break;
 		default:
 			break;
@@ -101,12 +101,12 @@ public:
 	}
 
 private:
-	void DrawAnimatedExplosion(DrawState* drawState)
+	void DrawAnimatedExplosion(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = drawState->GetProgress<AnimateDuration>();
-		const uint8_t frame = ProgressScaler::ScaleProgress(progress, (uint8_t)20);
+		const uint16_t progress = ProgressScaler::GetProgress<AnimateDuration>(frameTime);
+		const uint8_t animationFrame = ProgressScaler::ScaleProgress(progress, (uint8_t)20);
 
-		switch (frame)
+		switch (animationFrame)
 		{
 		case 0:
 		case 1:
@@ -145,58 +145,58 @@ private:
 			break;
 		}
 
-		SpriteRenderer::Draw(Frame, &AnimatedExplosion, ExplosionLayout::X(), ExplosionLayout::Y());
+		SpriteRenderer::Draw(frame, &AnimatedExplosion, ExplosionLayout::X(), ExplosionLayout::Y());
 	}
 
-	void DrawVerticalArrow(DrawState* drawState)
+	void DrawVerticalArrow(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = drawState->GetProgress<ScrollVerticalDuration>();
+		const uint16_t progress = ProgressScaler::GetProgress<ScrollVerticalDuration>(frameTime);
 		const uint8_t y = ArrowLayout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableY());
 
 		if (progress >= INT16_MAX)
 		{
-			SpriteRenderer::Draw(Frame, &Arrow, ArrowLayout::X(), y);
+			SpriteRenderer::Draw(frame, &Arrow, ArrowLayout::X(), y);
 		}
 		else
 		{
-			SpriteRenderer::TransformDraw(Frame, &Arrow, &ArrowInvertY, ArrowLayout::X(), y);
+			SpriteRenderer::TransformDraw(frame, &Arrow, &ArrowInvertY, ArrowLayout::X(), y);
 		}
 	}
 
-	void DrawHorizontalArrow(DrawState* drawState)
+	void DrawHorizontalArrow(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = drawState->GetProgress<ScrollHorizontalDuration>();
+		const uint16_t progress = ProgressScaler::GetProgress<ScrollHorizontalDuration>(frameTime);
 		const uint8_t x = ArrowLayout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableX());
 
 		if (progress >= INT16_MAX)
 		{
 			SpriteRenderer::TransformDraw(
-				Frame, &Arrow, &ArrowInvert,
+				frame, &Arrow, &ArrowInvert,
 				x, ArrowLayout::Y());
 		}
 		else
 		{
 			SpriteRenderer::TransformDraw(
-				Frame, &Arrow, &ArrowFlipInvertX,
+				frame, &Arrow, &ArrowFlipInvertX,
 				x, ArrowLayout::Y());
 		}
 	}
 
-	void DrawDynamicRing(DrawState* drawState)
+	void DrawDynamicRing(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = drawState->GetProgress<RingResizeDuration>();
+		const uint16_t progress = ProgressScaler::GetProgress<RingResizeDuration>(frameTime);
 		const uint8_t outerRadius = RingLayout::MinRadius() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), RingLayout::RadiusRange());
 		const uint8_t innerRadius = outerRadius - RingLayout::RingWidth();
 
-		const uint16_t progressX = ProgressScaler::TriangleResponse(drawState->GetProgress<ScrollHorizontalDuration * 5>());
-		const uint16_t progressY = ProgressScaler::TriangleResponse(drawState->GetProgress<ScrollVerticalDuration * 3>());
+		const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<ScrollHorizontalDuration * 5>(frameTime));
+		const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<ScrollVerticalDuration * 3>(frameTime));
 
 		const uint8_t x = Layout::X() + ProgressScaler::ScaleProgress(progressX, Layout::Width()) - outerRadius;
 		const uint8_t y = Layout::Y() + ProgressScaler::ScaleProgress(progressY, Layout::Height()) - outerRadius;
 
 		Ring.SetRadius(innerRadius, outerRadius);
 
-		SpriteRenderer::Draw(Frame, &Ring, x, y);
+		SpriteRenderer::Draw(frame, &Ring, x, y);
 	}
 };
 #endif

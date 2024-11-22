@@ -21,7 +21,8 @@ public:
 		IFrameEngine* engine)
 		: TS::Task(LogPeriodMillis, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
-	{}
+	{
+	}
 
 public:
 	bool Callback() final

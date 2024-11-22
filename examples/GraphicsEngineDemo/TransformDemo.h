@@ -47,8 +47,8 @@ private:
 	int8_t Angle = 0;
 
 public:
-	TransformDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	TransformDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
 		Heart.SetColor(UINT8_MAX, 0, 0);
 
@@ -62,18 +62,18 @@ public:
 		Pyramid.SetColor2(0xFF, 0xd3, 0x91);
 	}
 
-	void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::Skew:
-			DrawSkew(drawState);
+			DrawSkew(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::Scale:
-			DrawScale(drawState);
+			DrawScale(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::Rotate:
-			DrawRotate(drawState);
+			DrawRotate(frame, frameTime);
 			break;
 		default:
 			break;
@@ -81,17 +81,17 @@ public:
 	}
 
 private:
-	void DrawSkew(DrawState* drawState)
+	void DrawSkew(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t sectionProgress = drawState->GetProgress<SkewDuration * 2>();
-		const uint16_t progress = drawState->GetProgress<SkewDuration>() + (INT16_MAX / 2);
+		const uint16_t sectionProgress = ProgressScaler::GetProgress<SkewDuration * 2>(frameTime);
+		const uint16_t progress = ProgressScaler::GetProgress<SkewDuration>(frameTime) + (INT16_MAX / 2);
 
 		if (ProgressScaler::ScaleProgress(sectionProgress, (uint8_t)2) == 0)
 		{
 			const int8_t skew = -(int16_t)RectangleLayout::Width() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Width() * 2));
 			RectangleHorizontalSkewer.SetSkewX(skew);
 			
-			SpriteRenderer::TransformDraw(Frame, &Rectangle, &RectangleHorizontalSkewer,
+			SpriteRenderer::TransformDraw(frame, &Rectangle, &RectangleHorizontalSkewer,
 				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
 		}
 		else
@@ -99,31 +99,31 @@ private:
 			const int8_t skew = -(int16_t)RectangleLayout::Height() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Height() * 2));
 			RectangleVerticalSkewer.SetSkewY(skew);
 			
-			SpriteRenderer::TransformDraw(Frame, &Rectangle, &RectangleVerticalSkewer,
+			SpriteRenderer::TransformDraw(frame, &Rectangle, &RectangleVerticalSkewer,
 				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
 		}	
 	}
 
-	void DrawScale(DrawState* drawState)
+	void DrawScale(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = ProgressScaler::TriangleResponse(drawState->GetProgress<ScaleDuration>());
+		const uint16_t progress = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<ScaleDuration>(frameTime));
 		const uint8_t downScale = ProgressScaler::ScaleProgress(progress, (uint8_t)(HeartSprite::Width - 1));
 
 		HeartDownScaler.SetDownScaleXY(downScale);
 
 		SpriteRenderer::TransformDraw(
-			Frame, &Heart, &HeartDownScaler,
+			frame, &Heart, &HeartDownScaler,
 			Layout::X() + (downScale / 2), Layout::Y() + (((uint16_t)Layout::Height() * 2) / 3) - (HeartSprite::Height / 2) + (downScale / 2));
 	}
 
-	void DrawRotate(DrawState* drawState)
+	void DrawRotate(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = drawState->GetProgress<RotationDuration>();
+		const uint16_t progress = ProgressScaler::GetProgress<RotationDuration>(frameTime);
 		const int16_t angle = ProgressScaler::ScaleProgress(progress, (uint16_t)360);
 
 		PyramidRotator.SetRotation(angle);
 
-		SpriteRenderer::TransformDraw(Frame, &Pyramid, &PyramidRotator,
+		SpriteRenderer::TransformDraw(frame, &Pyramid, &PyramidRotator,
 			(Layout::Width() - PyramidSprite::Width) / 2,
 			(Layout::Height() - PyramidSprite::Height) / 2);
 	}

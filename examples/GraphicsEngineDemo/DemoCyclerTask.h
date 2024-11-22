@@ -25,24 +25,24 @@ private:
 	MultiDrawerWrapper<2> DrawerWrapper{};
 
 private:
-	ElementDrawer* FpsOverlay;
-	ElementDrawer* Demos[MaxDemoCount];
+	IFrameDraw* FpsOverlay;
+	IFrameDraw* Demos[MaxDemoCount];
 	uint8_t Index = 0;
 
 public:
 	DemoCyclerTask(TS::Scheduler* scheduler,
 		IFrameEngine* engine,
-		ElementDrawer* fpsOverlay,
-		ElementDrawer* demo0 = nullptr,
-		ElementDrawer* demo1 = nullptr,
-		ElementDrawer* demo2 = nullptr,
-		ElementDrawer* demo3 = nullptr,
-		ElementDrawer* demo4 = nullptr,
-		ElementDrawer* demo5 = nullptr,
-		ElementDrawer* demo6 = nullptr,
-		ElementDrawer* demo7 = nullptr,
-		ElementDrawer* demo8 = nullptr,
-		ElementDrawer* demo9 = nullptr
+		IFrameDraw* fpsOverlay,
+		IFrameDraw* demo0 = nullptr,
+		IFrameDraw* demo1 = nullptr,
+		IFrameDraw* demo2 = nullptr,
+		IFrameDraw* demo3 = nullptr,
+		IFrameDraw* demo4 = nullptr,
+		IFrameDraw* demo5 = nullptr,
+		IFrameDraw* demo6 = nullptr,
+		IFrameDraw* demo7 = nullptr,
+		IFrameDraw* demo8 = nullptr,
+		IFrameDraw* demo9 = nullptr
 	)
 		: TS::Task(0, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
@@ -52,7 +52,7 @@ public:
 		Engine->SetDrawer(&DrawerWrapper);
 		DrawerWrapper.ClearDrawers();
 		DrawerWrapper.AddDrawer(demo0);
-		DrawerWrapper.AddDrawer(FpsOverlay);
+		DrawerWrapper.AddDrawer(fpsOverlay);
 	}
 
 	bool Callback() final

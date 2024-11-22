@@ -5,7 +5,7 @@
 
 #include <ArduinoGraphicsDrawer.h>
 
-class LineUnitTester : public ElementDrawer
+class LineUnitTester : public IFrameDraw
 {
 public:
 	enum class LineTestEnum : uint8_t
@@ -31,17 +31,17 @@ private:
 	const LineTestEnum FixedTest = LineTestEnum::LineTestEnumCount;
 
 public:
-	LineUnitTester(IFrameBuffer* frame, const LineTestEnum fixedTest = LineTestEnum::LineTestEnumCount)
-		: ElementDrawer(frame, 1)
+	LineUnitTester(const LineTestEnum fixedTest = LineTestEnum::LineTestEnumCount)
+		: IFrameDraw()
 		, FixedTest(fixedTest)
 	{}
 
-	virtual void DrawCall(DrawState* drawState) final
+	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 	{
-		const uint16_t progress = drawState->GetProgress<ResizeDuration>();
-		const uint16_t sectionProgress = drawState->GetProgress<ResizeDuration * (uint32_t)LineTestEnum::LineTestEnumCount>();
+		const uint16_t progress = ProgressScaler::GetProgress<ResizeDuration>(frameTime);
+		const uint16_t sectionProgress = ProgressScaler::GetProgress<ResizeDuration * (uint32_t)LineTestEnum::LineTestEnumCount>(frameTime);
 
-		const uint8_t move = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)min(Frame->GetHeight() - 1, Frame->GetWidth() - 1));
+		const uint8_t move = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)min(frame->GetHeight() - 1, frame->GetWidth() - 1));
 		LineTestEnum section = (LineTestEnum)ProgressScaler::ScaleProgress(sectionProgress, (uint8_t)LineTestEnum::LineTestEnumCount);
 
 		if (FixedTest == LineTestEnum::LineTestEnumCount)
@@ -90,32 +90,34 @@ public:
 		switch (section)
 		{
 		case LineTestEnum::RightUp:
-			Frame->Line(Color, 0, 0, Frame->GetWidth() - 1, move);
+			frame->Line(Color, 0, 0, frame->GetWidth() - 1, move);
 			break;
 		case LineTestEnum::RightDown:
-			Frame->Line(Color, 0, move, Frame->GetWidth() - 1, 0);
+			frame->Line(Color, 0, move, frame->GetWidth() - 1, 0);
 			break;
 		case LineTestEnum::LeftUp:
-			Frame->Line(Color, Frame->GetWidth() - 1, 0, 0, move);
+			frame->Line(Color, frame->GetWidth() - 1, 0, 0, move);
 			break;
 		case LineTestEnum::LeftDown:
-			Frame->Line(Color, Frame->GetWidth() - 1, move, 0, 0);
+			frame->Line(Color, frame->GetWidth() - 1, move, 0, 0);
 			break;
 		case LineTestEnum::UpRight:
-			Frame->Line(Color, 0, 0, move, Frame->GetHeight() - 1);
+			frame->Line(Color, 0, 0, move, frame->GetHeight() - 1);
 			break;
 		case LineTestEnum::UpLeft:
-			Frame->Line(Color, move, 0, 0, Frame->GetHeight() - 1);
+			frame->Line(Color, move, 0, 0, frame->GetHeight() - 1);
 			break;
 		case LineTestEnum::DownRight:
-			Frame->Line(Color, 0, Frame->GetHeight() - 1, move, 0);
+			frame->Line(Color, 0, frame->GetHeight() - 1, move, 0);
 			break;
 		case LineTestEnum::DownLeft:
-			Frame->Line(Color, move, Frame->GetHeight() - 1, 0, 0);
+			frame->Line(Color, move, frame->GetHeight() - 1, 0, 0);
 			break;
 		default:
 			break;
 		}
+
+		return true;
 	}
 };
 #endif

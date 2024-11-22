@@ -6,53 +6,45 @@
 #include "ElementDrawer.h"
 
 /// <summary>
-/// Abstracts a list of ElementDrawers as an IFrameDraw.
-/// Fires DrawCalls on ElementDrawers with corrected ElementIndex.
-/// Drawers can be added and removed at runtime.
+/// Abstracts a list of IFrameDraw layers as a single IFrameDraw.
+/// Forwards DrawCalls to layers until each is done or frame changed.
+/// Layers can be added and removed at runtime.
 /// </summary>
-/// <typeparam name="MaxDrawersCount"></typeparam>
-template<const uint8_t MaxDrawersCount = 5>
+/// <typeparam name="MaxLayerCount"></typeparam>
+template<const uint8_t MaxLayerCount = 5>
 class MultiDrawerWrapper : public virtual IFrameDraw
 {
 private:
-	DrawState State{};
-	uint16_t ElementIndex = 0;
-
-private:
-	ElementDrawer* Drawers[MaxDrawersCount]{};
-	uint8_t DrawersCount = 0;
+	IFrameDraw* Drawers[MaxLayerCount]{};
+	uint16_t LastFrame = 0;
+	uint8_t LayerIndex = 0;
+	uint8_t LayersCount = 0;
 
 public:
 	MultiDrawerWrapper() : IFrameDraw()
-	{}
+	{
+	}
 
-public:
 	void ClearDrawers()
 	{
-		DrawersCount = 0;
-		ElementIndex = 0;
+		LayersCount = 0;
+		LayerIndex = 0;
 	}
 
-	const uint16_t GetElementsCount()
+	const bool AddDrawer(IFrameDraw& drawer)
 	{
-		uint16_t total = 0;
-		for (uint8_t i = 0; i < DrawersCount; i++)
-		{
-			total += Drawers[i]->GetElementsCount();
-		}
-
-		return total;
+		return AddDrawer(&drawer);
 	}
 
-	const bool AddDrawer(ElementDrawer* drawer)
+	const bool AddDrawer(IFrameDraw* drawer)
 	{
 		if (drawer != nullptr
-			&& DrawersCount < MaxDrawersCount)
+			&& LayersCount < MaxLayerCount)
 		{
-			Drawers[DrawersCount] = drawer;
-			DrawersCount++;
+			Drawers[LayersCount] = drawer;
+			LayersCount++;
 
-			ElementIndex %= GetElementsCount();
+			LayerIndex = 0;
 
 			return true;
 		}
@@ -60,35 +52,26 @@ public:
 		return false;
 	}
 
-	virtual const bool DrawToFrame(const uint32_t frameTime, const uint16_t frameCounter) final
+	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 	{
-		State.FrameTime = frameTime;
-		State.FrameCounter = frameCounter;
-
-		uint16_t base = 0;
-		uint8_t singleCount = 0;
-		for (uint8_t i = 0; i < DrawersCount; i++)
+		if (frameCounter != LastFrame
+			&& LayerIndex != 0)
 		{
-			singleCount = Drawers[i]->GetElementsCount();
+			LastFrame = frameCounter;
+			LayerIndex = 0;
 
-			// Find index of the current drawer from global ElementIndex.
-			if (ElementIndex < (base + singleCount))
-			{
-				// Translate ElementIndex from global to Drawer local.
-				State.ElementIndex = ElementIndex - base;
-				Drawers[i]->DrawCall(&State);
-				break;
-			}
-			else
-			{
-				base += singleCount;
-			}
+			return true;
 		}
 
-		ElementIndex++;
-		if (ElementIndex >= GetElementsCount())
+		if (Drawers[LayerIndex]->DrawCall(frame, frameTime, frameCounter))
 		{
-			ElementIndex = 0;
+			LayerIndex++;
+		}
+
+		if (LayerIndex >= LayersCount)
+		{
+			LastFrame = frameCounter + 1;
+			LayerIndex = 0;
 
 			return true;
 		}

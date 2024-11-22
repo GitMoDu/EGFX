@@ -40,15 +40,15 @@ public:
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{}
 
-	void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::PrepareDraw:
-			PrepareDraw(drawState);
+			PrepareDraw(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::DrawRainDrops:
-			DrawRainDrops();
+			DrawRainDrops(frame);
 			break;
 		default:
 			break;
@@ -56,14 +56,14 @@ public:
 	}
 
 private:
-	void PrepareDraw(DrawState* drawState)
+	void PrepareDraw(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = drawState->GetProgress<RainVariationDuration>();
-		const uint16_t colorProgress = drawState->GetProgress<ColorPeriod>();
+		const uint16_t progress = ProgressScaler::GetProgress<RainVariationDuration>(frameTime);
+		const uint16_t colorProgress = ProgressScaler::GetProgress<ColorPeriod>(frameTime);
 
 		droplets = 1 + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)RainDropsPerFrame);
 
-		if (Frame->GetColorDepth() > 1)
+		if (frame->GetColorDepth() > 1)
 		{
 			Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 4) / 3)), (uint8_t)(UINT8_MAX / 5));
 			Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)(UINT8_MAX / 2));
@@ -79,34 +79,34 @@ private:
 		RainDrop.SetColor(Color);
 	}
 
-	void DrawRainDrops()
+	void DrawRainDrops(IFrameBuffer* frame)
 	{
 		switch (droplets)
 		{
 		case 1:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 2:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 3:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 4:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 5:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
@@ -114,7 +114,7 @@ private:
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 6:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
@@ -123,7 +123,7 @@ private:
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 7:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
@@ -133,7 +133,7 @@ private:
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 8:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
@@ -144,7 +144,7 @@ private:
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 9:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
@@ -156,7 +156,7 @@ private:
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
 			break;
 		case 10:
-			SpriteRenderer::Draw(Frame, &RainDrop,
+			SpriteRenderer::Draw(frame, &RainDrop,
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
 				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),

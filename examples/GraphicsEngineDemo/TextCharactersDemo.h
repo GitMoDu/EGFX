@@ -26,30 +26,30 @@ private:
 	FontStyle SmallFont{};
 
 public:
-	TextCharactersDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	TextCharactersDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
 		SmallFont.SetHeight(FontStyle::FONT_SIZE_REGULAR);
 	}
 
-	virtual void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::UpperCase1:
-			DrawUpperCase1(drawState);
+			DrawUpperCase1(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::UpperCase2:
-			DrawUpperCase2(drawState);
+			DrawUpperCase2(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::LowerCase1:
-			DrawLowerCase1(drawState);
+			DrawLowerCase1(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::LowerCase2:
-			DrawLowerCase2(drawState);
+			DrawLowerCase2(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::Numbers:
-			DrawNumbers(drawState);
+			DrawNumbers(frame, frameTime);
 			break;
 		default:
 			break;
@@ -57,132 +57,132 @@ public:
 	}
 
 private:
-	void DrawUpperCase1(DrawState* drawState)
+	void DrawUpperCase1(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+		const uint16_t colorProgress = ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime);
 
 		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
 		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		if (ShowUpperCase1())
+		if (ShowUpperCase1(frame))
 		{
-			if (ShowFullSet())
+			if (ShowFullSet(frame))
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, 0, F("ABCDEFGHIJKLM"));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, 0, F("ABCDEFGHIJKLM"));
 			}
 			else
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, 0, F("ABCDEFG"));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, 0, F("ABCDEFG"));
 			}
 		}
 	}
 
-	void DrawUpperCase2(DrawState* drawState)
+	void DrawUpperCase2(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+		const uint16_t colorProgress = ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime);
 
 		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
 		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		if (ShowUpperCase2())
+		if (ShowUpperCase2(frame))
 		{
-			if (ShowFullSet())
+			if (ShowFullSet(frame))
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, SmallFont.Height + 1, F("NOPQRSTUVWXYZ"));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, SmallFont.Height + 1, F("NOPQRSTUVWXYZ"));
 			}
 			else
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, SmallFont.Height + 1, F("HIJKLMN"));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, SmallFont.Height + 1, F("HIJKLMN"));
 			}
 		}
 	}
 
-	void DrawLowerCase1(DrawState* drawState)
+	void DrawLowerCase1(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+		const uint16_t colorProgress = ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime);
 
 		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
 		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		if (ShowLowerCase1())
+		if (ShowLowerCase1(frame))
 		{
-			if (ShowFullSet())
+			if (ShowFullSet(frame))
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("abcdefghijklm"));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("abcdefghijklm"));
 			}
 			else
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("OPQRSTU"));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, (SmallFont.Height + 1) * 2, F("OPQRSTU"));
 			}
 		}
 	}
 
-	void DrawLowerCase2(DrawState* drawState)
+	void DrawLowerCase2(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+		const uint16_t colorProgress = ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime);
 
 		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
 		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		if (ShowLowerCase2())
+		if (ShowLowerCase2(frame))
 		{
-			if (ShowFullSet())
+			if (ShowFullSet(frame))
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("nopqrstuvwxyz"));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("nopqrstuvwxyz"));
 			}
 			else
 			{
-				TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("VWXYZ-,."));
+				TextRenderer::TextTopLeft(frame, SmallFont, 0, (SmallFont.Height + 1) * 3, F("VWXYZ-,."));
 			}
 		}
 	}
 
-	void DrawNumbers(DrawState* drawState)
+	void DrawNumbers(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t colorProgress = drawState->GetProgress<TextColorPeriodMicros>();
+		const uint16_t colorProgress = ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime);
 
 		SmallFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
 		SmallFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
 		SmallFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
 
-		if (ShowNumbers())
+		if (ShowNumbers(frame))
 		{
-			TextRenderer::TextTopLeft(Frame, SmallFont, 0, (SmallFont.Height + 1) * 4, F("1234567890"));
+			TextRenderer::TextTopLeft(frame, SmallFont, 0, (SmallFont.Height + 1) * 4, F("1234567890"));
 		}
 	}
 
-	const bool ShowFullSet()
+	const bool ShowFullSet(IFrameBuffer* frame)
 	{
-		return Frame->GetWidth() > SmallFont.GetTextWidth(13) + 1;
+		return frame->GetWidth() > SmallFont.GetTextWidth(13) + 1;
 	}
 
-	const bool ShowUpperCase1()
+	const bool ShowUpperCase1(IFrameBuffer* frame)
 	{
-		return Frame->GetHeight() >= SmallFont.Height;
+		return frame->GetHeight() >= SmallFont.Height;
 	}
 
-	const bool ShowUpperCase2()
+	const bool ShowUpperCase2(IFrameBuffer* frame)
 	{
-		return ShowUpperCase1() && (Frame->GetHeight() > ((SmallFont.Height * 2) + 1));
+		return ShowUpperCase1(frame) && (frame->GetHeight() > ((SmallFont.Height * 2) + 1));
 	}
 
-	const bool ShowLowerCase1()
+	const bool ShowLowerCase1(IFrameBuffer* frame)
 	{
-		return ShowUpperCase2() && (Frame->GetHeight() > ((SmallFont.Height * 3) + 2));
+		return ShowUpperCase2(frame) && (frame->GetHeight() > ((SmallFont.Height * 3) + 2));
 	}
 
-	const bool ShowLowerCase2()
+	const bool ShowLowerCase2(IFrameBuffer* frame)
 	{
-		return ShowLowerCase1() && (Frame->GetHeight() > ((SmallFont.Height * 4) + 3));
+		return ShowLowerCase1(frame) && (frame->GetHeight() > ((SmallFont.Height * 4) + 3));
 	}
 
-	const bool ShowNumbers()
+	const bool ShowNumbers(IFrameBuffer* frame)
 	{
-		return ShowLowerCase2() && (Frame->GetHeight() > ((SmallFont.Height * 5) + 4));
+		return ShowLowerCase2(frame) && (frame->GetHeight() > ((SmallFont.Height * 5) + 4));
 	}
 };
 #endif

@@ -61,47 +61,47 @@ public:
 	TextSpriteDemo(IFrameBuffer* frame)
 		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		BigDrawer.SetColor1(RgbColor{ UINT8_MAX / 4 ,UINT8_MAX / 4 ,UINT8_MAX / 4 });
+		BigDrawer.SetColor1(RgbColor{ UINT8_MAX / 3 ,UINT8_MAX / 3 ,UINT8_MAX / 3 });
 	}
 
-	virtual void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::BigLine1:
-			DrawBigLine1(drawState);
+			DrawBigLine1(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::BigLine2:
-			DrawBigLine2(drawState);
+			DrawBigLine2(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::BigLine3:
-			DrawBigLine3(drawState);
+			DrawBigLine3(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::SmallLine1:
-			DrawSmallLine1(drawState);
+			DrawSmallLine1(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::SmallLine2:
-			DrawSmallLine2(drawState);
+			DrawSmallLine2(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::SmallLine3:
-			DrawSmallLine3(drawState);
+			DrawSmallLine3(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::TinyLine1:
-			if (Frame->GetColorDepth() >= 8)
+			if (frame->GetColorDepth() >= 8)
 			{
-				DrawTinyLine1();
+				DrawTinyLine1(frame);
 			}
 			break;
 		case (uint8_t)DrawElementsEnum::TinyLine2:
-			if (Frame->GetColorDepth() >= 8)
+			if (frame->GetColorDepth() >= 8)
 			{
-				DrawTinyLine2();
+				DrawTinyLine2(frame);
 			}
 			break;
 		case (uint8_t)DrawElementsEnum::MicroLine:
-			if (Frame->GetColorDepth() >= 8)
+			if (frame->GetColorDepth() >= 8)
 			{
-				DrawMicroLine();
+				DrawMicroLine(frame);
 			}
 			break;
 		default:
@@ -110,102 +110,102 @@ public:
 	}
 
 private:
-	void DrawBigLine1(DrawState* drawState)
+	void DrawBigLine1(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>());
+		SetColorByProgress(ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime));
 		BigDrawer.SetColor2(Color);
 
-		BigDrawer.TextTopLeft(Frame,
+		BigDrawer.TextTopLeft(frame,
 			TextLayout::BigLine1::X(), TextLayout::BigLine1::Y(),
 			F("ABCDEFGHIJKLM")
 		);
 	}
 
-	void DrawBigLine2(DrawState* drawState)
+	void DrawBigLine2(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + (INT16_MAX / 3));
+		SetColorByProgress(ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime) + (INT16_MAX / 3));
 		BigDrawer.SetColor2(Color);
 
-		BigDrawer.TextTopLeft(Frame,
+		BigDrawer.TextTopLeft(frame,
 			TextLayout::BigLine2::X(), TextLayout::BigLine2::Y(),
 			F("NOPQRSTUVWXYZ")
 		);
 	}
 
-	void DrawBigLine3(DrawState* drawState)
+	void DrawBigLine3(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + (2 * (INT16_MAX / 3)));
+		SetColorByProgress(ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime) + (2 * (INT16_MAX / 3)));
 		BigDrawer.SetColor2(Color);
 
-		BigDrawer.TextTopLeft(Frame,
+		BigDrawer.TextTopLeft(frame,
 			TextLayout::BigLine3::X(), TextLayout::BigLine3::Y(),
 			F("0123456789!?.,+-=")
 		);
 	}
 
-	void DrawSmallLine1(DrawState* drawState)
+	void DrawSmallLine1(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>());
+		SetColorByProgress(ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime));
 		SmallDrawer.SetColor(Color);
 
-		SmallDrawer.TextTopLeft(Frame,
+		SmallDrawer.TextTopLeft(frame,
 			TextLayout::SmallLine1::X(), TextLayout::SmallLine1::Y(),
 			F("ABCDEFGHIJKLM")
 		);
 	}
 
-	void DrawSmallLine2(DrawState* drawState)
+	void DrawSmallLine2(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + (INT16_MAX / 3));
+		SetColorByProgress(ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime) + (INT16_MAX / 3));
 		SmallDrawer.SetColor(Color);
 
-		SmallDrawer.TextTopLeft(Frame,
+		SmallDrawer.TextTopLeft(frame,
 			TextLayout::SmallLine2::X(), TextLayout::SmallLine2::Y(),
 			F("NOPQRSTUVWXYZ")
 		);
 	}
 
-	void DrawSmallLine3(DrawState* drawState)
+	void DrawSmallLine3(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		SetColorByProgress(drawState->GetProgress<TextColorPeriodMicros>() + (2 * (INT16_MAX / 3)));
+		SetColorByProgress(ProgressScaler::GetProgress<TextColorPeriodMicros>(frameTime) + (2 * (INT16_MAX / 3)));
 		SmallDrawer.SetColor(Color);
 
-		SmallDrawer.TextTopLeft(Frame,
+		SmallDrawer.TextTopLeft(frame,
 			TextLayout::SmallLine3::X(), TextLayout::SmallLine3::Y(),
 			F("0123456789!?.,+-=")
 		);
 	}
 
-	void DrawTinyLine1()
+	void DrawTinyLine1(IFrameBuffer* frame)
 	{
 		if (TextLayout::TinyLine1::Height() > 0
 			&& TextLayout::TinyLine1::Y() < Layout::Height())
 		{
-			TinyDrawer.TextTopLeft(Frame,
+			TinyDrawer.TextTopLeft(frame,
 				TextLayout::TinyLine1::X(), TextLayout::TinyLine1::Y(),
 				F("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 			);
 		}
 	}
 
-	void DrawTinyLine2()
+	void DrawTinyLine2(IFrameBuffer* frame)
 	{
 		if (TextLayout::TinyLine1::Height() > 0
 			&& TextLayout::TinyLine1::Y() < Layout::Height())
 		{
-			TinyDrawer.TextTopLeft(Frame,
+			TinyDrawer.TextTopLeft(frame,
 				TextLayout::TinyLine2::X(), TextLayout::TinyLine2::Y(),
 				F("0123456789!?.,+-=")
 			);
 		}
 	}
 
-	void DrawMicroLine()
+	void DrawMicroLine(IFrameBuffer* frame)
 	{
 		if (TextLayout::MicroLine::Height() > 0
 			&& TextLayout::MicroLine::Y() < Layout::Height())
 		{
-			MicroDrawer.TextTopLeft(Frame,
+			MicroDrawer.TextTopLeft(frame,
 				TextLayout::MicroLine::X(), TextLayout::MicroLine::Y(),
 				F("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?.,+-=")
 			);

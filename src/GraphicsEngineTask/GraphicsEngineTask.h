@@ -261,7 +261,7 @@ public:
 #endif
 			if (Drawer != nullptr)
 			{
-				if (Drawer->DrawToFrame(FrameTime, FrameCounter))
+				if (Drawer->DrawCall(FrameBuffer, FrameTime, FrameCounter))
 				{
 #if defined(GRAPHICS_ENGINE_MEASURE)
 					RenderDuration = micros() - FrameTime;

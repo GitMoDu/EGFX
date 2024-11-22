@@ -4,6 +4,7 @@
 #define _I_FRAME_DRAW_h
 
 #include <stdint.h>
+#include "IFrameBuffer.h"
 
 class IFrameDraw
 {
@@ -14,7 +15,7 @@ public:
 	/// <param name="frameTime">Current frame time in microseconds.</param>
 	/// <param name="frameCounter">Current frame being rendered.</param>
 	/// <returns>True when all drawing is done for this frame.</returns>
-	virtual const bool DrawToFrame(const uint32_t frameTime, const uint16_t frameCounter) { return false; }
+	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) { return true; }
 };
 
 #endif

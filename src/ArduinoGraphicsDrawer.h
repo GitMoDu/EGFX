@@ -8,7 +8,6 @@
 #include "Model/FontStyle.h"
 #include "Model/GraphicsBuffer.h"
 
-#include "Drawer/DrawState.h"
 #include "Drawer/ElementDrawer.h"
 #include "Drawer/LayoutElement.h"
 #include "Drawer/MultiDrawerWrapper.h"

@@ -41,19 +41,20 @@ private:
 	IFrameEngine* FrameEngine;
 
 public:
-	DisplayFpsDrawer(IFrameBuffer* frame, IFrameEngine* frameEngine)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	DisplayFpsDrawer(IFrameEngine* frameEngine)
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 		, FrameEngine(frameEngine)
-	{}
+	{
+	}
 
 	FontRendererType& GetFontRenderer()
 	{
 		return TextDrawer;
 	}
 
-	virtual void DrawCall(DrawState* drawState) final
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
-		switch (drawState->ElementIndex)
+		switch (elementIndex)
 		{
 		case (uint8_t)DrawElementsEnum::CalculateFrameRate:
 			FramePeriodAverage = (FramePeriodAverage + FrameEngine->GetFrameDuration()) / 2;
@@ -69,7 +70,7 @@ public:
 		case (uint8_t)DrawElementsEnum::Number:
 			if (FrameRate > 999)
 			{
-				TextDrawer.TextTopLeft(Frame, GetX(), GetY(), F("999+"));
+				TextDrawer.TextTopLeft(frame, GetX(), GetY(), F("999+"));
 			}
 			else
 			{
@@ -77,15 +78,15 @@ public:
 				{
 					if (FrameRate > 99)
 					{
-						TextDrawer.Write(Frame, GetX(), GetY(), '0' + (FrameRate / 100) % 10);
+						TextDrawer.Write(frame, GetX(), GetY(), '0' + (FrameRate / 100) % 10);
 					}
-					TextDrawer.Write(Frame, GetX() + TextWidth(1), GetY(), '0' + ((FrameRate / 10) % 10));
+					TextDrawer.Write(frame, GetX() + TextWidth(1), GetY(), '0' + ((FrameRate / 10) % 10));
 				}
-				TextDrawer.Write(Frame, GetX() + TextWidth(2), GetY(), '0' + (FrameRate % 10));
+				TextDrawer.Write(frame, GetX() + TextWidth(2), GetY(), '0' + (FrameRate % 10));
 			}
 			break;
 		case (uint8_t)DrawElementsEnum::Label:
-			TextDrawer.TextTopLeft(Frame, GetX() + TextWidth(4), GetY(), F("FPS"));
+			TextDrawer.TextTopLeft(frame, GetX() + TextWidth(4), GetY(), F("FPS"));
 			break;
 		default:
 			break;

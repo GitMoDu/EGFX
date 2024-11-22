@@ -104,7 +104,7 @@ EngineLogTask<1000> EngineLog(&SchedulerBase, &GraphicsEngine);
 #endif
 
 // Visual Unit Tests.
-LineUnitTester LineUnitTest(&FrameBuffer);
+LineUnitTester LineUnitTest{};
 
 
 void halt()

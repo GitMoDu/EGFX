@@ -114,19 +114,19 @@ TS::Scheduler SchedulerBase;
 //ScreenDriverSSD1306_64x32x1_I2C_Async<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_72x40x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+//ScreenDriverSSD1306_128x32x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
 //ScreenDriverSSD1306_128x64x1_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
-//ScreenDriverSSD1331_96x64x8_SPI_Dma<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
+//ScreenDriverSSD1331_96x64x8_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
-
 
 //ScreenDriverSSD1331_96x64x16_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //ScreenDriverSSD1351_128x128x16_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //ScreenDriverST7789_240x240x16_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
 //ScreenDriverST7735S_160x80x16_SPI<TFT_DC, TFT_CS, TFT_RST, TFT_CLK, TFT_MOSI, TFT_SPI, TFT_SPI_HZ> ScreenDriver{};
-using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+//using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight, 4>;
 
 
 // The layout of drawers can be set independently of screen dimensions.
@@ -149,23 +149,24 @@ GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, F
 //
 
 // Drawer demos.
-BitmaskDemo<FullLayout> BitmaskDemoDrawer(&FrameBuffer);
+BitmaskDemo<FullLayout> BitmaskDemoDrawer{};
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
-TransformDemo<FullLayout> TransformDemoDrawer(&FrameBuffer);
-SpriteDemo<FullLayout> SpriteDemoDrawer(&FrameBuffer);
-TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
-PrimitiveDemo<FullLayout> PrimitiveDemoDrawer(&FrameBuffer);
+PrimitiveDemo<FullLayout> PrimitiveDemoDrawer{};
+TransformDemo<FullLayout> TransformDemoDrawer{};
+SpriteDemo<FullLayout> SpriteDemoDrawer{};
+TextCharactersDemo TextCharactersDemoDrawer{};
+PrimitiveDemo<FullLayout> PrimitiveDemoDrawer{};
 #endif
 #else
-TransformDemo<FullLayout> TransformDemoDrawer(&FrameBuffer);
-NumberAlignmentDemo<FullLayout> NumberAlignmentDemoDrawer(&FrameBuffer);
-SpriteDemo<FullLayout> SpriteDemoDrawer(&FrameBuffer);
-TextCharactersDemo TextCharactersDemoDrawer(&FrameBuffer);
-PrimitiveDemo<FullLayout> PrimitiveDemoDrawer(&FrameBuffer);
-BitmapDemo<FullLayout> BitmapDemoDrawer(&FrameBuffer);
-TextSpriteDemo<FullLayout> TextSpriteDemoDrawer(&FrameBuffer);
-CloneDemo<FullLayout> CloneDemoDrawer(&FrameBuffer);
+TransformDemo<FullLayout> TransformDemoDrawer{};
+NumberAlignmentDemo<FullLayout> NumberAlignmentDemoDrawer{};
+SpriteDemo<FullLayout> SpriteDemoDrawer{};
+TextCharactersDemo TextCharactersDemoDrawer{};
+PrimitiveDemo<FullLayout> PrimitiveDemoDrawer{};
+BitmapDemo<FullLayout> BitmapDemoDrawer{};
+TextSpriteDemo<FullLayout> TextSpriteDemoDrawer{};
+CloneDemo<FullLayout> CloneDemoDrawer{};
 #endif
 //
 
@@ -173,9 +174,8 @@ CloneDemo<FullLayout> CloneDemoDrawer(&FrameBuffer);
 using FpsLayout = LayoutElement<0, 0, FrameBufferType::FrameWidth, FrameBufferType::FrameHeight>;
 DisplayFpsDrawer<FpsLayout,
 	SpriteShader::ColorShader<SpriteFont3x5Renderer>,
-	//SpriteShaderEffect::BrightnessEffect<SpriteFont2x5Renderer>,
 	FpsDrawerPosition::TopRight>
-	FpsDrawer(&FrameBuffer, &GraphicsEngine);
+	FpsDrawer(&GraphicsEngine);
 
 // Demo Cycler task.
 DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine, &FpsDrawer,
@@ -183,19 +183,19 @@ DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine, &FpsDrawer,
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
 	, &TransformDemoDrawer
-	, & TextCharactersDemoDrawer
-	, & PrimitiveDemoDrawer
-	, & SpriteDemoDrawer
+	, &TextCharactersDemoDrawer
+	, &PrimitiveDemoDrawer
+	, &SpriteDemoDrawer
 #endif
 #else
 	, &TransformDemoDrawer
 	, &NumberAlignmentDemoDrawer
-	, & TextCharactersDemoDrawer
-	, & TextSpriteDemoDrawer
-	, & SpriteDemoDrawer
-	, & PrimitiveDemoDrawer
-	, & CloneDemoDrawer
-	, & BitmapDemoDrawer
+	, &TextCharactersDemoDrawer
+	, &TextSpriteDemoDrawer
+	, &SpriteDemoDrawer
+	, &PrimitiveDemoDrawer
+	, &CloneDemoDrawer
+	, &BitmapDemoDrawer
 #endif
 );
 //

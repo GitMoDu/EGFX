@@ -6,77 +6,77 @@
 #include "../Model/IFrameDraw.h"
 #include "../Model/IFrameBuffer.h"
 
-#include "DrawState.h"
 #include "ProgressScaler.h"
 
 class ElementDrawer : public virtual IFrameDraw
 {
 private:
-	DrawState State{};
-
-protected:
-	IFrameBuffer* Frame;
+	uint8_t ElementsCount;
+	uint8_t OriginalCount;
 
 private:
-	uint8_t ElementsCount;
+	uint8_t ElementIndex = 0;
 
-public:
+protected:
 	/// <summary>
-	/// Recurrent call for drawing elements, indexed to frameDrawState.ElementIndex.
+	/// Recurrent call for indexed drawing elements.
 	/// </summary>
-	/// <param name="drawState">Element-indexed, element-draw state.</param>
-	virtual void DrawCall(DrawState* drawState) { }
+	/// <param name="frameTime"></param>
+	/// <param name="frameCounter"></param>
+	/// <param name="elementIndex"></param>
+	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) {}
 
 public:
-	ElementDrawer(IFrameBuffer* frame, const uint8_t elementsCount)
+	ElementDrawer(const uint8_t elementsCount)
 		: IFrameDraw()
-		, Frame(frame)
 		, ElementsCount(elementsCount)
-	{}
+		, OriginalCount(elementsCount)
+	{
+	}
 
-	const uint8_t GetElementsCount()
+	const uint8_t GetElementsCount() const
 	{
 		return ElementsCount;
+	}
+
+	void Disable()
+	{
+		ElementsCount = 0;
+		ElementIndex = 0;
+	}
+
+	void Enable()
+	{
+		if (ElementsCount != OriginalCount)
+		{
+			ElementIndex = 0;
+			ElementsCount = OriginalCount;
+		}
 	}
 
 	void SetElementsCount(const uint8_t count)
 	{
 		ElementsCount = count;
-		if (State.ElementIndex >= ElementsCount)
+		OriginalCount = ElementsCount;
+		if (ElementIndex >= ElementsCount)
 		{
-			State.ElementIndex = ElementsCount;
+			ElementIndex = ElementsCount;
 		}
 	}
 
-	virtual const bool DrawToFrame(const uint32_t frameTime, const uint16_t frameCounter) final
+	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 	{
-		State.FrameTime = frameTime;
-		State.FrameCounter = frameCounter;
+		DrawCall(frame, frameTime, frameCounter, ElementIndex);
 
-		DrawCall(&State);
-
-		State.ElementIndex++;
-		if (State.ElementIndex >= ElementsCount)
+		ElementIndex++;
+		if (ElementIndex >= ElementsCount)
 		{
-			State.ElementIndex = 0;
+			ElementIndex = 0;
 
 			return true;
 		}
 
 		return false;
-	}
-
-protected:
-	const uint8_t GetShortestDimension() const
-	{
-		if (Frame->GetHeight() >= Frame->GetWidth())
-		{
-			return Frame->GetWidth();
-		}
-		else
-		{
-			return Frame->GetHeight();
-		}
 	}
 };
 #endif

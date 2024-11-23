@@ -1,6 +1,6 @@
-# ArduinoGraphicsEngine
+# EGFX - Embedded Graphics
 
-Graphics Engine targeted at Arduino. 
+C++ embedded graphics engine targeted at Arduino.
 Frame-Buffer only, MCU needs enough memory to hold a full frame.
 
 Simple drivers for a few screens include only setup and frame-push.

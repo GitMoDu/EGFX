@@ -25,8 +25,8 @@
 #elif defined(ARDUINO_ARCH_STM32F1)
 #define TFT_SPI		1
 #define TFT_CS		7
-#define TFT_DC		8
-#define TFT_RST     9
+#define TFT_DC		10
+#define TFT_RST     11
 #define TFT_CLK		UINT8_MAX
 #define TFT_MOSI	UINT8_MAX
 #define TFT_SPI_HZ	F_CPU/2
@@ -152,8 +152,6 @@ GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, F
 BitmaskDemo<FullLayout> BitmaskDemoDrawer{};
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
-PrimitiveDemo<FullLayout> PrimitiveDemoDrawer{};
-TransformDemo<FullLayout> TransformDemoDrawer{};
 SpriteDemo<FullLayout> SpriteDemoDrawer{};
 TextCharactersDemo TextCharactersDemoDrawer{};
 PrimitiveDemo<FullLayout> PrimitiveDemoDrawer{};
@@ -182,7 +180,6 @@ DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine, &FpsDrawer,
 	&BitmaskDemoDrawer
 #if defined(ARDUINO_ARCH_AVR) 
 #if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
-	, &TransformDemoDrawer
 	, &TextCharactersDemoDrawer
 	, &PrimitiveDemoDrawer
 	, &SpriteDemoDrawer

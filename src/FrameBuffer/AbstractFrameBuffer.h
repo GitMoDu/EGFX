@@ -64,12 +64,12 @@ public:
 	{}
 
 public:
-	virtual const uint8_t GetWidth() const final
+	virtual const uint8_t GetFrameWidth() const final
 	{
 		return FrameWidth;
 	}
 
-	virtual const uint8_t GetHeight() const final
+	virtual const uint8_t GetFrameHeight() const final
 	{
 		return FrameHeight;
 	}

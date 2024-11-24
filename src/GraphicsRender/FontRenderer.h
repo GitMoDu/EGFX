@@ -16,8 +16,8 @@ class FontRenderer
 public:
 	static void Write(IFrameBuffer* frameBuffer, const FontStyle& font, const uint8_t x1, const uint8_t y1, const int8_t character)
 	{
-		if (x1 < frameBuffer->GetWidth()
-			&& y1 < frameBuffer->GetHeight())
+		if (x1 < frameBuffer->GetFrameWidth()
+			&& y1 < frameBuffer->GetFrameHeight())
 		{
 			if (character >= Character::NumbersStart
 				&& character < Character::NumbersEnd)

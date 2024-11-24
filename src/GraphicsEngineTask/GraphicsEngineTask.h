@@ -130,10 +130,10 @@ public: // IFrameEngine implementation.
 	virtual const bool Start() final
 	{
 		if (FrameBuffer != nullptr
-			&& FrameBuffer->GetWidth() == ScreenDriver->GetWidth()
-			&& FrameBuffer->GetHeight() == ScreenDriver->GetHeight()
-			&& ScreenDriver->GetWidth() > 0
-			&& ScreenDriver->GetWidth() < UINT8_MAX)
+			&& FrameBuffer->GetFrameWidth() == ScreenDriver->GetScreenWidth()
+			&& FrameBuffer->GetFrameHeight() == ScreenDriver->GetScreenHeight()
+			&& ScreenDriver->GetScreenWidth() > 0
+			&& ScreenDriver->GetScreenWidth() < UINT8_MAX)
 		{
 			if (ScreenDriver->Start())
 			{
@@ -163,22 +163,22 @@ public: // IFrameEngine implementation.
 			if (FrameBuffer != nullptr)
 			{
 				Serial.print(F("FrameBuffer: "));
-				Serial.print(FrameBuffer->GetWidth());
+				Serial.print(FrameBuffer->GetFrameWidth());
 				Serial.print('x');
-				Serial.println(FrameBuffer->GetHeight());
+				Serial.println(FrameBuffer->GetFrameHeight());
 			}
 
 			Serial.print(F("ScreenDriver: "));
-			Serial.print(ScreenDriver->GetWidth());
+			Serial.print(ScreenDriver->GetScreenWidth());
 			Serial.print('x');
-			Serial.println(ScreenDriver->GetHeight());
+			Serial.println(ScreenDriver->GetScreenHeight());
 
 			if (FrameBuffer == nullptr)
 				Serial.println(F("IFrameBuffer == nullptr"));
-			if ((FrameBuffer->GetWidth() != ScreenDriver->GetWidth()) || (FrameBuffer->GetHeight() != ScreenDriver->GetHeight()))
+			if ((FrameBuffer->GetFrameWidth() != ScreenDriver->GetScreenWidth()) || (FrameBuffer->GetFrameHeight() != ScreenDriver->GetScreenHeight()))
 				Serial.println(F("FrameBuffer dimensions don't match ScreenDriver."));
-			if ((ScreenDriver->GetWidth() == 0)
-				|| (ScreenDriver->GetWidth() == UINT8_MAX))
+			if ((ScreenDriver->GetScreenWidth() == 0)
+				|| (ScreenDriver->GetScreenWidth() == UINT8_MAX))
 				Serial.println(F("Invalid dimensions."));
 		}
 #endif

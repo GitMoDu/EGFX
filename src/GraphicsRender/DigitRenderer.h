@@ -14,8 +14,8 @@ class DigitRenderer
 public:
 	static void Digit(IFrameBuffer* frameBuffer, const FontStyle& font, const uint8_t x1, const uint8_t y1, const uint8_t digit)
 	{
-		if ((x1 < (frameBuffer->GetWidth() - font.Width))
-			&& (y1 < (frameBuffer->GetHeight() - font.Height)))
+		if ((x1 < (frameBuffer->GetFrameWidth() - font.Width))
+			&& (y1 < (frameBuffer->GetFrameHeight() - font.Height)))
 		{
 			switch (digit)
 			{

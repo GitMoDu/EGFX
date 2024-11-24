@@ -71,8 +71,8 @@ public:
 	{
 		if (number > UINT8_MAX)
 		{
-			if (x1 < frame->GetWidth() - font.Width
-				&& y1 < frame->GetHeight())
+			if (x1 < frame->GetFrameWidth() - font.Width
+				&& y1 < frame->GetFrameHeight())
 			{
 				uint8_t offset = 0;
 				for (int_fast8_t i = 3; i >= 0; i--)
@@ -98,8 +98,8 @@ public:
 	{
 		if (number > UINT8_MAX)
 		{
-			if (x2 < frame->GetWidth()
-				&& y1 < frame->GetHeight())
+			if (x2 < frame->GetFrameWidth()
+				&& y1 < frame->GetFrameHeight())
 			{
 				const uint8_t x1 = x2 - font.Width;
 
@@ -135,8 +135,8 @@ public:
 	{
 		if (number > UINT16_MAX)
 		{
-			if (x1 < frame->GetWidth() - font.Width
-				&& y1 < frame->GetHeight())
+			if (x1 < frame->GetFrameWidth() - font.Width
+				&& y1 < frame->GetFrameHeight())
 			{
 				uint8_t offset = 0;
 				for (int_fast8_t i = 8; i >= 0; i--)
@@ -161,8 +161,8 @@ public:
 	{
 		if (number > UINT16_MAX)
 		{
-			if (x2 < frame->GetWidth()
-				&& y1 < frame->GetHeight())
+			if (x2 < frame->GetFrameWidth()
+				&& y1 < frame->GetFrameHeight())
 			{
 				const uint8_t x1 = x2 - font.Width;
 

@@ -16,8 +16,8 @@ public:
 	virtual const bool PushingBuffer(const uint8_t* frameBuffer) { return false; }
 	virtual void EndBuffer() {}
 
-	virtual const uint8_t GetWidth() const { return 0; }
-	virtual const uint8_t GetHeight() const { return 0; }
+	virtual const uint8_t GetScreenWidth() const { return 0; }
+	virtual const uint8_t GetScreenHeight() const { return 0; }
 
 	virtual const bool Start() { return false; }
 

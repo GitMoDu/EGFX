@@ -69,12 +69,12 @@ public:
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
-			&& x < frame->GetWidth() - FontWidth()
-			&& y < frame->GetHeight() - FontHeight())
+			&& x < frame->GetFrameWidth() - FontWidth()
+			&& y < frame->GetFrameHeight() - FontHeight())
 		{
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
 			uint8_t offset = 0;
-			while (x < frame->GetWidth() - offset)
+			while (x < frame->GetFrameWidth() - offset)
 			{
 				const int8_t character = pgm_read_byte(ptr++);
 				if (character == Character::Break)
@@ -97,8 +97,8 @@ public:
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
-			&& x < frame->GetWidth()
-			&& y < frame->GetHeight() - FontHeight())
+			&& x < frame->GetFrameWidth()
+			&& y < frame->GetFrameHeight() - FontHeight())
 		{
 			const uint8_t x1 = x - FontHeight();
 
@@ -133,8 +133,8 @@ public:
 
 	void TextTopLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
 	{
-		const uint8_t width = frame->GetWidth();
-		const uint8_t height = frame->GetHeight();
+		const uint8_t width = frame->GetFrameWidth();
+		const uint8_t height = frame->GetFrameHeight();
 
 		if (str != NULL
 			&& y < height)
@@ -153,8 +153,8 @@ public:
 
 	void TextTopRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
 	{
-		const uint8_t width = frame->GetWidth();
-		const uint8_t height = frame->GetHeight();
+		const uint8_t width = frame->GetFrameWidth();
+		const uint8_t height = frame->GetFrameHeight();
 
 		if (str != NULL
 			&& y < height)

@@ -16,12 +16,12 @@ public:
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
-			&& x1 < frame->GetWidth() - font.Width
-			&& y1 < frame->GetHeight() - font.Height)
+			&& x1 < frame->GetFrameWidth() - font.Width
+			&& y1 < frame->GetFrameHeight() - font.Height)
 		{
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
 			uint8_t offset = 0;
-			while (x1 < frame->GetWidth() - offset - font.Width - font.Kerning)
+			while (x1 < frame->GetFrameWidth() - offset - font.Width - font.Kerning)
 			{
 				const int8_t character = pgm_read_byte(ptr++);
 				if (character == Character::Break)
@@ -44,8 +44,8 @@ public:
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
-			&& x2 < frame->GetWidth()
-			&& y1 < frame->GetHeight() - font.Height)
+			&& x2 < frame->GetFrameWidth()
+			&& y1 < frame->GetFrameHeight() - font.Height)
 		{
 			const uint8_t x1 = x2 - font.Width;
 
@@ -101,14 +101,14 @@ public:
 	static void TextTopLeft(IFrameBuffer* frame, const FontStyle& font, const uint8_t x1, const uint8_t y1, const char* str)
 	{
 		if (str != NULL
-			&& x1 < frame->GetWidth()
-			&& y1 < frame->GetHeight() - font.Height)
+			&& x1 < frame->GetFrameWidth()
+			&& y1 < frame->GetFrameHeight() - font.Height)
 		{
 			size_t size = strlen(str);
 			uint8_t* ch = (uint8_t*)str;
 			uint8_t offset = 0;
 			while (size--
-				&& x1 < frame->GetWidth() - offset - font.Width - font.Kerning)
+				&& x1 < frame->GetFrameWidth() - offset - font.Width - font.Kerning)
 			{
 				FontRenderer::Write(frame, font, x1 + offset, y1, (const uint8_t)*ch++);
 				offset += font.Width + font.Kerning;
@@ -119,8 +119,8 @@ public:
 	static void TextTopRight(IFrameBuffer* frame, const FontStyle& font, const uint8_t x2, const uint8_t y1, const char* str)
 	{
 		if (str != NULL
-			&& x2 < frame->GetWidth()
-			&& y1 < frame->GetHeight() - font.Height)
+			&& x2 < frame->GetFrameWidth()
+			&& y1 < frame->GetFrameHeight() - font.Height)
 		{
 			const uint8_t x1 = x2 - font.Width;
 
@@ -128,7 +128,7 @@ public:
 			uint8_t* ch = (uint8_t*)str + size - 1;
 			uint8_t offset = 0;
 			while (size--
-				&& x1 < frame->GetWidth() - offset)
+				&& x1 < frame->GetFrameWidth() - offset)
 			{
 #if defined(GRAPHICS_ENGINE_DEBUG)
 				if (offset > x1)

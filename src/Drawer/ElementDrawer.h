@@ -68,15 +68,15 @@ public:
 
 	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 	{
-		DrawCall(frame, frameTime, frameCounter, ElementIndex);
-
-		ElementIndex++;
 		if (ElementIndex >= ElementsCount)
 		{
 			ElementIndex = 0;
 
 			return true;
 		}
+
+		DrawCall(frame, frameTime, frameCounter, ElementIndex);
+		ElementIndex++;
 
 		return false;
 	}

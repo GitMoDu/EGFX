@@ -58,8 +58,8 @@ private:
 	SpriteFont1x5Renderer MicroDrawer{};
 
 public:
-	TextSpriteDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	TextSpriteDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
 		BigDrawer.SetColor1(RgbColor{ UINT8_MAX / 3 ,UINT8_MAX / 3 ,UINT8_MAX / 3 });
 	}

@@ -53,8 +53,8 @@ private:
 	uint8_t y = 0;
 
 public:
-	BitmapDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	BitmapDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
 		Doge.SetTransparentColor(0, 0, 0);
 	}

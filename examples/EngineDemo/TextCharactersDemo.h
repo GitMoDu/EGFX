@@ -157,32 +157,32 @@ private:
 
 	const bool ShowFullSet(IFrameBuffer* frame)
 	{
-		return frame->GetWidth() > SmallFont.GetTextWidth(13) + 1;
+		return frame->GetFrameWidth() > SmallFont.GetTextWidth(13) + 1;
 	}
 
 	const bool ShowUpperCase1(IFrameBuffer* frame)
 	{
-		return frame->GetHeight() >= SmallFont.Height;
+		return frame->GetFrameHeight() >= SmallFont.Height;
 	}
 
 	const bool ShowUpperCase2(IFrameBuffer* frame)
 	{
-		return ShowUpperCase1(frame) && (frame->GetHeight() > ((SmallFont.Height * 2) + 1));
+		return ShowUpperCase1(frame) && (frame->GetFrameHeight() > ((SmallFont.Height * 2) + 1));
 	}
 
 	const bool ShowLowerCase1(IFrameBuffer* frame)
 	{
-		return ShowUpperCase2(frame) && (frame->GetHeight() > ((SmallFont.Height * 3) + 2));
+		return ShowUpperCase2(frame) && (frame->GetFrameHeight() > ((SmallFont.Height * 3) + 2));
 	}
 
 	const bool ShowLowerCase2(IFrameBuffer* frame)
 	{
-		return ShowLowerCase1(frame) && (frame->GetHeight() > ((SmallFont.Height * 4) + 3));
+		return ShowLowerCase1(frame) && (frame->GetFrameHeight() > ((SmallFont.Height * 4) + 3));
 	}
 
 	const bool ShowNumbers(IFrameBuffer* frame)
 	{
-		return ShowLowerCase2(frame) && (frame->GetHeight() > ((SmallFont.Height * 5) + 4));
+		return ShowLowerCase2(frame) && (frame->GetFrameHeight() > ((SmallFont.Height * 5) + 4));
 	}
 };
 #endif

@@ -36,8 +36,8 @@ private:
 	uint8_t droplets = 0;
 
 public:
-	CloneDemo(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)DrawElementsEnum::DrawElementsCount)
+	CloneDemo()
+		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{}
 
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final

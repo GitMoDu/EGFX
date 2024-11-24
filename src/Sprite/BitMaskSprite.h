@@ -67,10 +67,19 @@ public:
 
 		const uint8_t xBit = 7 - (x % 8);
 
-		return ((Mask[offset] >> xBit) & 0x01) != 0;
+		if (((Mask[offset] >> xBit) & 0x01) != 0)
+		{
+			color.r = INT8_MAX;
+			color.g = INT8_MAX;
+			color.b = INT8_MAX;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 };
-
 
 template<const uint8_t Width,
 	const uint8_t Height>
@@ -140,7 +149,17 @@ public:
 
 		const uint8_t xBit = 7 - (x % 8);
 
-		return ((pgm_read_byte(&Mask[offset]) >> xBit) & 0x01) != 0;
+		if (((pgm_read_byte(&Mask[offset]) >> xBit) & 0x01) != 0)
+		{
+			color.r = INT8_MAX;
+			color.g = INT8_MAX;
+			color.b = INT8_MAX;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 };
 #else

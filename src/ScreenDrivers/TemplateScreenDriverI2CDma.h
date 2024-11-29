@@ -27,7 +27,7 @@ private:
 	size_t PushIndex = 0;
 
 public:
-	TemplateScreenDriverI2CDma() : InlineI2cScreenDriver() {}
+	TemplateScreenDriverI2CDma(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
 
 	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
 	{

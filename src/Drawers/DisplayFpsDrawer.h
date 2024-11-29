@@ -78,7 +78,7 @@ public:
 				{
 					if (FrameRate > 99)
 					{
-						TextDrawer.WriteDigit(frame, GetX(), GetY(),  (FrameRate / 100) % 10);
+						TextDrawer.WriteDigit(frame, GetX(), GetY(), (FrameRate / 100) % 10);
 					}
 					TextDrawer.WriteDigit(frame, GetX() + TextWidth(1), GetY(), ((FrameRate / 10) % 10));
 				}

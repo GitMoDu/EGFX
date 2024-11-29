@@ -31,37 +31,37 @@ protected:
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
 		const uint16_t progress = ProgressScaler::GetProgress<ResizeDuration>(frameTime);
-		const uint8_t x = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(frame->GetWidth() - 1));
-		const uint8_t y = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(frame->GetHeight() - 1));
+		const uint8_t x = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(frame->GetFrameWidth() - 1));
+		const uint8_t y = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(frame->GetFrameHeight() - 1));
 		uint8_t section = ProgressScaler::ScaleProgress(ProgressScaler::GetProgress<ResizeDuration * 4>(frameTime), (uint8_t)4);
 
-		frame->Line(Color, x, 0, x, frame->GetHeight() - 1);
-		frame->Line(Color, 0, y, frame->GetWidth() - 1, y);
+		frame->Line(Color, x, 0, x, frame->GetFrameHeight() - 1);
+		frame->Line(Color, 0, y, frame->GetFrameWidth() - 1, y);
 
 		switch (section)
 		{
 		case 0:
-			for (size_t i = 0; i < frame->GetHeight() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetFrameHeight() / ScaleSkip; i++)
 			{
-				frame->Line(Color, 0, i * ScaleSkip, x, (frame->GetHeight() / 2) - 1);
+				frame->Line(Color, 0, i * ScaleSkip, x, (frame->GetFrameHeight() / 2) - 1);
 			}
 			break;
 		case 1:
-			for (size_t i = 0; i < frame->GetHeight() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetFrameHeight() / ScaleSkip; i++)
 			{
-				frame->Line(Color, frame->GetWidth() - 1, i * ScaleSkip, x, (frame->GetHeight() / 2) - 1);
+				frame->Line(Color, frame->GetFrameWidth() - 1, i * ScaleSkip, x, (frame->GetFrameHeight() / 2) - 1);
 			}
 			break;
 		case 2:
-			for (size_t i = 0; i < frame->GetWidth() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetFrameWidth() / ScaleSkip; i++)
 			{
-				frame->Line(Color, (frame->GetWidth() / 2) - 1, y, i * ScaleSkip, frame->GetHeight() - 1);
+				frame->Line(Color, (frame->GetFrameWidth() / 2) - 1, y, i * ScaleSkip, frame->GetFrameHeight() - 1);
 			}
 			break;
 		case 3:
-			for (size_t i = 0; i < frame->GetWidth() / ScaleSkip; i++)
+			for (size_t i = 0; i < frame->GetFrameWidth() / ScaleSkip; i++)
 			{
-				frame->Line(Color, i * ScaleSkip, 0, (frame->GetWidth() / 2) - 1, y);
+				frame->Line(Color, i * ScaleSkip, 0, (frame->GetFrameWidth() / 2) - 1, y);
 			}
 			break;
 		default:

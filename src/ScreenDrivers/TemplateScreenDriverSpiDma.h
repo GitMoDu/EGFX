@@ -19,7 +19,7 @@ protected:
 	using InlineSpiScreenDriver::SpiInstance;
 
 public:
-	TemplateScreenDriverSpiDma() : InlineSpiScreenDriver() {}
+	TemplateScreenDriverSpiDma(Egfx::SpiType& spi) : InlineSpiScreenDriver(spi) {}
 
 	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
 	{

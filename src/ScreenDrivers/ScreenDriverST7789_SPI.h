@@ -10,17 +10,14 @@
 #include "ST7789/ST7789.h"
 
 template<typename pixel_t,
-	const uint8_t pinDC,
 	const uint8_t pinCS,
+	const uint8_t pinDC,
 	const uint8_t pinRST,
-	const uint8_t pinCLK,
-	const uint8_t pinMOSI,
-	const uint8_t spiChannel,
 	const uint32_t spiSpeed>
-class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
+class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>
 {
 private:
-	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
+	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>;
 
 public:
 	using BaseClass::ScreenWidth;
@@ -37,10 +34,11 @@ private:
 	SPISettings Settings;
 
 public:
-	AbstractScreenDriverST7789_SPI()
-		: BaseClass()
+	AbstractScreenDriverST7789_SPI(Egfx::SpiType& spi)
+		: BaseClass(spi)
 		, Settings(ST7789::LimitedSpiSpeed(spiSpeed), MSBFIRST, SPI_MODE0)
-	{}
+	{
+	}
 
 public:
 	virtual const bool Start()
@@ -107,47 +105,35 @@ public:
 	}
 };
 
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
+template<const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
 	const uint32_t spiSpeed = 4000000>
-using ScreenDriverST7789_240x240x16_SPI = AbstractScreenDriverST7789_SPI<uint16_t, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
+using ScreenDriverST7789_240x240x16_SPI = AbstractScreenDriverST7789_SPI<uint16_t, pinCS, pinDC, pinRST, spiSpeed>;
 
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
+template<const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
 	const uint32_t spiSpeed = 4000000,
 	const uint8_t spiChunkDivisor = 2>
-using ScreenDriverST7789_240x240x16_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverST7789_240x240x16_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, spiChunkDivisor>;
+using ScreenDriverST7789_240x240x16_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
 #if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
+template<const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
 	const uint32_t spiSpeed = 4000000,
 	const uint32_t pushSleepDuration = 0>
-using ScreenDriverST7789_240x240x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7789_240x240x16_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, pushSleepDuration>;
+using ScreenDriverST7789_240x240x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
+template<const uint8_t pinCS = UINT8_MAX,
+	const uint8_t pinDC = UINT8_MAX,
 	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
 	const uint32_t spiSpeed = 4000000,
 	uint32_t stackHeight = 1500,
 	portBASE_TYPE priority = 1>
-using ScreenDriverST7789_240x240x16_SPI_Rtos = TemplateScreenDriverRtos<ScreenDriverST7789_240x240x16_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, stackHeight, priority>;
+using ScreenDriverST7789_240x240x16_SPI_Rtos = TemplateScreenDriverRtos<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, void, stackHeight, priority>;
 #endif
 #endif

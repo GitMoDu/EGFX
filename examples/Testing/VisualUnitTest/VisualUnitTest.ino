@@ -5,67 +5,35 @@
 #define GRAPHICS_ENGINE_DEBUG
 #define GRAPHICS_ENGINE_MEASURE // Required for this demo.
 
-
+// Preset of SPI pin defintions for various platforms.
 #if defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)
-#define TFT_SPI		1
 #define TFT_DC		PB0
 #define TFT_RST     PB1
 #define TFT_CS		PA4
-#define TFT_CLK		PA5
-#define TFT_MOSI	PA7
-#define TFT_SPI_HZ	40000000
-#define TFT_I2C		0
-#define TFT_SCL		PB6
-#define TFT_SDA		PB7
-#define TFT_I2C_HZ	1000000
 #elif defined(ARDUINO_ARCH_STM32F1)
-#define TFT_SPI		1
 #define TFT_CS		7
-#define TFT_DC		8
-#define TFT_RST     9
-#define TFT_CLK		UINT8_MAX
-#define TFT_MOSI	UINT8_MAX
-#define TFT_SPI_HZ	F_CPU/2
-#define TFT_I2C		1
-#define TFT_SCL		UINT8_MAX
-#define TFT_SDA		UINT8_MAX
-#define TFT_I2C_HZ	1000000
+#define TFT_DC		10
+#define TFT_RST     11
 #elif defined(ARDUINO_ARCH_AVR)
-#define TFT_SPI		0
-#define TFT_SPI_HZ	0
 #define TFT_CS		10
 #define TFT_DC		9
 #define TFT_RST		8
-#define TFT_CLK		UINT8_MAX
-#define TFT_MOSI	UINT8_MAX
-#define TFT_I2C		UINT8_MAX
-#define TFT_SCL		UINT8_MAX
-#define TFT_SDA		UINT8_MAX
-#define TFT_I2C_HZ	1000000
 #elif defined(ARDUINO_ARCH_ESP32)
-#define TFT_SPI		0
-#define TFT_SPI_HZ	48000000
 #define TFT_CS		19
 #define TFT_DC		20
 #define TFT_RST		21
-#define TFT_CLK		26
-#define TFT_MOSI	48
-#define TFT_I2C		1
-#define TFT_I2C_HZ	1000000
-#define TFT_SCL		18
-#define TFT_SDA		17
+#elif defined(ARDUINO_SEEED_XIAO_RP2350)
+#define TFT_CS		D3
+#define TFT_DC		D7
+#define TFT_RST		D6
 #elif defined(ARDUINO_ARCH_RP2040)
 #define TFT_CS		19
 #define TFT_DC		20
 #define TFT_RST		21
-#define TFT_SPI		1
-#define TFT_CLK		26
-#define TFT_MOSI	27
-#define TFT_SPI_HZ	48000000
-#define TFT_I2C		1
-#define TFT_SCL		15
-#define TFT_SDA		14
-#define TFT_I2C_HZ	1000000
+#elif defined(ARDUINO_ARCH_NRF52)
+#define TFT_CS		7
+#define TFT_DC		4
+#define TFT_RST		5
 #endif
 
 #define _TASK_OO_CALLBACKS
@@ -81,11 +49,32 @@
 TS::Scheduler SchedulerBase;
 //
 
-// Screen Driver and frame-buffer definition.
-ScreenDriverSSD1306_64x48x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
-//ScreenDriverSSD1306_128x64x1_I2C<TFT_SCL, TFT_SDA, TFT_RST, TFT_I2C, TFT_I2C_HZ> ScreenDriver{};
+// Forward declare the used communications hardware.
+TwoWire& WireInstance(Wire);
+#if ARDUINO_MAPLE_MINI
+Egfx::SpiType SpiInstance(1);
+#else
+Egfx::SpiType& SpiInstance(SPI);
+#endif
 
-using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+// Uncomment Driver and matching framebuffer type.
+//ScreenDriverSSD1306_64x32x1_I2C ScreenDriver(WireInstance);
+//ScreenDriverSSD1306_64x48x1_I2C ScreenDriver(WireInstance);
+//ScreenDriverSSD1306_72x40x1_I2C ScreenDriver(WireInstance);
+//ScreenDriverSSD1306_128x32x1_I2C ScreenDriver(WireInstance);
+//ScreenDriverSSD1306_128x64x1_I2C_Rtos<> ScreenDriver(WireInstance);
+//ScreenDriverSSD1306_128x64x1_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
+//using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+
+//ScreenDriverSSD1331_96x64x8_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
+//using FrameBufferType = Color8FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+
+//ScreenDriverSSD1331_96x64x16_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
+//ScreenDriverSSD1351_128x128x16_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
+//ScreenDriverST7789_240x240x16_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
+//ScreenDriverST7735S_80x160x16_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
+//using FrameBufferType = Color16FrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
+
 
 // In-memory frame-buffer.
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
@@ -112,8 +101,8 @@ void halt()
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
 	delete[] Buffer;
 #endif
-#ifdef DEBUG
-	Serial.println(F("Setup Failed."));
+#if defined(DEBUG)
+	Serial.println(F("Screen Setup Failed."));
 #endif
 	while (true)
 		;
@@ -121,7 +110,7 @@ void halt()
 
 void setup()
 {
-#ifdef DEBUG
+#if defined(DEBUG)
 	Serial.begin(SERIAL_BAUD_RATE);
 	while (!Serial)
 		;
@@ -129,14 +118,25 @@ void setup()
 #endif
 
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
+	// Allocate memory and set frame buffer.
 	Buffer = new uint8_t[FrameBufferType::BufferSize]{};
 	FrameBuffer.SetBuffer(Buffer);
 #endif
 
+	// Initialize comms hardware.
+	WireInstance.begin();
+	SpiInstance.begin();
+
+	// Optional callback for RTOS driver variants.
 	GraphicsEngine.SetBufferTaskCallback(BufferTaskCallback);
 
-	GraphicsEngine.SetDrawer(&LineUnitTest);
+	// Frame buffer can be inverted at any time.
+	GraphicsEngine.SetInverted(false);
 
+	// Set the Display Sync Type.
+	GraphicsEngine.SetSyncType(DisplaySyncType::VSync);
+
+	GraphicsEngine.SetDrawer(&LineUnitTest);
 	if (!GraphicsEngine.Start())
 	{
 		halt();

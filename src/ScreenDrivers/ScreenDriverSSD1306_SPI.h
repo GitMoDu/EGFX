@@ -11,17 +11,14 @@
 
 template<const uint8_t width,
 	const uint8_t height,
-	const uint8_t pinDC,
 	const uint8_t pinCS,
+	const uint8_t pinDC,
 	const uint8_t pinRST,
-	const uint8_t pinCLK,
-	const uint8_t pinMOSI,
-	const uint8_t spiChannel,
 	const uint32_t spiSpeed>
-class AbstractScreenDriverSSD1306_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetMonochromeBufferSize(width, height), width, height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
+class AbstractScreenDriverSSD1306_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetMonochromeBufferSize(width, height), width, height, pinCS, pinDC, pinRST>
 {
 private:
-	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetMonochromeBufferSize(width, height), width, height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
+	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetMonochromeBufferSize(width, height), width, height, pinCS, pinDC, pinRST>;
 
 public:
 	using BaseClass::ScreenWidth;
@@ -38,11 +35,13 @@ private:
 	SPISettings Settings;
 
 public:
-	AbstractScreenDriverSSD1306_SPI()
-		: BaseClass()
+	AbstractScreenDriverSSD1306_SPI(Egfx::SpiType& spi)
+		: BaseClass(spi)
 		, Settings(spiSpeed, MSBFIRST, SPI_MODE0)
-	{}
+	{
+	}
 
+public:
 	virtual void StartBuffer()
 	{
 		CommandStart(Settings);
@@ -63,20 +62,15 @@ protected:
 	const bool Initialize(const bool backlightInternal = false)
 	{
 		PinReset(SSD1306::RESET_WAIT_MICROS);
-
-		CommandStart(Settings);
-		CommandEnd();
-		CommandStart(Settings);
-		CommandEnd();
-
 		delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
-		CommandReset();
 
 		CommandStart(Settings);
 #if defined(ARDUINO_ARCH_STM32F4)
-		SpiInstance.transfer((uint8_t*)SSD1306::ConfigBatch, (uint32_t)SSD1306::ConfigBatchSize);
+		SpiInstance.transfer((uint8_t*)SSD1306::ConfigBatch, (uint32_t)sizeof(SSD1306::ConfigBatch));
+#elif defined(ARDUINO_ARCH_STM32)
+		SpiInstance.transfer((void*)SSD1306::ConfigBatch, sizeof(SSD1306::ConfigBatch), true);
 #else
-		SpiInstance.transfer((void*)SSD1306::ConfigBatch, SSD1306::ConfigBatchSize);
+		SpiInstance.transfer((void*)SSD1306::ConfigBatch, sizeof(SSD1306::ConfigBatch));
 #endif
 		CommandEnd();
 
@@ -111,20 +105,17 @@ private:
 	}
 };
 
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
-	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
+template<const uint8_t pinCS,
+	const uint8_t pinDC,
+	const uint8_t pinRST,
 	const uint32_t spiSpeed = 4000000>
-class ScreenDriverSSD1306_128x64x1_SPI : public AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>
+class ScreenDriverSSD1306_128x64x1_SPI : public AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinCS, pinDC, pinRST, spiSpeed>
 {
 private:
-	using BaseClass = AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>;
+	using BaseClass = AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinCS, pinDC, pinRST, spiSpeed>;
 
 public:
-	ScreenDriverSSD1306_128x64x1_SPI() : BaseClass() {}
+	ScreenDriverSSD1306_128x64x1_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
 
 	virtual const bool Start()
 	{
@@ -132,43 +123,40 @@ public:
 	}
 };
 
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
-	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
+template<const uint8_t pinCS,
+	const uint8_t pinDC,
+	const uint8_t pinRST,
 	const uint32_t spiSpeed = 4000000,
 	const uint8_t spiChunkDivisor = 2>
-class ScreenDriverSSD1306_128x64x1_SPI_Async : public TemplateScreenDriverSpiAsync<ScreenDriverSSD1306_128x64x1_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, spiChunkDivisor>
-{};
+using ScreenDriverSSD1306_128x64x1_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
 #if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
-	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
+template<const uint8_t pinCS,
+	const uint8_t pinDC,
+	const uint8_t pinRST,
 	const uint32_t spiSpeed = 4000000,
 	const uint32_t pushSleepDuration = 0>
-class ScreenDriverSSD1306_128x64x1_SPI_Dma : public TemplateScreenDriverSpiDma<ScreenDriverSSD1306_128x64x1_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, pushSleepDuration>
-{};
+using ScreenDriverSSD1306_128x64x1_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
-template<const uint8_t pinDC = UINT8_MAX,
-	const uint8_t pinCS = UINT8_MAX,
-	const uint8_t pinRST = UINT8_MAX,
-	const uint8_t pinCLK = UINT8_MAX,
-	const uint8_t pinMOSI = UINT8_MAX,
-	const uint8_t spiChannel = 0,
+
+template<const uint8_t pinCS,
+	const uint8_t pinDC,
+	const uint8_t pinRST,
 	const uint32_t spiSpeed = 4000000,
 	const uint32_t pushSleepDuration = 0,
 	uint32_t stackHeight = 1500,
-	portBASE_TYPE priority = 1>
-class ScreenDriverSSD1306_128x64x1_SPI_Rtos : public TemplateScreenDriverRtos<ScreenDriverSSD1306_128x64x1_SPI<pinDC, pinCS, pinRST, pinCLK, pinMOSI, spiChannel, spiSpeed>, pushSleepDuration, stackHeight, priority>
-{};
+	portBASE_TYPE priority = 1
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+	, const uint32_t coreAffinity = tskNO_AFFINITY
+#endif
+>
+using ScreenDriverSSD1306_128x64x1_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+	, coreAffinity
+#endif
+>;
 #endif
 
 #endif

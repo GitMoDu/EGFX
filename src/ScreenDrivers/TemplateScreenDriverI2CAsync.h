@@ -28,7 +28,7 @@ private:
 	size_t PushIndex = 0;
 
 public:
-	TemplateScreenDriverI2CAsync() : InlineI2cScreenDriver() {}
+	TemplateScreenDriverI2CAsync(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
 
 	virtual const bool Start()
 	{
@@ -37,7 +37,7 @@ public:
 			&& InlineI2cScreenDriver::Start();
 	}
 
-	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) 
+	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
 	{
 		PushIndex = 0;
 

@@ -28,7 +28,8 @@
 /// <typeparam name="stackHeight"></typeparam>
 /// <typeparam name="priority"></typeparam>
 /// <typeparam name="coreAffinity"></typeparam>
-template<typename InlineScreenDriver,
+template<typename ConstructorParameterType,
+	typename InlineScreenDriver,
 	const uint32_t pushSleepDuration = 0,
 	const uint32_t stackHeight = 1500,
 	const portBASE_TYPE priority = 1
@@ -54,15 +55,14 @@ private:
 	volatile bool TaskReady = false;
 
 public:
-	TemplateScreenDriverRtos()
-		: BaseClass()
+	TemplateScreenDriverRtos(ConstructorParameterType& parameter)
+		: BaseClass(parameter)
 		, Mutex(xSemaphoreCreateMutex())
-	{}
+	{
+	}
 
 	virtual const bool Start() final
 	{
-		Stop();
-
 		if (TaskCallback != nullptr
 			&& Mutex != NULL
 			&& BaseClass::Start())
@@ -122,7 +122,8 @@ public:
 	}
 
 	virtual void StartBuffer() final
-	{}
+	{
+	}
 
 	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
 	{
@@ -150,7 +151,8 @@ public:
 	}
 
 	virtual void EndBuffer() final
-	{}
+	{
+	}
 
 	virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) final
 	{

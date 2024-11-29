@@ -7,17 +7,27 @@
 
 #include <SPI.h>
 
-template<
-	size_t bufferSize,
+namespace Egfx
+{
+#if defined(ARDUINO_ARCH_RP2040)
+	/// <summary>
+	/// Platform SPI type. Required to access DMA functions.
+	/// </summary>
+	using SpiType = SPIClassRP2040;
+#else
+	/// <summary>
+	/// Platform SPI type. Required to access DMA functions.
+	/// </summary>
+	using SpiType = SPIClass;
+#endif
+}
+
+template<size_t bufferSize,
 	const uint8_t width,
 	const uint8_t height,
-	const uint8_t pinDC,
 	const uint8_t pinCS,
-	const uint8_t pinRST,
-	const uint8_t pinCLK,
-	const uint8_t pinMOSI,
-	const uint8_t spiChannel,
-	const uint32_t spiSpeed>
+	const uint8_t pinDC,
+	const uint8_t pinRST>
 class AbstractScreenDriverSPI : public virtual IScreenDriver
 {
 public:
@@ -26,76 +36,29 @@ public:
 	static constexpr uint8_t ScreenHeight = height;
 
 protected:
-	static constexpr uint32_t SPISpeed = spiSpeed;
-	static constexpr uint8_t SPIChannel = spiChannel;
-
-protected:
-#if defined(ARDUINO_ARCH_RP2040)
-	SPIClassRP2040 SpiInstance;
-#elif defined(ARDUINO_ARCH_NRF52)
-	SPIClass& SpiInstance;
-#else
-	SPIClass SpiInstance;
-#endif
+	Egfx::SpiType& SpiInstance;
 
 public:
-	AbstractScreenDriverSPI()
+	AbstractScreenDriverSPI(Egfx::SpiType& spi)
 		: IScreenDriver()
-#if defined(ARDUINO_ARCH_STM32)
-		, SpiInstance(pinMOSI, PNUM_NOT_DEFINED, pinCLK, pinCS)
-#elif defined(ARDUINO_ARCH_ESP32)
-		, SpiInstance(spiChannel)
-#elif defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
-		, SpiInstance(spiChannel)
-#elif defined(ARDUINO_ARCH_RP2040)
-		, SpiInstance(GetSpiHost(), UINT8_MAX, pinCS, pinCLK, pinMOSI)
-#elif defined(ARDUINO_ARCH_NRF52)
-		, SpiInstance(GetSpiHost())
-#else
-		, SpiInstance()
-#endif
-	{}
+		, SpiInstance(spi)
+	{
+	}
 
 	virtual const bool Start()
 	{
-		if (pinDC == UINT8_MAX
-			|| pinCS == UINT8_MAX)
+		if (pinDC == UINT8_MAX)
 		{
 			return false;
 		}
-
-		//TODO: Optional in-driver SPI begin.
-#if defined(ARDUINO_ARCH_ESP32)
-		if (pinCS != UINT8_MAX
-			&& pinCLK != UINT8_MAX
-			&& pinMOSI != UINT8_MAX)
+		else
 		{
-			SpiInstance.begin((int8_t)pinCLK, (int8_t)-1, (int8_t)pinMOSI, (int8_t)pinCS);
+			return true;
 		}
-		else if (pinCS != UINT8_MAX && pinCLK != UINT8_MAX)
-		{
-			SpiInstance.begin((int8_t)pinCLK, (int8_t)-1, (int8_t)-1, (int8_t)pinCS);
-		}
-		else if (pinCS != UINT8_MAX)
-		{
-			SpiInstance.begin((int8_t)-1, (int8_t)-1, (int8_t)-1, (int8_t)pinCS);
-		}
-#elif defined(ARDUINO_ARCH_NRF52)
-		if (pinCLK != UINT8_MAX
-			&& pinMOSI != UINT8_MAX)
-		{
-			SpiInstance.begin();
-			SpiInstance.setPins(UINT8_MAX, pinCLK, pinMOSI);
-		}
-#else
-		SpiInstance.begin();
-#endif
-		return true;
 	}
 
 	virtual void Stop()
 	{
-		SpiInstance.end();
 		if (pinDC != UINT8_MAX)
 		{
 			digitalWrite(pinDC, LOW);
@@ -140,12 +103,12 @@ public:
 		CommandEnd();
 	}
 
-	const uint8_t GetWidth() const final
+	const uint8_t GetScreenWidth() const final
 	{
 		return ScreenWidth;
 	}
 
-	const uint8_t GetHeight() const final
+	const uint8_t GetScreenHeight() const final
 	{
 		return ScreenHeight;
 	}
@@ -155,8 +118,11 @@ protected:
 	{
 		pinMode(pinDC, OUTPUT);
 		digitalWrite(pinDC, LOW);
-		digitalWrite(pinCS, HIGH);
-		pinMode(pinCS, OUTPUT);
+		if (pinCS != UINT8_MAX)
+		{
+			digitalWrite(pinCS, HIGH);
+			pinMode(pinCS, OUTPUT);
+		}
 
 		if (pinRST != UINT8_MAX)
 		{
@@ -171,7 +137,10 @@ protected:
 
 	void CommandStart(SPISettings& settings)
 	{
-		digitalWrite(pinCS, LOW);
+		if (pinCS != UINT8_MAX)
+		{
+			digitalWrite(pinCS, LOW);
+		}
 		digitalWrite(pinDC, LOW);
 		SpiInstance.beginTransaction(settings);
 	}
@@ -179,40 +148,12 @@ protected:
 	void CommandEnd()
 	{
 		SpiInstance.endTransaction();
-		digitalWrite(pinCS, HIGH);
+		if (pinCS != UINT8_MAX)
+		{
+			digitalWrite(pinCS, HIGH);
+		}
 		digitalWrite(pinDC, LOW);
 	}
-
-private:
-#if defined(ARDUINO_ARCH_RP2040)
-	spi_inst_t* GetSpiHost()
-	{
-		if (spiChannel == 0)
-		{
-			return spi0;
-		}
-		else if (spiChannel == 1)
-		{
-			return spi1;
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
-#elif defined(ARDUINO_ARCH_NRF52)
-	SPIClass& GetSpiHost()
-	{
-		if (spiChannel == 1)
-		{
-			return SPI1;
-		}
-		else
-		{
-			return SPI;
-		}
-	}
-#endif
 };
 
 #endif

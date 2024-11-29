@@ -25,7 +25,7 @@ private:
 	size_t PushIndex = 0;
 
 public:
-	TemplateScreenDriverSpiAsync() : InlineSpiScreenDriver() {}
+	TemplateScreenDriverSpiAsync(Egfx::SpiType& spi) : InlineSpiScreenDriver(spi) {}
 
 	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
 	{

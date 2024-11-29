@@ -41,7 +41,7 @@ public:
 		const uint16_t progress = ProgressScaler::GetProgress<ResizeDuration>(frameTime);
 		const uint16_t sectionProgress = ProgressScaler::GetProgress<ResizeDuration * (uint32_t)LineTestEnum::LineTestEnumCount>(frameTime);
 
-		const uint8_t move = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)min(frame->GetHeight() - 1, frame->GetWidth() - 1));
+		const uint8_t move = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)min(frame->GetFrameHeight() - 1, frame->GetFrameWidth() - 1));
 		LineTestEnum section = (LineTestEnum)ProgressScaler::ScaleProgress(sectionProgress, (uint8_t)LineTestEnum::LineTestEnumCount);
 
 		if (FixedTest == LineTestEnum::LineTestEnumCount)
@@ -90,28 +90,28 @@ public:
 		switch (section)
 		{
 		case LineTestEnum::RightUp:
-			frame->Line(Color, 0, 0, frame->GetWidth() - 1, move);
+			frame->Line(Color, 0, 0, frame->GetFrameWidth() - 1, move);
 			break;
 		case LineTestEnum::RightDown:
-			frame->Line(Color, 0, move, frame->GetWidth() - 1, 0);
+			frame->Line(Color, 0, move, frame->GetFrameWidth() - 1, 0);
 			break;
 		case LineTestEnum::LeftUp:
-			frame->Line(Color, frame->GetWidth() - 1, 0, 0, move);
+			frame->Line(Color, frame->GetFrameWidth() - 1, 0, 0, move);
 			break;
 		case LineTestEnum::LeftDown:
-			frame->Line(Color, frame->GetWidth() - 1, move, 0, 0);
+			frame->Line(Color, frame->GetFrameWidth() - 1, move, 0, 0);
 			break;
 		case LineTestEnum::UpRight:
-			frame->Line(Color, 0, 0, move, frame->GetHeight() - 1);
+			frame->Line(Color, 0, 0, move, frame->GetFrameHeight() - 1);
 			break;
 		case LineTestEnum::UpLeft:
-			frame->Line(Color, move, 0, 0, frame->GetHeight() - 1);
+			frame->Line(Color, move, 0, 0, frame->GetFrameHeight() - 1);
 			break;
 		case LineTestEnum::DownRight:
-			frame->Line(Color, 0, frame->GetHeight() - 1, move, 0);
+			frame->Line(Color, 0, frame->GetFrameHeight() - 1, move, 0);
 			break;
 		case LineTestEnum::DownLeft:
-			frame->Line(Color, move, frame->GetHeight() - 1, 0, 0);
+			frame->Line(Color, move, frame->GetFrameHeight() - 1, 0, 0);
 			break;
 		default:
 			break;

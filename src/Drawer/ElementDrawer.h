@@ -39,7 +39,12 @@ public:
 		return ElementsCount;
 	}
 
-	virtual void SetEnabled(const bool enabled) final
+	virtual const bool IsEnabled() const
+	{
+		return OriginalCount > 0 && ElementsCount == OriginalCount;
+	}
+
+	virtual void SetEnabled(const bool enabled)
 	{
 		if (enabled)
 		{

@@ -8,7 +8,8 @@
 /// <summary>
 /// Abstracts a list of IFrameDraw layers as a single IFrameDraw.
 /// Forwards DrawCalls to layers until each is done or frame changed.
-/// Layers can be added and removed at runtime.
+/// Layers can be added at runtime.
+/// Forwards the SetEnabled to each layer by default.
 /// </summary>
 /// <typeparam name="MaxLayerCount"></typeparam>
 template<const uint8_t MaxLayerCount = 5>
@@ -31,7 +32,21 @@ public:
 		LayerIndex = 0;
 	}
 
-	virtual void SetEnabled(const bool enabled) final
+	virtual const bool IsEnabled() const
+	{
+		for (uint_fast8_t i = 0; i < LayersCount; i++)
+		{
+			if (Drawers[i] != nullptr
+				&& Drawers[i]->IsEnabled())
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	virtual void SetEnabled(const bool enabled)
 	{
 		for (uint_fast8_t i = 0; i < LayersCount; i++)
 		{

@@ -83,6 +83,10 @@ struct SpriteRenderer
 	/// <param name="sprite"></param>
 	/// <param name="positionX"></param>
 	/// <param name="positionY"></param>
+	/// <param name="offsetX"></param>
+	/// <param name="offsetY"></param>
+	/// <param name="width"></param>
+	/// <param name="height"></param>
 	static void DrawPartial(IFrameBuffer* frame, ISprite* sprite,
 		const uint8_t positionX, const uint8_t positionY,
 		const uint8_t offsetX, const uint8_t offsetY,
@@ -98,6 +102,56 @@ struct SpriteRenderer
 				{
 					frame->Pixel(color, positionX + x, positionY + y);
 				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Draw a single line of a sprite
+	/// </summary>
+	/// <param name="frame"></param>
+	/// <param name="sprite"></param>
+	/// <param name="positionX"></param>
+	/// <param name="positionY"></param>
+	/// <param name="line">Y index of the line to be rendered.</param>
+	static void DrawRow(IFrameBuffer* frame, ISprite* sprite,
+		const uint8_t positionX, const uint8_t positionY,
+		const uint8_t line)
+	{
+		const uint8_t width = sprite->GetWidth();
+
+		RgbColor color{};
+
+		for (uint8_t x = 0; x < width; x++)
+		{
+			if (sprite->Get(color, x, line))
+			{
+				frame->Pixel(color, positionX + x, positionY + line);
+			}
+		}
+	}
+
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="frame"></param>
+	/// <param name="sprite"></param>
+	/// <param name="positionX"></param>
+	/// <param name="positionY"></param>
+	/// <param name="column">X index of the column to be rendered.</param>
+	static void DrawColumn(IFrameBuffer* frame, ISprite* sprite,
+		const uint8_t positionX, const uint8_t positionY,
+		const uint8_t column)
+	{
+		const uint8_t height = sprite->GetHeight();
+
+		RgbColor color{};
+
+		for (uint8_t y = 0; y < height; y++)
+		{
+			if (sprite->Get(color, column, y))
+			{
+				frame->Pixel(color, positionX + column, positionY + y);
 			}
 		}
 	}

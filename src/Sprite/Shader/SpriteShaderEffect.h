@@ -56,7 +56,8 @@ namespace SpriteShaderEffect
 
 	public:
 		CropCircleEffect() : BaseClass()
-		{}
+		{
+		}
 
 		void SetCircleCrop(const int8_t offsetX, const int8_t offsetY, const uint8_t radius)
 		{
@@ -100,7 +101,8 @@ namespace SpriteShaderEffect
 
 	public:
 		TransparentGridEffect() : BaseClass()
-		{}
+		{
+		}
 
 		/// <summary>
 		/// How many pixels sipped for each quadrant.
@@ -132,7 +134,8 @@ namespace SpriteShaderEffect
 
 	public:
 		TransparentColorEffect() : BaseClass()
-		{}
+		{
+		}
 
 		void SetTransparentColor(const uint8_t r, const uint8_t g, const uint8_t b)
 		{
@@ -160,25 +163,26 @@ namespace SpriteShaderEffect
 	/// </summary>
 	/// <typeparam name="BaseClass">The underlying SpriteShader.</typeparam>
 	template<typename BaseClass>
-	class BrightnessEffect : public BaseClass
+	class BrightnessShiftEffect : public BaseClass
 	{
 	private:
-		int8_t Brightness = 0;
+		int8_t Shift = 0;
 
 	public:
-		BrightnessEffect() : BaseClass()
-		{}
+		BrightnessShiftEffect() : BaseClass()
+		{
+		}
 
 		/// <summary>
 		/// Brightness shift.
 		/// </summary>
-		/// <param name="brightness">[INT8_MIN+1; INT8_MAX] Absolute shift in RGB space.</param>
-		void SetBrightness(const int8_t brightness)
+		/// <param name="shift">[INT8_MIN+1; INT8_MAX] Absolute shift in RGB space.</param>
+		void SetBrightnessShift(const int8_t shift)
 		{
-			Brightness = brightness;
-			if (Brightness == INT8_MIN)
+			Shift = shift;
+			if (Shift == INT8_MIN)
 			{
-				Brightness = INT8_MIN + 1;
+				Shift = INT8_MIN + 1;
 			}
 		}
 
@@ -186,13 +190,13 @@ namespace SpriteShaderEffect
 		{
 			if (BaseClass::Get(color, x, y))
 			{
-				if (Brightness > 0)
+				if (Shift > 0)
 				{
 					color.r = LimitedAdd(color.r);
 					color.g = LimitedAdd(color.g);
 					color.b = LimitedAdd(color.b);
 				}
-				else if (Brightness < 0)
+				else if (Shift < 0)
 				{
 					color.r = LimitedSubtract(color.r);
 					color.g = LimitedSubtract(color.g);
@@ -206,11 +210,11 @@ namespace SpriteShaderEffect
 		}
 
 	private:
-		const uint8_t LimitedAdd(const uint8_t value)
+		const uint8_t LimitedAdd(const uint8_t value) const
 		{
-			if (value < (UINT8_MAX - Brightness))
+			if (value < (UINT8_MAX - Shift))
 			{
-				return value + Brightness;
+				return value + Shift;
 			}
 			else
 			{
@@ -218,15 +222,83 @@ namespace SpriteShaderEffect
 			}
 		}
 
-		const uint8_t LimitedSubtract(const uint8_t value)
+		const uint8_t LimitedSubtract(const uint8_t value) const
 		{
-			if (value > -Brightness)
+			if (value > -Shift)
 			{
-				return value + Brightness;
+				return value + Shift;
 			}
 			else
 			{
 				return 0;
+			}
+		}
+	};
+
+	/// <summary>
+	/// Applies a RGB boost/dampen effect to the sprite by scaling RGB values up/down.
+	/// </summary>
+	/// <typeparam name="BaseClass">The underlying SpriteShader.</typeparam>
+	template<typename BaseClass>
+	class BrightnessEffect : public BaseClass
+	{
+	private:
+		int8_t Brightness = 0;
+
+	public:
+		BrightnessEffect() : BaseClass()
+		{
+		}
+
+		/// <summary>
+		/// Brightness shift.
+		/// </summary>
+		/// <param name="brightness">[INT8_MIN+1; INT8_MAX] Absolute shift in RGB space.</param>
+		void SetBrightness(const int8_t brightness)
+		{
+			Brightness = brightness;
+		}
+
+		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		{
+			if (BaseClass::Get(color, x, y))
+			{
+				color.r = Scale(color.r);
+				color.g = Scale(color.g);
+				color.b = Scale(color.b);
+
+				return true;
+			}
+
+			return false;
+		}
+
+	private:
+		const uint8_t Scale(const uint8_t value) const
+		{
+			if (Brightness == INT8_MIN)
+			{
+				return 0;
+			}
+			else if (Brightness < 0)
+			{
+				return ((uint16_t)value * (INT8_MAX + Brightness)) / (INT8_MAX - 0);
+			}
+			else if (Brightness > 0)
+			{
+				const uint16_t unlimited = ((uint16_t)value * (INT8_MAX + Brightness)) / INT8_MAX;
+				if (unlimited >= UINT8_MAX)
+				{
+					return UINT8_MAX;
+				}
+				else
+				{
+					return unlimited;
+				}
+			}
+			else
+			{
+				return value;
 			}
 		}
 	};
@@ -248,7 +320,8 @@ namespace SpriteShaderEffect
 
 	public:
 		ConstrastEffect() : BaseClass()
-		{}
+		{
+		}
 
 		/// <summary>
 		/// Set relative Contrast.

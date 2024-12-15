@@ -48,12 +48,14 @@ Features
 - Symbols
 
 
-Engine Timings
+Engine State Flow
 
 Engine is set with target FPS (frame period) and will try to follow synchronized frame time.
 Draw calls are provided with a single frame time for each frame.
 Frame skip is automatically detected and compensated. 
 Engine task sleeps when idle (Power saving via entering IDLE sleep mode https://github.com/arkhipenko/TaskScheduler/wiki).
+
+![](https://raw.githubusercontent.com/GitMoDu/EGFX/master/media/engine_flow.svg)
 
 Drawing is done on-demand by ElementDrawers, which can have up to 255 individual "elements" to render to screen.
 Each draw call is done in a separate loop() pass, to avoid hogging the CPU for too long.

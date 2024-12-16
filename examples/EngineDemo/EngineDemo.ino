@@ -10,7 +10,7 @@
 //#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
 #define SERIAL_BAUD_RATE 115200
 
-// Preset of SPI pin defintions for various platforms.
+// Preset of SPI pin definitions for various platforms.
 #if defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)
 #define TFT_DC		PB0
 #define TFT_RST     PB1

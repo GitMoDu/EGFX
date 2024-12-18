@@ -2,10 +2,10 @@
 #define SERIAL_BAUD_RATE 115200
 
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation frame buffer.
-#define GRAPHICS_ENGINE_DEBUG
-#define GRAPHICS_ENGINE_MEASURE // Required for this demo.
+#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
+#define GRAPHICS_ENGINE_MEASURE // Enabled engine measuring and logging.
 
-// Preset of SPI pin defintions for various platforms.
+// Preset of SPI pin definitions for various platforms.
 #if defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)
 #define TFT_DC		PB0
 #define TFT_RST     PB1
@@ -57,7 +57,7 @@ Egfx::SpiType SpiInstance(1);
 Egfx::SpiType& SpiInstance(SPI);
 #endif
 
-// Uncomment Driver and matching framebuffer type.
+// Uncomment Driver and matching framebuffer type. Drivers will have Async, DMA, and RTOS variants, depending on the platform.
 //ScreenDriverSSD1306_64x32x1_I2C ScreenDriver(WireInstance);
 //ScreenDriverSSD1306_64x48x1_I2C ScreenDriver(WireInstance);
 //ScreenDriverSSD1306_72x40x1_I2C ScreenDriver(WireInstance);

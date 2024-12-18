@@ -12,7 +12,7 @@
 
 
 // Uncomment framebuffer type. Only one framebuffer type benchmark at a time.
-using FrameBufferType = BinaryFrameBuffer<Benchmark::MockScreen::Width, Benchmark::MockScreen::Height>;
+//using FrameBufferType = BinaryFrameBuffer<Benchmark::MockScreen::Width, Benchmark::MockScreen::Height>;
 //using FrameBufferType = Color8FrameBuffer<Benchmark::MockScreen::Width, Benchmark::MockScreen::Height>;
 //using FrameBufferType = Color16FrameBuffer<Benchmark::MockScreen::Width, Benchmark::MockScreen::Height>;
 

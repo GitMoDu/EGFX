@@ -5,10 +5,11 @@
 */
 
 #define DEBUG
-//#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation frame buffer.
-#define GRAPHICS_ENGINE_MEASURE // Enabled engine measuring and logging.
-//#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
 #define SERIAL_BAUD_RATE 115200
+
+//#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation frame buffer.
+//#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
+#define GRAPHICS_ENGINE_MEASURE // Enabled engine measuring and logging.
 
 // Preset of SPI pin definitions for various platforms.
 #if defined(ARDUINO_ARCH_STM32F4) || defined(ARDUINO_ARCH_STM32)

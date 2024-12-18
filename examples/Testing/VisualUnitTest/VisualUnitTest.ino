@@ -89,7 +89,7 @@ GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, 1
 
 // Log to Serial task.
 #if defined(GRAPHICS_ENGINE_MEASURE)
-EngineLogTask<1000> EngineLog(&SchedulerBase, &GraphicsEngine);
+EngineLogTask<1000> EngineLog(SchedulerBase, GraphicsEngine);
 #endif
 
 // Visual Unit Tests.

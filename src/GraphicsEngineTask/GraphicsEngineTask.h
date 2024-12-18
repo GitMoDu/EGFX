@@ -24,7 +24,7 @@
 /// Frame Buffer rendering from Drawer.
 /// Buffer pushing using ScreenDriver.
 /// </summary>
-class GraphicsEngineTask : private TS::Task, public virtual IFrameEngine
+class GraphicsEngineTask : public virtual IFrameEngine, private TS::Task
 {
 private:
 	enum class EngineStateEnum : uint8_t

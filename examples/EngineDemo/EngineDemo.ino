@@ -163,7 +163,7 @@ DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine, &FpsDrawer,
 //
 
 #if defined(GRAPHICS_ENGINE_MEASURE)
-EngineLogTask<500> EngineLog(&SchedulerBase, &GraphicsEngine);
+EngineLogTask<500> EngineLog(SchedulerBase, GraphicsEngine);
 #endif
 
 void halt()

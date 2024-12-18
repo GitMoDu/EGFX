@@ -101,7 +101,7 @@ using PrintLayout = DisplayPrintLayout<0, 0, FrameBufferType::FrameWidth, FrameB
 DisplayPrint<PrintLayout, DisplayFont> DisplaySerial{};
 
 // Log to Serial task.
-EngineLogTask<500> EngineLog(&SchedulerBase, &GraphicsEngine);
+EngineLogTask<500> EngineLog(SchedulerBase, GraphicsEngine);
 
 // Log to DisplayPrint.
 StatusLoggerTask<500> DisplayLog(&SchedulerBase, &GraphicsEngine, &DisplaySerial);

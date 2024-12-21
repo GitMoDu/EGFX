@@ -18,6 +18,9 @@ Supported Screens:
   - 72x40x1 I2C
   - 128x64x1 I2C
   - 128x64x1 SPI
+ 
+- SH1106 OLED
+  - 128x64x1 SPI
 
 - SSD1331 OLED
   - 96x64x8 SPI

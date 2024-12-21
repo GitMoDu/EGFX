@@ -83,6 +83,7 @@ Egfx::SpiType& SpiInstance(SPI);
 //ScreenDriverSSD1306_128x32x1_I2C ScreenDriver(WireInstance);
 //ScreenDriverSSD1306_128x64x1_I2C_Rtos<> ScreenDriver(WireInstance);
 //ScreenDriverSSD1306_128x64x1_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
+//ScreenDriverSH1106_128x64x1_SPI_Dma<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);
 //using FrameBufferType = BinaryFrameBuffer<ScreenDriver.ScreenWidth, ScreenDriver.ScreenHeight>;
 
 //ScreenDriverSSD1331_96x64x8_SPI<TFT_CS, TFT_DC, TFT_RST> ScreenDriver(SpiInstance);

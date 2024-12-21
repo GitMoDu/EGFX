@@ -26,6 +26,7 @@ public:
 
 protected:
 	using BaseClass::SpiInstance;
+	using BaseClass::SpiTransfer;
 	using BaseClass::CommandStart;
 	using BaseClass::CommandEnd;
 	using BaseClass::PinReset;
@@ -58,13 +59,7 @@ protected:
 		SpiInstance.transfer((uint8_t)SSD1331::CommandEnum::RemapAndColor);
 		SpiInstance.transfer(rgbMode);
 
-#if defined(ARDUINO_ARCH_STM32F4)
-		SpiInstance.transfer((uint8_t*)SSD1331::CommonConfigBatch, sizeof(SSD1331::CommonConfigBatch));
-#elif defined(ARDUINO_ARCH_STM32)
-		SpiInstance.transfer((void*)SSD1331::CommonConfigBatch, sizeof(SSD1331::CommonConfigBatch), true);
-#else
-		SpiInstance.transfer((void*)SSD1331::CommonConfigBatch, sizeof(SSD1331::CommonConfigBatch));
-#endif
+		SpiTransfer(SSD1331::CommonConfigBatch, sizeof(SSD1331::CommonConfigBatch));
 		CommandEnd();
 
 		return true;

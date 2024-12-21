@@ -29,6 +29,7 @@ protected:
 	using BaseClass::SpiInstance;
 	using BaseClass::CommandStart;
 	using BaseClass::CommandEnd;
+	using BaseClass::SpiTransfer;
 	using BaseClass::PinReset;
 
 private:
@@ -65,13 +66,7 @@ protected:
 		delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
 
 		CommandStart(Settings);
-#if defined(ARDUINO_ARCH_STM32F4)
-		SpiInstance.transfer((uint8_t*)SSD1306::ConfigBatch, (uint32_t)sizeof(SSD1306::ConfigBatch));
-#elif defined(ARDUINO_ARCH_STM32)
-		SpiInstance.transfer((void*)SSD1306::ConfigBatch, sizeof(SSD1306::ConfigBatch), true);
-#else
-		SpiInstance.transfer((void*)SSD1306::ConfigBatch, sizeof(SSD1306::ConfigBatch));
-#endif
+		SpiTransfer(SSD1306::ConfigBatch, sizeof(SSD1306::ConfigBatch));
 		CommandEnd();
 
 		SetBacklightMode(backlightInternal);

@@ -82,13 +82,7 @@ public:
 
 	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
 	{
-#if defined(ARDUINO_ARCH_STM32F4)
-		SpiInstance.transfer((uint8_t*)frameBuffer, (uint32_t)bufferSize);
-#elif defined(ARDUINO_ARCH_STM32)
-		SpiInstance.transfer((void*)frameBuffer, bufferSize, true);
-#else
-		SpiInstance.transfer((void*)frameBuffer, bufferSize);
-#endif
+		SpiTransfer(frameBuffer, bufferSize);
 
 		return 0;
 	}
@@ -133,6 +127,17 @@ protected:
 			delayMicroseconds(waitPeriod);
 			digitalWrite(pinRST, HIGH);
 		}
+	}
+
+	void SpiTransfer(const uint8_t* data, const size_t size)
+	{
+#if defined(ARDUINO_ARCH_STM32F4)
+		SpiInstance.transfer((uint8_t*)data, (uint32_t)size);
+#elif defined(ARDUINO_ARCH_STM32)
+		SpiInstance.transfer((void*)data, size, true);
+#else
+		SpiInstance.transfer((void*)data, size);
+#endif
 	}
 
 	void CommandStart(SPISettings& settings)

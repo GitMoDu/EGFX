@@ -67,12 +67,19 @@ public:
 		if (drawer != nullptr
 			&& LayersCount < MaxLayerCount)
 		{
-			Drawers[LayersCount] = drawer;
-			LayersCount++;
+			if (DrawerExists(drawer))
+			{
+				return false;
+			}
+			else
+			{
+				Drawers[LayersCount] = drawer;
+				LayersCount++;
 
-			LayerIndex = 0;
+				LayerIndex = 0;
 
-			return true;
+				return true;
+			}
 		}
 
 		return false;
@@ -100,6 +107,23 @@ public:
 			LayerIndex = 0;
 
 			return true;
+		}
+
+		return false;
+	}
+
+private:
+	const bool DrawerExists(const IFrameDraw* drawer) const
+	{
+		for (uint_fast8_t i = 0; i < LayersCount; i++)
+		{
+			if (Drawers[i] != nullptr)
+			{
+				if (Drawers[i] == drawer)
+				{
+					return true;
+				}
+			}
 		}
 
 		return false;

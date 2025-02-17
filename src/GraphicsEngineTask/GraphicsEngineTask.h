@@ -14,11 +14,6 @@
 // Also does a single log of the duration of a frame-buffer DMA transfer.
 //#define GRAPHICS_ENGINE_DEBUG
 
-// Enable Engine measure and GetStatus(). Required for GRAPHICS_ENGINE_DEBUG.
-#if defined(GRAPHICS_ENGINE_DEBUG)
-#define GRAPHICS_ENGINE_MEASURE
-#endif
-
 /// <summary>
 /// TS::Task based Graphics Engine.
 /// Frame Buffer rendering from Drawer.

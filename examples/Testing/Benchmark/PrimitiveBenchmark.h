@@ -8,7 +8,7 @@
 class PixelBenchmark : public IFrameDraw
 {
 private:
-	rgb_color_t Color = Rgb::Color(UINT32_MAX);
+	rgb_color_t Color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 
 public:
 	PixelBenchmark() :IFrameDraw() {}

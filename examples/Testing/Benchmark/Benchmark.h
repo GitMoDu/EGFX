@@ -7,7 +7,7 @@ using namespace Egfx;
 
 namespace Benchmark
 {
-	static constexpr uint8_t Version = 0;
+	static constexpr uint8_t Version = 1;
 
 
 	static constexpr uint32_t LoopDuration = 1000;

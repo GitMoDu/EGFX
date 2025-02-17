@@ -149,7 +149,9 @@ namespace SpriteTransform
 
 					return SkewHorizontal.Transform(x, y)
 						&& SkewVertical.Transform(x, y)
-						&& SkewHorizontal.Transform(x, y);
+						&& SkewHorizontal.Transform(x, y)
+						&& x < Height
+						&& y < Width;
 				}
 				else
 				{
@@ -165,7 +167,9 @@ namespace SpriteTransform
 
 					return SkewHorizontal.Transform(x, y)
 						&& SkewVertical.Transform(x, y)
-						&& SkewHorizontal.Transform(x, y);
+						&& SkewHorizontal.Transform(x, y)
+						&& x < Height
+						&& y < Width;
 					break;
 				}
 

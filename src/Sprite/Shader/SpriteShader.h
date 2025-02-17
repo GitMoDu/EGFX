@@ -1,14 +1,14 @@
 // SpriteShader.h
 
-#ifndef _SPRITE_SHADER_h
-#define _SPRITE_SHADER_h
+#ifndef _EGFX_SPRITE_SHADER_h
+#define _EGFX_SPRITE_SHADER_h
 
 #include "../../Model/RgbColor.h"
 
 /// <summary>
 /// Template-chainable shaders, for an underlying SpriteType.
 /// </summary>
-namespace SpriteShader
+namespace Egfx::SpriteShader
 {
 	template<typename SpriteType>
 	class AbstractOneColorShader : public SpriteType

@@ -1,11 +1,11 @@
 // ScaleTransform.h
 
-#ifndef _SCALE_TRANSFORM_h
-#define _SCALE_TRANSFORM_h
+#ifndef _EGFX_SCALE_TRANSFORM_h
+#define _EGFX_SCALE_TRANSFORM_h
 
 #include "../../Model/ITransform.h"
 
-namespace SpriteTransform
+namespace Egfx::SpriteTransform
 {
 	template<const pixel_t Width,
 		typename BaseTransform = ITransform>

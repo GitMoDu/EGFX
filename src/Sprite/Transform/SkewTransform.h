@@ -1,11 +1,11 @@
 // SkewTransform.h
 
-#ifndef _SKEW_TRANSFORM_h
-#define _SKEW_TRANSFORM_h
+#ifndef _EGFX_SKEW_TRANSFORM_h
+#define _EGFX_SKEW_TRANSFORM_h
 
 #include "../../Model/ITransform.h"
 
-namespace SpriteTransform
+namespace Egfx::SpriteTransform
 {
 	template<const pixel_t Height,
 		typename BaseTransform = ITransform>

@@ -1,11 +1,11 @@
 // InvertTransform.h
 
-#ifndef _INVERT_TRANSFORM_h
-#define _INVERT_TRANSFORM_h
+#ifndef _EGFX_INVERT_TRANSFORM_h
+#define _EGFX_INVERT_TRANSFORM_h
 
 #include "../../Model/ITransform.h"
 
-namespace SpriteTransform
+namespace Egfx::SpriteTransform
 {
 	/// <summary>
 	/// Invert X Axis only.

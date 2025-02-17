@@ -3,7 +3,7 @@
 #ifndef _BENCHMARK_h
 #define _BENCHMARK_h
 
-#include <stdint.h>
+using namespace Egfx;
 
 namespace Benchmark
 {

@@ -1,12 +1,12 @@
 // RotateTransform.h
 
-#ifndef _ROTATE_TRANSFORM_h
-#define _ROTATE_TRANSFORM_h
+#ifndef _EGFX_ROTATE_TRANSFORM_h
+#define _EGFX_ROTATE_TRANSFORM_h
 
 #include "SkewTransform.h"
 #include "InvertTransform.h"
 
-namespace SpriteTransform
+namespace Egfx::SpriteTransform
 {
 	namespace Rotation
 	{

@@ -1,11 +1,11 @@
 // SpriteShaderEffect.h
 
-#ifndef _SPRITE_SHADER_EFFECT_h
-#define _SPRITE_SHADER_EFFECT_h
+#ifndef _EGFX_SPRITE_SHADER_EFFECT_h
+#define _EGFX_SPRITE_SHADER_EFFECT_h
 
 #include "../../Model/RgbColor.h"
 
-namespace SpriteShaderEffect
+namespace Egfx::SpriteShaderEffect
 {
 	/// <summary>
 	/// Masks the pixels with a rectangle crop.

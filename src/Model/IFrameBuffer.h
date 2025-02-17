@@ -1,7 +1,7 @@
 // IFrameBuffer.h
 
-#ifndef _I_FRAME_BUFFER_h
-#define _I_FRAME_BUFFER_h
+#ifndef _EGFX_I_FRAME_BUFFER_h
+#define _EGFX_I_FRAME_BUFFER_h
 
 #include <stdint.h>
 #include "RgbColor.h"
@@ -11,6 +11,14 @@ namespace Egfx
 {
 	class IFrameBuffer
 	{
+		//Experimental, optional fast direct copy of bitmap to framebuffer.
+	private:
+		virtual void Bitmap565(const uint16_t* bitmap565, const pixel_t x, const pixel_t y, const pixel_t width, const pixel_t height) {}
+		virtual void Bitmap332(const uint8_t* bitmap332, const pixel_t x, const pixel_t y, const pixel_t width, const pixel_t height) {}
+		virtual void Bitmap1x8(const uint8_t* bitmask1x8, const pixel_t x, const pixel_t y, const pixel_t width, const pixel_t height) {}
+		virtual void Bitmap8x1(const uint8_t* bitmask8x1, const pixel_t x, const pixel_t y, const pixel_t width, const pixel_t height) {}
+
+
 	public:
 		virtual const pixel_t GetFrameWidth() const { return 0; }
 		virtual const pixel_t GetFrameHeight() const { return 0; }

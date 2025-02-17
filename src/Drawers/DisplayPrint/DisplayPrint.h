@@ -127,9 +127,9 @@ private:
 	DisplayPrintDrawer PrintDrawer;
 
 public:
-	DisplayPrintElement(IFrameBuffer* frame)
-		: ElementDrawer(frame, (uint8_t)Layout::ElementsCount())
-		, PrintDrawer(frame)
+	DisplayPrintElement()
+		: ElementDrawer((uint8_t)Layout::ElementsCount())
+		, PrintDrawer()
 	{
 	}
 

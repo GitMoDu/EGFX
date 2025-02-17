@@ -68,7 +68,7 @@ private:
 
 		droplets = 1 + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)RainDropsPerFrame);
 
-		if (frame->GetColorDepth() > 1)
+		if (!frame->IsMonochrome())
 		{
 			Color = Rgb::Color(ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 4) / 3)), (uint8_t)(UINT8_MAX / 5))
 				, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)(UINT8_MAX / 2))

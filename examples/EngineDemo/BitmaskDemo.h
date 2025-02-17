@@ -90,7 +90,7 @@ private:
 		x = Layout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressX), BitmapLayout::UsableX());
 		y = Layout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progressY), BitmapLayout::UsableY());
 
-		if (frame->GetColorDepth() > 1)
+		if (!frame->IsMonochrome())
 		{
 			const uint16_t colorProgress = ProgressScaler::GetProgress<ColorDuration>(frameTime);
 

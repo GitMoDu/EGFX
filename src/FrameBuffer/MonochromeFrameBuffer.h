@@ -40,6 +40,11 @@ public:
 	{
 	}
 
+	const bool IsMonochrome() const final
+	{
+		return true; 
+	}
+
 	const uint8_t GetColorDepth() const final
 	{
 		return 1;

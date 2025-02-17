@@ -218,7 +218,14 @@ void setup()
 #if defined(DEBUG)
 	Serial.println(F("Graphics Engine Demo Start."));
 	Serial.print(FrameBuffer.GetColorDepth());
-	Serial.println(F(" bit color depth screen."));
+	if (FrameBuffer.IsMonochrome())
+	{
+		Serial.println(F(" bit monochrome screen."));
+	}
+	else
+	{
+		Serial.println(F(" bit color screen."));
+	}
 
 
 	Serial.print(F("EGFX_PLATFORM_BIG "));

@@ -15,6 +15,7 @@ namespace Egfx
 		virtual const pixel_t GetFrameWidth() const { return 0; }
 		virtual const pixel_t GetFrameHeight() const { return 0; }
 
+		virtual const bool IsMonochrome() const { return false; }
 		virtual const uint8_t GetColorDepth() const { return 0; }
 
 		/// <summary>

@@ -87,19 +87,19 @@ public:
 			DrawSmallLine3(frame, frameTime);
 			break;
 		case (uint8_t)DrawElementsEnum::TinyLine1:
-			if (frame->GetColorDepth() >= 8)
+			if (!frame->IsMonochrome())
 			{
 				DrawTinyLine1(frame);
 			}
 			break;
 		case (uint8_t)DrawElementsEnum::TinyLine2:
-			if (frame->GetColorDepth() >= 8)
+			if (!frame->IsMonochrome())
 			{
 				DrawTinyLine2(frame);
 			}
 			break;
 		case (uint8_t)DrawElementsEnum::MicroLine:
-			if (frame->GetColorDepth() >= 8)
+			if (!frame->IsMonochrome())
 			{
 				DrawMicroLine(frame);
 			}

@@ -1,6 +1,8 @@
 #ifndef _ARDUINO_GRAPHICS_CORE_INCLUDE_h
 #define _ARDUINO_GRAPHICS_CORE_INCLUDE_h
 
+#include "Platform/Platform.h"
+
 #include "ArduinoGraphicsDrawer.h"
 
 #include "Model/IFrameBuffer.h"

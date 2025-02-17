@@ -26,13 +26,13 @@ namespace SpriteTransform
 	/// </summary>
 	/// <typeparam name="Width"></typeparam>
 	/// <typeparam name="Height"></typeparam>
-	template<const uint8_t Width,
-		const uint8_t Height,
+	template<const pixel_t Width,
+		const pixel_t Height,
 		typename BaseTransform = ITransform>
 	class RotateTransform : public BaseTransform
 	{
 	private:
-		static constexpr uint8_t GetDimension()
+		static constexpr pixel_t GetDimension()
 		{
 			return ((Width >= Height) * (Width)) | ((Width < Height) * (Height));
 		}
@@ -61,12 +61,12 @@ namespace SpriteTransform
 			return Angle;
 		}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			return Transform(x, y, Angle);
 		}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y, const int16_t angle)
+		virtual const bool Transform(pixel_t& x, pixel_t& y, const int16_t angle)
 		{
 			if (!BaseTransform::Transform(x, y))
 			{

@@ -4,7 +4,6 @@
 #define _SPRITE_SHADER_h
 
 #include "../../Model/RgbColor.h"
-#include "../../Model/RgbColorUtil.h"
 
 /// <summary>
 /// Template-chainable shaders, for an underlying SpriteType.
@@ -15,7 +14,7 @@ namespace SpriteShader
 	class AbstractOneColorShader : public SpriteType
 	{
 	protected:
-		RgbColor ShaderColor{ INT8_MAX, INT8_MAX, INT8_MAX };
+		rgb_color_t ShaderColor = Rgb::Color(INT8_MAX, INT8_MAX, INT8_MAX);
 
 	public:
 		AbstractOneColorShader() : SpriteType()
@@ -23,18 +22,9 @@ namespace SpriteShader
 		}
 
 	public:
-		void SetColor(const uint8_t r, const uint8_t g, const uint8_t b)
+		void SetColor(const rgb_color_t color)
 		{
-			ShaderColor.r = r;
-			ShaderColor.g = g;
-			ShaderColor.b = b;
-		}
-
-		void SetColor(const RgbColor& color)
-		{
-			ShaderColor.r = color.r;
-			ShaderColor.g = color.g;
-			ShaderColor.b = color.b;
+			ShaderColor = color;
 		}
 	};
 
@@ -42,8 +32,8 @@ namespace SpriteShader
 	class AbstractTwoColorShader : public SpriteType
 	{
 	protected:
-		RgbColor ShaderColor1{ INT8_MAX, INT8_MAX, INT8_MAX };
-		RgbColor ShaderColor2{ INT8_MAX, INT8_MAX, INT8_MAX };
+		rgb_color_t ShaderColor1 = Rgb::Color(INT8_MAX, INT8_MAX, INT8_MAX);
+		rgb_color_t ShaderColor2 = Rgb::Color(INT8_MAX, INT8_MAX, INT8_MAX);
 
 	public:
 		AbstractTwoColorShader() : SpriteType()
@@ -51,32 +41,14 @@ namespace SpriteShader
 		}
 
 	public:
-		void SetColor1(const uint8_t r, const uint8_t g, const uint8_t b)
+		void SetColor1(const rgb_color_t color)
 		{
-			ShaderColor1.r = r;
-			ShaderColor1.g = g;
-			ShaderColor1.b = b;
+			ShaderColor1 = color;
 		}
 
-		void SetColor1(const RgbColor& color)
+		void SetColor2(const rgb_color_t color)
 		{
-			ShaderColor1.r = color.r;
-			ShaderColor1.g = color.g;
-			ShaderColor1.b = color.b;
-		}
-
-		void SetColor2(const uint8_t r, const uint8_t g, const uint8_t b)
-		{
-			ShaderColor2.r = r;
-			ShaderColor2.g = g;
-			ShaderColor2.b = b;
-		}
-
-		void SetColor2(const RgbColor& color)
-		{
-			ShaderColor2.r = color.r;
-			ShaderColor2.g = color.g;
-			ShaderColor2.b = color.b;
+			ShaderColor2 = color;
 		}
 	};
 
@@ -91,13 +63,11 @@ namespace SpriteShader
 		{
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (SpriteType::Get(color, x, y))
 			{
-				color.r = ShaderColor.r;
-				color.g = ShaderColor.g;
-				color.b = ShaderColor.b;
+				color = ShaderColor;
 
 				return true;
 			}
@@ -124,7 +94,7 @@ namespace SpriteShader
 		{
 		}
 
-		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (SpriteType::Get(color, x, y))
 			{
@@ -132,15 +102,11 @@ namespace SpriteShader
 
 				if (even)
 				{
-					color.r = ShaderColor1.r;
-					color.g = ShaderColor1.g;
-					color.b = ShaderColor1.b;
+					color = ShaderColor1;
 				}
 				else
 				{
-					color.r = ShaderColor2.r;
-					color.g = ShaderColor2.g;
-					color.b = ShaderColor2.b;
+					color = ShaderColor2;
 				}
 
 				return true;
@@ -164,11 +130,11 @@ namespace SpriteShader
 		{
 		}
 
-		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (SpriteType::Get(color, x, y))
 			{
-				RgbColorUtil::InterpolateRgb(color, ShaderColor1, ShaderColor2, (((uint16_t)x * UINT8_MAX) / (SpriteType::Width - 1)));
+				color = Rgb::Interpolate(ShaderColor1, ShaderColor2, (((coordinate_t)x * UINT8_MAX) / (SpriteType::Width - 1)));
 
 				return true;
 			}
@@ -191,11 +157,11 @@ namespace SpriteShader
 		{
 		}
 
-		const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (SpriteType::Get(color, x, y))
 			{
-				RgbColorUtil::InterpolateRgb(color, ShaderColor1, ShaderColor2, (((uint16_t)y * UINT8_MAX) / (SpriteType::Height - 1)));
+				color = Rgb::Interpolate(ShaderColor1, ShaderColor2, (((coordinate_t)y * UINT8_MAX) / (SpriteType::Height - 1)));
 
 				return true;
 			}
@@ -214,36 +180,32 @@ namespace SpriteShader
 		using AbstractTwoColorShader<SpriteType>::ShaderColor2;
 
 	private:
-		uint8_t LimitX = 0;
-		uint8_t LimitY = 0;
+		pixel_t LimitX = 0;
+		pixel_t LimitY = 0;
 
 	public:
 		AxisLimitTwoColorShader() : AbstractTwoColorShader<SpriteType>()
 		{
 		}
 
-		void SetColorSwitchLimits(const uint8_t limitX = SpriteType::Width, const uint8_t limitY = SpriteType::Height)
+		void SetColorSwitchLimits(const pixel_t limitX = SpriteType::Width, const pixel_t limitY = SpriteType::Height)
 		{
 			LimitX = limitX;
 			LimitY = limitY;
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (SpriteType::Get(color, x, y))
 			{
 				if (x >= LimitX
 					|| y >= LimitY)
 				{
-					color.r = ShaderColor2.r;
-					color.g = ShaderColor2.g;
-					color.b = ShaderColor2.b;
+					color = ShaderColor2;
 				}
 				else
 				{
-					color.r = ShaderColor1.r;
-					color.g = ShaderColor1.g;
-					color.b = ShaderColor1.b;
+					color = ShaderColor1;
 				}
 
 				return true;

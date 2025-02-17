@@ -8,13 +8,13 @@
 /// <summary>
 /// 1 bit monochrome frame buffer.
 /// </summary>
-/// <typeparam name="frameWidth">Frame buffer width [0;254].</typeparam>
-/// <typeparam name="frameHeight">Frame buffer height [0;254].</typeparam>
+/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 /// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 /// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter8.</typeparam>
 /// <typeparam name="displayAxis">Display mirror option.</typeparam>
 /// <typeparam name="displayRotation">Display rotation option.</typeparam>
-template<const uint8_t frameWidth, const uint8_t frameHeight
+template<const pixel_t frameWidth, const pixel_t frameHeight
 	, const uint8_t clearDivisorPower = 0
 	, typename ColorConverter = BinaryColorConverter1
 	, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
@@ -37,16 +37,17 @@ protected:
 public:
 	MonochromeFrameBuffer(uint8_t buffer[BufferSize] = nullptr)
 		: BaseClass(buffer)
-	{}
+	{
+	}
 
-	const uint32_t GetColorDepth() const  final
+	const uint8_t GetColorDepth() const final
 	{
 		return 1;
 	}
 
-	void Fill(const RgbColor& color) final
+	void Fill(const rgb_color_t color) final
 	{
-		const uint8_t rawColor = ColorConverter::GetRawColor(color);
+		const color_t rawColor = ColorConverter::GetRawColor(color);
 		if (((bool)(rawColor > 0) ^ (bool)Inverted))
 		{
 			memset(Buffer, UINT8_MAX, BufferSize);
@@ -58,7 +59,7 @@ public:
 	}
 
 protected:
-	void WritePixel(const color_t rawColor, const uint8_t x, const uint8_t y) final
+	void WritePixel(const color_t rawColor, const pixel_t x, const pixel_t y) final
 	{
 		const uint8_t yByte = y / 8;
 		const uint8_t yBit = y % 8;
@@ -82,9 +83,9 @@ protected:
 	/// <param name="x"></param>
 	/// <param name="y"></param>
 	/// <param name="width"></param>
-	void LineHorizontal(const color_t rawColor, const uint8_t x, const uint8_t y, const uint8_t width) final
+	void LineHorizontal(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t width) final
 	{
-		uint8_t x1 = 0;
+		pixel_t x1 = 0;
 		uint8_t yByte = 0;
 		uint8_t yBit = 0;
 
@@ -136,25 +137,25 @@ protected:
 	/// Optimized version.
 	/// TODO: fix address issues and rename to LineVertical.
 	/// </summary>
-	void LineVerticalBuggy(const color_t rawColor, const uint8_t x, const uint8_t y, const uint8_t height)
+	void LineVerticalBuggy(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t height)
 	{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 		if (x >= frameWidth
 			|| y >= frameHeight
 			|| height > frameHeight - y)
 		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 			Serial.println(F("LV x,y "));
 			Serial.print(x);
 			Serial.print(',');
 			Serial.print(y);
 			Serial.print('\t');
-				Serial.println(height);
+			Serial.println(height);
+			return;
+		}
 #endif
-				return;
-	}
 
-		uint8_t x1 = 0;
-		uint8_t y1 = 0;
+		pixel_t x1 = 0;
+		pixel_t y1 = 0;
 
 		//TODO: Handle rotation. This switches Width and Height around.
 		switch (DisplayMirror)
@@ -252,6 +253,6 @@ protected:
 				Buffer[offset] &= ~(1 << yBit);
 			}
 		}
-}
+	}
 };
 #endif

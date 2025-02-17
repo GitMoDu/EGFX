@@ -3,149 +3,214 @@
 #ifndef _COLOR_CONVERTER_h
 #define _COLOR_CONVERTER_h
 
-#include <stdint.h>
-#include "GraphicsBuffer.h"
+#include "RgbColor.h"
 
-struct AbstractColorConverter1
+namespace Egfx
 {
-	using color_t = uint8_t;
-
-	static constexpr size_t GetBufferSize(const uint8_t width, const uint8_t height)
+	struct AbstractColorConverter1
 	{
-		return GraphicsBuffer::GetMonochromeBufferSize(width, height);
-	}
-};
+		using color_t = uint8_t;
 
-struct AbstractColorConverter4
-{
-	using color_t = uint8_t;
+		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		{
+			return Egfx::GetFrameBufferMonochromeSize(width, height);
+		}
+	};
 
-	static constexpr size_t GetBufferSize(const uint8_t width, const uint8_t height)
+	struct AbstractColorConverter4
 	{
-		return GraphicsBuffer::GetLowColorBufferSize<4>(width, height);
-	}
-};
+		using color_t = uint8_t;
 
-struct AbstractColorConverter8
-{
-	using color_t = uint8_t;
+		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		{
+			return Egfx::GetFrameBufferLowColorSize<4>(width, height);
+		}
+	};
 
-	static constexpr size_t GetBufferSize(const uint8_t width, const uint8_t height)
+	struct AbstractColorConverter8
 	{
-		return GraphicsBuffer::GetBufferSize<color_t>(width, height);
-	}
-};
+		using color_t = uint8_t;
 
-struct AbstractColorConverter16
-{
-	using color_t = uint16_t;
+		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		{
+			return Egfx::GetFrameBufferSize<color_t>(width, height);
+		}
+	};
 
-	static constexpr size_t GetBufferSize(const uint8_t width, const uint8_t height)
+	struct AbstractColorConverter16
 	{
-		return GraphicsBuffer::GetBufferSize<color_t>(width, height);
-	}
-};
+		using color_t = uint16_t;
 
-/// <summary>
-/// Converter for 8 bit color, 3-3-2 color format.
-/// </summary>
-struct ColorConverter8 : public AbstractColorConverter8
-{
-	static constexpr color_t GetRawColor(const RgbColor& color)
+		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		{
+			return Egfx::GetFrameBufferSize<color_t>(width, height);
+		}
+	};
+
+	/// <summary>
+	/// Converter for 8 bit color, 3-3-2 color format.
+	/// </summary>
+	struct ColorConverter8 : public AbstractColorConverter8
 	{
-		return ((color.r & 0xE0) | ((color.g >> 3) & 0x1C) | (color.b >> 6));
-	}
+#if defined(EGFX_PLATFORM_HDR)
+		/// <summary>
+		/// Convert 8-8-8 to 3-3-2 color.
+		/// </summary>
+		/// <param name="color">EGFX-native color.</param>
+		/// <returns>Framebuffer-native color (8-8-8).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return ((Rgb::R(color) >> 5) << 5)
+				| ((Rgb::G(color) >> 5) << 2)
+				| (Rgb::B(color) >> 6);
+		}
+#else
+		/// <summary>
+		/// Convert 5-6-5 to 3-3-2 color.
+		/// </summary>
+		/// <param name="color"></param>
+		/// <returns></returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return ((Rgb::R5(color) >> 2) << 5)
+				| ((Rgb::G6(color) >> 3) << 2)
+				| (Rgb::B5(color) >> 3);
+		}
+#endif
+	};
 
-	static const void GetColor(RgbColor& color, const color_t rawColor)
+	/// <summary>
+	/// Converter for 16 bit color, 5-6-5 color format.
+	/// </summary>
+	struct ColorConverter16 : public AbstractColorConverter16
 	{
-		color.r = (rawColor & 0xE0);
-		color.g = (rawColor & 0x1C) << 3;
-		color.b = (rawColor & 0x06) << 5;
-	}
-};
+#if defined(EGFX_PLATFORM_HDR)
+		/// <summary>
+		/// Convert 8-8-8 color to 5-6-5 color.
+		/// </summary>
+		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <returns>Framebuffer-native color (5-6-5).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return Rgb::Color565(color);
+		}
+#else
+		/// <summary>
+		/// Passthrough 5-6-5 color.
+		/// </summary>
+		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <returns>Framebuffer-native color (5-6-5).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return color;
+		}
+#endif
+	};
 
-/// <summary>
-/// Converter for 16 bit color, 5-6-5 color format.
-/// </summary>
-struct ColorConverter16 : public AbstractColorConverter16
-{
-	static constexpr color_t GetRawColor(const RgbColor& color)
+	/// <summary>
+	/// Converter for 8 bit grayscale.
+	/// </summary>
+	struct GrayScaleConverter8 : public AbstractColorConverter8
 	{
-		return ((uint16_t)(color.r & 0xF8) << 8)
-			| ((uint16_t)(color.g & 0xFC) << 3)
-			| (color.b >> 3);
-	}
+	private:
+#if defined(EGFX_PLATFORM_HDR)
+		enum class Weights : uint8_t
+		{
+			R = 77,
+			G = 150,
+			B = 29
+		};
 
-	static const void GetColor(RgbColor& color, const color_t rawColor)
+	public:
+		/// <summary>
+		/// Converts native (8-8-8) color to 256 tones grayscale.
+		/// </summary>
+		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <returns>Framebuffer-native color (8).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return (((uint16_t)Rgb::R(color) * (uint8_t)Weights::R) | ((uint16_t)Rgb::G(color) * (uint8_t)Weights::G) | ((uint16_t)Rgb::B(color) * (uint8_t)Weights::B)) >> 8;
+		}
+#else
+		enum class Weights : uint8_t
+		{
+			R = 123,
+			G = 240,
+			B = 182
+		};
+
+	public:
+		/// <summary>
+		/// Converts native (5-6-5) color to 256 tones grayscale.
+		/// </summary>
+		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <returns>Framebuffer-native color (8).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return (((uint16_t)Rgb::R5(color) * (uint8_t)Weights::R) | ((uint16_t)Rgb::G6(color) * (uint8_t)Weights::G) | ((uint16_t)Rgb::B5(color) * (uint8_t)Weights::B)) >> 8;
+		}
+#endif
+	public:
+
+	};
+
+	/// <summary>
+	/// Converter for 4 bit grayscale.
+	/// </summary>
+	struct GrayScaleConverter4 : public AbstractColorConverter4
 	{
-		color.r = (uint8_t)(rawColor >> 8) & 0xF8;
-		color.g = (rawColor & 0x07E0) >> 3;
-		color.b = ((uint8_t)rawColor & 0x1F) << 3;
-	}
-};
+#if defined(EGFX_PLATFORM_HDR)
+	private:
+		/// <summary>
+		/// Converts 8-8-8 color to 16 tones grayscale.
+		/// </summary>
+		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <returns>Framebuffer-native color (4).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return ((Rgb::R(color) >> 2) + (Rgb::G(color) >> 1) + (Rgb::B(color) >> 2));
+		}
+#else
+		/// <summary>
+		/// Converts 5-6-5 color to 16 tones grayscale.
+		/// </summary>
+		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <returns>Framebuffer-native color (4).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return Rgb::R5(color) + Rgb::G6(color) + Rgb::B5(color);
+		}
+#endif
+	};
 
-/// <summary>
-/// Converter for 8 bit grayscale.
-/// </summary>
-struct GrayScaleConverter8 : public AbstractColorConverter8
-{
-	static constexpr color_t GetRawColor(const RgbColor& color)
+	/// <summary>
+	/// Converter for 1 bit color, with configurable threshold.
+	/// Uses GrayScaleConverter8 for conversion before comparison.
+	/// </summary>
+	/// <typeparam name="threshold">Grayscale threshold for color.</typeparam>
+	template<const uint8_t threshold = 0>
+	struct MonochromeColorConverter1 : public AbstractColorConverter1
 	{
-		return (((uint16_t)color.r * 77) | ((uint16_t)color.g * 150) | ((uint16_t)color.b * 29)) >> 8;
-	}
-};
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return (color_t)GrayScaleConverter8::GetRawColor(color) > threshold;
+		}
+	};
 
-/// <summary>
-/// Converter for 4 bit grayscale.
-/// </summary>
-struct GrayScaleConverter4 : public AbstractColorConverter4
-{
-	static constexpr color_t GetRawColor(const RgbColor& color)
+	/// <summary>
+	/// Fast Converter for 1 bit color, with fixed threshold at 0.
+	/// </summary>
+	struct BinaryColorConverter1 : public AbstractColorConverter1
 	{
-		return ((color.r >> 2) + (color.g >> 1) + (color.b >> 2));
-	}
-};
-
-/// <summary>
-/// Converter for 1 bit color, with configurable threshold.
-/// Uses GrayScaleConverter8 for conversion before comparison.
-/// </summary>
-/// <typeparam name="threshold">Grayscale threshold for color.</typeparam>
-template<const uint8_t threshold = 0>
-struct MonochromeColorConverter1 : public AbstractColorConverter1
-{
-	static constexpr color_t GetRawColor(const RgbColor& color)
-	{
-		return GrayScaleConverter8::GetRawColor(color) > threshold;
-	}
-
-	static const void GetColor(RgbColor& color, const color_t rawColor)
-	{
-		const uint8_t value = (rawColor > threshold) * UINT8_MAX;
-
-		color.r = value;
-		color.g = value;
-		color.b = value;
-	}
-};
-
-/// <summary>
-/// Fast Converter for 1 bit color, with fixed threshold at 0.
-/// </summary>
-struct BinaryColorConverter1 : public AbstractColorConverter1
-{
-	static constexpr color_t GetRawColor(const RgbColor& color)
-	{
-		return color.r > 0 || color.g > 0 || color.b > 0;
-	}
-
-	static const void GetColor(RgbColor& color, const color_t rawColor)
-	{
-		const uint8_t value = (rawColor > 0) * UINT8_MAX;
-
-		color.r = value;
-		color.g = value;
-		color.b = value;
-	}
-};
+		/// <summary>
+		/// Converts native (8-8-8, 5-6-5) color to 1 bit color.
+		/// </summary>
+		/// <param name="color">EGFX-native color (8-8-8, 5-6-5).</param>
+		/// <returns>Framebuffer-native color (1).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return color > 0;
+		}
+	};
+}
 #endif

@@ -14,7 +14,7 @@
 class FontRenderer
 {
 public:
-	static void Write(IFrameBuffer* frameBuffer, const FontStyle& font, const uint8_t x1, const uint8_t y1, const int8_t character)
+	static void Write(IFrameBuffer* frameBuffer, const FontStyle& font, const pixel_t x1, const pixel_t y1, const int8_t character)
 	{
 		if (x1 < frameBuffer->GetFrameWidth()
 			&& y1 < frameBuffer->GetFrameHeight())
@@ -143,27 +143,27 @@ public:
 	}
 
 private:
-	static void DrawMinus(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawMinus(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, middleY, x2 - 2, middleY);
 	}
 
-	static void DrawA(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawA(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t margin = ((x2 - x1) / 4);
-		const uint8_t middleX = (((uint16_t)x2 + x1) / 2);
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2) + 1;
+		const pixel_t margin = ((x2 - x1) / 4);
+		const pixel_t middleX = (((coordinate_t)x2 + x1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2) + 1;
 
 		frameBuffer->Line(color, x1, y2, middleX, y1);
 		frameBuffer->Line(color, x1 + margin, middleY, x2 - margin, middleY);
 		frameBuffer->Line(color, middleX, y1, x2 - 1, y2);
 	}
 
-	static void DrawB(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawB(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x2 - 1, y1 + 1, x2 - 1, middleY);
 		frameBuffer->Line(color, x2 - 1, middleY + 1, x2 - 1, y2 - 1);
@@ -174,14 +174,14 @@ private:
 		frameBuffer->Line(color, x1, y2 - 1, x2 - 1, y2 - 1);
 	}
 
-	static void DrawC(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawC(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1 + 1, y1, x2, y1);
 		frameBuffer->Line(color, x1, y1 + 1, x1, y2 - 1);
 		frameBuffer->Line(color, x1 + 1, y2 - 1, x2, y2 - 1);
 	}
 
-	static void DrawD(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawD(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
 		frameBuffer->Line(color, x1, y1, x1, y2);
@@ -189,9 +189,9 @@ private:
 		frameBuffer->Line(color, x1 + 1, y2 - 1, x2 - 1, y2 - 1);
 	}
 
-	static void DrawE(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawE(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, y1, x1, y2 - 1);
 		frameBuffer->Line(color, x1, y1, x2, y1);
@@ -199,18 +199,18 @@ private:
 		frameBuffer->Line(color, x1, y2 - 1, x2, y2 - 1);
 	}
 
-	static void DrawF(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawF(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, y1, x1, y2);
 		frameBuffer->Line(color, x1, y1, x2, y1);
 		frameBuffer->Line(color, x1, middleY, x2 - 1, middleY);
 	}
 
-	static void DrawG(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawG(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1 + 1, y1, x2, y1);
 		frameBuffer->Line(color, x1, y1 + 1, x1, y2 - 1);
@@ -220,52 +220,52 @@ private:
 		frameBuffer->Line(color, x1 + 2, middleY, x2 - 1, middleY);
 	}
 
-	static void DrawH(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawH(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, y1, x1, y2);
 		frameBuffer->Line(color, x2 - 1, y1, x2 - 1, y2);
 		frameBuffer->Line(color, x1 + 1, middleY, x2 - 1, middleY);
 	}
 
-	static void DrawI(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawI(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleX = ((uint16_t)x2 + x1) / 2;
+		const pixel_t middleX = ((coordinate_t)x2 + x1) / 2;
 
 		frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
 		frameBuffer->Line(color, middleX, y1, middleX, y2 - 1);
 		frameBuffer->Line(color, x1 + 1, y2 - 1, x2 - 1, y2 - 1);
 	}
 
-	static void DrawJ(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawJ(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x2 - 1, y1, x2 - 1, y2 - 1);
 		frameBuffer->Line(color, x1, middleY, x1, y2 - 1);
 		frameBuffer->Line(color, x1 + 1, y2 - 1, x2 - 1, y2 - 1);
 	}
 
-	static void DrawK(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawK(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, y1, x1, y2);
 		frameBuffer->Line(color, x1, middleY, x2 - 1, y1);
 		frameBuffer->Line(color, x1, middleY - 1, x2, y2);
 	}
 
-	static void DrawL(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawL(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1, y1, x1, y2 - 1);
 		frameBuffer->Line(color, x1, y2 - 1, x2, y2 - 1);
 	}
 
-	static void DrawM(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawM(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleX = ((uint16_t)x2 + x1) / 2;
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleX = ((coordinate_t)x2 + x1) / 2;
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, y1, x1, y2);
 		frameBuffer->Line(color, x1 + 1, y1 + 1, middleX, middleY);
@@ -273,14 +273,14 @@ private:
 		frameBuffer->Line(color, x2 - 1, y1, x2 - 1, y2);
 	}
 
-	static void DrawN(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawN(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1, y1, x1, y2);
 		frameBuffer->Line(color, x1 + 1, y1 + 1, x2 - 1, y2);
 		frameBuffer->Line(color, x2 - 1, y1, x2 - 1, y2);
 	}
 
-	static void DrawO(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawO(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
 		frameBuffer->Line(color, x1, y1 + 1, x1, y2 - 1);
@@ -288,9 +288,9 @@ private:
 		frameBuffer->Line(color, x1 + 1, y2 - 1, x2 - 1, y2 - 1);
 	}
 
-	static void DrawP(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawP(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, y1, x1, y2);
 		frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
@@ -298,7 +298,7 @@ private:
 		frameBuffer->Line(color, x1 + 1, middleY, x2 - 1, middleY);
 	}
 
-	static void DrawQ(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawQ(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
 		frameBuffer->Line(color, x1, y1 + 1, x1, y2 - 1);
@@ -307,9 +307,9 @@ private:
 		frameBuffer->Line(color, x2 - 2, y2 - 2, x2, y2);
 	}
 
-	static void DrawR(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawR(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1, y1, x1, y2);
 		frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
@@ -318,9 +318,9 @@ private:
 		frameBuffer->Line(color, x1 + 1, middleY, x2 - 1, y2);
 	}
 
-	static void DrawS(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawS(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
 		frameBuffer->Line(color, x1 + 1, y1, x2, y1);
 		frameBuffer->Line(color, x1, y1 + 1, x1, middleY);
@@ -329,35 +329,35 @@ private:
 		frameBuffer->Line(color, x1, y2 - 1, x2 - 1, y2 - 1);
 	}
 
-	static void DrawT(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawT(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleX = ((uint16_t)x2 + x1) / 2;
+		const pixel_t middleX = ((coordinate_t)x2 + x1) / 2;
 
 		frameBuffer->Line(color, x1, y1, x2, y1);
 		frameBuffer->Line(color, middleX, y1, middleX, y2);
 	}
 
-	static void DrawU(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawU(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1, y1, x1, y2 - 1);
 		frameBuffer->Line(color, x1 + 1, y2 - 1, x2 - 1, y2 - 1);
 		frameBuffer->Line(color, x2 - 1, y1, x2 - 1, y2 - 1);
 	}
 
-	static void DrawV(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawV(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleX = (((uint16_t)x2 + x1) / 2);
+		const pixel_t middleX = (((coordinate_t)x2 + x1) / 2);
 
 		frameBuffer->Line(color, x1, y1, middleX, y2);
 		frameBuffer->Line(color, middleX, y2 - 1, x2 - 1, y1);
 	}
 
-	static void DrawW(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawW(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleX = (((uint16_t)x2 + x1) / 2);
-		const uint8_t middleY = (((uint16_t)y2 + y1) / 2);
+		const pixel_t middleX = (((coordinate_t)x2 + x1) / 2);
+		const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
 
-		const uint8_t margin = (((uint16_t)x2 - x1) / 4);
+		const pixel_t margin = (((coordinate_t)x2 - x1) / 4);
 
 		frameBuffer->Line(color, x1, y1, middleX - margin, y2);
 		frameBuffer->Line(color, middleX - margin, y2, middleX, middleY);
@@ -365,23 +365,23 @@ private:
 		frameBuffer->Line(color, x2 - 1, y1, middleX + margin, y2);
 	}
 
-	static void DrawX(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawX(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1, y1, x2 - 1, y2);
 		frameBuffer->Line(color, x1, y2, x2 - 1, y1);
 	}
 
-	static void DrawY(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawY(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
-		const uint8_t middleX = (((uint16_t)x1 + x2) / 2);
-		const uint8_t middleY = (((uint16_t)y1 + y2) / 2) + 2;
+		const pixel_t middleX = (((coordinate_t)x1 + x2) / 2);
+		const pixel_t middleY = (((coordinate_t)y1 + y2) / 2) + 2;
 
 		frameBuffer->Line(color, x1, y1, middleX, middleY);
 		frameBuffer->Line(color, x2 - 1, y1, middleX, middleY);
 		frameBuffer->Line(color, middleX, middleY, middleX, y2);
 	}
 
-	static void DrawZ(IFrameBuffer* frameBuffer, const RgbColor& color, const uint8_t x1, const uint8_t y1, const uint8_t x2, const uint8_t y2)
+	static void DrawZ(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 	{
 		frameBuffer->Line(color, x1, y1, x2 - 1, y1);
 		frameBuffer->Line(color, x1, y2 - 1, x2 - 1, y1);

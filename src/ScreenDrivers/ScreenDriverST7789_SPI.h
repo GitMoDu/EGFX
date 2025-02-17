@@ -9,15 +9,15 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "ST7789/ST7789.h"
 
-template<typename pixel_t,
+template<typename pixel_color_t,
 	const uint8_t pinCS,
 	const uint8_t pinDC,
 	const uint8_t pinRST,
 	const uint32_t spiSpeed>
-class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>
+class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>
 {
 private:
-	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>;
+	using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>;
 
 public:
 	using BaseClass::ScreenWidth;

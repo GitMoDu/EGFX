@@ -3,14 +3,22 @@
 #ifndef _I_SPRITE_h
 #define _I_SPRITE_h
 
-#include <stdint.h>
 #include "RgbColor.h"
 
 class ISprite
 {
 public:
-	virtual const uint8_t GetWidth() const { return 0; }
-	virtual const uint8_t GetHeight() const { return 0; }
+	/// <summary>
+	/// Sprite width.
+	/// </summary>
+	/// <returns></returns>
+	virtual const pixel_t GetWidth() const { return 0; }
+
+	/// <summary>
+	/// Sprite height.
+	/// </summary>
+	/// <returns></returns>
+	virtual const pixel_t GetHeight() const { return 0; }
 
 	/// <summary>
 	/// Color getter for sprite.
@@ -18,28 +26,34 @@ public:
 	/// <param name="color">Color to be written.</param>
 	/// <param name="x">Sprite coordinate X.</param>
 	/// <param name="y">Sprite coordinate Y.</param>
-	/// <returns>False when coordinates are transparent.</returns>
-	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y) { return false; }
+	/// <returns>False when pixel is transparent at these coordinates.</returns>
+	virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y) { return false; }
 };
 
-template<const uint8_t width,
-	const uint8_t height>
+/// <summary>
+/// Templated implementation of sprite dimensions only.
+/// </summary>
+/// <typeparam name="width">Sprite width.</typeparam>
+/// <typeparam name="height">Sprite height.</typeparam>
+template<const pixel_t width,
+	const pixel_t height>
 class AbstractSprite : public ISprite
 {
 public:
-	static constexpr uint8_t Width = width;
-	static constexpr uint8_t Height = height;
+	static constexpr pixel_t Width = width;
+	static constexpr pixel_t Height = height;
 
 public:
 	AbstractSprite() : ISprite()
-	{}
+	{
+	}
 
-	virtual const uint8_t GetWidth() const
+	virtual const pixel_t GetWidth() const
 	{
 		return Width;
 	}
 
-	virtual const uint8_t GetHeight() const
+	virtual const pixel_t GetHeight() const
 	{
 		return Height;
 	}

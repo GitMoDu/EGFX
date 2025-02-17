@@ -5,19 +5,17 @@
 
 #include "../../Model/ISprite.h"
 
-template<const uint8_t width,
-	const uint8_t height>
+template<const pixel_t width,
+	const pixel_t height>
 class RectangleSprite : public AbstractSprite<width, height>
 {
 public:
 	RectangleSprite() : AbstractSprite<width, height>()
 	{}
 
-	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 	{
-		color.r = UINT8_MAX;
-		color.g = UINT8_MAX;
-		color.b = UINT8_MAX;
+		color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 
 		return true;
 	}

@@ -5,18 +5,21 @@
 
 #include <stdint.h>
 
-enum class DisplayRotationEnum
+namespace Egfx
 {
-	NoRotation,
-	Plus90,
-	Minus90
-};
+	enum class DisplayRotationEnum
+	{
+		NoRotation,
+		Plus90,
+		Minus90
+	};
 
-enum class DisplayMirrorEnum
-{
-	NoMirror,
-	MirrorX,
-	MirrorY,
-	MirrorXY
-};
+	enum class DisplayMirrorEnum
+	{
+		NoMirror,
+		MirrorX,
+		MirrorY,
+		MirrorXY
+	};
+}
 #endif

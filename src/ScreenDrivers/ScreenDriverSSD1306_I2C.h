@@ -9,14 +9,14 @@
 #include "TemplateScreenDriverI2CAsync.h"
 #include "SSD1306\SSD1306.h"
 
-template<const uint8_t width,
-	const uint8_t height,
+template<const pixel_t width,
+	const pixel_t height,
 	const int8_t verticalOffset,
 	const uint8_t i2cAddress>
 class AbstractScreenDriverSSD1306_I2C : public AbstractScreenDriverI2C<width, height, i2cAddress>
 {
 public:
-	static constexpr size_t BufferSize = GraphicsBuffer::GetMonochromeBufferSize(width, height);
+	static constexpr size_t BufferSize = Egfx::GetFrameBufferMonochromeSize(width, height);
 
 private:
 	using BaseClass = AbstractScreenDriverI2C<width, height, i2cAddress>;

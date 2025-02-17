@@ -10,7 +10,7 @@
 /// </summary>
 struct ITransform
 {
-	virtual const bool Transform(uint8_t& x, uint8_t& y)
+	virtual const bool Transform(pixel_t& x, pixel_t& y)
 	{
 		return true;
 	}

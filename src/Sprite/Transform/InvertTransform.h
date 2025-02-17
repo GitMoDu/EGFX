@@ -13,14 +13,14 @@ namespace SpriteTransform
 	/// <typeparam name="Width"></typeparam>
 	/// <typeparam name="Height"></typeparam>
 	/// <typeparam name="BaseTransform"></typeparam>
-	template<const uint8_t Width,
-		const uint8_t Height,
+	template<const pixel_t Width,
+		const pixel_t Height,
 		typename BaseTransform = ITransform>
 	struct InvertXTransform : public BaseTransform
 	{
 		InvertXTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -32,7 +32,7 @@ namespace SpriteTransform
 			return false;
 		}
 
-		static void TransformStatic(uint8_t& x, uint8_t& y)
+		static void TransformStatic(pixel_t& x, pixel_t& y)
 		{
 			x = Width - 1 - x;
 		}
@@ -43,13 +43,13 @@ namespace SpriteTransform
 	/// </summary>
 	/// <typeparam name="Height"></typeparam>
 	/// <typeparam name="BaseTransform"></typeparam>
-	template<const uint8_t Height,
+	template<const pixel_t Height,
 		typename BaseTransform = ITransform>
 	struct InvertYTransform : public BaseTransform
 	{
 		InvertYTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -61,7 +61,7 @@ namespace SpriteTransform
 			return false;
 		}
 
-		static void TransformStatic(uint8_t& x, uint8_t& y)
+		static void TransformStatic(pixel_t& x, pixel_t& y)
 		{
 			y = Height - 1 - y;
 		}
@@ -72,13 +72,13 @@ namespace SpriteTransform
 	/// </summary>
 	/// <typeparam name="Width"></typeparam>
 	/// <typeparam name="Height"></typeparam>
-	template<const uint8_t Width, const uint8_t Height,
+	template<const pixel_t Width, const pixel_t Height,
 		typename BaseTransform = ITransform>
 	struct InvertTransform : public BaseTransform
 	{
 		InvertTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -90,7 +90,7 @@ namespace SpriteTransform
 			return false;
 		}
 
-		static void TransformStatic(uint8_t& x, uint8_t& y)
+		static void TransformStatic(pixel_t& x, pixel_t& y)
 		{
 			x = Width - 1 - x;
 			y = Height - 1 - y;
@@ -105,7 +105,7 @@ namespace SpriteTransform
 	{
 		FlipTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -117,9 +117,9 @@ namespace SpriteTransform
 			return false;
 		}
 
-		static void TransformStatic(uint8_t& x, uint8_t& y)
+		static void TransformStatic(pixel_t& x, pixel_t& y)
 		{
-			const uint8_t xx = x;
+			const pixel_t xx = x;
 			x = y;
 			y = xx;
 		}
@@ -130,13 +130,13 @@ namespace SpriteTransform
 	/// Equivalent to a +90 degree rotation.
 	/// </summary>
 	/// <typeparam name="Height"></typeparam>
-	template<const uint8_t Height,
+	template<const pixel_t Height,
 		typename BaseTransform = ITransform>
 	struct FlipInvertXTransform : public BaseTransform
 	{
 		FlipInvertXTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -148,9 +148,9 @@ namespace SpriteTransform
 			return false;
 		}
 
-		static void TransformStatic(uint8_t& x, uint8_t& y)
+		static void TransformStatic(pixel_t& x, pixel_t& y)
 		{
-			const uint8_t xx = x;
+			const pixel_t xx = x;
 			x = Height - 1 - y;
 			y = xx;
 		}
@@ -161,13 +161,13 @@ namespace SpriteTransform
 	/// Equivalent to a 270 degree (-90 degree) rotation.
 	/// </summary>
 	/// <typeparam name="Width"></typeparam>
-	template<const uint8_t Width,
+	template<const pixel_t Width,
 		typename BaseTransform = ITransform>
 	struct FlipInvertYTransform : public BaseTransform
 	{
 		FlipInvertYTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -179,9 +179,9 @@ namespace SpriteTransform
 			return false;
 		}
 
-		static void TransformStatic(uint8_t& x, uint8_t& y)
+		static void TransformStatic(pixel_t& x, pixel_t& y)
 		{
-			const uint8_t xx = x;
+			const pixel_t xx = x;
 			x = y;
 			y = Width - 1 - xx;
 		}

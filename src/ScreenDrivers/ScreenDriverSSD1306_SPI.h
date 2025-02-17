@@ -9,16 +9,16 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "SSD1306\SSD1306.h"
 
-template<const uint8_t width,
-	const uint8_t height,
+template<const pixel_t width,
+	const pixel_t height,
 	const uint8_t pinCS,
 	const uint8_t pinDC,
 	const uint8_t pinRST,
 	const uint32_t spiSpeed>
-class AbstractScreenDriverSSD1306_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetMonochromeBufferSize(width, height), width, height, pinCS, pinDC, pinRST>
+class AbstractScreenDriverSSD1306_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferMonochromeSize(width, height), width, height, pinCS, pinDC, pinRST>
 {
 private:
-	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetMonochromeBufferSize(width, height), width, height, pinCS, pinDC, pinRST>;
+	using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferMonochromeSize(width, height), width, height, pinCS, pinDC, pinRST>;
 
 public:
 	using BaseClass::ScreenWidth;

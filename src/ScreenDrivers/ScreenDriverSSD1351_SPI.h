@@ -9,15 +9,15 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "SSD1351/SSD1351.h"
 
-template<typename pixel_t,
+template<typename pixel_color_t,
 	const uint8_t pinCS,
 	const uint8_t pinDC,
 	const uint8_t pinRST,
 	const uint32_t spiSpeed>
-class AbstractScreenDriverSSD1351_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>
+class AbstractScreenDriverSSD1351_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>
 {
 private:
-	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>;
+	using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>;
 
 public:
 	using BaseClass::ScreenWidth;

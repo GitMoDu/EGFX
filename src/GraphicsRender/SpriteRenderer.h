@@ -20,21 +20,22 @@ struct SpriteRenderer
 	/// <param name="parameter"></param>
 	//template<typename TransformType>
 	static void TransformDraw(IFrameBuffer* frame, ISprite* sprite, ITransform* transform,
-		const uint8_t positionX, const uint8_t positionY)
+		const pixel_t positionX, const pixel_t positionY)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
+
 				if (sprite->Get(color, x, y)
 					&& transform->Transform(xNew, yNew))
 				{
@@ -53,17 +54,17 @@ struct SpriteRenderer
 	/// <param name="positionY"></param>
 	/// <param name="parameter"></param>
 	static void TransformDrawPartial(IFrameBuffer* frame, ISprite* sprite, ITransform* transform,
-		const uint8_t positionX, const uint8_t positionY,
-		const uint8_t offsetX, const uint8_t offsetY,
-		const uint8_t width, const uint8_t height)
+		const pixel_t positionX, const pixel_t positionY,
+		const pixel_t offsetX, const pixel_t offsetY,
+		const pixel_t width, const pixel_t height)
 	{
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = offsetX; x < offsetX + width; x++)
+		for (pixel_t x = offsetX; x < offsetX + width; x++)
 		{
-			for (uint8_t y = offsetY; y < offsetY + height; y++)
+			for (pixel_t y = offsetY; y < offsetY + height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -88,15 +89,15 @@ struct SpriteRenderer
 	/// <param name="width"></param>
 	/// <param name="height"></param>
 	static void DrawPartial(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t positionX, const uint8_t positionY,
-		const uint8_t offsetX, const uint8_t offsetY,
-		const uint8_t width, const uint8_t height)
+		const pixel_t positionX, const pixel_t positionY,
+		const pixel_t offsetX, const pixel_t offsetY,
+		const pixel_t width, const pixel_t height)
 	{
-		RgbColor color{};
+		rgb_color_t color{};
 
-		for (uint8_t x = offsetX; x < offsetX + width; x++)
+		for (pixel_t x = offsetX; x < offsetX + width; x++)
 		{
-			for (uint8_t y = offsetY; y < offsetY + height; y++)
+			for (pixel_t y = offsetY; y < offsetY + height; y++)
 			{
 				if (sprite->Get(color, x, y))
 				{
@@ -115,14 +116,14 @@ struct SpriteRenderer
 	/// <param name="positionY"></param>
 	/// <param name="line">Y index of the line to be rendered.</param>
 	static void DrawRow(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t positionX, const uint8_t positionY,
-		const uint8_t line)
+		const pixel_t positionX, const pixel_t positionY,
+		const pixel_t line)
 	{
-		const uint8_t width = sprite->GetWidth();
+		const pixel_t width = sprite->GetWidth();
 
-		RgbColor color{};
+		rgb_color_t color{};
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
 			if (sprite->Get(color, x, line))
 			{
@@ -140,14 +141,14 @@ struct SpriteRenderer
 	/// <param name="positionY"></param>
 	/// <param name="column">X index of the column to be rendered.</param>
 	static void DrawColumn(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t positionX, const uint8_t positionY,
-		const uint8_t column)
+		const pixel_t positionX, const pixel_t positionY,
+		const pixel_t column)
 	{
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
+		rgb_color_t color{};
 
-		for (uint8_t y = 0; y < height; y++)
+		for (pixel_t y = 0; y < height; y++)
 		{
 			if (sprite->Get(color, column, y))
 			{
@@ -164,15 +165,15 @@ struct SpriteRenderer
 	/// <param name="positionX"></param>
 	/// <param name="positionY"></param>
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t positionX, const uint8_t positionY)
+		const pixel_t positionX, const pixel_t positionY)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		for (uint8_t x = 0; x < width; x++)
+		rgb_color_t color{};
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				if (sprite->Get(color, x, y))
 				{
@@ -183,16 +184,16 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		for (uint8_t x = 0; x < width; x++)
+		rgb_color_t color{};
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				if (sprite->Get(color, x, y))
 				{
@@ -204,20 +205,20 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -231,21 +232,21 @@ struct SpriteRenderer
 		}
 	}
 
-	static void Draw(IFrameBuffer* frame, ISprite* sprite, const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y,
-		const uint8_t position4X, const uint8_t position4Y)
+	static void Draw(IFrameBuffer* frame, ISprite* sprite, const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y,
+		const pixel_t position4X, const pixel_t position4Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -261,22 +262,22 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y,
-		const uint8_t position4X, const uint8_t position4Y,
-		const uint8_t position5X, const uint8_t position5Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y,
+		const pixel_t position4X, const pixel_t position4Y,
+		const pixel_t position5X, const pixel_t position5Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -293,23 +294,23 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y,
-		const uint8_t position4X, const uint8_t position4Y,
-		const uint8_t position5X, const uint8_t position5Y,
-		const uint8_t position6X, const uint8_t position6Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y,
+		const pixel_t position4X, const pixel_t position4Y,
+		const pixel_t position5X, const pixel_t position5Y,
+		const pixel_t position6X, const pixel_t position6Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -327,24 +328,24 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y,
-		const uint8_t position4X, const uint8_t position4Y,
-		const uint8_t position5X, const uint8_t position5Y,
-		const uint8_t position6X, const uint8_t position6Y,
-		const uint8_t position7X, const uint8_t position7Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y,
+		const pixel_t position4X, const pixel_t position4Y,
+		const pixel_t position5X, const pixel_t position5Y,
+		const pixel_t position6X, const pixel_t position6Y,
+		const pixel_t position7X, const pixel_t position7Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -363,25 +364,25 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y,
-		const uint8_t position4X, const uint8_t position4Y,
-		const uint8_t position5X, const uint8_t position5Y,
-		const uint8_t position6X, const uint8_t position6Y,
-		const uint8_t position7X, const uint8_t position7Y,
-		const uint8_t position8X, const uint8_t position8Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y,
+		const pixel_t position4X, const pixel_t position4Y,
+		const pixel_t position5X, const pixel_t position5Y,
+		const pixel_t position6X, const pixel_t position6Y,
+		const pixel_t position7X, const pixel_t position7Y,
+		const pixel_t position8X, const pixel_t position8Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -401,26 +402,26 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y,
-		const uint8_t position4X, const uint8_t position4Y,
-		const uint8_t position5X, const uint8_t position5Y,
-		const uint8_t position6X, const uint8_t position6Y,
-		const uint8_t position7X, const uint8_t position7Y,
-		const uint8_t position8X, const uint8_t position8Y,
-		const uint8_t position9X, const uint8_t position9Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y,
+		const pixel_t position4X, const pixel_t position4Y,
+		const pixel_t position5X, const pixel_t position5Y,
+		const pixel_t position6X, const pixel_t position6Y,
+		const pixel_t position7X, const pixel_t position7Y,
+		const pixel_t position8X, const pixel_t position8Y,
+		const pixel_t position9X, const pixel_t position9Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;
@@ -441,27 +442,27 @@ struct SpriteRenderer
 	}
 
 	static void Draw(IFrameBuffer* frame, ISprite* sprite,
-		const uint8_t position1X, const uint8_t position1Y,
-		const uint8_t position2X, const uint8_t position2Y,
-		const uint8_t position3X, const uint8_t position3Y,
-		const uint8_t position4X, const uint8_t position4Y,
-		const uint8_t position5X, const uint8_t position5Y,
-		const uint8_t position6X, const uint8_t position6Y,
-		const uint8_t position7X, const uint8_t position7Y,
-		const uint8_t position8X, const uint8_t position8Y,
-		const uint8_t position9X, const uint8_t position9Y,
-		const uint8_t position10X, const uint8_t position10Y)
+		const pixel_t position1X, const pixel_t position1Y,
+		const pixel_t position2X, const pixel_t position2Y,
+		const pixel_t position3X, const pixel_t position3Y,
+		const pixel_t position4X, const pixel_t position4Y,
+		const pixel_t position5X, const pixel_t position5Y,
+		const pixel_t position6X, const pixel_t position6Y,
+		const pixel_t position7X, const pixel_t position7Y,
+		const pixel_t position8X, const pixel_t position8Y,
+		const pixel_t position9X, const pixel_t position9Y,
+		const pixel_t position10X, const pixel_t position10Y)
 	{
-		const uint8_t width = sprite->GetWidth();
-		const uint8_t height = sprite->GetHeight();
+		const pixel_t width = sprite->GetWidth();
+		const pixel_t height = sprite->GetHeight();
 
-		RgbColor color{};
-		uint8_t xNew = 0;
-		uint8_t yNew = 0;
+		rgb_color_t color{};
+		pixel_t xNew = 0;
+		pixel_t yNew = 0;
 
-		for (uint8_t x = 0; x < width; x++)
+		for (pixel_t x = 0; x < width; x++)
 		{
-			for (uint8_t y = 0; y < height; y++)
+			for (pixel_t y = 0; y < height; y++)
 			{
 				xNew = x;
 				yNew = y;

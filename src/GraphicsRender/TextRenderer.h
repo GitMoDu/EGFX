@@ -12,7 +12,7 @@
 class TextRenderer
 {
 public:
-	static void TextTopLeft(IFrameBuffer* frame, const FontStyle& font, const uint8_t x1, const uint8_t y1, const __FlashStringHelper* ifsh)
+	static void TextTopLeft(IFrameBuffer* frame, const FontStyle& font, const pixel_t x1, const pixel_t y1, const __FlashStringHelper* ifsh)
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
@@ -20,7 +20,7 @@ public:
 			&& y1 < frame->GetFrameHeight() - font.Height)
 		{
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (x1 < frame->GetFrameWidth() - offset - font.Width - font.Kerning)
 			{
 				const int8_t character = pgm_read_byte(ptr++);
@@ -40,14 +40,14 @@ public:
 #endif		
 	}
 
-	static void TextTopRight(IFrameBuffer* frame, const FontStyle& font, const uint8_t x2, const uint8_t y1, const __FlashStringHelper* ifsh)
+	static void TextTopRight(IFrameBuffer* frame, const FontStyle& font, const pixel_t x2, const pixel_t y1, const __FlashStringHelper* ifsh)
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
 			&& x2 < frame->GetFrameWidth()
 			&& y1 < frame->GetFrameHeight() - font.Height)
 		{
-			const uint8_t x1 = x2 - font.Width;
+			const pixel_t x1 = x2 - font.Width;
 
 			size_t size = 0;
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
@@ -64,7 +64,7 @@ public:
 				}
 			}
 			ptr += size - 1;
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (size--
 				&& x2 > offset)
 			{
@@ -78,27 +78,27 @@ public:
 #endif		
 	}
 
-	static void TextBottomRight(IFrameBuffer* frame, const FontStyle& font, const uint8_t x2, const uint8_t y1, const __FlashStringHelper* ifsh)
+	static void TextBottomRight(IFrameBuffer* frame, const FontStyle& font, const pixel_t x2, const pixel_t y1, const __FlashStringHelper* ifsh)
 	{
 		TextTopLeft(frame, font, x2, y1 - font.Height, ifsh);
 	}
 
-	static void TextBottomLeft(IFrameBuffer* frame, const FontStyle& font, const uint8_t x1, const uint8_t y2, const __FlashStringHelper* ifsh)
+	static void TextBottomLeft(IFrameBuffer* frame, const FontStyle& font, const pixel_t x1, const pixel_t y2, const __FlashStringHelper* ifsh)
 	{
 		TextTopLeft(frame, font, x1, y2 - font.Height, ifsh);
 	}
 
-	static void TextBottomRight(IFrameBuffer* frame, const FontStyle& font, const uint8_t x2, const uint8_t y1, const char* str)
+	static void TextBottomRight(IFrameBuffer* frame, const FontStyle& font, const pixel_t x2, const pixel_t y1, const char* str)
 	{
 		TextTopRight(frame, font, x2, y1 - font.Height, str);
 	}
 
-	static void TextBottomLeft(IFrameBuffer* frame, const FontStyle& font, const uint8_t x1, const uint8_t y1, const char* str)
+	static void TextBottomLeft(IFrameBuffer* frame, const FontStyle& font, const pixel_t x1, const pixel_t y1, const char* str)
 	{
 		TextTopLeft(frame, font, x1, y1 - font.Height, str);
 	}
 
-	static void TextTopLeft(IFrameBuffer* frame, const FontStyle& font, const uint8_t x1, const uint8_t y1, const char* str)
+	static void TextTopLeft(IFrameBuffer* frame, const FontStyle& font, const pixel_t x1, const pixel_t y1, const char* str)
 	{
 		if (str != NULL
 			&& x1 < frame->GetFrameWidth()
@@ -106,7 +106,7 @@ public:
 		{
 			size_t size = strlen(str);
 			uint8_t* ch = (uint8_t*)str;
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (size--
 				&& x1 < frame->GetFrameWidth() - offset - font.Width - font.Kerning)
 			{
@@ -116,17 +116,17 @@ public:
 		}
 	}
 
-	static void TextTopRight(IFrameBuffer* frame, const FontStyle& font, const uint8_t x2, const uint8_t y1, const char* str)
+	static void TextTopRight(IFrameBuffer* frame, const FontStyle& font, const pixel_t x2, const pixel_t y1, const char* str)
 	{
 		if (str != NULL
 			&& x2 < frame->GetFrameWidth()
 			&& y1 < frame->GetFrameHeight() - font.Height)
 		{
-			const uint8_t x1 = x2 - font.Width;
+			const pixel_t x1 = x2 - font.Width;
 
 			size_t size = strlen(str);
 			uint8_t* ch = (uint8_t*)str + size - 1;
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (size--
 				&& x1 < frame->GetFrameWidth() - offset)
 			{

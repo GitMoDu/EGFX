@@ -9,10 +9,13 @@
 #include <avr/pgmspace.h>
 #endif
 
-template<const uint8_t width,
-	const uint8_t height>
+template<const pixel_t width,
+	const pixel_t height>
 class AbstractBitMaskSprite : public AbstractSprite<width, height>
 {
+private:
+	using BaseClass = AbstractSprite<width, height>;
+
 protected:
 	static constexpr uint8_t BitScale = ((width - 1) / 8) + 1;
 
@@ -21,7 +24,7 @@ protected:
 
 public:
 	AbstractBitMaskSprite(const uint8_t* mask = nullptr)
-		: AbstractSprite<width, height>()
+		: BaseClass()
 		, Mask(mask)
 	{
 	}
@@ -31,19 +34,19 @@ public:
 		Mask = mask;
 	}
 
-	const uint8_t GetWidth() const
+	const pixel_t GetWidth() const final
 	{
-		return (Mask != nullptr) * width;
+		return (Mask != nullptr) * BaseClass::GetWidth();
 	}
 
-	const uint8_t GetHeight() const
+	const pixel_t GetHeight() const final
 	{
-		return (Mask != nullptr) * height;
+		return (Mask != nullptr) * BaseClass::GetHeight();
 	}
 };
 
-template<const uint8_t Width,
-	const uint8_t Height>
+template<const pixel_t Width,
+	const pixel_t Height>
 class BitMaskSprite : public AbstractBitMaskSprite<Width, Height>
 {
 private:
@@ -59,19 +62,18 @@ public:
 	{
 	}
 
-	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 	{
-		const uint_fast16_t yByte = (uint_fast16_t)y * BitScale;
-		const uint8_t xByte = (x / 8);
-		const uint_fast16_t offset = yByte + xByte;
+		const coordinate_t yByte = (coordinate_t)y * BitScale;
+		const pixel_t xByte = (x / 8);
+		const coordinate_t offset = yByte + xByte;
 
 		const uint8_t xBit = 7 - (x % 8);
 
 		if (((Mask[offset] >> xBit) & 0x01) != 0)
 		{
-			color.r = INT8_MAX;
-			color.g = INT8_MAX;
-			color.b = INT8_MAX;
+			color = Rgb::Color(INT8_MAX, INT8_MAX, INT8_MAX);
+
 			return true;
 		}
 		else
@@ -81,8 +83,8 @@ public:
 	}
 };
 
-template<const uint8_t Width,
-	const uint8_t Height>
+template<const pixel_t Width,
+	const pixel_t Height>
 class BitMaskBufferSprite : public BitMaskSprite<Width, Height>
 {
 private:
@@ -92,7 +94,7 @@ protected:
 	using BaseClass::BitScale;
 
 private:
-	static constexpr size_t MaskSize = ((size_t)Width * Height) / 8;
+	static constexpr coordinate_t MaskSize = ((coordinate_t)Width * Height) / 8;
 
 	uint8_t Mask[MaskSize]{};
 
@@ -102,11 +104,11 @@ public:
 	{
 	}
 
-	void SetAlpha(const uint8_t x, const uint8_t y, const bool value)
+	void SetAlpha(const pixel_t x, const pixel_t y, const bool value)
 	{
-		const uint_fast16_t yByte = (uint_fast16_t)y * BitScale;
-		const uint8_t xByte = (x / 8);
-		const uint_fast16_t offset = yByte + xByte;
+		const coordinate_t yByte = (coordinate_t)y * BitScale;
+		const pixel_t xByte = (x / 8);
+		const coordinate_t offset = yByte + xByte;
 
 		const uint8_t xBit = 7 - (x % 8);
 
@@ -124,8 +126,8 @@ public:
 
 
 #if defined(ARDUINO_ARCH_AVR)
-template<const uint8_t Width,
-	const uint8_t Height>
+template<const pixel_t Width,
+	const pixel_t Height>
 class FlashBitMaskSprite : public AbstractBitMaskSprite<Width, Height>
 {
 private:
@@ -141,19 +143,17 @@ public:
 	{
 	}
 
-	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 	{
-		const uint_fast16_t yByte = (uint_fast16_t)y * BitScale;
-		const uint8_t xByte = (x / 8);
-		const uint_fast16_t offset = yByte + xByte;
+		const coordinate_t yByte = (coordinate_t)y * BitScale;
+		const pixel_t xByte = (x / 8);
+		const coordinate_t offset = yByte + xByte;
 
 		const uint8_t xBit = 7 - (x % 8);
 
 		if (((pgm_read_byte(&Mask[offset]) >> xBit) & 0x01) != 0)
 		{
-			color.r = INT8_MAX;
-			color.g = INT8_MAX;
-			color.b = INT8_MAX;
+			color = Rgb::Color(INT8_MAX, INT8_MAX, INT8_MAX);
 			return true;
 		}
 		else
@@ -163,15 +163,8 @@ public:
 	}
 };
 #else
-template<const uint8_t Width,
-	const uint8_t Height>
-class FlashBitMaskSprite : public BitMaskSprite<Width, Height>
-{
-public:
-	FlashBitMaskSprite(const uint8_t* mask = nullptr)
-		: BitMaskSprite<Width, Height>(mask)
-	{
-	}
-};
+template<const pixel_t Width,
+	const pixel_t Height>
+using FlashBitMaskSprite = BitMaskSprite<Width, Height>;
 #endif
 #endif

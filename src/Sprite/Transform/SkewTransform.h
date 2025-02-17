@@ -7,18 +7,18 @@
 
 namespace SpriteTransform
 {
-	template<const uint8_t Height,
+	template<const pixel_t Height,
 		typename BaseTransform = ITransform>
 	class SkewHorizontalTransform : public BaseTransform
 	{
 	private:
-		uint8_t ReferenceY = Height / 2;
+		pixel_t ReferenceY = Height / 2;
 		int8_t Skew = 0;
 
 	public:
 		SkewHorizontalTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y)
 				&& y < Height)
@@ -41,29 +41,29 @@ namespace SpriteTransform
 			return Skew;
 		}
 
-		void SetReferenceY(const uint8_t reference)
+		void SetReferenceY(const pixel_t reference)
 		{
 			ReferenceY = reference;
 		}
 
-		const uint8_t GetReferenceY() const
+		const pixel_t GetReferenceY() const
 		{
 			return ReferenceY;
 		}
 	};
 
-	template<const uint8_t Width,
+	template<const pixel_t Width,
 		typename BaseTransform = ITransform>
 	class SkewVerticalTransform : public BaseTransform
 	{
 	private:
-		uint8_t ReferenceX = Width / 2;
+		pixel_t ReferenceX = Width / 2;
 		int8_t Skew = 0;
 
 	public:
 		SkewVerticalTransform() : BaseTransform() {}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y)
 				&& x < Width)
@@ -86,12 +86,12 @@ namespace SpriteTransform
 			return Skew;
 		}
 
-		void SetReferenceX(const uint8_t reference)
+		void SetReferenceX(const pixel_t reference)
 		{
 			ReferenceX = reference;
 		}
 
-		const uint8_t GetReferenceX() const
+		const pixel_t GetReferenceX() const
 		{
 			return ReferenceX;
 		}

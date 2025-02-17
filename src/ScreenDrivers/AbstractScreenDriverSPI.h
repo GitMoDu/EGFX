@@ -23,8 +23,8 @@ namespace Egfx
 }
 
 template<size_t bufferSize,
-	const uint8_t width,
-	const uint8_t height,
+	const pixel_t width,
+	const pixel_t height,
 	const uint8_t pinCS,
 	const uint8_t pinDC,
 	const uint8_t pinRST>
@@ -32,8 +32,8 @@ class AbstractScreenDriverSPI : public virtual IScreenDriver
 {
 public:
 	static constexpr size_t BufferSize = bufferSize;
-	static constexpr uint8_t ScreenWidth = width;
-	static constexpr uint8_t ScreenHeight = height;
+	static constexpr pixel_t ScreenWidth = width;
+	static constexpr pixel_t ScreenHeight = height;
 
 protected:
 	Egfx::SpiType& SpiInstance;
@@ -97,12 +97,12 @@ public:
 		CommandEnd();
 	}
 
-	const uint8_t GetScreenWidth() const final
+	const pixel_t GetScreenWidth() const final
 	{
 		return ScreenWidth;
 	}
 
-	const uint8_t GetScreenHeight() const final
+	const pixel_t GetScreenHeight() const final
 	{
 		return ScreenHeight;
 	}

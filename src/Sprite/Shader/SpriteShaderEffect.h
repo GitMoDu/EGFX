@@ -15,10 +15,10 @@ namespace SpriteShaderEffect
 	class CropRectangleEffect : public BaseClass
 	{
 	private:
-		uint8_t X = 0;
-		uint8_t Y = 0;
-		uint8_t CropWidth = 0;
-		uint8_t CropHeight = 0;
+		pixel_t X = 0;
+		pixel_t Y = 0;
+		pixel_t CropWidth = 0;
+		pixel_t CropHeight = 0;
 
 	public:
 		CropRectangleEffect() : BaseClass()
@@ -27,7 +27,7 @@ namespace SpriteShaderEffect
 			CropHeight = BaseClass::GetHeight();
 		}
 
-		void SetRectangleCrop(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height)
+		void SetRectangleCrop(const pixel_t x, const pixel_t y, const pixel_t width, const pixel_t height)
 		{
 			X = x;
 			Y = y;
@@ -35,7 +35,7 @@ namespace SpriteShaderEffect
 			CropHeight = height;
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			return x >= X && x < (X + CropWidth) && y >= Y && y < (Y + CropHeight)
 				&& BaseClass::Get(color, x, y);
@@ -50,40 +50,40 @@ namespace SpriteShaderEffect
 	class CropCircleEffect : public BaseClass
 	{
 	private:
-		uint16_t RadiusPow = 0;
-		int8_t OffsetX = 0;
-		int8_t OffsetY = 0;
+		coordinate_t RadiusPow = 0;
+		pixel_signed_t OffsetX = 0;
+		pixel_signed_t OffsetY = 0;
 
 	public:
 		CropCircleEffect() : BaseClass()
 		{
 		}
 
-		void SetCircleCrop(const int8_t offsetX, const int8_t offsetY, const uint8_t radius)
+		void SetCircleCrop(const pixel_signed_t offsetX, const pixel_signed_t offsetY, const pixel_t radius)
 		{
 			OffsetX = offsetX;
 			OffsetY = offsetY;
 			if (radius > 1)
 			{
-				RadiusPow = ((uint16_t)radius * radius) - 1;
+				RadiusPow = ((coordinate_t)radius * radius) - 1;
 			}
 			else
 			{
-				RadiusPow = ((uint16_t)radius * radius);
+				RadiusPow = ((coordinate_t)radius * radius);
 			}
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			return IsInsideCircle(x, y) && BaseClass::Get(color, x, y);
 		}
 
 	private:
-		const bool IsInsideCircle(const uint8_t x, const uint8_t y)
+		const bool IsInsideCircle(const pixel_t x, const pixel_t y)
 		{
-			const int16_t xx = x - OffsetX;
-			const int16_t yy = y - OffsetY;
-			const uint16_t distancePow = (((uint16_t)xx * xx) + ((uint16_t)yy * yy));
+			const coordinate_signed_t xx = x - OffsetX;
+			const coordinate_signed_t yy = y - OffsetY;
+			const coordinate_t distancePow = (((coordinate_t)xx * xx) + ((coordinate_t)yy * yy));
 
 			return distancePow <= RadiusPow;
 		}
@@ -113,7 +113,7 @@ namespace SpriteShaderEffect
 			Modulus = pixelSkip + 1;
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			return BaseClass::Get(color, x, y)
 				&& ((Modulus < 2) ||
@@ -130,31 +130,21 @@ namespace SpriteShaderEffect
 	class TransparentColorEffect : public BaseClass
 	{
 	private:
-		RgbColor Transparent{};
+		rgb_color_t Transparent = 0;
 
 	public:
 		TransparentColorEffect() : BaseClass()
 		{
 		}
 
-		void SetTransparentColor(const uint8_t r, const uint8_t g, const uint8_t b)
+		void SetTransparentColor(const rgb_color_t color)
 		{
-			Transparent.r = r;
-			Transparent.g = g;
-			Transparent.b = b;
+			Transparent = color;
 		}
 
-		void SetTransparentColor(const RgbColor& color)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			Transparent.r = color.r;
-			Transparent.g = color.g;
-			Transparent.b = color.b;
-		}
-
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
-		{
-			return BaseClass::Get(color, x, y)
-				&& (color.r != Transparent.r || color.g != Transparent.g || color.b != Transparent.b);
+			return BaseClass::Get(color, x, y) && color != Transparent;
 		}
 	};
 
@@ -168,6 +158,12 @@ namespace SpriteShaderEffect
 	private:
 		int8_t Shift = 0;
 
+#if !defined(EGFX_PLATFORM_HDR)
+	private:
+		static constexpr uint8_t ADD_LIMIT_6 = 0x3F;
+		static constexpr uint8_t ADD_LIMIT_5 = 0x1F;
+#endif
+
 	public:
 		BrightnessShiftEffect() : BaseClass()
 		{
@@ -179,28 +175,36 @@ namespace SpriteShaderEffect
 		/// <param name="shift">[INT8_MIN+1; INT8_MAX] Absolute shift in RGB space.</param>
 		void SetBrightnessShift(const int8_t shift)
 		{
+#if defined(EGFX_PLATFORM_HDR)
 			Shift = shift;
+#else
+			Shift = shift / 4;
+#endif
 			if (Shift == INT8_MIN)
 			{
 				Shift = INT8_MIN + 1;
 			}
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (BaseClass::Get(color, x, y))
 			{
 				if (Shift > 0)
 				{
-					color.r = LimitedAdd(color.r);
-					color.g = LimitedAdd(color.g);
-					color.b = LimitedAdd(color.b);
+#if defined(EGFX_PLATFORM_HDR)
+					color = Rgb::Color888(LimitedAdd<UINT8_MAX>(Rgb::R(color)), LimitedAdd<UINT8_MAX>(Rgb::G(color)), LimitedAdd<UINT8_MAX>(Rgb::B(color)));
+#else
+					color = Rgb::Color565From565(LimitedAdd<ADD_LIMIT_5>(Rgb::R5(color)), LimitedAdd<ADD_LIMIT_6>(Rgb::G6(color)), LimitedAdd<ADD_LIMIT_5>(Rgb::B5(color)));
+#endif
 				}
 				else if (Shift < 0)
 				{
-					color.r = LimitedSubtract(color.r);
-					color.g = LimitedSubtract(color.g);
-					color.b = LimitedSubtract(color.b);
+#if defined(EGFX_PLATFORM_HDR)
+					color = Rgb::Color888(LimitedSubtract(Rgb::R(color)), LimitedSubtract(Rgb::G(color)), LimitedSubtract(Rgb::B(color)));
+#else
+					color = Rgb::Color888(LimitedSubtract(Rgb::R5(color)), LimitedSubtract(Rgb::G6(color)), LimitedSubtract(Rgb::B5(color)));
+#endif
 				}
 
 				return true;
@@ -210,15 +214,16 @@ namespace SpriteShaderEffect
 		}
 
 	private:
+		template<const uint8_t AddLimit>
 		const uint8_t LimitedAdd(const uint8_t value) const
 		{
-			if (value < (UINT8_MAX - Shift))
+			if (value < (AddLimit - Shift))
 			{
 				return value + Shift;
 			}
 			else
 			{
-				return UINT8_MAX;
+				return AddLimit;
 			}
 		}
 
@@ -259,13 +264,11 @@ namespace SpriteShaderEffect
 			Brightness = brightness;
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (BaseClass::Get(color, x, y))
 			{
-				color.r = Scale(color.r);
-				color.g = Scale(color.g);
-				color.b = Scale(color.b);
+				color = Rgb::Color(Scale(Rgb::R(color)), Scale(Rgb::G(color)), Scale(Rgb::B(color)));
 
 				return true;
 			}
@@ -341,7 +344,7 @@ namespace SpriteShaderEffect
 			Center = center;
 		}
 
-		virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (BaseClass::Get(color, x, y))
 			{
@@ -351,17 +354,17 @@ namespace SpriteShaderEffect
 				}
 				else if (Contrast > 0)
 				{
-					color.r = ConstrastUp(color.r, Contrast);
-					color.g = ConstrastUp(color.g, Contrast);
-					color.b = ConstrastUp(color.b, Contrast);
+					color = Rgb::Color(ConstrastUp(Rgb::R(color), Contrast)
+						, ConstrastUp(Rgb::G(color), Contrast)
+						, ConstrastUp(Rgb::B(color), Contrast));
 
 					return true;
 				}
 				else
 				{
-					color.r = ConstrastDown(color.r, -Contrast);
-					color.g = ConstrastDown(color.g, -Contrast);
-					color.b = ConstrastDown(color.b, -Contrast);
+					color = Rgb::Color(ConstrastDown(Rgb::R(color), -Contrast)
+						, ConstrastDown(Rgb::G(color), -Contrast)
+						, ConstrastDown(Rgb::B(color), -Contrast));
 
 					return true;
 				}

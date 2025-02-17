@@ -8,25 +8,26 @@
 class RingSprite : public ISprite
 {
 private:
-	uint16_t InnerRadiusPow = 0;
-	uint16_t OuterRadiusPow = 0;
-	uint8_t OuterRadius = 0;
+	coordinate_t InnerRadiusPow = 0;
+	coordinate_t OuterRadiusPow = 0;
+	pixel_t OuterRadius = 0;
 
 public:
 	RingSprite() : ISprite()
-	{}
+	{
+	}
 
-	const uint8_t GetWidth() const final
+	const pixel_t GetWidth() const final
 	{
 		return OuterRadius * 2;
 	}
 
-	const uint8_t GetHeight() const final
+	const pixel_t GetHeight() const final
 	{
 		return GetWidth();
 	}
 
-	void SetRadius(const uint8_t innerRadius, const uint8_t outerRadius)
+	void SetRadius(const pixel_t innerRadius, const pixel_t outerRadius)
 	{
 		if (innerRadius < outerRadius)
 		{
@@ -34,14 +35,14 @@ public:
 
 			if (outerRadius > 1)
 			{
-				OuterRadiusPow = ((uint16_t)outerRadius * outerRadius) - 1;
+				OuterRadiusPow = ((coordinate_t)outerRadius * outerRadius) - 1;
 			}
 			else
 			{
-				OuterRadiusPow = (uint16_t)outerRadius * outerRadius;
+				OuterRadiusPow = (coordinate_t)outerRadius * outerRadius;
 			}
 
-			InnerRadiusPow = ((uint16_t)innerRadius * innerRadius) - 1;
+			InnerRadiusPow = ((coordinate_t)innerRadius * innerRadius) - 1;
 		}
 		else
 		{
@@ -51,23 +52,21 @@ public:
 		}
 	}
 
-	const bool IsInsideRing(const uint8_t x, const uint8_t y)
+	const bool IsInsideRing(const pixel_t x, const pixel_t y)
 	{
-		const int16_t dx = -(int16_t)OuterRadius + x;
-		const int16_t dy = -(int16_t)OuterRadius + y;
-		const uint16_t distancePow = (uint16_t)((dx * dx) + (dy * dy));
+		const coordinate_signed_t dx = -(coordinate_signed_t)OuterRadius + x;
+		const coordinate_signed_t dy = -(coordinate_signed_t)OuterRadius + y;
+		const coordinate_t distancePow = (coordinate_t)((dx * dx) + (dy * dy));
 
 		return distancePow <= OuterRadiusPow
 			&& distancePow >= InnerRadiusPow;
 	}
 
-	virtual const bool Get(RgbColor& color, const uint8_t x, const uint8_t y)
+	virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 	{
 		if (IsInsideRing(x, y))
 		{
-			color.r = UINT8_MAX;
-			color.g = UINT8_MAX;
-			color.b = UINT8_MAX;
+			color = Rgb::Color(UINT32_MAX);
 
 			return true;
 		}

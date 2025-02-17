@@ -133,7 +133,7 @@ public: // IFrameEngine implementation.
 			&& FrameBuffer->GetFrameWidth() == ScreenDriver->GetScreenWidth()
 			&& FrameBuffer->GetFrameHeight() == ScreenDriver->GetScreenHeight()
 			&& ScreenDriver->GetScreenWidth() > 0
-			&& ScreenDriver->GetScreenWidth() < UINT8_MAX)
+			&& ScreenDriver->GetScreenWidth() < Egfx::MAX_PIXEL_SIZE)
 		{
 			if (ScreenDriver->Start())
 			{

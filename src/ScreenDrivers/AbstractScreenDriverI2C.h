@@ -7,41 +7,46 @@
 
 #include <Wire.h>
 
-template<const uint8_t width,
-	const uint8_t height,
-	const uint8_t i2cAddress>
-class AbstractScreenDriverI2C : public virtual IScreenDriver
+using namespace Egfx;
+
+namespace Egfx
 {
-public:
-	static constexpr uint8_t ScreenWidth = width;
-	static constexpr uint8_t ScreenHeight = height;
-
-public:
-	static constexpr uint8_t I2CAddress = i2cAddress;
-
-protected:
-	TwoWire& WireInstance;
-
-public:
-	AbstractScreenDriverI2C(TwoWire& wire)
-		: IScreenDriver()
-		, WireInstance(wire)
+	template<const pixel_t width,
+		const pixel_t height,
+		const uint8_t i2cAddress>
+	class AbstractScreenDriverI2C : public virtual IScreenDriver
 	{
-	}
+	public:
+		static constexpr uint8_t ScreenWidth = width;
+		static constexpr uint8_t ScreenHeight = height;
 
-	virtual const bool Start()
-	{
-		return true;
-	}
+	public:
+		static constexpr uint8_t I2CAddress = i2cAddress;
 
-	virtual const uint8_t GetScreenWidth() const final
-	{
-		return ScreenWidth;
-	}
+	protected:
+		TwoWire& WireInstance;
 
-	virtual const uint8_t GetScreenHeight() const final
-	{
-		return ScreenHeight;
-	}
-};
+	public:
+		AbstractScreenDriverI2C(TwoWire& wire)
+			: IScreenDriver()
+			, WireInstance(wire)
+		{
+		}
+
+		virtual const bool Start()
+		{
+			return true;
+		}
+
+		virtual const pixel_t GetScreenWidth() const final
+		{
+			return ScreenWidth;
+		}
+
+		virtual const pixel_t GetScreenHeight() const final
+		{
+			return ScreenHeight;
+		}
+	};
+}
 #endif

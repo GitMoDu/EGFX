@@ -9,15 +9,15 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "ST7735/ST7735.h"
 
-template<typename pixel_t,
+template<typename pixel_color_t,
 	const uint8_t pinCS,
 	const uint8_t pinDC,
 	const uint8_t pinRST,
 	const uint32_t spiSpeed>
-class AbstractScreenDriverST7735S_SPI : public AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7735::ST7735S::Width, ST7735::ST7735S::Height), ST7735::ST7735S::Width, ST7735::ST7735S::Height, pinCS, pinDC, pinRST>
+class AbstractScreenDriverST7735S_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7735::ST7735S::Width, ST7735::ST7735S::Height), ST7735::ST7735S::Width, ST7735::ST7735S::Height, pinCS, pinDC, pinRST>
 {
 private:
-	using BaseClass = AbstractScreenDriverSPI<GraphicsBuffer::GetBufferSize<pixel_t>(ST7735::ST7735S::Width, ST7735::ST7735S::Height), ST7735::ST7735S::Width, ST7735::ST7735S::Height, pinCS, pinDC, pinRST>;
+	using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7735::ST7735S::Width, ST7735::ST7735S::Height), ST7735::ST7735S::Width, ST7735::ST7735S::Height, pinCS, pinDC, pinRST>;
 
 public:
 	using BaseClass::ScreenWidth;

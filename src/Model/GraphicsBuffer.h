@@ -3,25 +3,26 @@
 #ifndef _GRAPHICS_BUFFER_h
 #define _GRAPHICS_BUFFER_h
 
-#include <stdint.h>
+#include "../Platform/Platform.h"
 
-namespace GraphicsBuffer
+namespace Egfx
 {
 	template<typename color_t>
-	static constexpr size_t GetBufferSize(const uint8_t width, const uint8_t height)
+	static constexpr size_t GetFrameBufferSize(const pixel_t width, const pixel_t height)
 	{
 		return sizeof(color_t) * width * height;
 	}
 
 	template<const uint8_t colorDivisor>
-	static constexpr size_t GetLowColorBufferSize(const uint8_t width, const uint8_t height)
+	static constexpr size_t GetFrameBufferLowColorSize(const pixel_t width, const pixel_t height)
 	{
 		return (size_t)width * (height / colorDivisor);
 	}
 
-	static constexpr size_t GetMonochromeBufferSize(const uint8_t width, const uint8_t height)
+	static constexpr size_t GetFrameBufferMonochromeSize(const pixel_t width, const pixel_t height)
 	{
-		return GetLowColorBufferSize<8>(width, height);
+		return GetFrameBufferLowColorSize<8>(width, height);
 	}
 }
+
 #endif

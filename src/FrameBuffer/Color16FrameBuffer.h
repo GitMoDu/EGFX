@@ -8,13 +8,13 @@
 /// <summary>
 /// 16 bit color frame buffer.
 /// </summary>
-/// <typeparam name="frameWidth">Frame buffer width [0;254].</typeparam>
-/// <typeparam name="frameHeight">Frame buffer height [0;254].</typeparam>
+/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 /// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 /// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter8.</typeparam>
 /// <typeparam name="displayAxis">Display mirror option.</typeparam>
 /// <typeparam name="displayRotation">Display rotation option.</typeparam>
-template<const uint8_t frameWidth, const uint8_t frameHeight
+template<const pixel_t frameWidth, const pixel_t frameHeight
 	, const uint8_t clearDivisorPower = 0
 	, typename ColorConverter = ColorConverter16
 	, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
@@ -36,17 +36,18 @@ protected:
 public:
 	Color16FrameBuffer(uint8_t buffer[BufferSize] = nullptr)
 		: BaseClass(buffer)
-	{}
+	{
+	}
 
-	const uint32_t GetColorDepth() const final
+	const uint8_t GetColorDepth() const final
 	{
 		return sizeof(color_t) * 8;
 	}
 
 protected:
-	virtual void WritePixel(const color_t rawColor, const uint8_t x, const uint8_t y) final
+	virtual void WritePixel(const color_t rawColor, const pixel_t x, const pixel_t y) final
 	{
-		const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+		const coordinate_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 		if (Inverted)
 		{

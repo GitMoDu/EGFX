@@ -20,12 +20,12 @@ template<typename SpriteType,
 class AbstractSpriteFontRenderer : public SpriteType
 {
 public:
-	static constexpr uint8_t FontWidth()
+	static constexpr pixel_t FontWidth()
 	{
 		return SpriteType::Width;
 	}
 
-	static constexpr uint8_t FontHeight()
+	static constexpr pixel_t FontHeight()
 	{
 		return SpriteType::Height;
 	}
@@ -45,27 +45,27 @@ public:
 	AbstractSpriteFontRenderer() : BaseClass() {}
 
 public:
-	void TextBottomLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
+	void TextBottomLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char* str)
 	{
 		TextTopLeft(frame, x, y - FontHeight(), str);
 	}
 
-	void TextBottomRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
+	void TextBottomRight(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char* str)
 	{
 		TextTopRight(frame, x, y - FontHeight(), str);
 	}
 
-	void TextBottomLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextBottomLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const __FlashStringHelper* ifsh)
 	{
 		TextTopLeft(frame, x, y - FontHeight(), ifsh);
 	}
 
-	void TextBottomRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextBottomRight(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const __FlashStringHelper* ifsh)
 	{
 		TextTopRight(frame, x, y - FontHeight(), ifsh);
 	}
 
-	void TextTopLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextTopLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const __FlashStringHelper* ifsh)
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
@@ -73,7 +73,7 @@ public:
 			&& y < frame->GetFrameHeight() - FontHeight())
 		{
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (x < frame->GetFrameWidth() - offset)
 			{
 				const int8_t character = pgm_read_byte(ptr++);
@@ -93,14 +93,14 @@ public:
 #endif	
 	}
 
-	void TextTopRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const __FlashStringHelper* ifsh)
+	void TextTopRight(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const __FlashStringHelper* ifsh)
 	{
 #if defined(ARDUINO_ARCH_AVR)
 		if (ifsh != NULL
 			&& x < frame->GetFrameWidth()
 			&& y < frame->GetFrameHeight() - FontHeight())
 		{
-			const uint8_t x1 = x - FontHeight();
+			const pixel_t x1 = x - FontHeight();
 
 			size_t size = 0;
 			char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
@@ -117,7 +117,7 @@ public:
 				}
 			}
 			ptr += size - 1;
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (size--
 				&& x > offset)
 			{
@@ -131,17 +131,17 @@ public:
 #endif		
 	}
 
-	void TextTopLeft(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
+	void TextTopLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char* str)
 	{
-		const uint8_t width = frame->GetFrameWidth();
-		const uint8_t height = frame->GetFrameHeight();
+		const pixel_t width = frame->GetFrameWidth();
+		const pixel_t height = frame->GetFrameHeight();
 
 		if (str != NULL
 			&& y < height)
 		{
 			size_t size = strlen(str);
 			uint8_t* ch = (uint8_t*)str;
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (size--
 				&& (x < (width - offset)))
 			{
@@ -151,17 +151,17 @@ public:
 		}
 	}
 
-	void TextTopRight(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char* str)
+	void TextTopRight(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char* str)
 	{
-		const uint8_t width = frame->GetFrameWidth();
-		const uint8_t height = frame->GetFrameHeight();
+		const pixel_t width = frame->GetFrameWidth();
+		const pixel_t height = frame->GetFrameHeight();
 
 		if (str != NULL
 			&& y < height)
 		{
 			size_t size = strlen(str);
 			uint8_t* ch = (uint8_t*)str + size - 1;
-			uint8_t offset = 0;
+			pixel_t offset = 0;
 			while (size--
 				&& (x < (width - offset)))
 			{
@@ -171,12 +171,12 @@ public:
 		}
 	}
 
-	void WriteDigit(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const uint8_t number)
+	void WriteDigit(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const uint8_t number)
 	{
 		Write(frame, x, y, '0' + number);
 	}
 
-	void Write(IFrameBuffer* frame, const uint8_t x, const uint8_t y, const char character)
+	void Write(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char character)
 	{
 		SetCharacter(character);
 

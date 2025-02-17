@@ -7,7 +7,7 @@
 
 namespace SpriteTransform
 {
-	template<const uint8_t Width,
+	template<const pixel_t Width,
 		typename BaseTransform = ITransform>
 	class DownScaleXTransform : public BaseTransform
 	{
@@ -27,7 +27,7 @@ namespace SpriteTransform
 			return DownScale;
 		}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -45,7 +45,7 @@ namespace SpriteTransform
 		}
 	};
 
-	template<const uint8_t Height,
+	template<const pixel_t Height,
 		typename BaseTransform = ITransform>
 	class DownScaleYTransform : public BaseTransform
 	{
@@ -65,7 +65,7 @@ namespace SpriteTransform
 			return DownScale;
 		}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{
@@ -82,8 +82,8 @@ namespace SpriteTransform
 		}
 	};
 
-	template<const uint8_t Width,
-		const uint8_t Height,
+	template<const pixel_t Width,
+		const pixel_t Height,
 		typename BaseTransform = ITransform>
 	class DownScaleXYTransform : public BaseTransform
 	{
@@ -103,7 +103,7 @@ namespace SpriteTransform
 			return DownScale;
 		}
 
-		virtual const bool Transform(uint8_t& x, uint8_t& y)
+		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
 			if (BaseTransform::Transform(x, y))
 			{

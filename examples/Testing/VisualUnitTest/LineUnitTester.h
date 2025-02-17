@@ -25,7 +25,7 @@ private:
 	static constexpr uint32_t ResizeDuration = 3000000;
 	static constexpr uint8_t Offset = 5;
 
-	RgbColor Color{ UINT8_MAX, UINT8_MAX, UINT8_MAX };
+	static constexpr rgb_color_t Color = Rgb::Color(UINT32_MAX);
 
 	LineTestEnum LineTest = LineTestEnum::LineTestEnumCount;
 	const LineTestEnum FixedTest = LineTestEnum::LineTestEnumCount;
@@ -34,7 +34,8 @@ public:
 	LineUnitTester(const LineTestEnum fixedTest = LineTestEnum::LineTestEnumCount)
 		: IFrameDraw()
 		, FixedTest(fixedTest)
-	{}
+	{
+	}
 
 	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 	{
@@ -108,10 +109,10 @@ public:
 			frame->Line(Color, move, 0, 0, frame->GetFrameHeight() - 1);
 			break;
 		case LineTestEnum::DownRight:
-			frame->Line(Color, 0, frame->GetFrameHeight() - 1, move, 0);
+			frame->Line(Color, 0, frame->GetFrameHeight() - 1, move + 1, 0);
 			break;
 		case LineTestEnum::DownLeft:
-			frame->Line(Color, move, frame->GetFrameHeight() - 1, 0, 0);
+			frame->Line(Color, move + 1, frame->GetFrameHeight() - 1, 0, 0);
 			break;
 		default:
 			break;

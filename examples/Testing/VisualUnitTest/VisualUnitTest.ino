@@ -1,6 +1,9 @@
 #define DEBUG
 #define SERIAL_BAUD_RATE 115200
 
+//#define EGFX_PLATFORM_HDR
+//#define EGFX_PLATFORM_BIG
+
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation frame buffer.
 #define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
 #define GRAPHICS_ENGINE_MEASURE // Enabled engine measuring and logging.

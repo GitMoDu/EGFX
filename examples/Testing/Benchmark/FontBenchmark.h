@@ -14,7 +14,7 @@ public:
 	SpriteFontBenchmark()
 		: IFrameDraw()
 	{
-		Renderer.SetColor(0x00, 0xFF, 0xFF);
+		Renderer.SetColor(Rgb::Color(0x00, 0xFF, 0xFF));
 	}
 
 	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
@@ -33,16 +33,13 @@ class TextRendererBenchmark : public IFrameDraw
 private:
 	FontStyle Font{};
 
-
 public:
 	TextRendererBenchmark()
 		: IFrameDraw()
 	{
-		RgbColor color{ 0xff00ff };
-
 		Font.Width = SpriteFont5x5Renderer::FontWidth();
 		Font.Height = SpriteFont5x5Renderer::FontHeight();
-		Font.Color.SetFrom(color);
+		Font.Color = Rgb::Color((uint32_t)0xff00ff);;
 	}
 
 	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final

@@ -33,7 +33,7 @@ private:
 	Assets::GridColorSprite GridSprite{};
 
 private:
-	RgbColor Color{ UINT8_MAX, UINT8_MAX, UINT8_MAX };
+	rgb_color_t Color = Rgb::Color(UINT32_MAX);
 
 public:
 	BitMapBenchmark()

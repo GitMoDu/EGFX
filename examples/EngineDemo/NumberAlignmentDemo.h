@@ -20,7 +20,7 @@ private:
 	static constexpr uint32_t NumberFactor = 333000;
 	static constexpr uint8_t CornerCount = 4;
 
-	RgbColor Color{};
+	rgb_color_t Color{};
 	TemplateFontStyle<FontStyle::WIDTH_RATIO_DEFAULT> DynamicFont;
 
 public:
@@ -61,9 +61,10 @@ public:
 		const uint32_t number = frameTime / NumberFactor;
 
 		DynamicFont.SetSize(textHeight);
-		DynamicFont.Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		DynamicFont.Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		DynamicFont.Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+		DynamicFont.Color = Rgb::Color(ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX)
+			, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX)
+			, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX)
+		);
 
 		switch (section)
 		{

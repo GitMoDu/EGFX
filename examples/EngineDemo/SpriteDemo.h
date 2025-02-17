@@ -32,12 +32,12 @@ private:
 
 	struct ArrowLayout : public LayoutElement<Layout::X(), Layout::Y(), Layout::Width(), Layout::Height()>
 	{
-		static constexpr uint8_t UsableY()
+		static constexpr pixel_t UsableY()
 		{
 			return Layout::Height() - ArrowSprite::Height - 1;
 		}
 
-		static constexpr uint8_t UsableX()
+		static constexpr pixel_t UsableX()
 		{
 			return Layout::Width() - ArrowSprite::Width - 1;
 		}
@@ -50,13 +50,33 @@ private:
 
 	struct RingLayout
 	{
-		static constexpr uint8_t RingWidth() { return 5; }
-		static constexpr uint8_t MinRadius() { return RingWidth() + 1; }
-		static constexpr uint8_t MaxRadius() { return (MinRadius() * 2) + 1; }
+		static constexpr pixel_t RingWidth() { return 5; }
+		static constexpr pixel_t MinRadius() { return RingWidth() + 1; }
+		static constexpr pixel_t MaxRadius() { return (MinRadius() * 2) + 1; }
 
-		static constexpr uint8_t RadiusRange()
+		static constexpr pixel_t RadiusRange()
 		{
 			return MaxRadius() - MinRadius();
+		}
+
+		static constexpr pixel_t X()
+		{
+			return Layout::X() + MaxRadius();
+		}
+
+		static constexpr pixel_t Y()
+		{
+			return Layout::Y() + MaxRadius();
+		}
+
+		static constexpr pixel_t UsableY()
+		{
+			return Layout::Height() - (MaxRadius() * 2);
+		}
+
+		static constexpr pixel_t UsableX()
+		{
+			return Layout::Width() - (MaxRadius() * 2);
 		}
 	};
 
@@ -73,10 +93,10 @@ public:
 	SpriteDemo()
 		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		Ring.SetColor(UINT8_MAX, 0, UINT8_MAX);
+		Ring.SetColor(Rgb::Color(UINT8_MAX, 0, UINT8_MAX));
 		Ring.SetTransparency(1);
 
-		Arrow.SetColor(0, UINT8_MAX, 0);
+		Arrow.SetColor(Rgb::Color(0, UINT8_MAX, 0));
 	}
 
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
@@ -113,31 +133,31 @@ private:
 		case 2:
 		case 3:
 		case 4:
-			AnimatedExplosion.SetColor(0, UINT8_MAX, UINT8_MAX);
+			AnimatedExplosion.SetColor(Rgb::Color(0, UINT8_MAX, UINT8_MAX));
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask);
 			break;
 		case 5:
-			AnimatedExplosion.SetColor(UINT8_MAX, INT8_MAX, INT8_MAX);
+			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, INT8_MAX, INT8_MAX));
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask2);
 			break;
 		case 7:
-			AnimatedExplosion.SetColor(UINT8_MAX, 0, 0);
+			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, 0, 0));
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask2);
 			break;
 		case 8:
 		case 9:
-			AnimatedExplosion.SetColor(UINT8_MAX, UINT8_MAX, 0);
+			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, UINT8_MAX, 0));
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask3);
 			break;
 		case 10:
 		case 11:
-			AnimatedExplosion.SetColor(UINT8_MAX, INT8_MAX, 0);
+			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, INT8_MAX, 0));
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask4);
 			break;
 		case 12:
 		case 13:
 		case 14:
-			AnimatedExplosion.SetColor(UINT8_MAX, UINT8_MAX, UINT8_MAX);
+			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX));
 			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask5);
 			break;
 		default:
@@ -151,7 +171,7 @@ private:
 	void DrawVerticalArrow(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		const uint16_t progress = ProgressScaler::GetProgress<ScrollVerticalDuration>(frameTime);
-		const uint8_t y = ArrowLayout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableY());
+		const pixel_t y = ArrowLayout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableY());
 
 		if (progress >= INT16_MAX)
 		{
@@ -166,7 +186,7 @@ private:
 	void DrawHorizontalArrow(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		const uint16_t progress = ProgressScaler::GetProgress<ScrollHorizontalDuration>(frameTime);
-		const uint8_t x = ArrowLayout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableX());
+		const pixel_t x = ArrowLayout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableX());
 
 		if (progress >= INT16_MAX)
 		{
@@ -185,14 +205,14 @@ private:
 	void DrawDynamicRing(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		const uint16_t progress = ProgressScaler::GetProgress<RingResizeDuration>(frameTime);
-		const uint8_t outerRadius = RingLayout::MinRadius() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), RingLayout::RadiusRange());
-		const uint8_t innerRadius = outerRadius - RingLayout::RingWidth();
+		const pixel_t outerRadius = RingLayout::MinRadius() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), RingLayout::RadiusRange());
+		const pixel_t innerRadius = outerRadius - RingLayout::RingWidth();
 
 		const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<ScrollHorizontalDuration * 5>(frameTime));
 		const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<ScrollVerticalDuration * 3>(frameTime));
 
-		const uint8_t x = Layout::X() + ProgressScaler::ScaleProgress(progressX, Layout::Width()) - outerRadius;
-		const uint8_t y = Layout::Y() + ProgressScaler::ScaleProgress(progressY, Layout::Height()) - outerRadius;
+		const pixel_t x = RingLayout::X() + ProgressScaler::ScaleProgress(progressX, RingLayout::UsableX()) - outerRadius;
+		const pixel_t y = RingLayout::Y() + ProgressScaler::ScaleProgress(progressY, RingLayout::UsableY()) - outerRadius;
 
 		Ring.SetRadius(innerRadius, outerRadius);
 

@@ -53,7 +53,7 @@ private:
 
 	ColorShader<DogeBitSprite> DogeBit{};
 
-	RgbColor Color{};
+	rgb_color_t Color{};
 
 	uint8_t x = 0;
 	uint8_t y = 0;
@@ -61,7 +61,8 @@ private:
 public:
 	BitmaskDemo()
 		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
-	{}
+	{
+	}
 
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
@@ -93,15 +94,13 @@ private:
 		{
 			const uint16_t colorProgress = ProgressScaler::GetProgress<ColorDuration>(frameTime);
 
-			Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-			Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-			Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+			Color = Rgb::Color(ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX)
+				, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX)
+				, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX));
 		}
 		else
 		{
-			Color.r = UINT8_MAX;
-			Color.g = UINT8_MAX;
-			Color.b = UINT8_MAX;
+			Color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 		}
 
 		DogeBit.SetColor(Color);

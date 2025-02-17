@@ -50,16 +50,16 @@ public:
 	TransformDemo()
 		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		Heart.SetColor(UINT8_MAX, 0, 0);
+		Heart.SetColor(Rgb::Color(UINT8_MAX, 0, 0));
 
-		Rectangle.SetColor1(0, 0, UINT8_MAX);
-		Rectangle.SetColor2(0, UINT8_MAX, 0);
+		Rectangle.SetColor1(Rgb::Color(0, 0, UINT8_MAX));
+		Rectangle.SetColor2(Rgb::Color(0, UINT8_MAX, 0));
 
 		RectangleHorizontalSkewer.SetReferenceY(RectangleLayout::Height() / 2);
 		RectangleVerticalSkewer.SetReferenceX(0);
 
-		Pyramid.SetColor1(0xFF, 0x5A, 0x23);
-		Pyramid.SetColor2(0xFF, 0xd3, 0x91);
+		Pyramid.SetColor1(Rgb::Color(0xFF, 0x5A, 0x23));
+		Pyramid.SetColor2(Rgb::Color(0xFF, 0xd3, 0x91));
 	}
 
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
@@ -90,18 +90,18 @@ private:
 		{
 			const int8_t skew = -(int16_t)RectangleLayout::Width() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Width() * 2));
 			RectangleHorizontalSkewer.SetSkewX(skew);
-			
+
 			SpriteRenderer::TransformDraw(frame, &Rectangle, &RectangleHorizontalSkewer,
-				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
+				Layout::X() + 2 + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
 		}
 		else
 		{
 			const int8_t skew = -(int16_t)RectangleLayout::Height() + (int16_t)ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint8_t)(RectangleLayout::Height() * 2));
 			RectangleVerticalSkewer.SetSkewY(skew);
-			
+
 			SpriteRenderer::TransformDraw(frame, &Rectangle, &RectangleVerticalSkewer,
-				Layout::X() + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
-		}	
+				Layout::X() + 2 + (RectangleLayout::Width() / 2), Layout::Y() + RectangleLayout::Height());
+		}
 	}
 
 	void DrawScale(IFrameBuffer* frame, const uint32_t frameTime)
@@ -113,7 +113,7 @@ private:
 
 		SpriteRenderer::TransformDraw(
 			frame, &Heart, &HeartDownScaler,
-			Layout::X() + (downScale / 2), Layout::Y() + (((uint16_t)Layout::Height() * 2) / 3) - (HeartSprite::Height / 2) + (downScale / 2));
+			Layout::X() + (downScale / 2), Layout::Y() + (((coordinate_t)Layout::Height() * 2) / 3) - (HeartSprite::Height / 2) + (downScale / 2));
 	}
 
 	void DrawRotate(IFrameBuffer* frame, const uint32_t frameTime)

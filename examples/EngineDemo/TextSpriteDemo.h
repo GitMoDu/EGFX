@@ -50,7 +50,7 @@ private:
 	static constexpr uint32_t TextColorPeriodMicros = 3000000;
 
 private:
-	RgbColor Color{};
+	rgb_color_t Color{};
 
 	VerticalGradientShader<SpriteFont5x5Renderer> BigDrawer{};
 	ColorShader<SpriteFont3x5Renderer> SmallDrawer{};
@@ -61,7 +61,7 @@ public:
 	TextSpriteDemo()
 		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		BigDrawer.SetColor1(RgbColor{ UINT8_MAX / 3 ,UINT8_MAX / 3 ,UINT8_MAX / 3 });
+		BigDrawer.SetColor1(Rgb::Color(UINT8_MAX / 3, UINT8_MAX / 3, UINT8_MAX / 3));
 	}
 
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
@@ -214,9 +214,10 @@ private:
 
 	void SetColorByProgress(const uint16_t colorProgress)
 	{
-		Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
+		Color = Rgb::Color(ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX)
+			, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX)
+			, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX)
+		);
 	}
 };
 #endif

@@ -1,6 +1,9 @@
 
 #define SERIAL_BAUD_RATE 115200
 
+//#define EGFX_PLATFORM_HDR
+//#define EGFX_PLATFORM_BIG
+
 #include <ArduinoGraphicsCore.h>
 
 #include "Benchmark.h"

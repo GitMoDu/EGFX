@@ -8,7 +8,7 @@
 class PixelBenchmark : public IFrameDraw
 {
 private:
-	RgbColor Color{ UINT8_MAX, UINT8_MAX, UINT8_MAX };
+	rgb_color_t Color = Rgb::Color(UINT32_MAX);
 
 public:
 	PixelBenchmark() :IFrameDraw() {}
@@ -33,7 +33,7 @@ public:
 class LineBenchmark : public IFrameDraw
 {
 private:
-	RgbColor Color{ UINT8_MAX, UINT8_MAX, UINT8_MAX };
+	rgb_color_t Color = Rgb::Color(UINT32_MAX);
 
 public:
 	LineBenchmark() :IFrameDraw() {}
@@ -56,7 +56,7 @@ public:
 class RectangleBenchmark : public IFrameDraw
 {
 private:
-	RgbColor Color{ UINT8_MAX, UINT8_MAX, UINT8_MAX };
+	rgb_color_t Color = Rgb::Color(UINT32_MAX);
 
 public:
 	RectangleBenchmark() :IFrameDraw() {}
@@ -78,7 +78,7 @@ public:
 class RectangleFillBenchmark : public IFrameDraw
 {
 private:
-	RgbColor Color{ UINT8_MAX, UINT8_MAX, UINT8_MAX };
+	rgb_color_t Color = Rgb::Color(UINT32_MAX);
 
 public:
 	RectangleFillBenchmark() :IFrameDraw() {}

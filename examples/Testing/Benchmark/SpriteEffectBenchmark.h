@@ -18,8 +18,8 @@ public:
 	SpriteShaderBenchmark()
 		: IFrameDraw()
 	{
-		GridSprite.SetColor1(0xFF, 0x00, 0xFF);
-		GridSprite.SetColor1(0x00, 0xFF, 0x00);
+		GridSprite.SetColor1(Rgb::Color(0xFF, 0x00, 0xFF));
+		GridSprite.SetColor1(Rgb::Color(0x00, 0xFF, 0x00));
 		GridSprite.SetTransparency(1);
 		GridSprite.SetBrightness(INT8_MAX / 2);
 	}
@@ -44,7 +44,7 @@ public:
 	SpriteTransformBenchmark()
 		: IFrameDraw()
 	{
-		GridSprite.SetColor(0xFF, 0x00, 0xFF);
+		GridSprite.SetColor(Rgb::Color(0xFF, 0x00, 0xFF));
 	}
 
 	virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final

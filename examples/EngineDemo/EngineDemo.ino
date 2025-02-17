@@ -7,6 +7,9 @@
 #define DEBUG
 #define SERIAL_BAUD_RATE 115200
 
+//#define EGFX_PLATFORM_HDR
+//#define EGFX_PLATFORM_BIG
+
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation frame buffer.
 //#define GRAPHICS_ENGINE_DEBUG // Enable debug logging and coordinates validation.
 #define GRAPHICS_ENGINE_MEASURE // Enabled engine measuring and logging.
@@ -53,14 +56,13 @@
 
 #include "DemoCyclerTask.h"
 #include "PrimitiveDemo.h"
+#include "TransformDemo.h"
 #include "TextCharactersDemo.h"
 #include "NumberAlignmentDemo.h"
-#include "TextFlowDemo.h"
-#include "SpriteDemo.h"
-#include "TransformDemo.h"
-#include "BitmapDemo.h"
-#include "BitmaskDemo.h"
 #include "TextSpriteDemo.h"
+#include "SpriteDemo.h"
+#include "BitmaskDemo.h"
+#include "BitmapDemo.h"
 #include "CloneDemo.h"
 
 
@@ -217,6 +219,21 @@ void setup()
 	Serial.println(F("Graphics Engine Demo Start."));
 	Serial.print(FrameBuffer.GetColorDepth());
 	Serial.println(F(" bit color depth screen."));
+
+
+	Serial.print(F("EGFX_PLATFORM_BIG "));
+#if defined(EGFX_PLATFORM_BIG)
+	Serial.println(1);
+#else
+	Serial.println(0);
+#endif
+
+	Serial.print(F("EGFX_PLATFORM_HDR "));
+#if defined(EGFX_PLATFORM_HDR)
+	Serial.println(1);
+#else
+	Serial.println(0);
+#endif
 #endif
 }
 

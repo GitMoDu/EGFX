@@ -24,18 +24,17 @@ private:
 	static constexpr uint32_t TranslationYDuration = 13000000;
 	static constexpr uint32_t BrightnessPeriod = 9876543;
 
-	struct BitmapLayout : public Layout
+	static constexpr pixel_t UsableX()
 	{
-		static constexpr uint8_t UsableX()
-		{
-			return Layout::Width() - 1 - DogeSprite::Width;
-		}
+		return Layout::Width() - DogeSprite::Width;
+	}
 
-		static constexpr uint8_t UsableY()
-		{
-			return Layout::Height() - 1 - DogeSprite::Height;
-		}
-	};
+	static constexpr pixel_t UsableY()
+	{
+		return Layout::Height() - DogeSprite::Height;
+	}
+
+	using BitmapLayout = LayoutElement<Layout::X(), Layout::Y(), UsableX(), UsableY()>;
 
 	enum class DrawElementsEnum : uint8_t
 	{
@@ -49,14 +48,14 @@ private:
 
 	RotateTransform<DogeSprite::Width, DogeSprite::Height> DogeRotator{};
 
-	uint8_t x = 0;
-	uint8_t y = 0;
+	pixel_t x = 0;
+	pixel_t y = 0;
 
 public:
 	BitmapDemo()
 		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
 	{
-		Doge.SetTransparentColor(0, 0, 0);
+		Doge.SetTransparentColor(0);
 	}
 
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
@@ -84,8 +83,8 @@ private:
 		const uint16_t progressBrightness = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<BrightnessPeriod>(frameTime));
 		const int8_t brightness = ProgressScaler::ScaleProgress(progressBrightness, (uint8_t)UINT8_MAX) + INT8_MIN;
 
-		x = Layout::X() + ProgressScaler::ScaleProgress(progressX, BitmapLayout::UsableX());
-		y = Layout::Y() + ProgressScaler::ScaleProgress(progressY, BitmapLayout::UsableY());
+		x = BitmapLayout::X() + ProgressScaler::ScaleProgress(progressX, BitmapLayout::Width());
+		y = BitmapLayout::Y() + ProgressScaler::ScaleProgress(progressY, BitmapLayout::Height());
 
 		DogeRotator.SetRotation(frameCounter % 360);
 		Doge.SetBrightness(brightness);

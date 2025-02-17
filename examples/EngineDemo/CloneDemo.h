@@ -23,7 +23,11 @@ private:
 		DrawElementsCount
 	};
 
-	static constexpr uint8_t rangeY = (uint8_t)(Layout::Height() - RainDropSprite::Height - 1);
+	static constexpr pixel_t RangeX = Layout::Width() - RainDropSprite::Width - 1;
+	static constexpr pixel_t RangeY = Layout::Height() - RainDropSprite::Height - 1;
+
+	using RainDropLayout = LayoutElement<Layout::X(), Layout::Y(), RangeX, RangeY>;
+
 
 	static constexpr uint8_t RainDropsPerFrame = 10;
 
@@ -32,13 +36,14 @@ private:
 
 private:
 	ColorShader<RainDropSprite> RainDrop{};
-	RgbColor Color{};
+	rgb_color_t Color{};
 	uint8_t droplets = 0;
 
 public:
 	CloneDemo()
 		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
-	{}
+	{
+	}
 
 	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 	{
@@ -65,15 +70,14 @@ private:
 
 		if (frame->GetColorDepth() > 1)
 		{
-			Color.r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 4) / 3)), (uint8_t)(UINT8_MAX / 5));
-			Color.g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)(UINT8_MAX / 2));
-			Color.b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 1) / 3)), (uint8_t)UINT8_MAX);
+			Color = Rgb::Color(ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 4) / 3)), (uint8_t)(UINT8_MAX / 5))
+				, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)(UINT8_MAX / 2))
+				, ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 1) / 3)), (uint8_t)UINT8_MAX));
 		}
 		else
 		{
-			Color.r = 0;
-			Color.g = 0;
-			Color.b = UINT8_MAX;
+
+			Color = Rgb::Color(0, 0, UINT8_MAX);
 		}
 
 		RainDrop.SetColor(Color);
@@ -85,88 +89,88 @@ private:
 		{
 		case 1:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 2:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 3:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 4:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 5:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 6:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 7:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 8:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 9:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		case 10:
 			SpriteRenderer::Draw(frame, &RainDrop,
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY),
-				Layout::X() + random(Layout::Width()), Layout::Y() + random(rangeY));
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()),
+				RainDropLayout::X() + random(RainDropLayout::Width()), RainDropLayout::Y() + random(RainDropLayout::Height()));
 			break;
 		default:
 			break;

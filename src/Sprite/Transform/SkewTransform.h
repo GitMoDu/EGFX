@@ -13,30 +13,31 @@ namespace Egfx::SpriteTransform
 	{
 	private:
 		pixel_t ReferenceY = Height / 2;
-		int8_t Skew = 0;
+		pixel_t Skew = 0;
 
 	public:
 		SkewHorizontalTransform() : BaseTransform() {}
 
 		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
-			if (BaseTransform::Transform(x, y)
-				&& y < Height)
+			if (BaseTransform::Transform(x, y))
 			{
-				x += ((((int16_t)ReferenceY - 1) - y) * Skew) / (Height - 1);
-
+				if (Skew != 0)
+				{
+					x += ((((int16_t)y - ReferenceY)) * Skew) / (Height - 1);
+				}
 				return true;
 			}
 
 			return false;
 		}
 
-		void SetSkewX(const int8_t skewPixels)
+		void SetSkewX(const pixel_t skewPixels)
 		{
 			Skew = skewPixels;
 		}
 
-		const int8_t GetSkewX() const
+		const pixel_t GetSkewX() const
 		{
 			return Skew;
 		}
@@ -58,17 +59,19 @@ namespace Egfx::SpriteTransform
 	{
 	private:
 		pixel_t ReferenceX = Width / 2;
-		int8_t Skew = 0;
+		pixel_t Skew = 0;
 
 	public:
 		SkewVerticalTransform() : BaseTransform() {}
 
 		virtual const bool Transform(pixel_t& x, pixel_t& y)
 		{
-			if (BaseTransform::Transform(x, y)
-				&& x < Width)
+			if (BaseTransform::Transform(x, y))
 			{
-				y += ((((int16_t)ReferenceX - 1) - x) * Skew) / (Width - 1);
+				if (Skew != 0)
+				{
+					y += ((((int16_t)x - ReferenceX)) * Skew) / (Width - 1);
+				}
 
 				return true;
 			}
@@ -76,12 +79,12 @@ namespace Egfx::SpriteTransform
 			return false;
 		}
 
-		void SetSkewY(const int8_t skewPixels)
+		void SetSkewY(const pixel_t skewPixels)
 		{
 			Skew = skewPixels;
 		}
 
-		const int8_t GetSkewY() const
+		const pixel_t GetSkewY() const
 		{
 			return Skew;
 		}

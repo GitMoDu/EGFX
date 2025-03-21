@@ -26,6 +26,11 @@ namespace Egfx::SpriteShader
 		{
 			ShaderColor = color;
 		}
+
+		rgb_color_t GetColor()
+		{
+			return ShaderColor;
+		}
 	};
 
 	template<typename SpriteType>
@@ -134,7 +139,9 @@ namespace Egfx::SpriteShader
 		{
 			if (SpriteType::Get(color, x, y))
 			{
-				color = Rgb::Interpolate(ShaderColor1, ShaderColor2, (((coordinate_t)x * UINT8_MAX) / (SpriteType::Width - 1)));
+				const Fraction::ufraction16_t fraction = Fraction::GetFraction16((pixel_index_t)x, SpriteType::Width - 1);
+
+				color = Rgb::Interpolate(fraction, ShaderColor1, ShaderColor2);
 
 				return true;
 			}
@@ -161,7 +168,9 @@ namespace Egfx::SpriteShader
 		{
 			if (SpriteType::Get(color, x, y))
 			{
-				color = Rgb::Interpolate(ShaderColor1, ShaderColor2, (((coordinate_t)y * UINT8_MAX) / (SpriteType::Height - 1)));
+				const Fraction::ufraction16_t fraction = Fraction::GetFraction16((pixel_index_t)y, SpriteType::Height - 1);
+
+				color = Rgb::Interpolate(fraction, ShaderColor1, ShaderColor2);
 
 				return true;
 			}

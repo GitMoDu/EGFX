@@ -7,6 +7,10 @@
 
 namespace Egfx
 {
+	using Fraction::ufraction8_t;
+	using Fraction::ufraction16_t;
+	using Fraction::ufraction32_t;
+
 	/// <summary>
 	/// RGB color model (rgb_color_t) operands.
 	/// Component (full/native) extraction and combination for 3-3-2/5-6-5/8-8-8 colors.
@@ -46,8 +50,6 @@ namespace Egfx
 			return color & 0b11111;
 		}
 
-
-
 		/// <summary>
 		/// Red 3-bit component of 8-bit color.
 		/// </summary>
@@ -63,7 +65,7 @@ namespace Egfx
 		/// </summary>
 		/// <param name="color">3-3-2 source color.</param>
 		/// <returns>3 bit green component of color.</returns>
-		static constexpr uint8_t G3(const uint16_t color)
+		static constexpr uint8_t G3(const uint8_t color)
 		{
 			return (color >> 2) & 0b111;
 		}
@@ -73,12 +75,10 @@ namespace Egfx
 		/// </summary>
 		/// <param name="color">3-3-2 source color.</param>
 		/// <returns>Blue component of color.</returns>
-		static constexpr uint8_t B2(const uint16_t color)
+		static constexpr uint8_t B2(const uint8_t color)
 		{
 			return color & 0b11;
 		}
-
-
 
 		/// <summary>
 		/// Red 8-bit component of 24-bit color.
@@ -110,8 +110,6 @@ namespace Egfx
 			return (uint8_t)(color);
 		}
 
-
-
 		/// <summary>
 		/// Red 8-bit component of 16-bit color.
 		/// </summary>
@@ -139,11 +137,8 @@ namespace Egfx
 		/// <returns>Blue component of color.</returns>
 		static constexpr uint8_t B(const uint16_t color)
 		{
-			return (B5(color) << 3)
-				| (B5(color) >> 2);
+			return (B5(color) << 3) | (B5(color) >> 2);
 		}
-
-
 
 		/// <summary>
 		/// Red 8-bit component of 8-bit color.
@@ -181,7 +176,6 @@ namespace Egfx
 				| (B2(color) << 2)
 				| B2(color);
 		}
-
 
 		/// <summary>
 		/// Convert 8-bit components to 24-bit color value.
@@ -226,8 +220,8 @@ namespace Egfx
 		/// <summary>
 		/// Convert 5-6-5 color to 8-8-8.
 		/// </summary>
-		/// <param name="color"></param>
-		/// <returns></returns>
+		/// <param name="color">5-6-5 color.</param>
+		/// <returns>8-8-8 color.</returns>
 		static constexpr uint32_t Color888(const uint16_t color)
 		{
 			return Color888From888(R(color), G(color), B(color));
@@ -236,8 +230,8 @@ namespace Egfx
 		/// <summary>
 		/// Convert 3-3-2 color to 8-8-8.
 		/// </summary>
-		/// <param name="color"></param>
-		/// <returns></returns>	
+		/// <param name="color">3-3-2 color.</param>
+		/// <returns>8-8-8 color.</returns>
 		static constexpr uint32_t Color888(const uint8_t color)
 		{
 			return Color888From888(R(color), G(color), B(color));
@@ -246,8 +240,8 @@ namespace Egfx
 		/// <summary>
 		/// Convert 8 bit grayscale to color 8-8-8.
 		/// </summary>
-		/// <param name="color"></param>
-		/// <returns></returns>
+		/// <param name="scale">8 bit brightness value for the grayscale color.</param>
+		/// <returns>8-8-8 grayscale color.</returns>
 		static constexpr uint32_t Grayscale888(const uint8_t scale)
 		{
 			return Color888From888(scale, scale, scale);
@@ -256,7 +250,7 @@ namespace Egfx
 		/// <summary>
 		/// Convert 8-8-8 color to 5-6-5.
 		/// </summary>
-		/// <param name="color"></param>
+		/// <param name="color">8-8-8 color.</param>
 		/// <returns>5-6-5 color.</returns>	
 		static constexpr uint16_t Color565(const uint32_t color)
 		{
@@ -268,7 +262,7 @@ namespace Egfx
 		/// <summary>
 		/// Convert 3-3-2 color to 5-6-5.
 		/// </summary>
-		/// <param name="color"></param>
+		/// <param name="color">3-3-2 color.</param>
 		/// <returns>5-6-5 color.</returns>	
 		static constexpr uint16_t Color565(const uint8_t color)
 		{
@@ -343,101 +337,109 @@ namespace Egfx
 #endif
 		}
 
+		/// <summary>
+		/// Converts HSV to EGFX native rgb_color_t.
+		/// </summary>
+		/// <param name="hue">Hue angle [0 ; ANGLE_RANGE], corresponds to the 360 degrees color wheel.</param>
+		/// <param name="saturation">Saturation value [0 ; 255].</param>
+		/// <param name="value">Brightness value [0 ; 255].</param>
+		/// <returns>EGFX native rgb_color_t.</returns>
+		static rgb_color_t ColorFromHSV(const angle_t hue, const uint8_t saturation, const uint8_t value)
+		{
+			static constexpr uint8_t Segments = 6;
+
+			if (saturation == 0)
+			{
+				// Achromatic (gray).
+				return Rgb::Color(value, value, value);
+			}
+			else
+			{
+				// Scale hue to fit into the number of segments.
+				const uint16_t hueScaled = ((uint32_t)hue * Segments) >> 8;
+				const uint8_t hueSegment = (hueScaled >> 8) % Segments;
+				const uint8_t f = hueScaled & UINT8_MAX;
+
+				// Calculate intermediate values.
+				const uint8_t p = (((uint16_t)value * (UINT8_MAX - saturation)) / UINT8_MAX);
+				const uint8_t fs = (((uint16_t)f * saturation) / UINT8_MAX);
+				const uint8_t q = (((uint16_t)value * (UINT8_MAX - fs)) / UINT8_MAX);
+				const uint8_t fsR = (((uint16_t)(UINT8_MAX - f) * saturation) / UINT8_MAX);
+				const uint8_t t = (((uint16_t)value * (UINT8_MAX - fsR)) / UINT8_MAX);
+
+				// Determine the RGB values based on the hue segment.
+				switch (hueSegment % Segments)
+				{
+				case 0:
+					return Rgb::Color(value, t, p);	// Red is dominant.
+				case 1:
+					return Rgb::Color(q, value, p);	// Green is dominant.
+				case 2:
+					return Rgb::Color(p, value, t);	// Green is dominant.
+				case 3:
+					return Rgb::Color(p, q, value);	// Blue is dominant.
+				case 4:
+					return Rgb::Color(t, p, value);	// Blue is dominant.
+				case (Segments - 1):
+				default:
+					return Rgb::Color(value, p, q);	// Red is dominant.
+				}
+			}
+		}
 
 	private:
-		/// <summary>
-		/// Fast square root for uint16_t.
-		/// </summary>
-		/// <param name="x"></param>
-		/// <returns></returns>
-		static const uint8_t SqrtU16(const uint16_t x)
+		static constexpr uint16_t Power8(const uint8_t value)
 		{
-			uint8_t res = 0;
-			uint8_t add = 0x80;
-
-			for (uint_fast8_t i = 0; i < 8; i++)
-			{
-				const uint8_t temp = res | add;
-				const uint16_t g2 = (uint16_t)temp * temp;
-				if (x >= g2)
-				{
-					res = temp;
-				}
-				add >>= 1;
-			}
-
-			return res;
-		}
-
-		static const uint8_t InterpolateProgressSquared(const uint8_t a, const uint8_t b, const uint8_t progress)
-		{
-			const uint16_t aa = ((uint32_t)(UINT8_MAX - progress) * (((uint16_t)a * a))) >> 8;
-			const uint16_t bb = ((uint32_t)progress * ((uint16_t)b * b)) >> 8;
-
-			return SqrtU16(aa + bb);
-		}
-
-		static constexpr uint8_t InterpolateProgressLinear(const uint8_t a, const uint8_t b, const uint8_t progress)
-		{
-			return (((uint16_t)b * progress) + ((uint16_t)a * (UINT8_MAX - progress))) >> 8;
+			return (uint16_t)value * value;
 		}
 
 	public:
 		/// <summary>
-		/// Interpolate between 2 colors in RGB space.
+		/// Interpolate linearly between 2 colors using a ufraction_t. Not as accurate as Interpolate, but much faster.
 		/// </summary>
-		/// <param name="color1">5-6-5 source color.</param>
-		/// <param name="color2">5-6-5 source color.</param>
-		/// <param name="progress">Interpolation progress [0;UINT8_MAX].</param>
-		/// <returns>5-6-5 color.</returns>
-		static const uint16_t Interpolate(const uint16_t color1, const uint16_t color2, const uint8_t progress)
+		/// <typeparam name="color_t">Type of the color values.</typeparam>
+		/// <param name="fraction">Fraction value for interpolation, typically between 0 and UFRACTION8_1X/UFRACTION16_1X/UFRACTION32_1X.</param>
+		/// <param name="from">Starting color value.</param>
+		/// <param name="to">Ending color value.</param>
+		/// <returns>Interpolated color value.</returns>
+		template<typename ufraction_t, typename color_t>
+		static constexpr color_t InterpolateLinear(const ufraction_t fraction, const color_t from, const color_t to)
 		{
-			return Color565(Interpolate(Color888(color1), Color888(color2), progress));
+			return Rgb::Color(Fraction::Interpolate(fraction, R(from), R(to)),
+				Fraction::Interpolate(fraction, G(from), G(to)),
+				Fraction::Interpolate(fraction, B(from), B(to)));
+		}
+
+
+		template<typename color_t>
+		static constexpr color_t InterpolateLinear2(const ufraction8_t fraction, const color_t from, const color_t to)
+		{
+			return Rgb::Color(Fraction::Interpolate(fraction, R(from), R(to)),
+				Fraction::Interpolate(fraction, G(from), G(to)),
+				Fraction::Interpolate(fraction, B(from), B(to)));
 		}
 
 		/// <summary>
-		/// Interpolate between 2 colors linearly.
-		/// Not as accurate as Interpolate, but much faster.
+		/// Interpolate between 2 colors using a ufraction_t.
 		/// </summary>
-		/// <param name="color1">5-6-5 source color.</param>
-		/// <param name="color2">5-6-5 source color.</param>
-		/// <param name="progress">Interpolation progress [0;UINT8_MAX].</param>
-		/// <returns>5-6-5 color.</returns>
-		static constexpr uint16_t InterpolateLinear(const uint16_t color1, const uint16_t color2, const uint8_t progress)
+		/// <typeparam name="color_t">Type of the color values.</typeparam>
+		/// <param name="fraction">Fraction value for interpolation, typically between 0 and UFRACTION8_1X/UFRACTION16_1X/UFRACTION32_1X.</param>
+		/// <param name="from">Starting color value.</param>
+		/// <param name="to">Ending color value.</param>
+		/// <returns>Interpolated color value.</returns>
+		template<typename ufraction_t, typename color_t>
+		static color_t Interpolate(const ufraction_t fraction, const color_t from, const color_t to)
 		{
-			return Color565From565(InterpolateProgressLinear(R5(color1), R5(color2), progress)
-				, InterpolateProgressLinear(G6(color1), G6(color2), progress)
-				, InterpolateProgressLinear(B5(color1), B5(color2), progress));
-		}
-
-		/// <summary>
-		/// Interpolate between 2 colors in RGB space.
-		/// </summary>
-		/// <param name="color1">8-8-8 source color.</param>
-		/// <param name="color2">8-8-8 source color.</param>
-		/// <param name="progress">Interpolation progress [0;UINT8_MAX].</param>
-		/// <returns>8-8-8 color.</returns>
-		static const uint32_t Interpolate(const uint32_t color1, const uint32_t color2, const uint8_t progress)
-		{
-			return Color888From888(InterpolateProgressSquared(R(color1), R(color2), progress)
-				, InterpolateProgressSquared(G(color1), G(color2), progress)
-				, InterpolateProgressSquared(B(color1), B(color2), progress));
-		}
-
-		/// <summary>
-		/// Interpolate between 2 colors linearly.
-		/// Not as accurate as Interpolate, but much faster.
-		/// </summary>
-		/// <param name="color1">8-8-8 source color.</param>
-		/// <param name="color2">8-8-8 source color.</param>
-		/// <param name="progress">Interpolation progress [0;UINT8_MAX].</param>
-		/// <returns>8-8-8 color.</returns>
-		static constexpr uint32_t InterpolateLinear(const uint32_t color1, const uint32_t color2, const uint8_t progress)
-		{
-			return Color888From888(InterpolateProgressLinear(R(color1), R(color2), progress)
-				, InterpolateProgressLinear(G(color1), G(color2), progress)
-				, InterpolateProgressLinear(B(color1), B(color2), progress));
+			return Rgb::Color(SquareRoot16(Fraction::Interpolate(fraction, Power8(R(from)), Power8(R(to)))),
+				SquareRoot16(Fraction::Interpolate(fraction, Power8(G(from)), Power8(G(to)))),
+				SquareRoot16(Fraction::Interpolate(fraction, Power8(B(from)), Power8(B(to)))));
 		}
 	};
+
+	static constexpr rgb_color_t RGB_COLOR_WHITE = Rgb::Color(uint32_t(0xFFFFFF));
+	static constexpr rgb_color_t RGB_COLOR_RED = Rgb::Color(uint32_t(0xFF0000));
+	static constexpr rgb_color_t RGB_COLOR_GREEN = Rgb::Color(uint32_t(0x00FF00));
+	static constexpr rgb_color_t RGB_COLOR_BLUE = Rgb::Color(uint32_t(0x0000FF));
+	static constexpr rgb_color_t RGB_COLOR_BLACK = Rgb::Color(uint32_t(0x000000));
 }
 #endif

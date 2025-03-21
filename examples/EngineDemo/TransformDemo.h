@@ -113,15 +113,14 @@ private:
 
 		SpriteRenderer::TransformDraw(
 			frame, &Heart, &HeartDownScaler,
-			Layout::X() + (downScale / 2), Layout::Y() + (((coordinate_t)Layout::Height() * 2) / 3) - (HeartSprite::Height / 2) + (downScale / 2));
+			Layout::X() + (downScale / 2), Layout::Y() + (((pixel_index_t)Layout::Height() * 2) / 3) - (HeartSprite::Height / 2) + (downScale / 2));
 	}
 
 	void DrawRotate(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		const uint16_t progress = ProgressScaler::GetProgress<RotationDuration>(frameTime);
-		const int16_t angle = ProgressScaler::ScaleProgress(progress, (uint16_t)360);
+		const Fraction::ufraction16_t rotateFraction = Fraction::GetUFraction16((uint32_t)(frameTime % (RotationDuration + 1)), RotationDuration);
 
-		PyramidRotator.SetRotation(angle);
+		PyramidRotator.SetRotation(Fraction::Scale(rotateFraction, (uint16_t)ANGLE_RANGE));
 
 		SpriteRenderer::TransformDraw(frame, &Pyramid, &PyramidRotator,
 			(Layout::Width() - PyramidSprite::Width) / 2,

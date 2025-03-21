@@ -6,43 +6,46 @@
 #include <ArduinoGraphicsDrawer.h>
 #include "CharacterBuffer.h"
 
-template<uint8_t x, uint8_t y,
-	uint8_t width, uint8_t height,
-	typename FontRendererType = SpriteFont5x5Renderer,
-	uint8_t maxLineCount = UINT8_MAX,
-	uint8_t maxCharacterCount = UINT8_MAX>
-struct DisplayPrintLayout : public FontLayoutElement<x, y, width, height, FontRendererType::FontWidth(), FontRendererType::FontHeight(), FontRendererType::FontKerning()>
+namespace Egfx
 {
-private:
-	static constexpr uint8_t SmallestUint8(const uint8_t a, const uint8_t b)
+	template<uint8_t x, uint8_t y,
+		uint8_t width, uint8_t height,
+		typename FontRendererType,
+		uint8_t maxLineCount = UINT8_MAX,
+		uint8_t maxCharacterCount = UINT8_MAX>
+	struct DisplayPrintLayout : public FontLayoutElement<x, y, width, height, FontRendererType::FontWidth(), FontRendererType::FontHeight(), FontRendererType::FontKerning()>
 	{
-		return (a * (a <= b)) | (b * (a > b));
-	}
+	private:
+		static constexpr uint8_t SmallestUint8(const uint8_t a, const uint8_t b)
+		{
+			return (a * (a <= b)) | (b * (a > b));
+		}
 
-	static constexpr uint8_t LinesCount(const uint8_t fontHeight)
-	{
-		return SmallestUint8(((height - (fontHeight + 1)) / (fontHeight + 1)), maxLineCount);
-	}
+		static constexpr uint8_t LinesCount(const uint8_t fontHeight)
+		{
+			return SmallestUint8(((height - (fontHeight + 1)) / (fontHeight + 1)), maxLineCount);
+		}
 
-	static constexpr uint8_t CharactersCount(const uint8_t fontWidth)
-	{
-		return SmallestUint8(width / (fontWidth + 1), maxCharacterCount);
-	}
+		static constexpr uint8_t CharactersCount(const uint8_t fontWidth)
+		{
+			return SmallestUint8(width / (fontWidth + 1), maxCharacterCount);
+		}
 
-public:
-	static constexpr uint8_t CharacterCount()
-	{
-		return CharactersCount(FontRendererType::FontWidth());
-	}
+	public:
+		static constexpr uint8_t CharacterCount()
+		{
+			return CharactersCount(FontRendererType::FontWidth());
+		}
 
-	static constexpr uint8_t LineCount()
-	{
-		return LinesCount(FontRendererType::FontHeight());
-	}
+		static constexpr uint8_t LineCount()
+		{
+			return LinesCount(FontRendererType::FontHeight());
+		}
 
-	static constexpr uint8_t ElementsCount()
-	{
-		return 1 + LineCount();
-	}
-};
+		static constexpr uint8_t ElementsCount()
+		{
+			return 1 + LineCount();
+		}
+	};
+}
 #endif

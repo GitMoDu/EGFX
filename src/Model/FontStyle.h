@@ -94,17 +94,17 @@ namespace Egfx
 	public:
 		static constexpr pixel_t GetFontWidth(const uint16_t widthRatio, const pixel_t height)
 		{
-			return (((coordinate_t)height) * widthRatio) / UINT8_MAX;
+			return (((pixel_index_t)height) * widthRatio) / UINT8_MAX;
 		}
 
 		static constexpr pixel_t GetFontHeight(const uint16_t widthRatio, const pixel_t width)
 		{
-			return (((coordinate_t)width) * (UINT8_MAX + widthRatio)) / UINT8_MAX;
+			return (((pixel_index_t)width) * (UINT8_MAX + widthRatio)) / UINT8_MAX;
 		}
 
 		static constexpr uint8_t GetKerning(const uint8_t ratio, const uint8_t value)
 		{
-			return 1 + (((coordinate_t)value) * ratio) / UINT8_MAX;
+			return 1 + (((pixel_index_t)value) * ratio) / UINT8_MAX;
 		}
 
 		static constexpr pixel_t GetTextWidth(const uint8_t characterCount, const pixel_t width, const uint8_t kerning)

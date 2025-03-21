@@ -3,7 +3,6 @@
 
 #include "Platform/Platform.h"
 
-#include "ArduinoGraphicsDrawer.h"
 
 #include "Model/IFrameBuffer.h"
 #include "Model/IFrameEngine.h"
@@ -14,4 +13,5 @@
 #include "FrameBuffer/MonochromeFrameBuffer.h"
 #include "FrameBuffer/BinaryFrameBuffer.h"
 
+#include "ArduinoGraphicsDrawer.h"
 #endif

@@ -147,7 +147,7 @@ namespace Egfx
 	private:
 		static void DrawMinus(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, middleY, x2 - 2, middleY);
 		}
@@ -155,8 +155,8 @@ namespace Egfx
 		static void DrawA(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
 			const pixel_t margin = ((x2 - x1) / 4);
-			const pixel_t middleX = (((coordinate_t)x2 + x1) / 2);
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2) + 1;
+			const pixel_t middleX = (((pixel_index_t)x2 + x1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2) + 1;
 
 			frameBuffer->Line(color, x1, y2, middleX, y1);
 			frameBuffer->Line(color, x1 + margin, middleY, x2 - margin, middleY);
@@ -165,7 +165,7 @@ namespace Egfx
 
 		static void DrawB(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x2 - 1, y1 + 1, x2 - 1, middleY);
 			frameBuffer->Line(color, x2 - 1, middleY + 1, x2 - 1, y2 - 1);
@@ -193,7 +193,7 @@ namespace Egfx
 
 		static void DrawE(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, y1, x1, y2 - 1);
 			frameBuffer->Line(color, x1, y1, x2, y1);
@@ -203,7 +203,7 @@ namespace Egfx
 
 		static void DrawF(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, y1, x1, y2);
 			frameBuffer->Line(color, x1, y1, x2, y1);
@@ -212,7 +212,7 @@ namespace Egfx
 
 		static void DrawG(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1 + 1, y1, x2, y1);
 			frameBuffer->Line(color, x1, y1 + 1, x1, y2 - 1);
@@ -224,7 +224,7 @@ namespace Egfx
 
 		static void DrawH(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, y1, x1, y2);
 			frameBuffer->Line(color, x2 - 1, y1, x2 - 1, y2);
@@ -233,7 +233,7 @@ namespace Egfx
 
 		static void DrawI(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleX = ((coordinate_t)x2 + x1) / 2;
+			const pixel_t middleX = ((pixel_index_t)x2 + x1) / 2;
 
 			frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
 			frameBuffer->Line(color, middleX, y1, middleX, y2 - 1);
@@ -242,7 +242,7 @@ namespace Egfx
 
 		static void DrawJ(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x2 - 1, y1, x2 - 1, y2 - 1);
 			frameBuffer->Line(color, x1, middleY, x1, y2 - 1);
@@ -251,7 +251,7 @@ namespace Egfx
 
 		static void DrawK(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, y1, x1, y2);
 			frameBuffer->Line(color, x1, middleY, x2 - 1, y1);
@@ -266,8 +266,8 @@ namespace Egfx
 
 		static void DrawM(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleX = ((coordinate_t)x2 + x1) / 2;
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleX = ((pixel_index_t)x2 + x1) / 2;
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, y1, x1, y2);
 			frameBuffer->Line(color, x1 + 1, y1 + 1, middleX, middleY);
@@ -292,7 +292,7 @@ namespace Egfx
 
 		static void DrawP(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, y1, x1, y2);
 			frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
@@ -311,7 +311,7 @@ namespace Egfx
 
 		static void DrawR(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1, y1, x1, y2);
 			frameBuffer->Line(color, x1 + 1, y1, x2 - 1, y1);
@@ -322,7 +322,7 @@ namespace Egfx
 
 		static void DrawS(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
 			frameBuffer->Line(color, x1 + 1, y1, x2, y1);
 			frameBuffer->Line(color, x1, y1 + 1, x1, middleY);
@@ -333,7 +333,7 @@ namespace Egfx
 
 		static void DrawT(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleX = ((coordinate_t)x2 + x1) / 2;
+			const pixel_t middleX = ((pixel_index_t)x2 + x1) / 2;
 
 			frameBuffer->Line(color, x1, y1, x2, y1);
 			frameBuffer->Line(color, middleX, y1, middleX, y2);
@@ -348,7 +348,7 @@ namespace Egfx
 
 		static void DrawV(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleX = (((coordinate_t)x2 + x1) / 2);
+			const pixel_t middleX = (((pixel_index_t)x2 + x1) / 2);
 
 			frameBuffer->Line(color, x1, y1, middleX, y2);
 			frameBuffer->Line(color, middleX, y2 - 1, x2 - 1, y1);
@@ -356,10 +356,10 @@ namespace Egfx
 
 		static void DrawW(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleX = (((coordinate_t)x2 + x1) / 2);
-			const pixel_t middleY = (((coordinate_t)y2 + y1) / 2);
+			const pixel_t middleX = (((pixel_index_t)x2 + x1) / 2);
+			const pixel_t middleY = (((pixel_index_t)y2 + y1) / 2);
 
-			const pixel_t margin = (((coordinate_t)x2 - x1) / 4);
+			const pixel_t margin = (((pixel_index_t)x2 - x1) / 4);
 
 			frameBuffer->Line(color, x1, y1, middleX - margin, y2);
 			frameBuffer->Line(color, middleX - margin, y2, middleX, middleY);
@@ -375,8 +375,8 @@ namespace Egfx
 
 		static void DrawY(IFrameBuffer* frameBuffer, const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			const pixel_t middleX = (((coordinate_t)x1 + x2) / 2);
-			const pixel_t middleY = (((coordinate_t)y1 + y2) / 2) + 2;
+			const pixel_t middleX = (((pixel_index_t)x1 + x2) / 2);
+			const pixel_t middleY = (((pixel_index_t)y1 + y2) / 2) + 2;
 
 			frameBuffer->Line(color, x1, y1, middleX, middleY);
 			frameBuffer->Line(color, x2 - 1, y1, middleX, middleY);

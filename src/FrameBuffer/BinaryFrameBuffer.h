@@ -17,8 +17,7 @@ namespace Egfx
 	/// <typeparam name="displayRotation">Display rotation option.</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
-		, DisplayRotationEnum displayRotation = DisplayRotationEnum::NoRotation>
-	using BinaryFrameBuffer = MonochromeFrameBuffer<frameWidth, frameHeight, clearDivisorPower, BinaryColorConverter1, displayMirror, displayRotation>;
+		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
+	using BinaryFrameBuffer = MonochromeFrameBuffer<frameWidth, frameHeight, clearDivisorPower, BinaryColorConverter1, displayMirror>;
 }
 #endif

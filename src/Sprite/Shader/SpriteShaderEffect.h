@@ -7,6 +7,13 @@
 
 namespace Egfx::SpriteShaderEffect
 {
+	//using Fraction::ufraction8_t;
+	using Fraction::ufraction16_t;
+	using Fraction::fraction8_t;
+	using Fraction::fraction16_t;
+	using Fraction::FRACTION16_1X;
+	using Fraction::UFRACTION16_1X;
+
 	/// <summary>
 	/// Masks the pixels with a rectangle crop.
 	/// </summary>
@@ -50,26 +57,26 @@ namespace Egfx::SpriteShaderEffect
 	class CropCircleEffect : public BaseClass
 	{
 	private:
-		coordinate_t RadiusPow = 0;
-		pixel_signed_t OffsetX = 0;
-		pixel_signed_t OffsetY = 0;
+		pixel_index_t RadiusPow = 0;
+		int16_t OffsetX = 0;
+		int16_t OffsetY = 0;
 
 	public:
 		CropCircleEffect() : BaseClass()
 		{
 		}
 
-		void SetCircleCrop(const pixel_signed_t offsetX, const pixel_signed_t offsetY, const pixel_t radius)
+		void SetCircleCrop(const int16_t offsetX, const int16_t offsetY, const pixel_t radius)
 		{
 			OffsetX = offsetX;
 			OffsetY = offsetY;
 			if (radius > 1)
 			{
-				RadiusPow = ((coordinate_t)radius * radius) - 1;
+				RadiusPow = ((pixel_index_t)radius * radius) - 1;
 			}
 			else
 			{
-				RadiusPow = ((coordinate_t)radius * radius);
+				RadiusPow = ((pixel_index_t)radius * radius);
 			}
 		}
 
@@ -81,9 +88,9 @@ namespace Egfx::SpriteShaderEffect
 	private:
 		const bool IsInsideCircle(const pixel_t x, const pixel_t y)
 		{
-			const coordinate_signed_t xx = x - OffsetX;
-			const coordinate_signed_t yy = y - OffsetY;
-			const coordinate_t distancePow = (((coordinate_t)xx * xx) + ((coordinate_t)yy * yy));
+			const int16_t xx = x - OffsetX;
+			const int16_t yy = y - OffsetY;
+			const pixel_index_t distancePow = (((pixel_index_t)xx * xx) + ((pixel_index_t)yy * yy));
 
 			return distancePow <= RadiusPow;
 		}
@@ -248,7 +255,7 @@ namespace Egfx::SpriteShaderEffect
 	class BrightnessEffect : public BaseClass
 	{
 	private:
-		int8_t Brightness = 0;
+		fraction16_t Brightness = 0;
 
 	public:
 		BrightnessEffect() : BaseClass()
@@ -259,7 +266,7 @@ namespace Egfx::SpriteShaderEffect
 		/// Brightness shift.
 		/// </summary>
 		/// <param name="brightness">[INT8_MIN+1; INT8_MAX] Absolute shift in RGB space.</param>
-		void SetBrightness(const int8_t brightness)
+		void SetBrightness(const fraction16_t brightness)
 		{
 			Brightness = brightness;
 		}
@@ -268,41 +275,22 @@ namespace Egfx::SpriteShaderEffect
 		{
 			if (BaseClass::Get(color, x, y))
 			{
-				color = Rgb::Color(Scale(Rgb::R(color)), Scale(Rgb::G(color)), Scale(Rgb::B(color)));
+				if (Brightness > 0)
+				{
+					color = Rgb::InterpolateLinear(ufraction16_t(uint16_t(Brightness) << 1), color, RGB_COLOR_WHITE);
+				}
+				else if (Brightness < 0)
+				{
+					ufraction16_t reverseFraction = UFRACTION16_1X - (uint16_t(-Brightness) << 1);
+					color = Rgb::Color(Fraction::Scale(reverseFraction, Rgb::R(color)),
+						Fraction::Scale(reverseFraction, Rgb::G(color)),
+						Fraction::Scale(reverseFraction, Rgb::B(color)));
+				}
 
 				return true;
 			}
 
 			return false;
-		}
-
-	private:
-		const uint8_t Scale(const uint8_t value) const
-		{
-			if (Brightness == INT8_MIN)
-			{
-				return 0;
-			}
-			else if (Brightness < 0)
-			{
-				return ((uint16_t)value * (INT8_MAX + Brightness)) / (INT8_MAX - 0);
-			}
-			else if (Brightness > 0)
-			{
-				const uint16_t unlimited = ((uint16_t)value * (INT8_MAX + Brightness)) / INT8_MAX;
-				if (unlimited >= UINT8_MAX)
-				{
-					return UINT8_MAX;
-				}
-				else
-				{
-					return unlimited;
-				}
-			}
-			else
-			{
-				return value;
-			}
 		}
 	};
 

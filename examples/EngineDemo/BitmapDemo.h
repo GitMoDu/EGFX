@@ -4,6 +4,7 @@
 #define _BITMAP_DEMO_h
 
 #include <ArduinoGraphicsDrawer.h>
+#include <IntegerTrigonometry16.h>
 #include "Sprites.h"
 
 using namespace DemoSprites;
@@ -23,6 +24,8 @@ private:
 	static constexpr uint32_t TranslationXDuration = 7000000;
 	static constexpr uint32_t TranslationYDuration = 13000000;
 	static constexpr uint32_t BrightnessPeriod = 9876543;
+	static constexpr uint32_t RotationDuration = 4000000;
+
 
 	static constexpr pixel_t UsableX()
 	{
@@ -80,14 +83,18 @@ private:
 	{
 		const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationXDuration>(frameTime));
 		const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationYDuration>(frameTime));
-		const uint16_t progressBrightness = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<BrightnessPeriod>(frameTime));
-		const int8_t brightness = ProgressScaler::ScaleProgress(progressBrightness, (uint8_t)UINT8_MAX) + INT8_MIN;
 
-		x = BitmapLayout::X() + ProgressScaler::ScaleProgress(progressX, BitmapLayout::Width());
-		y = BitmapLayout::Y() + ProgressScaler::ScaleProgress(progressY, BitmapLayout::Height());
+		x = BitmapLayout::X() + ProgressScaler::ScaleProgress(progressX, (uint16_t)BitmapLayout::Width());
+		y = BitmapLayout::Y() + ProgressScaler::ScaleProgress(progressY, (uint16_t)BitmapLayout::Height());
 
-		DogeRotator.SetRotation(frameCounter % 360);
-		Doge.SetBrightness(brightness);
+		const ufraction32_t brightnessFraction = GetUFraction32((uint32_t)(frameTime % (BrightnessPeriod + 1)), BrightnessPeriod);
+		const angle_t brightnessAngle = Fraction::Scale(brightnessFraction, ANGLE_RANGE);
+
+		Doge.SetBrightness(Sine16(brightnessAngle));
+
+		const Fraction::ufraction16_t rotateFraction = Fraction::GetUFraction16((uint32_t)(frameTime % (RotationDuration + 1)), RotationDuration);
+
+		DogeRotator.SetRotation(Fraction::Scale(rotateFraction, (uint16_t)ANGLE_RANGE));
 	}
 
 	void DrawBitmapLine(IFrameBuffer* frame, const uint8_t index)

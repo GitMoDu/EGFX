@@ -59,7 +59,7 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t offset = ((coordinate_t)y * width) + x;
+			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
 
 			color = Rgb::Color((uint8_t)RgbBitmap[offset]);
 
@@ -84,7 +84,7 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t offset = ((coordinate_t)y * width) + x;
+			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
 
 			color = Rgb::Color((uint16_t)RgbBitmap[offset]);
 
@@ -109,7 +109,7 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t offset = ((coordinate_t)y * width) + x;
+			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
 
 			color = Rgb::Color((uint32_t)RgbBitmap[offset]);
 
@@ -136,7 +136,7 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t offset = ((coordinate_t)y * width) + x;
+			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
 			const uint8_t* bitmap = (const uint8_t*)RgbBitmap;
 			const uint8_t value = pgm_read_byte(&bitmap[offset]);
 
@@ -164,9 +164,13 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t offset = (((coordinate_t)y * width) + x) * sizeof(uint16_t);
+			const pixel_index_t offset = (((pixel_index_t)y * width) + x);
+			const uint16_t value = (uint16_t)pgm_read_word(&RgbBitmap[offset]);
+
+			/*const pixel_index_t offset = (((pixel_index_t)y * width) + x) * sizeof(uint16_t);
 			const uint8_t* bitmap = (const uint8_t*)RgbBitmap;
-			const uint16_t value = (uint16_t)pgm_read_byte(&bitmap[offset + 0]) | ((uint16_t)pgm_read_byte(&bitmap[offset + 1]) << 8);
+
+			const uint16_t value = (uint16_t)pgm_read_byte(&bitmap[offset + 0]) | ((uint16_t)pgm_read_byte(&bitmap[offset + 1]) << 8);*/
 
 			color = Rgb::Color(value);
 
@@ -192,7 +196,7 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t offset = (((coordinate_t)y * width) + x) * sizeof(uint32_t);
+			const pixel_index_t offset = (((pixel_index_t)y * width) + x) * sizeof(uint32_t);
 			const uint8_t* bitmap = (const uint8_t*)RgbBitmap;
 
 			color = Rgb::Color((uint8_t)pgm_read_byte(&bitmap[offset + 2])

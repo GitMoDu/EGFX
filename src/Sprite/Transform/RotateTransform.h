@@ -5,22 +5,14 @@
 
 #include "SkewTransform.h"
 #include "InvertTransform.h"
+#if defined(EGFX_PLATFORM_BIG)
+#include <IntegerTrigonometry16.h>
+#else
+#include <IntegerTrigonometry8.h>
+#endif
 
 namespace Egfx::SpriteTransform
 {
-	namespace Rotation
-	{
-		static constexpr uint8_t SinTable[] PROGMEM
-		{
-			18, 22, 27, 31, 35, 40, 44, 49, 53, 57, 62, 66, 70, 75, 79, 83, 87 ,91 ,96, 100, 104, 108, 112, 116, 120, 124, 128, 131, 135, 139, 143, 146, 150, 153, 157, 160, 164, 167, 171, 174, 177, 180, 183, 186, 190, 192
-		};
-
-		static constexpr uint8_t TanTable[] PROGMEM
-		{
-			18, 22, 27, 31, 36, 41, 45, 50, 54, 59, 64, 68, 73, 78, 83, 88, 93, 98, 103, 108, 114, 119, 124
-		};
-	}
-
 	/// <summary>
 	/// Pixel-retaining rotate done with 3 consecutive skews.
 	/// </summary>
@@ -32,149 +24,142 @@ namespace Egfx::SpriteTransform
 	class RotateTransform : public BaseTransform
 	{
 	private:
-		static constexpr pixel_t GetDimension()
+		enum class FlippingEnum : uint8_t
 		{
-			return ((Width >= Height) * (Width)) | ((Width < Height) * (Height));
-		}
+			NoFlip,
+			Invert,
+			FlipInvertX,
+			FlipInvertY,
+			InvertX,
+			InvertY,
+		};
 
 	private:
-		using Invert = SpriteTransform::InvertTransform<GetDimension(), GetDimension()>;
-		using FlipInvertX = SpriteTransform::FlipInvertXTransform<GetDimension()>;
-		using FlipInvertY = SpriteTransform::FlipInvertYTransform<GetDimension()>;
-
-		SpriteTransform::SkewHorizontalTransform<GetDimension()> SkewHorizontal{};
-		SpriteTransform::SkewVerticalTransform<GetDimension()> SkewVertical{};
+		SpriteTransform::SkewHorizontalTransform<Height> SkewHorizontal{};
+		SpriteTransform::SkewVerticalTransform<Width> SkewVertical{};
+		FlippingEnum Flip = FlippingEnum::NoFlip;
 
 	private:
-		int16_t Angle = 0;
+		angle_t Angle = 0;
 
 	public:
 		RotateTransform() : BaseTransform() {}
 
-		void SetRotation(const int16_t angleDegrees)
+		void SetRotation(const angle_t angle)
 		{
-			Angle = angleDegrees % 360;
+			// Set the rotation angle.
+			Angle = angle;
+			angle_t adjustedAngle = angle;
+			Flip = FlippingEnum::NoFlip;
+
+			// Handle direct static transformations for specific angles.
+			switch (adjustedAngle)
+			{
+			case 0:
+				// No transformation needed for 0 degrees.
+				SkewHorizontal.SetSkewX(0);
+				SkewVertical.SetSkewY(0);
+				return;
+			case ANGLE_90:
+				// Apply 90-degree rotation transformation.
+				SkewHorizontal.SetSkewX(0);
+				SkewVertical.SetSkewY(0);
+				Flip = FlippingEnum::FlipInvertX;
+				return;
+			case ANGLE_180:
+				// Apply 180-degree rotation transformation.
+				SkewHorizontal.SetSkewX(0);
+				SkewVertical.SetSkewY(0);
+				Flip = FlippingEnum::Invert;
+				return;
+			case ANGLE_270:
+				// Apply 270-degree rotation transformation.
+				SkewHorizontal.SetSkewX(0);
+				SkewVertical.SetSkewY(0);
+				Flip = FlippingEnum::FlipInvertY;
+				return;
+			}
+
+			// Adjust angle for transformations beyond 180 degrees.
+			if (adjustedAngle > ANGLE_180)
+			{
+				// Apply 180-degree inversion transformation.
+				Flip = FlippingEnum::Invert;
+				adjustedAngle -= ANGLE_180;
+
+				// Adjust angle for transformations beyond 270 degrees.
+				if (adjustedAngle > ANGLE_90)
+				{
+					// Apply 90-degree flip inversion transformation.
+					Flip = FlippingEnum::FlipInvertY;
+					adjustedAngle -= ANGLE_90;
+				}
+			}
+			// Adjust angle for transformations beyond 90 degrees.
+			else if (adjustedAngle > ANGLE_90)
+			{
+				// Apply 90-degree flip inversion transformation.
+				Flip = FlippingEnum::FlipInvertX;
+				adjustedAngle -= ANGLE_90;
+			}
+
+			// Calculate skew factors based on the adjusted angle.
+#if defined(EGFX_PLATFORM_BIG)
+			const pixel_t skewX = Fraction::Scale((fraction16_t)-Tangent16(adjustedAngle / 2), (pixel_t)(Width));
+			const pixel_t skewY = Fraction::Scale(Sine16(adjustedAngle), pixel_t(Height));
+#else
+			const pixel_t skewX = Fraction::Scale((fraction8_t)-Tangent8(adjustedAngle / 2), (pixel_t)(Width));
+			const pixel_t skewY = Fraction::Scale(Sine8(adjustedAngle), pixel_t(Height));
+#endif
+			SkewHorizontal.SetSkewX(skewX);
+			SkewVertical.SetSkewY(skewY);
 		}
 
-		const int16_t GetRotation() const
+		const angle_t GetRotation() const
 		{
+			// Return the current rotation angle.
 			return Angle;
 		}
 
 		virtual const bool Transform(pixel_t& x, pixel_t& y)
-		{
-			return Transform(x, y, Angle);
-		}
-
-		virtual const bool Transform(pixel_t& x, pixel_t& y, const int16_t angle)
 		{
 			if (!BaseTransform::Transform(x, y))
 			{
 				return false;
 			}
 
-			switch (angle)
+			// Apply the appropriate flip transformation based on the set rotation.
+			switch (Flip)
 			{
-			case 0:
-			case 360:
-			case -360:
-				return true;
-
-			case 90:
-			case -90:
-				FlipInvertX::TransformStatic(x, y);
-				return true;
-
-			case 180:
-			case -180:
-				Invert::TransformStatic(x, y);
-				return true;
+			case FlippingEnum::FlipInvertX:
+				FlipInvertXTransform<Height>::TransformStatic(x, y);
+				break;
+			case FlippingEnum::FlipInvertY:
+				FlipInvertYTransform<Width>::TransformStatic(x, y);
+				break;
+			case FlippingEnum::InvertX:
+				InvertXTransform<Width>::TransformStatic(x, y);
+				break;
+			case FlippingEnum::InvertY:
+				InvertYTransform<Height>::TransformStatic(x, y);
+				break;
+			case FlippingEnum::Invert:
+				InvertTransform<Width, Height>::TransformStatic(x, y);
+				break;
+			case FlippingEnum::NoFlip:
 			default:
-				if (angle > 360
-					|| angle < -360)
-				{
-					return Transform(x, y, angle % 360);
-				}
-				else if (angle > 180)
-				{
-					Invert::TransformStatic(x, y);
-
-					return Transform(x, y, angle - 180);
-				}
-				else if (angle < -180)
-				{
-					Invert::TransformStatic(x, y);
-
-					return Transform(x, y, angle + 180);
-				}
-				else if (angle > 90)
-				{
-					FlipInvertX::TransformStatic(x, y);
-
-					return Transform(x, y, (angle - 90));
-				}
-				else if (angle < -90)
-				{
-					FlipInvertY::TransformStatic(x, y);
-
-					return Transform(x, y, (angle + 90));
-				}
-				else if (angle > 45)
-				{
-					if (Transform(x, y, angle - 90))
-					{
-						FlipInvertX::TransformStatic(x, y);
-						return true;
-					}
-				}
-				else if (angle < -45)
-				{
-					if (Transform(x, y, angle + 90))
-					{
-						FlipInvertY::TransformStatic(x, y);
-						return true;
-					}
-				}
-				else  if (angle > 0)
-				{
-#if defined(ARDUINO_ARCH_AVR)
-					const int8_t h = (((int16_t)pgm_read_byte(&Rotation::TanTable[angle / 2]) * Height) / UINT8_MAX);
-					const int8_t v = ((int16_t)pgm_read_byte(&Rotation::SinTable[angle]) * Width) / UINT8_MAX;
-#else
-					const int8_t h = (((int16_t)Rotation::TanTable[angle / 2] * Height) / UINT8_MAX);
-					const int8_t v = ((int16_t)Rotation::SinTable[angle] * Width) / UINT8_MAX;
-#endif
-					SkewHorizontal.SetSkewX(h);
-					SkewVertical.SetSkewY(-v);
-
-					return SkewHorizontal.Transform(x, y)
-						&& SkewVertical.Transform(x, y)
-						&& SkewHorizontal.Transform(x, y)
-						&& x < Height
-						&& y < Width;
-				}
-				else
-				{
-#if defined(ARDUINO_ARCH_AVR)
-					const int8_t h = ((int16_t)pgm_read_byte(&Rotation::TanTable[-(angle / 2)]) * Height) / UINT8_MAX;
-					const int8_t v = (((int16_t)pgm_read_byte(&Rotation::SinTable[-angle]) * Width) / UINT8_MAX);
-#else
-					const int8_t h = ((int16_t)Rotation::TanTable[-(angle / 2)] * Height) / UINT8_MAX;
-					const int8_t v = (((int16_t)Rotation::SinTable[-angle] * Width) / UINT8_MAX);
-#endif
-					SkewHorizontal.SetSkewX(-h);
-					SkewVertical.SetSkewY(v);
-
-					return SkewHorizontal.Transform(x, y)
-						&& SkewVertical.Transform(x, y)
-						&& SkewHorizontal.Transform(x, y)
-						&& x < Height
-						&& y < Width;
-					break;
-				}
-
-				return false;
+				break;
 			}
+
+			// Apply horizontal and vertical skew transformations.
+			if (SkewHorizontal.Transform(x, y)
+				&& SkewVertical.Transform(x, y)
+				&& SkewHorizontal.Transform(x, y))
+			{
+				return true;
+			}
+
+			return false;
 		}
 	};
 }

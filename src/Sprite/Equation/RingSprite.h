@@ -10,8 +10,8 @@ namespace Egfx
 	class RingSprite : public ISprite
 	{
 	private:
-		coordinate_t InnerRadiusPow = 0;
-		coordinate_t OuterRadiusPow = 0;
+		pixel_index_t InnerRadiusPow = 0;
+		pixel_index_t OuterRadiusPow = 0;
 		pixel_t OuterRadius = 0;
 
 	public:
@@ -37,14 +37,14 @@ namespace Egfx
 
 				if (outerRadius > 1)
 				{
-					OuterRadiusPow = ((coordinate_t)outerRadius * outerRadius) - 1;
+					OuterRadiusPow = ((pixel_index_t)outerRadius * outerRadius) - 1;
 				}
 				else
 				{
-					OuterRadiusPow = (coordinate_t)outerRadius * outerRadius;
+					OuterRadiusPow = (pixel_index_t)outerRadius * outerRadius;
 				}
 
-				InnerRadiusPow = ((coordinate_t)innerRadius * innerRadius) - 1;
+				InnerRadiusPow = ((pixel_index_t)innerRadius * innerRadius) - 1;
 			}
 			else
 			{
@@ -56,12 +56,11 @@ namespace Egfx
 
 		const bool IsInsideRing(const pixel_t x, const pixel_t y)
 		{
-			const coordinate_signed_t dx = -(coordinate_signed_t)OuterRadius + x;
-			const coordinate_signed_t dy = -(coordinate_signed_t)OuterRadius + y;
-			const coordinate_t distancePow = (coordinate_t)((dx * dx) + (dy * dy));
+			const int16_t dx = -(int16_t)OuterRadius + x;
+			const int16_t dy = -(int16_t)OuterRadius + y;
+			const pixel_index_t distancePow = (uint32_t)(((int32_t)dx * dx) + ((int32_t)dy * dy));
 
-			return distancePow <= OuterRadiusPow
-				&& distancePow >= InnerRadiusPow;
+			return distancePow <= OuterRadiusPow && distancePow >= InnerRadiusPow;
 		}
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)

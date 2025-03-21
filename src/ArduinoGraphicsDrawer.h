@@ -1,6 +1,8 @@
 #ifndef _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
 #define _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
 
+#include "Platform/Platform.h"
+
 #include "Model/RgbColor.h"
 
 #include "Model/GraphicsBuffer.h"

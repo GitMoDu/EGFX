@@ -91,12 +91,12 @@ private:
 		Color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 
 		frame->Rectangle(Color, Layout::X() + wandererSize + 1, Layout::Y() + wandererSize + 1,
-			Layout::X() + Layout::Width() - wandererSize - 1, Layout::Y() + Layout::Height() - wandererSize - 1);
+			Layout::X() + Layout::Width() - 1 - wandererSize - 1, Layout::Y() + Layout::Height() - 1 - wandererSize - 1);
 	}
 
 	void DrawAlignmentSquare(IFrameBuffer* frame, const uint32_t frameTime)
 	{
-		static constexpr pixel_t squareSize = GetShortest() - ((GetWandererDimension() + 2) * 2);
+		static constexpr pixel_t squareSize = GetShortest() - ((GetWandererDimension() + 2) * 2) - 1;
 
 		static constexpr pixel_t x = Layout::X() + ((Layout::Width() - squareSize) / 2);
 		static constexpr pixel_t y = Layout::Y() + ((Layout::Height() - squareSize) / 2);
@@ -115,7 +115,7 @@ private:
 	void DrawBreathSquare(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		static constexpr pixel_t minSquareSize = 2;
-		static constexpr pixel_t maxSquareSize = GetShortest() - ((GetWandererDimension() + 3) * 2);
+		static constexpr pixel_t maxSquareSize = GetShortest() - ((GetWandererDimension() + 3) * 2) - 1;
 
 		const uint16_t breathProgress = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<BreathPeriodMicros>(frameTime));
 		const pixel_t squareSize = (((uint32_t)breathProgress * maxSquareSize) / UINT16_MAX) + (((uint32_t)(UINT16_MAX - breathProgress) * minSquareSize) / UINT16_MAX);

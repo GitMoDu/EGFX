@@ -112,14 +112,16 @@ namespace Egfx
 	/// </summary>
 	struct GrayScaleConverter8 : public AbstractColorConverter8
 	{
-	private:
 #if defined(EGFX_PLATFORM_HDR)
+	private:
 		enum class Weights : uint8_t
 		{
 			R = 77,
 			G = 150,
 			B = 29
 		};
+
+		static constexpr uint16_t WeightsSum = (uint16_t)Weights::R + (uint16_t)Weights::G + (uint16_t)Weights::B;
 
 	public:
 		/// <summary>
@@ -129,17 +131,12 @@ namespace Egfx
 		/// <returns>Framebuffer-native color (8).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
-			return (((uint16_t)Rgb::R(color) * (uint8_t)Weights::R) | ((uint16_t)Rgb::G(color) * (uint8_t)Weights::G) | ((uint16_t)Rgb::B(color) * (uint8_t)Weights::B)) >> 8;
+			return (((uint32_t)Rgb::R(color) * (uint8_t)Weights::R)
+				+ ((uint32_t)Rgb::G(color) * (uint8_t)Weights::G)
+				+ ((uint32_t)Rgb::B(color) * (uint8_t)Weights::B)
+				) >> IntegerSignal::GetBitShifts(WeightsSum);
 		}
 #else
-		enum class Weights : uint8_t
-		{
-			R = 123,
-			G = 240,
-			B = 182
-		};
-
-	public:
 		/// <summary>
 		/// Converts native (5-6-5) color to 256 tones grayscale.
 		/// </summary>
@@ -147,11 +144,9 @@ namespace Egfx
 		/// <returns>Framebuffer-native color (8).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
-			return (((uint16_t)Rgb::R5(color) * (uint8_t)Weights::R) | ((uint16_t)Rgb::G6(color) * (uint8_t)Weights::G) | ((uint16_t)Rgb::B5(color) * (uint8_t)Weights::B)) >> 8;
+			return (uint16_t)Rgb::B5(color) + Rgb::R5(color) + (Rgb::G6(color) << 2);
 		}
 #endif
-	public:
-
 	};
 
 	/// <summary>
@@ -160,7 +155,6 @@ namespace Egfx
 	struct GrayScaleConverter4 : public AbstractColorConverter4
 	{
 #if defined(EGFX_PLATFORM_HDR)
-	private:
 		/// <summary>
 		/// Converts 8-8-8 color to 16 tones grayscale.
 		/// </summary>
@@ -168,7 +162,7 @@ namespace Egfx
 		/// <returns>Framebuffer-native color (4).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
-			return ((Rgb::R(color) >> 2) + (Rgb::G(color) >> 1) + (Rgb::B(color) >> 2));
+			return (((uint16_t)Rgb::R(color) * 77) + ((uint16_t)Rgb::G(color) * 150) + ((uint16_t)Rgb::B(color) * 29)) >> 12;
 		}
 #else
 		/// <summary>
@@ -178,7 +172,7 @@ namespace Egfx
 		/// <returns>Framebuffer-native color (4).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
-			return Rgb::R5(color) + Rgb::G6(color) + Rgb::B5(color);
+			return ((Rgb::R5(color) + Rgb::G6(color) + Rgb::B5(color)) >> 3) & 0b1111;
 		}
 #endif
 	};

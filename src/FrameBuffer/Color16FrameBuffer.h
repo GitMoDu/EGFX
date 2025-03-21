@@ -19,13 +19,12 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename ColorConverter = ColorConverter16
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
-		, DisplayRotationEnum displayRotation = DisplayRotationEnum::NoRotation>
+		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
 	class Color16FrameBuffer
-		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror, displayRotation>
+		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>
 	{
 	private:
-		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror, displayRotation>;
+		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>;
 
 	public:
 		using BaseClass::BufferSize;
@@ -33,6 +32,7 @@ namespace Egfx
 	protected:
 		using BaseClass::Buffer;
 		using BaseClass::Inverted;
+		using BaseClass::DisplayMirror;
 		using typename BaseClass::color_t;
 
 	public:
@@ -52,9 +52,9 @@ namespace Egfx
 		}
 
 	protected:
-		virtual void WritePixel(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
-			const coordinate_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			if (Inverted)
 			{
@@ -65,6 +65,57 @@ namespace Egfx
 			{
 				Buffer[offset] = ((uint8_t)(rawColor >> 8));
 				Buffer[offset + 1] = ((uint8_t)rawColor);
+			}
+		}
+
+		/// <summary>
+		/// Optimized version for color_t = uint16_t.
+		/// </summary>
+		virtual void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
+		{
+			constexpr pixel_index_t lineSize = sizeof(color_t) * frameWidth;
+			const uint8_t high = Inverted ? ~((uint8_t)(rawColor >> 8)) : ((uint8_t)(rawColor >> 8));
+			const uint8_t low = Inverted ? ~((uint8_t)rawColor) : ((uint8_t)rawColor);
+			pixel_index_t offset = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x);
+
+			for (pixel_t i = y1; i <= y2; i++, offset += lineSize)
+			{
+				Buffer[offset] = high;
+				Buffer[offset + 1] = low;
+			}
+		}
+
+		/// <summary>
+		/// Optimized version for color_t = uint16_t.
+		/// </summary>
+		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
+		{
+			const uint8_t high = Inverted ? ~((uint8_t)(rawColor >> 8)) : ((uint8_t)(rawColor >> 8));
+			const uint8_t low = Inverted ? ~((uint8_t)rawColor) : ((uint8_t)rawColor);
+			pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + (sizeof(color_t) * x1);
+
+			for (pixel_t i = x1; i <= x2; i++, offset++)
+			{
+				Buffer[offset++] = high;
+				Buffer[offset] = low;
+			}
+		}
+
+		virtual void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
+		{
+			const pixel_t lineStart = (sizeof(color_t) * x1);
+			const uint8_t high = Inverted ? ~((uint8_t)(rawColor >> 8)) : ((uint8_t)(rawColor >> 8));
+			const uint8_t low = Inverted ? ~((uint8_t)rawColor) : ((uint8_t)rawColor);
+
+			for (pixel_t y = y1; y <= y2; y++)
+			{
+				pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + lineStart;
+
+				for (pixel_t i = x1; i <= x2; i++, offset++)
+				{
+					Buffer[offset++] = high;
+					Buffer[offset] = low;
+				}
 			}
 		}
 	};

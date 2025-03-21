@@ -9,7 +9,8 @@
 #include <avr/pgmspace.h>
 #endif
 
-#include <Sprite/BitMaskSprite.h>
+#include "Sprite/BitMaskSprite.h"
+#include "GraphicsRender/SpriteFontRenderer.h"
 
 namespace Egfx
 {

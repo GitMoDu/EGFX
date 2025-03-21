@@ -7,6 +7,7 @@
 #include "../Model/DisplayOrientation.h"
 #include "../Model/ColorConverter.h"
 #include "../Model/IFrameBuffer.h"
+#include <IntegerSignal.h>
 
 namespace Egfx
 {
@@ -24,15 +25,13 @@ namespace Egfx
 		, const uint8_t clearDivisorPower
 		, const pixel_t frameWidth
 		, const pixel_t frameHeight
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
-		, DisplayRotationEnum displayRotation = DisplayRotationEnum::NoRotation>
+		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
 	class AbstractFrameBuffer : public virtual IFrameBuffer
 	{
 	public:
 		static constexpr pixel_t FrameWidth = frameWidth;
 		static constexpr pixel_t FrameHeight = frameHeight;
 		static constexpr DisplayMirrorEnum DisplayMirror = displayMirror;
-		static constexpr DisplayRotationEnum DisplayRotation = displayRotation;
 		static constexpr size_t BufferSize = ColorConverter::GetBufferSize(FrameWidth, FrameHeight);
 
 	protected:
@@ -57,7 +56,7 @@ namespace Egfx
 		bool Inverted = 0;
 
 	protected:
-		virtual void WritePixel(const color_t rawColor, const pixel_t x, const pixel_t y) {}
+		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) {}
 
 	public:
 		AbstractFrameBuffer(uint8_t buffer[BufferSize] = nullptr)
@@ -120,305 +119,664 @@ namespace Egfx
 
 		virtual void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
-			PixelRaw(ColorConverter::GetRawColor(color), x, y);
-		}
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = ColorConverter::GetRawColor(color);
 
-	private:
-		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y)
-		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
-			if (x >= FrameWidth
-				|| y >= FrameHeight)
-			{
-				Serial.print(F("x,y "));
-				Serial.print(x);
-				Serial.print(',');
-				Serial.println(y);
-				return;
-			}
-#endif
-			//TODO: Handle rotation. This switches Width and Height around.
-			switch (DisplayMirror)
-			{
-			case DisplayMirrorEnum::MirrorX:
-				WritePixel(rawColor, FrameWidth - 1 - x, y);
-				break;
-			case DisplayMirrorEnum::MirrorY:
-				WritePixel(rawColor, x, FrameHeight - 1 - y);
-				break;
-			case DisplayMirrorEnum::MirrorXY:
-				WritePixel(rawColor, FrameWidth - 1 - x, FrameHeight - 1 - y);
-				break;
-			case DisplayMirrorEnum::NoMirror:
-			default:
-				WritePixel(rawColor, x, y);
-				break;
+				switch (DisplayMirror)
+				{
+				case DisplayMirrorEnum::MirrorX:
+					PixelRaw(rawColor, MirrorX(x), y);
+					break;
+				case DisplayMirrorEnum::MirrorY:
+					PixelRaw(rawColor, x, MirrorY(y));
+					break;
+				case DisplayMirrorEnum::MirrorXY:
+					PixelRaw(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayMirrorEnum::NoMirror:
+				default:
+					PixelRaw(rawColor, x, y);
+					break;
+				}
 			}
 		}
 
-	protected:
-		/// <summary>
-		/// Optimizeable but requires orientation and rotation awareness.
-		/// </summary>
-		virtual void LineVertical(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t height)
+		virtual void Fill(const rgb_color_t color) final
 		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
-			if (x >= FrameWidth
-				|| y >= FrameHeight
-				|| height > FrameHeight - y)
-			{
-				Serial.println(F("LV x,y "));
-				Serial.print(x);
-				Serial.print(',');
-				Serial.print(y);
-				Serial.print('\t');
-				Serial.println(height);
-				return;
-			}
-#endif
-			for (pixel_t i = 0; i < height; i++)
-			{
-				PixelRaw(rawColor, x, y + i);
-			}
-		}
-
-		/// <summary>
-		/// Optimizeable but requires orientation and rotation awareness.
-		/// </summary>
-		virtual void LineHorizontal(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t width)
-		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
-			if (x >= FrameWidth
-				|| y >= FrameHeight
-				|| width > FrameWidth - x)
-			{
-				Serial.println(F("LH x,y "));
-				Serial.print(x);
-				Serial.print(',');
-				Serial.print(y);
-				Serial.print('\t');
-				Serial.println(width);
-				return;
-			}
-#endif
-
-			for (pixel_t i = 0; i < width; i++)
-			{
-				PixelRaw(rawColor, x + i, y);
-			}
-		}
-
-	public:
-		virtual void Fill(const rgb_color_t color)
-		{
-			RectangleFill(color, 0, 0, FrameWidth - 1, FrameHeight - 1);
+			const color_t rawColor = ColorConverter::GetRawColor(color);
+			FillRaw(rawColor);
 		}
 
 		virtual void Line(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
-			if (x1 == x2)
+			const pixel_line_t line{ {x1, y1}, {x2, y2} };
+
+			Line(color, line);
+		}
+
+		virtual void Line(const rgb_color_t color, const pixel_line_t& line) final
+		{
+			const color_t rawColor = ColorConverter::GetRawColor(color);
+
+			pixel_t startX;
+			pixel_t startY;
+			pixel_t endX;
+			pixel_t endY;
+
+			// Apply mirroring.
+			switch (DisplayMirror)
 			{
-				if (y1 == y2)
-				{
-					PixelRaw(ColorConverter::GetRawColor(color), x1, y1);
-				}
-				else if (y2 > y1)
-				{
-					LineVertical(ColorConverter::GetRawColor(color), x1, y1, y2 - y1);
-				}
-				else
-				{
-					LineVertical(ColorConverter::GetRawColor(color), x1, y2 - 1, y1 - y2);
-				}
+			case DisplayMirrorEnum::MirrorX:
+				startX = MirrorX(line.start.x);
+				endX = MirrorX(line.end.x);
+				startY = line.start.y;
+				endY = line.end.y;
+				break;
+			case DisplayMirrorEnum::MirrorY:
+				startX = line.start.x;
+				startY = MirrorY(line.start.y);
+				endX = line.end.x;
+				endY = MirrorY(line.end.y);
+				break;
+			case DisplayMirrorEnum::MirrorXY:
+				startX = MirrorX(line.start.x);
+				startY = MirrorY(line.start.y);
+				endX = MirrorX(line.end.x);
+				endY = MirrorY(line.end.y);
+				break;
+			case DisplayMirrorEnum::NoMirror:
+			default:
+				startX = line.start.x;
+				startY = line.start.y;
+				endX = line.end.x;
+				endY = line.end.y;
+				break;
 			}
-			else if (y1 == y2)
+
+			if (startX == endX)
 			{
-				if (x2 > x1)
+				if (startX >= 0 && startX < FrameWidth)
 				{
-					LineHorizontal(ColorConverter::GetRawColor(color), x1, y1, x2 - x1);
-				}
-				else
-				{
-					LineHorizontal(ColorConverter::GetRawColor(color), x2 + 1, y1, x1 - x2);
-				}
-			}
-			else if (x2 > x1)
-			{
-				if (y2 > y1)
-				{
-					if (x2 - x1 > y2 - y1)
+					if (startY == endY)
 					{
-						BresenhamRightUp(ColorConverter::GetRawColor(color), x1, y1, y2, x2 - x1);
+						if (startY >= 0 && startY < FrameHeight)
+						{
+							PixelRaw(rawColor, startX, startY);
+						}
+					}
+					else if (endY > startY)
+					{
+						startY = MaxValue((pixel_t)0, (pixel_t)(startY));
+						endY = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(endY));
+						LineVerticalRaw(rawColor, startX, startY, endY);
 					}
 					else
 					{
-						BresenhamUpRight(ColorConverter::GetRawColor(color), x1, y1, x2, y2 - y1);
+						endY = MaxValue((pixel_t)0, (pixel_t)(endY));
+						startY = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(startY));
+						LineVerticalRaw(rawColor, startX, endY, startY);
 					}
 				}
-				else if (x2 - x1 > y1 - y2)
-				{
-					BresenhamRightDown(ColorConverter::GetRawColor(color), x1, y1, y2, x2 - x1);
-				}
-				else
-				{
-					BresenhamUpLeft(ColorConverter::GetRawColor(color), x2, y2, x1, y1 - y2);
-				}
 			}
-			else if (y2 > y1)
+			else if (startY == endY)
 			{
-				if (x1 - x2 > y2 - y1)
+				if (startY >= 0 && startY < FrameHeight)
 				{
-					BresenhamRightDown(ColorConverter::GetRawColor(color), x2, y2, y1, x1 - x2);
-				}
-				else
-				{
-					BresenhamUpLeft(ColorConverter::GetRawColor(color), x1, y1, x2, y2 - y1);
+					if (endX > startX)
+					{
+						startX = MaxValue((pixel_t)0, (pixel_t)(startX));
+						endX = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(endX));
+						LineHorizontalRaw(rawColor, startX, startY, endX);
+					}
+					else
+					{
+						endX = MaxValue((pixel_t)0, (pixel_t)(endX));
+						startX = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(startX));
+						LineHorizontalRaw(rawColor, endX, startY, startX);
+					}
 				}
 			}
 			else
 			{
-				if (x1 - x2 > y1 - y2)
-				{
-					BresenhamRightUp(ColorConverter::GetRawColor(color), x2, y2, y1, x1 - x2);
-				}
-				else
-				{
-					BresenhamUpRight(ColorConverter::GetRawColor(color), x2, y2, x1, y1 - y2);
-				}
+				// No bounds checking for BresenhamDiagonal
+				BresenhamDiagonal(rawColor, { startX, startY }, { endX, endY });
 			}
 		}
 
-		virtual void RectangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
+		virtual void RectangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
-			if (x1 >= x2
-				|| x2 >= FrameWidth
-				|| y1 >= y2
-				|| y2 >= FrameHeight)
+			// Integrity and bounds check.
+			if (x1 > x2 || y1 > y2
+				|| x2 < 0 || x1 >= FrameWidth
+				|| y2 < 0 || y1 >= FrameHeight)
 			{
-				Serial.println(F("RF x,y "));
-				Serial.print(x1);
-				Serial.print(',');
-				Serial.print(y1);
-				Serial.print('\t');
-				Serial.print(x2);
-				Serial.print(',');
-				Serial.println(y2);
 				return;
 			}
-#endif
 
 			const color_t rawColor = ColorConverter::GetRawColor(color);
-			for (pixel_t y = y1; y <= y2; y++)
+
+			pixel_t mx1, mx2, my1, my2;
+
+			// Apply mirroring.
+			switch (DisplayMirror)
 			{
-				LineHorizontal(rawColor, x1, y, x2 - x1 + 1);
+			case DisplayMirrorEnum::MirrorX:
+				mx1 = MirrorX(x2);
+				mx2 = MirrorX(x1);
+				my1 = y1;
+				my2 = y2;
+				break;
+			case DisplayMirrorEnum::MirrorY:
+				mx1 = x1;
+				mx2 = x2;
+				my1 = MirrorY(y2);
+				my2 = MirrorY(y1);
+				break;
+			case DisplayMirrorEnum::MirrorXY:
+				mx1 = MirrorX(x2);
+				mx2 = MirrorX(x1);
+				my1 = MirrorY(y2);
+				my2 = MirrorY(y1);
+				break;
+			case DisplayMirrorEnum::NoMirror:
+			default:
+				mx1 = x1;
+				mx2 = x2;
+				my1 = y1;
+				my2 = y2;
+				break;
+			}
+
+			if (mx1 == mx2)
+			{
+				if (my1 == my2)
+				{
+					// Degenerate line, single pixel.
+					PixelRaw(rawColor, mx1, my1);
+				}
+				else
+				{
+					// Apply bounds limiting for line.
+					const pixel_t yStart = MaxValue((pixel_t)0, (pixel_t)(my1));
+					const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(my2));
+					if (yStart < yEnd)
+					{
+						LineVerticalRaw(rawColor, mx1, yStart, yEnd);
+					}
+				}
+			}
+			else if (my1 == my2)
+			{
+				// Apply bounds limiting for line.
+				const pixel_t xStart = MaxValue((pixel_t)0, (pixel_t)(mx1));
+				const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(mx2));
+				if (xStart < xEnd)
+				{
+					LineHorizontalRaw(rawColor, xStart, my1, xEnd);
+				}
+			}
+			else
+			{
+				// Apply bounds limiting for rectangle.
+				const pixel_t xStart = MaxValue((pixel_t)0, (pixel_t)(mx1));
+				const pixel_t yStart = MaxValue((pixel_t)0, (pixel_t)(my1));
+
+				const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(mx2));
+				const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(my2));
+
+				if (xStart < xEnd
+					&& yStart < yEnd)
+				{
+					RectangleFillRaw(rawColor, xStart, yStart, xEnd, yEnd);
+				}
 			}
 		}
 
 		virtual void Rectangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
-			if (x1 >= x2
-				|| x2 >= FrameWidth
-				|| y1 >= y2
-				|| y2 >= FrameHeight)
+			// Integrity and bounds check.
+			if (x1 > x2 || y1 > y2
+				|| x2 < 0 || x1 >= FrameWidth
+				|| y2 < 0 || y1 >= FrameHeight)
 			{
-				Serial.println(F("R x,y"));
-				Serial.print(x1);
-				Serial.print(',');
-				Serial.print(y1);
-				Serial.print('\t');
-				Serial.print(x2);
-				Serial.print(',');
-				Serial.println(y2);
 				return;
 			}
-#endif
 
 			const color_t rawColor = ColorConverter::GetRawColor(color);
-			LineHorizontal(rawColor, x1, y1, x2 - x1);
-			LineHorizontal(rawColor, x1, y2 - 1, x2 - x1);
-			LineVertical(rawColor, x1, y1 + 1, y2 - y1 - 2);
-			LineVertical(rawColor, x2 - 1, y1 + 1, y2 - y1 - 2);
+			
+			pixel_t mx1, mx2, my1, my2;
+
+			// Apply mirroring.
+			switch (DisplayMirror)
+			{
+			case DisplayMirrorEnum::MirrorX:
+				mx1 = MirrorX(x2);
+				mx2 = MirrorX(x1);
+				my1 = y1;
+				my2 = y2;
+				break;
+			case DisplayMirrorEnum::MirrorY:
+				mx1 = x1;
+				mx2 = x2;
+				my1 = MirrorY(y2);
+				my2 = MirrorY(y1);
+				break;
+			case DisplayMirrorEnum::MirrorXY:
+				mx1 = MirrorX(x2);
+				mx2 = MirrorX(x1);
+				my1 = MirrorY(y2);
+				my2 = MirrorY(y1);
+				break;
+			case DisplayMirrorEnum::NoMirror:
+			default:
+				mx1 = x1;
+				mx2 = x2;
+				my1 = y1;
+				my2 = y2;
+				break;
+			}
+
+			// Apply bounds limiting for rectangle.
+			const pixel_t xStart = MaxValue((pixel_t)0, (pixel_t)(mx1));
+			const pixel_t yStart = MaxValue((pixel_t)0, (pixel_t)(my1 + 1));
+			const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(mx2));
+			const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(my2 - 1));
+
+			// Draw top horizontal line.
+			if (my1 >= 0 && my1 < FrameHeight)
+			{
+				LineHorizontalRaw(rawColor, xStart, my1, xEnd);
+			}
+
+			// Draw bottom horizontal line.
+			if (my2 >= 0 && my2 < FrameHeight)
+			{
+				LineHorizontalRaw(rawColor, xStart, my2, xEnd);
+			}
+
+			// Draw left vertical line.
+			if (mx1 >= 0 && mx1 < FrameWidth)
+			{
+				LineVerticalRaw(rawColor, mx1, yStart, yEnd);
+			}
+
+			// Draw right vertical line.
+			if (mx2 >= 0 && mx2 < FrameWidth)
+			{
+				LineVerticalRaw(rawColor, mx2, yStart, yEnd);
+			}
+		}
+
+		virtual void Triangle(const rgb_color_t color, const pixel_triangle_t& triangle) final
+		{
+			pixel_line_t line{ {triangle.a.x, triangle.a.y}, {triangle.b.x, triangle.b.y } };
+			Line(color, line);
+			line = { {triangle.b.x, triangle.b.y}, {triangle.c.x, triangle.c.y } };
+			Line(color, line);
+			line = { {triangle.a.x, triangle.a.y}, {triangle.c.x, triangle.c.y } };
+			Line(color, line);
+		}
+
+		virtual void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
+		{
+			const pixel_triangle_t triangle{ {x1,y1},{x2,y2},{x3,y3} };
+
+			Triangle(color, triangle);
+		}
+
+		virtual void TriangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
+		{
+			const pixel_triangle_t triangle{ {x1,y1},{x2,y2},{x3,y3} };
+
+			TriangleFill(color, triangle);
+		}
+
+		virtual void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) final
+		{
+			const color_t rawColor = ColorConverter::GetRawColor(color);
+
+			pixel_t ax;
+			pixel_t ay;
+			pixel_t bx;
+			pixel_t by;
+			pixel_t cx;
+			pixel_t cy;
+
+			// Apply mirroring
+			switch (DisplayMirror)
+			{
+			case DisplayMirrorEnum::MirrorX:
+				ax = MirrorX(triangle.a.x);
+				ay = triangle.a.y;
+				bx = MirrorX(triangle.b.x);
+				by = triangle.b.y;
+				cx = MirrorX(triangle.c.x);
+				cy = triangle.c.y;
+				break;
+			case DisplayMirrorEnum::MirrorY:
+				ax = triangle.a.x;
+				ay = MirrorY(triangle.a.y);
+				bx = triangle.b.x;
+				by = MirrorY(triangle.b.y);
+				cx = triangle.c.x;
+				cy = MirrorY(triangle.c.y);
+				break;
+			case DisplayMirrorEnum::MirrorXY:
+				ax = MirrorX(triangle.a.x);
+				ay = MirrorY(triangle.a.y);
+				bx = MirrorX(triangle.b.x);
+				by = MirrorY(triangle.b.y);
+				cx = MirrorX(triangle.c.x);
+				cy = MirrorY(triangle.c.y);
+				break;
+			case DisplayMirrorEnum::NoMirror:
+			default:
+				ax = triangle.a.x;
+				ay = triangle.a.y;
+				bx = triangle.b.x;
+				by = triangle.b.y;
+				cx = triangle.c.x;
+				cy = triangle.c.y;
+				break;
+			}
+
+			if (ay <= by && ay <= cy)
+			{
+				// Vertex A is at the top.
+				if (by <= cy)
+				{
+					TriangleYOrderedFill(rawColor, { ax, ay }, { bx, by }, { cx, cy });
+				}
+				else
+				{
+					TriangleYOrderedFill(rawColor, { ax, ay }, { cx, cy }, { bx, by });
+				}
+			}
+			else if (by <= ay && by <= cy)
+			{
+				// Vertex B is at the top.
+				if (ay <= cy)
+				{
+					TriangleYOrderedFill(rawColor, { bx, by }, { ax, ay }, { cx, cy });
+				}
+				else
+				{
+					TriangleYOrderedFill(rawColor, { bx, by }, { cx, cy }, { ax, ay });
+				}
+			}
+			else
+			{
+				// Vertex C is at the top.
+				if (ay <= by)
+				{
+					TriangleYOrderedFill(rawColor, { cx, cy }, { ax, ay }, { bx, by });
+				}
+				else
+				{
+					TriangleYOrderedFill(rawColor, { cx, cy }, { bx, by }, { ax, ay });
+				}
+			}
+		}
+
+	protected:
+		virtual void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
+		{
+			for (pixel_t y = y1; y <= y2; y++)
+			{
+				PixelRaw(rawColor, x, y);
+			}
+		}
+
+		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
+		{
+			for (pixel_t x = x1; x <= x2; x++)
+			{
+				PixelRaw(rawColor, x, y);
+			}
+		}
+
+		virtual void FillRaw(const color_t rawColor)
+		{
+			RectangleFillRaw(rawColor, 0, 0, FrameWidth - 1, FrameHeight - 1);
+		}
+
+		virtual void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
+		{
+			for (pixel_t y = y1; y <= y2; y++)
+			{
+				LineHorizontalRaw(rawColor, x1, y, x2);
+			}
 		}
 
 	private:
-		void BresenhamRightUp(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t y2, const pixel_t width)
+		pixel_t MirrorX(const pixel_t x) const { return FrameWidth - 1 - x; }
+		pixel_t MirrorY(const pixel_t y) const { return FrameHeight - 1 - y; }
+
+		void TriangleYOrderedFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
 		{
-			const uint16_t slopeMagnitude = 2 * (y2 - y1);
-
-			int16_t slopeError = slopeMagnitude - width;
-			pixel_t y = y1;
-
-			for (pixel_t x = x1; x < x1 + width; x++)
+			if (b.y == c.y) // Flat bottom.
 			{
-				PixelRaw(rawColor, x, y);
+				BresenhamFlatBottomFill(rawColor, a, b, c);
+			}
+			else if (a.y == b.y) // Flat top.
+			{
+				BresenhamFlatTopFill(rawColor, a, b, c);
+			}
+			else // General triangle: split it.
+			{
+				// Calculate splitting vertex Vi.
+				const int16_t dxTotal = (int16_t)c.x - (int16_t)a.x;
+				const int16_t dyTotal = (int16_t)c.y - (int16_t)a.y;
+				const int16_t dySegment = (int16_t)b.y - (int16_t)a.y;
 
-				slopeError += slopeMagnitude;
-				if (slopeError >= 0)
+				if (dyTotal == 0)
+					return; // Degenerate triangle
+
+				// Calculate Vi_x in fixed-point.
+				const pixel_t Vi_x = (((int32_t)a.x << BRESENHAM_SCALE) + ((((int32_t)dxTotal << BRESENHAM_SCALE) * dySegment) / dyTotal)) >> BRESENHAM_SCALE;
+				const pixel_point_t Vi = { Vi_x, b.y };
+
+				// Draw the two sub-triangles
+				BresenhamFlatBottomFill(rawColor, a, b, Vi);
+				BresenhamFlatTopFill(rawColor, b, Vi, c);
+			}
+		}
+
+		void BresenhamFlatBottomFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
+		{
+			// Calculate inverse slopes in fixed-point
+			const int32_t invSlope1 = ((int32_t)(b.x - a.x) << BRESENHAM_SCALE) / (b.y - a.y);
+			const int32_t invSlope2 = ((int32_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
+
+			// Starting x positions in fixed-point
+			int32_t x1 = (int32_t)a.x << BRESENHAM_SCALE;
+			int32_t x2 = x1;
+
+			// Loop from a.y to b.y (inclusive)
+			const int16_t startY = a.y;
+			const int16_t endY = min((int16_t)(FrameHeight - 1), (int16_t)b.y);
+
+			for (int16_t y = startY; y <= endY; y++)
+			{
+				if (y >= 0 && y < FrameHeight)
 				{
-					y++;
-					slopeError -= 2 * width;
+					int16_t xStart{};
+					int16_t xEnd{};
+
+					if (x1 > x2)
+					{
+						xStart = x2 >> BRESENHAM_SCALE;
+						xEnd = x1 >> BRESENHAM_SCALE;
+					}
+					else
+					{
+						xStart = x1 >> BRESENHAM_SCALE;
+						xEnd = x2 >> BRESENHAM_SCALE;
+					}
+
+					xStart = MaxValue((pixel_t)0, (pixel_t)(xStart));
+					xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(xEnd));
+
+					if (xStart < xEnd)
+					{
+						LineHorizontalRaw(rawColor, xStart, y, xEnd);
+					}
+				}
+
+				x1 += invSlope1;
+				x2 += invSlope2;
+			}
+		}
+
+		void BresenhamFlatTopFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
+		{
+			// Calculate inverse slopes in fixed-point
+			const int32_t invSlope1 = ((int32_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
+			const int32_t invSlope2 = ((int32_t)(c.x - b.x) << BRESENHAM_SCALE) / (c.y - b.y);
+
+			// Starting x positions in fixed-point
+			int32_t x1 = (int32_t)c.x << BRESENHAM_SCALE;
+			int32_t x2 = x1;
+
+			// Loop from c.y down to a.y (inclusive)
+			const int16_t startY = c.y;
+			const int16_t endY = max((int16_t)0, (int16_t)a.y);
+
+			for (int16_t y = startY; y >= endY; y--)
+			{
+				if (y >= 0 && y < FrameHeight)
+				{
+					int16_t xStart{};
+					int16_t xEnd{};
+
+					if (x1 > x2)
+					{
+						xStart = x2 >> BRESENHAM_SCALE;
+						xEnd = x1 >> BRESENHAM_SCALE;
+					}
+					else
+					{
+						xStart = x1 >> BRESENHAM_SCALE;
+						xEnd = x2 >> BRESENHAM_SCALE;
+					}
+
+					xStart = MaxValue((pixel_t)0, (pixel_t)(xStart));
+					xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(xEnd));
+
+					if (xStart < xEnd)
+					{
+						LineHorizontalRaw(rawColor, xStart, y, xEnd);
+					}
+				}
+
+				x1 -= invSlope1;
+				x2 -= invSlope2;
+			}
+		}
+
+		void BresenhamDiagonal(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
+		{
+			if (end.x > start.x)
+			{
+				if (end.y > start.y)
+				{
+					if (end.x - start.x > end.y - start.y)
+					{
+						BresenhamRight(rawColor, start, end);
+					}
+					else
+					{
+						BresenhamUp(rawColor, start, end);
+					}
+				}
+				else if (end.x - start.x > start.y - end.y)
+				{
+					BresenhamRight(rawColor, start, end);
+				}
+				else
+				{
+					BresenhamUp(rawColor, end, start);
+				}
+			}
+			else if (end.y > start.y)
+			{
+				if (start.x - end.x > end.y - start.y)
+				{
+					BresenhamRight(rawColor, end, start);
+				}
+				else
+				{
+					BresenhamUp(rawColor, start, end);
+				}
+			}
+			else
+			{
+				if (start.x - end.x > start.y - end.y)
+				{
+					BresenhamRight(rawColor, end, start);
+				}
+				else
+				{
+					BresenhamUp(rawColor, end, start);
 				}
 			}
 		}
 
-		void BresenhamRightDown(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t y2, const pixel_t width)
+		void BresenhamRight(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
 		{
-			const uint16_t slopeMagnitude = 2 * (y1 - y2);
+			const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(end.x));
 
-			int16_t slopeError = slopeMagnitude - width;
-			pixel_t y = y1;
+			const pixel_t scaledWidth = (end.x - start.x) << 1;
+			const pixel_index_t slopeMagnitude = AbsValue(end.y - start.y) << 1;
+			const int8_t slopeUnit = (end.y >= start.y) ? 1 : -1;
 
-			for (pixel_t x = x1; x < x1 + width; x++)
+			pixel_index_t slopeError = slopeMagnitude - (end.x - start.x);
+			pixel_t y = start.y;
+
+
+			for (pixel_t x = start.x; x <= xEnd; x++)
 			{
-				PixelRaw(rawColor, x, y);
+				if (x >= 0 && x < FrameWidth &&
+					y >= 0 && y < FrameHeight)
+				{
+					PixelRaw(rawColor, x, y);
+				}
 
 				slopeError += slopeMagnitude;
 				if (slopeError >= 0)
 				{
-					y--;
-					slopeError -= 2 * width;
+					y += slopeUnit;
+					slopeError -= scaledWidth;
 				}
 			}
 		}
 
-		void BresenhamUpRight(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t height)
+		void BresenhamUp(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
 		{
-			const uint16_t slopeMagnitude = 2 * (x2 - x1);
+			const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(end.y));
 
-			int16_t slopeError = slopeMagnitude - height;
-			pixel_t x = x1;
+			const pixel_t scaledHeight = (end.y - start.y) << 1;
+			const pixel_t slopeMagnitude = AbsValue(end.x - start.x) << 1;
+			const int8_t slopeUnit = (end.x >= start.x) ? 1 : -1;
 
-			for (pixel_t y = y1; y < y1 + height; y++)
+			pixel_index_t slopeError = (pixel_index_t)slopeMagnitude - (end.y - start.y);
+			pixel_t x = start.x;
+
+			for (pixel_t y = start.y; y <= yEnd; y++)
 			{
-				PixelRaw(rawColor, x, y);
-
-				slopeError += slopeMagnitude;
-				if (slopeError >= 0)
+				if (x >= 0 && x < FrameWidth &&
+					y >= 0 && y < FrameHeight)
 				{
-					x++;
-					slopeError -= 2 * height;
+					PixelRaw(rawColor, x, y);
 				}
-			}
-		}
-
-		void BresenhamUpLeft(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t height)
-		{
-			const uint16_t slopeMagnitude = 2 * (x1 - x2);
-
-			int16_t slopeError = slopeMagnitude - height;
-			pixel_t x = x1;
-
-			for (pixel_t y = y1; y < y1 + height; y++)
-			{
-				PixelRaw(rawColor, x, y);
 
 				slopeError += slopeMagnitude;
 				if (slopeError >= 0)
 				{
-					x--;
-					slopeError -= 2 * height;
+					x += slopeUnit;
+					slopeError -= scaledHeight;
 				}
 			}
 		}

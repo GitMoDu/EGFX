@@ -171,7 +171,7 @@ private:
 	void DrawVerticalArrow(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		const uint16_t progress = ProgressScaler::GetProgress<ScrollVerticalDuration>(frameTime);
-		const pixel_t y = ArrowLayout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableY());
+		const pixel_t y = ArrowLayout::Y() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint16_t)ArrowLayout::UsableY());
 
 		if (progress >= INT16_MAX)
 		{
@@ -186,7 +186,7 @@ private:
 	void DrawHorizontalArrow(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		const uint16_t progress = ProgressScaler::GetProgress<ScrollHorizontalDuration>(frameTime);
-		const pixel_t x = ArrowLayout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), ArrowLayout::UsableX());
+		const pixel_t x = ArrowLayout::X() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint16_t)ArrowLayout::UsableX());
 
 		if (progress >= INT16_MAX)
 		{
@@ -205,14 +205,14 @@ private:
 	void DrawDynamicRing(IFrameBuffer* frame, const uint32_t frameTime)
 	{
 		const uint16_t progress = ProgressScaler::GetProgress<RingResizeDuration>(frameTime);
-		const pixel_t outerRadius = RingLayout::MinRadius() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), RingLayout::RadiusRange());
+		const pixel_t outerRadius = RingLayout::MinRadius() + ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(progress), (uint16_t)RingLayout::RadiusRange());
 		const pixel_t innerRadius = outerRadius - RingLayout::RingWidth();
 
 		const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<ScrollHorizontalDuration * 5>(frameTime));
 		const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<ScrollVerticalDuration * 3>(frameTime));
 
-		const pixel_t x = RingLayout::X() + ProgressScaler::ScaleProgress(progressX, RingLayout::UsableX()) - outerRadius;
-		const pixel_t y = RingLayout::Y() + ProgressScaler::ScaleProgress(progressY, RingLayout::UsableY()) - outerRadius;
+		const pixel_t x = RingLayout::X() + ProgressScaler::ScaleProgress(progressX, (uint16_t)RingLayout::UsableX()) - outerRadius;
+		const pixel_t y = RingLayout::Y() + ProgressScaler::ScaleProgress(progressY, (uint16_t)RingLayout::UsableY()) - outerRadius;
 
 		Ring.SetRadius(innerRadius, outerRadius);
 

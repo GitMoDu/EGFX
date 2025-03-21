@@ -19,13 +19,12 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename ColorConverter = BinaryColorConverter1
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
-		, DisplayRotationEnum displayRotation = DisplayRotationEnum::NoRotation>
+		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
 	class MonochromeFrameBuffer final
-		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror, displayRotation>
+		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>
 	{
 	private:
-		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror, displayRotation>;
+		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>;
 
 	public:
 		using BaseClass::BufferSize;
@@ -52,21 +51,8 @@ namespace Egfx
 			return 1;
 		}
 
-		void Fill(const rgb_color_t color) final
-		{
-			const color_t rawColor = ColorConverter::GetRawColor(color);
-			if (((bool)(rawColor > 0) ^ (bool)Inverted))
-			{
-				memset(Buffer, UINT8_MAX, BufferSize);
-			}
-			else
-			{
-				memset(Buffer, 0, BufferSize);
-			}
-		}
-
 	protected:
-		void WritePixel(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const uint8_t yByte = y / 8;
 			const uint8_t yBit = y % 8;
@@ -84,13 +70,29 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Optimized version.
+		/// Optimized version 1 bit color.
+		/// </summary>
+		/// <param name="rawColor"></param>
+		virtual void FillRaw(const color_t rawColor)
+		{
+			if (((bool)(rawColor > 0) ^ (bool)Inverted))
+			{
+				memset(Buffer, UINT8_MAX, BufferSize);
+			}
+			else
+			{
+				memset(Buffer, 0, BufferSize);
+			}
+		}
+
+		/// <summary>
+		/// Optimized version 1 bit color.
 		/// </summary>
 		/// <param name="rawColor"></param>
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <param name="width"></param>
-		void LineHorizontal(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t width) final
+		void LineHorizontalRaw(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t width) final
 		{
 			pixel_t x1 = 0;
 			uint8_t yByte = 0;
@@ -142,24 +144,24 @@ namespace Egfx
 
 		/// <summary>
 		/// Optimized version.
-		/// TODO: fix address issues and rename to LineVertical.
+		/// TODO: fix address issues and rename to LineVerticalRaw.
 		/// </summary>
 		void LineVerticalBuggy(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t height)
 		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
 			if (x >= frameWidth
 				|| y >= frameHeight
 				|| height > frameHeight - y)
 			{
+#if defined(GRAPHICS_ENGINE_DEBUG)
 				Serial.println(F("LV x,y "));
 				Serial.print(x);
 				Serial.print(',');
 				Serial.print(y);
 				Serial.print('\t');
 				Serial.println(height);
+#endif
 				return;
 			}
-#endif
 
 			pixel_t x1 = 0;
 			pixel_t y1 = 0;

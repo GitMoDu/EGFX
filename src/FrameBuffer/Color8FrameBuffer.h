@@ -19,13 +19,12 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename ColorConverter = ColorConverter8
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror
-		, DisplayRotationEnum displayRotation = DisplayRotationEnum::NoRotation>
+		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
 	class Color8FrameBuffer
-		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror, displayRotation>
+		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>
 	{
 	private:
-		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror, displayRotation>;
+		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>;
 
 	public:
 		using BaseClass::BufferSize;
@@ -52,22 +51,10 @@ namespace Egfx
 			return sizeof(color_t) * 8;
 		}
 
-		virtual void Fill(const rgb_color_t color)
-		{
-			if (Inverted)
-			{
-				memset(Buffer, ColorConverter::GetRawColor(color), BufferSize);
-			}
-			else
-			{
-				memset(Buffer, ~ColorConverter::GetRawColor(color), BufferSize);
-			}
-		}
-
 	protected:
-		virtual void WritePixel(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
-			const coordinate_t offset = (sizeof(color_t) * y * frameWidth) + x;
+			const pixel_index_t offset = (sizeof(color_t) * y * frameWidth) + x;
 
 			if (Inverted)
 			{
@@ -80,49 +67,34 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Optimized version for color_t = uint8_t.
+		/// Optimized version color_t = uint8_t.
 		/// </summary>
-		virtual void LineHorizontal(const uint8_t rawColor, const pixel_t x, const pixel_t y, const pixel_t width) final
+		/// <param name="rawColor"></param>
+		virtual void FillRaw(const color_t rawColor)
 		{
-#if defined(GRAPHICS_ENGINE_DEBUG)
-			if (x >= frameWidth
-				|| y >= frameHeight
-				|| width > frameWidth - x)
-			{
-				Serial.println(F("LH x,y "));
-				Serial.print(x);
-				Serial.print(',');
-				Serial.print(y);
-				Serial.print('\t');
-				Serial.println(width);
-				return;
-			}
-#endif
-			coordinate_t offset = 0;
-
-			//TODO: Handle rotation. This switches Width and Height around.
-			switch (DisplayMirror)
-			{
-			case DisplayMirrorEnum::MirrorX:
-				offset = (sizeof(color_t) * y * frameWidth) + (frameWidth - x) - width;
-				break;
-			case DisplayMirrorEnum::MirrorXY:
-				offset = (sizeof(color_t) * (frameHeight - 1 - y) * frameWidth) + (frameWidth - x) - width;
-				break;
-			case DisplayMirrorEnum::MirrorY:
-			case DisplayMirrorEnum::NoMirror:
-			default:
-				offset = (sizeof(color_t) * y * frameWidth) + x;
-				break;
-			}
-
 			if (Inverted)
 			{
-				memset(&Buffer[offset], ~rawColor, width);
+				memset(Buffer, ~rawColor, BufferSize);
 			}
 			else
 			{
-				memset(&Buffer[offset], rawColor, width);
+				memset(Buffer, rawColor, BufferSize);
+			}
+		}
+
+		/// <summary>
+		/// Optimized version for color_t = uint8_t.
+		/// </summary>
+		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
+		{
+			const pixel_index_t offset = ((pixel_index_t)frameWidth * y) + x1;
+			if (Inverted)
+			{
+				memset(&Buffer[offset], ~rawColor, x2 - x1 + 1);
+			}
+			else
+			{
+				memset(&Buffer[offset], rawColor, x2 - x1 + 1);
 			}
 		}
 	};

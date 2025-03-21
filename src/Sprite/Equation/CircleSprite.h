@@ -11,13 +11,13 @@ namespace Egfx
 	class CircleFixedSprite : public AbstractSprite<Radius * 2, Radius * 2>
 	{
 	private:
-		static constexpr coordinate_t GetRadiusPower(const pixel_t radius)
+		static constexpr pixel_index_t GetRadiusPower(const pixel_t radius)
 		{
-			return ((radius > 1) * (((coordinate_t)radius * radius) - 1)) | ((radius <= 1) * (((coordinate_t)radius * radius)));
+			return ((radius > 1) * (((int32_t)radius * radius) - 1)) | ((radius <= 1) * (((int32_t)radius * radius)));
 		}
 
 	private:
-		static constexpr coordinate_t RadiusPow = GetRadiusPower(Radius);
+		static constexpr pixel_index_t RadiusPow = GetRadiusPower(Radius);
 
 	public:
 		CircleFixedSprite() : AbstractSprite<Radius * 2, Radius * 2>()
@@ -26,9 +26,9 @@ namespace Egfx
 
 		const bool IsInsideCircle(const pixel_t x, const pixel_t y)
 		{
-			const coordinate_signed_t dx = -(coordinate_signed_t)Radius + x + 1;
-			const coordinate_signed_t dy = -(coordinate_signed_t)Radius + y + 1;
-			const coordinate_t distancePow = (coordinate_t)((dx * dx) + (dy * dy));
+			const int16_t dx = -(int16_t)Radius + x + 1;
+			const int16_t dy = -(int16_t)Radius + y + 1;
+			const uint32_t distancePow = (uint32_t)(((int32_t)dx * dx) + ((int32_t)dy * dy));
 
 			return distancePow <= RadiusPow;
 		}
@@ -51,7 +51,7 @@ namespace Egfx
 	class CircleSprite : public ISprite
 	{
 	private:
-		coordinate_t RadiusPow = 0;
+		pixel_index_t RadiusPow = 0;
 		pixel_t Radius = 0;
 
 	public:
@@ -79,19 +79,19 @@ namespace Egfx
 			Radius = radius;
 			if (radius > 1)
 			{
-				RadiusPow = ((coordinate_t)radius * radius) - 1;
+				RadiusPow = ((pixel_index_t)radius * radius) - 1;
 			}
 			else
 			{
-				RadiusPow = ((coordinate_t)radius * radius);
+				RadiusPow = ((pixel_index_t)radius * radius);
 			}
 		}
 
 		const bool IsInsideCircle(const pixel_t x, const pixel_t y)
 		{
-			const coordinate_signed_t dx = -(coordinate_signed_t)Radius + x + 1;
-			const coordinate_signed_t dy = -(coordinate_signed_t)Radius + y + 1;
-			const coordinate_t distancePow = (coordinate_t)((dx * dx) + (dy * dy));
+			const int16_t dx = -(int16_t)Radius + x + 1;
+			const int16_t dy = -(int16_t)Radius + y + 1;
+			const pixel_index_t distancePow = (pixel_index_t)(((int32_t)dx * dx) + ((int32_t)dy * dy));
 
 			return distancePow <= RadiusPow;
 		}

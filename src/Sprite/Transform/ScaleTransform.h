@@ -12,17 +12,17 @@ namespace Egfx::SpriteTransform
 	class DownScaleXTransform : public BaseTransform
 	{
 	private:
-		uint8_t DownScale = 0;
+		pixel_t DownScale = 0;
 
 	public:
 		DownScaleXTransform() : BaseTransform() {}
 
-		void SetDownScaleX(const uint8_t downScale)
+		void SetDownScaleX(const pixel_t downScale)
 		{
 			DownScale = downScale;
 		}
 
-		const uint8_t GetDownScaleX()
+		const pixel_t GetDownScaleX()
 		{
 			return DownScale;
 		}
@@ -31,10 +31,11 @@ namespace Egfx::SpriteTransform
 		{
 			if (BaseTransform::Transform(x, y))
 			{
-				const uint8_t skips = ((uint16_t)DownScale * x) / Width;
+				const pixel_t skips = ((pixel_index_t)DownScale * x) / Width;
 
-				if (skips == 0
-					|| (x % Width) != skips)
+				if (skips >= 0 &&
+					(skips == 0
+						|| (x % Width) != skips))
 				{
 					x = x - skips;
 					return true;
@@ -50,17 +51,17 @@ namespace Egfx::SpriteTransform
 	class DownScaleYTransform : public BaseTransform
 	{
 	private:
-		uint8_t DownScale = 0;
+		pixel_t DownScale = 0;
 
 	public:
 		DownScaleYTransform() : BaseTransform() {}
 
-		void SetDownScaleY(const uint8_t downScale)
+		void SetDownScaleY(const pixel_t downScale)
 		{
 			DownScale = downScale;
 		}
 
-		const uint8_t GetDownScaleY()
+		const pixel_t GetDownScaleY()
 		{
 			return DownScale;
 		}
@@ -69,10 +70,11 @@ namespace Egfx::SpriteTransform
 		{
 			if (BaseTransform::Transform(x, y))
 			{
-				const uint8_t skips = (DownScale * y) / Height;
+				const pixel_t skips = ((pixel_index_t)DownScale * y) / Height;
 
-				if (skips == 0
-					|| (y % Height) != skips)
+				if (skips >= 0 &&
+					(skips == 0
+						|| (y % Height) != skips))
 				{
 					y = y - skips;
 					return true;
@@ -88,17 +90,17 @@ namespace Egfx::SpriteTransform
 	class DownScaleXYTransform : public BaseTransform
 	{
 	private:
-		uint8_t DownScale = 0;
+		pixel_t DownScale = 0;
 
 	public:
 		DownScaleXYTransform() : BaseTransform() {}
 
-		void SetDownScaleXY(const uint8_t downScale)
+		void SetDownScaleXY(const pixel_t downScale)
 		{
 			DownScale = downScale;
 		}
 
-		const uint8_t GetDownScaleXY()
+		const pixel_t GetDownScaleXY()
 		{
 			return DownScale;
 		}
@@ -107,15 +109,26 @@ namespace Egfx::SpriteTransform
 		{
 			if (BaseTransform::Transform(x, y))
 			{
-				const uint8_t skipsX = (DownScale * x) / Width;
-				const uint8_t skipsY = (DownScale * y) / Height;
+				const pixel_t skipsX = ((pixel_index_t)DownScale * x) / Width;
+				const pixel_t skipsY = ((pixel_index_t)DownScale * y) / Height;
 
-				if ((skipsX == 0 || (x % Width) != skipsX) && (skipsY == 0 || (y % Height) != skipsY))
+				bool skipped = false;
+
+				if (skipsY >= 0 &&
+					(skipsY == 0
+						|| (y % Height) != skipsY))
+				{
+					y = y - skipsY;
+					skipped = true;
+				}
+
+				if (skipsX >= 0 &&
+					(skipsX == 0
+						|| (x % Width) != skipsX))
 				{
 					x = x - skipsX;
-					y = y - skipsY;
 
-					return true;
+					return skipped;
 				}
 			}
 

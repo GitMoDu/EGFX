@@ -14,7 +14,6 @@ namespace Egfx::SpriteTransform
 	/// <typeparam name="Height"></typeparam>
 	/// <typeparam name="BaseTransform"></typeparam>
 	template<const pixel_t Width,
-		const pixel_t Height,
 		typename BaseTransform = ITransform>
 	struct InvertXTransform : public BaseTransform
 	{
@@ -186,5 +185,5 @@ namespace Egfx::SpriteTransform
 			y = Width - 1 - xx;
 		}
 	};
-};
+}
 #endif

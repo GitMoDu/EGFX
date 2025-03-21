@@ -66,9 +66,9 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t yByte = (coordinate_t)y * BitScale;
+			const pixel_index_t yByte = (pixel_index_t)y * BitScale;
 			const pixel_t xByte = (x / 8);
-			const coordinate_t offset = yByte + xByte;
+			const pixel_index_t offset = yByte + xByte;
 
 			const uint8_t xBit = 7 - (x % 8);
 
@@ -96,7 +96,7 @@ namespace Egfx
 		using BaseClass::BitScale;
 
 	private:
-		static constexpr coordinate_t MaskSize = ((coordinate_t)Width * Height) / 8;
+		static constexpr pixel_index_t MaskSize = ((pixel_index_t)Width * Height) / 8;
 
 		uint8_t Mask[MaskSize]{};
 
@@ -108,9 +108,9 @@ namespace Egfx
 
 		void SetAlpha(const pixel_t x, const pixel_t y, const bool value)
 		{
-			const coordinate_t yByte = (coordinate_t)y * BitScale;
+			const pixel_index_t yByte = (pixel_index_t)y * BitScale;
 			const pixel_t xByte = (x / 8);
-			const coordinate_t offset = yByte + xByte;
+			const pixel_index_t offset = yByte + xByte;
 
 			const uint8_t xBit = 7 - (x % 8);
 
@@ -147,9 +147,9 @@ namespace Egfx
 
 		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
-			const coordinate_t yByte = (coordinate_t)y * BitScale;
+			const pixel_index_t yByte = (pixel_index_t)y * BitScale;
 			const pixel_t xByte = (x / 8);
-			const coordinate_t offset = yByte + xByte;
+			const pixel_index_t offset = yByte + xByte;
 
 			const uint8_t xBit = 7 - (x % 8);
 

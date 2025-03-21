@@ -51,7 +51,7 @@ private:
 		DrawElementsCount = (uint8_t)DrawBitmapN + BitmapLayout::BitmapDrawSteps()
 	};
 
-	ColorShader<DogeBitSprite> DogeBit{};
+	SpriteShader::ColorShader<DogeBitSprite> DogeBit{};
 
 	rgb_color_t Color{};
 

@@ -14,6 +14,16 @@ namespace Egfx
 
 		static constexpr pixel_t Width() { return width; }
 		static constexpr pixel_t Height() { return height; }
+
+		static constexpr pixel_t Smallest()
+		{
+			return MinValue(width, height);
+		}
+
+		static constexpr pixel_t Largest()
+		{
+			return MaxValue(width, height);
+		}
 	};
 
 	template<const pixel_t x, const pixel_t y,

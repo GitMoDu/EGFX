@@ -15,7 +15,7 @@ namespace Egfx
 	/// </summary>
 	/// <typeparam name="MaxLayerCount"></typeparam>
 	template<const uint8_t MaxLayerCount = 5>
-	class MultiDrawerWrapper : public virtual IFrameDraw
+	class MultiDrawerWrapper : public IFrameDraw
 	{
 	private:
 		IFrameDraw* Drawers[MaxLayerCount]{};

@@ -10,7 +10,7 @@
 
 namespace Egfx
 {
-	class ElementDrawer : public virtual IFrameDraw
+	class ElementDrawer : public IFrameDraw
 	{
 	private:
 		uint8_t ElementsCount;

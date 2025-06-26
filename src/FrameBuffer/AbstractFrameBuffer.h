@@ -26,7 +26,7 @@ namespace Egfx
 		, const pixel_t frameWidth
 		, const pixel_t frameHeight
 		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
-	class AbstractFrameBuffer : public virtual IFrameBuffer
+	class AbstractFrameBuffer : public IFrameBuffer
 	{
 	public:
 		static constexpr pixel_t FrameWidth = frameWidth;

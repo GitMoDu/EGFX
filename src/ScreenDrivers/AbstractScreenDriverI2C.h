@@ -12,7 +12,7 @@ namespace Egfx
 	template<const pixel_t width,
 		const pixel_t height,
 		const uint8_t i2cAddress>
-	class AbstractScreenDriverI2C : public virtual IScreenDriver
+	class AbstractScreenDriverI2C : public IScreenDriver
 	{
 	public:
 		static constexpr uint8_t ScreenWidth = width;

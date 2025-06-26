@@ -8,66 +8,69 @@
 
 #include <stdint.h>
 
-template<typename InlineI2cScreenDriver>
-class TemplateScreenDriverI2CDma : public InlineI2cScreenDriver
+namespace Egfx
 {
-public:
-	using InlineI2cScreenDriver::BufferSize;
-
-protected:
-	using InlineI2cScreenDriver::I2C_BUFFER_SIZE;
-	using InlineI2cScreenDriver::BUFFER_WHOLE;
-	using InlineI2cScreenDriver::BUFFER_REMAINDER;
-	using InlineI2cScreenDriver::REMAINDER_START;
-
-	using InlineI2cScreenDriver::PushChunkDma;
-	using InlineI2cScreenDriver::WireInstance;
-
-private:
-	size_t PushIndex = 0;
-
-public:
-	TemplateScreenDriverI2CDma(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
-
-	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+	template<typename InlineI2cScreenDriver>
+	class TemplateScreenDriverI2CDma : public InlineI2cScreenDriver
 	{
-		PushIndex = 0;
+	public:
+		using InlineI2cScreenDriver::BufferSize;
 
-		return 0;
-	}
+	protected:
+		using InlineI2cScreenDriver::I2C_BUFFER_SIZE;
+		using InlineI2cScreenDriver::BUFFER_WHOLE;
+		using InlineI2cScreenDriver::BUFFER_REMAINDER;
+		using InlineI2cScreenDriver::REMAINDER_START;
 
-	virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
-	{
-#if defined(ARDUINO_ARCH_RP2040)
-		if (WireInstance.finishedAsync())
-#endif
+		using InlineI2cScreenDriver::PushChunkDma;
+		using InlineI2cScreenDriver::WireInstance;
+
+	private:
+		size_t PushIndex = 0;
+
+	public:
+		TemplateScreenDriverI2CDma(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
+
+		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
-			if (BUFFER_WHOLE > 0
-				&& PushIndex < (BUFFER_WHOLE * I2C_BUFFER_SIZE))
+			PushIndex = 0;
+
+			return 0;
+		}
+
+		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		{
+#if defined(ARDUINO_ARCH_RP2040)
+			if (WireInstance.finishedAsync())
+#endif
 			{
-				PushChunkDma(&frameBuffer[PushIndex], I2C_BUFFER_SIZE);
-				PushIndex += I2C_BUFFER_SIZE;
-			}
-			else if (BUFFER_REMAINDER > 0)
-			{
-				if (PushIndex < ((BUFFER_WHOLE * I2C_BUFFER_SIZE) + BUFFER_REMAINDER))
+				if (BUFFER_WHOLE > 0
+					&& PushIndex < (BUFFER_WHOLE * I2C_BUFFER_SIZE))
 				{
-					PushChunkDma(&frameBuffer[REMAINDER_START], BUFFER_REMAINDER);
+					PushChunkDma(&frameBuffer[PushIndex], I2C_BUFFER_SIZE);
 					PushIndex += I2C_BUFFER_SIZE;
+				}
+				else if (BUFFER_REMAINDER > 0)
+				{
+					if (PushIndex < ((BUFFER_WHOLE * I2C_BUFFER_SIZE) + BUFFER_REMAINDER))
+					{
+						PushChunkDma(&frameBuffer[REMAINDER_START], BUFFER_REMAINDER);
+						PushIndex += I2C_BUFFER_SIZE;
+					}
+					else
+					{
+						return false;
+					}
 				}
 				else
 				{
 					return false;
 				}
 			}
-			else
-			{
-				return false;
-			}
-		}
 
-		return true;
-	}
-};
+			return true;
+		}
+	};
+}
 #endif
 #endif

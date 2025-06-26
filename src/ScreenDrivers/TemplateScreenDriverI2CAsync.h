@@ -5,69 +5,72 @@
 
 #include <stdint.h>
 
-template<typename InlineI2cScreenDriver,
-	const uint8_t i2cChunkSize = 8>
-class TemplateScreenDriverI2CAsync : public InlineI2cScreenDriver
+namespace Egfx
 {
-public:
-	using InlineI2cScreenDriver::BufferSize;
-
-protected:
-	using InlineI2cScreenDriver::PushChunk;
-
-protected:
-	static constexpr uint8_t I2C_BUFFER_SIZE = 31;
-
-private:
-	static constexpr uint8_t CHUNK_SIZE = i2cChunkSize;
-	static constexpr size_t WHOLE_SIZE = (BufferSize / CHUNK_SIZE) * CHUNK_SIZE;
-	static constexpr size_t REMAINDER_SIZE = BufferSize - WHOLE_SIZE;
-	static constexpr size_t REMAINDER_START = WHOLE_SIZE;
-
-private:
-	size_t PushIndex = 0;
-
-public:
-	TemplateScreenDriverI2CAsync(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
-
-	virtual const bool Start()
+	template<typename InlineI2cScreenDriver,
+		const uint8_t i2cChunkSize = 8>
+	class TemplateScreenDriverI2CAsync : public InlineI2cScreenDriver
 	{
-		return CHUNK_SIZE <= BufferSize
-			&& CHUNK_SIZE <= I2C_BUFFER_SIZE
-			&& InlineI2cScreenDriver::Start();
-	}
+	public:
+		using InlineI2cScreenDriver::BufferSize;
 
-	virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
-	{
-		PushIndex = 0;
+	protected:
+		using InlineI2cScreenDriver::PushChunk;
 
-		if (WHOLE_SIZE > 0)
+	protected:
+		static constexpr uint8_t I2C_BUFFER_SIZE = 31;
+
+	private:
+		static constexpr uint8_t CHUNK_SIZE = i2cChunkSize;
+		static constexpr size_t WHOLE_SIZE = (BufferSize / CHUNK_SIZE) * CHUNK_SIZE;
+		static constexpr size_t REMAINDER_SIZE = BufferSize - WHOLE_SIZE;
+		static constexpr size_t REMAINDER_START = WHOLE_SIZE;
+
+	private:
+		size_t PushIndex = 0;
+
+	public:
+		TemplateScreenDriverI2CAsync(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
+
+		virtual const bool Start()
 		{
-			PushChunk(frameBuffer, CHUNK_SIZE);
-			PushIndex += CHUNK_SIZE;
+			return CHUNK_SIZE <= BufferSize
+				&& CHUNK_SIZE <= I2C_BUFFER_SIZE
+				&& InlineI2cScreenDriver::Start();
 		}
 
-		return 0;
-	}
-
-	virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
-	{
-		if (PushIndex < WHOLE_SIZE)
+		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
 		{
-			PushChunk(&frameBuffer[PushIndex], CHUNK_SIZE);
-			PushIndex += CHUNK_SIZE;
+			PushIndex = 0;
 
-			return true;
-		}
-		else
-		{
-			if (REMAINDER_SIZE > 0)
+			if (WHOLE_SIZE > 0)
 			{
-				PushChunk(&frameBuffer[REMAINDER_START], REMAINDER_SIZE);
+				PushChunk(frameBuffer, CHUNK_SIZE);
+				PushIndex += CHUNK_SIZE;
 			}
 
-			return false;
+			return 0;
 		}
-	}
-};
+
+		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		{
+			if (PushIndex < WHOLE_SIZE)
+			{
+				PushChunk(&frameBuffer[PushIndex], CHUNK_SIZE);
+				PushIndex += CHUNK_SIZE;
+
+				return true;
+			}
+			else
+			{
+				if (REMAINDER_SIZE > 0)
+				{
+					PushChunk(&frameBuffer[REMAINDER_START], REMAINDER_SIZE);
+				}
+
+				return false;
+			}
+		}
+	};
+}
 #endif

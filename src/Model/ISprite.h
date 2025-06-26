@@ -7,20 +7,19 @@
 
 namespace Egfx
 {
-	class ISprite
+	struct ISprite
 	{
-	public:
 		/// <summary>
 		/// Sprite width.
 		/// </summary>
 		/// <returns></returns>
-		virtual const pixel_t GetWidth() const { return 0; }
+		virtual pixel_t GetWidth() const { return 0; }
 
 		/// <summary>
 		/// Sprite height.
 		/// </summary>
 		/// <returns></returns>
-		virtual const pixel_t GetHeight() const { return 0; }
+		virtual pixel_t GetHeight() const { return 0; }
 
 		/// <summary>
 		/// Color getter for sprite.
@@ -29,7 +28,7 @@ namespace Egfx
 		/// <param name="x">Sprite coordinate X.</param>
 		/// <param name="y">Sprite coordinate Y.</param>
 		/// <returns>False when pixel is transparent at these coordinates.</returns>
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y) { return false; }
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y) { return false; }
 	};
 
 	/// <summary>
@@ -50,12 +49,12 @@ namespace Egfx
 		{
 		}
 
-		virtual const pixel_t GetWidth() const
+		virtual pixel_t GetWidth() const
 		{
 			return Width;
 		}
 
-		virtual const pixel_t GetHeight() const
+		virtual pixel_t GetHeight() const
 		{
 			return Height;
 		}

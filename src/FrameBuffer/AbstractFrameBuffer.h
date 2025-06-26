@@ -228,13 +228,27 @@ namespace Egfx
 					{
 						startX = MaxValue((pixel_t)0, (pixel_t)(startX));
 						endX = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(endX));
-						LineHorizontalRaw(rawColor, startX, startY, endX);
+						if (endX > startX)
+						{
+							LineHorizontalRaw(rawColor, startX, startY, endX);
+						}
+						else if (endX == startX)
+						{
+							PixelRaw(rawColor, startX, startY);
+						}
 					}
 					else
 					{
 						endX = MaxValue((pixel_t)0, (pixel_t)(endX));
 						startX = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(startX));
-						LineHorizontalRaw(rawColor, endX, startY, startX);
+						if (startX > endX)
+						{
+							LineHorizontalRaw(rawColor, endX, startY, startX);
+						}
+						else if (endX == startX)
+						{
+							PixelRaw(rawColor, startX, startY);
+						}
 					}
 				}
 			}
@@ -345,7 +359,7 @@ namespace Egfx
 			}
 
 			const color_t rawColor = ColorConverter::GetRawColor(color);
-			
+
 			pixel_t mx1, mx2, my1, my2;
 
 			// Apply mirroring.
@@ -384,28 +398,34 @@ namespace Egfx
 			const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(mx2));
 			const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(my2 - 1));
 
-			// Draw top horizontal line.
-			if (my1 >= 0 && my1 < FrameHeight)
+			if (xEnd >= xStart)
 			{
-				LineHorizontalRaw(rawColor, xStart, my1, xEnd);
+				// Draw top horizontal line.
+				if (my1 >= 0 && my1 < FrameHeight)
+				{
+					LineHorizontalRaw(rawColor, xStart, my1, xEnd);
+				}
+
+				// Draw bottom horizontal line.
+				if (my2 >= 0 && my2 < FrameHeight)
+				{
+					LineHorizontalRaw(rawColor, xStart, my2, xEnd);
+				}
 			}
 
-			// Draw bottom horizontal line.
-			if (my2 >= 0 && my2 < FrameHeight)
+			if (yEnd >= yStart)
 			{
-				LineHorizontalRaw(rawColor, xStart, my2, xEnd);
-			}
+				// Draw left vertical line.
+				if (mx1 >= 0 && mx1 < FrameWidth)
+				{
+					LineVerticalRaw(rawColor, mx1, yStart, yEnd);
+				}
 
-			// Draw left vertical line.
-			if (mx1 >= 0 && mx1 < FrameWidth)
-			{
-				LineVerticalRaw(rawColor, mx1, yStart, yEnd);
-			}
-
-			// Draw right vertical line.
-			if (mx2 >= 0 && mx2 < FrameWidth)
-			{
-				LineVerticalRaw(rawColor, mx2, yStart, yEnd);
+				// Draw right vertical line.
+				if (mx2 >= 0 && mx2 < FrameWidth)
+				{
+					LineVerticalRaw(rawColor, mx2, yStart, yEnd);
+				}
 			}
 		}
 
@@ -567,15 +587,15 @@ namespace Egfx
 			else // General triangle: split it.
 			{
 				// Calculate splitting vertex Vi.
-				const int16_t dxTotal = (int16_t)c.x - (int16_t)a.x;
-				const int16_t dyTotal = (int16_t)c.y - (int16_t)a.y;
-				const int16_t dySegment = (int16_t)b.y - (int16_t)a.y;
+				const pixel_t dxTotal = (pixel_t)c.x - (pixel_t)a.x;
+				const pixel_t dyTotal = (pixel_t)c.y - (pixel_t)a.y;
+				const pixel_t dySegment = (pixel_t)b.y - (pixel_t)a.y;
 
 				if (dyTotal == 0)
 					return; // Degenerate triangle
 
 				// Calculate Vi_x in fixed-point.
-				const pixel_t Vi_x = (((int32_t)a.x << BRESENHAM_SCALE) + ((((int32_t)dxTotal << BRESENHAM_SCALE) * dySegment) / dyTotal)) >> BRESENHAM_SCALE;
+				const pixel_t Vi_x = (((pixel_index_t)a.x << BRESENHAM_SCALE) + ((((pixel_index_t)dxTotal << BRESENHAM_SCALE) * dySegment) / dyTotal)) >> BRESENHAM_SCALE;
 				const pixel_point_t Vi = { Vi_x, b.y };
 
 				// Draw the two sub-triangles
@@ -587,23 +607,31 @@ namespace Egfx
 		void BresenhamFlatBottomFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
 		{
 			// Calculate inverse slopes in fixed-point
-			const int32_t invSlope1 = ((int32_t)(b.x - a.x) << BRESENHAM_SCALE) / (b.y - a.y);
-			const int32_t invSlope2 = ((int32_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
+			pixel_index_t invSlope1 = 1;
+			if (b.y != a.y)
+			{
+				invSlope1 = ((pixel_index_t)(b.x - a.x) << BRESENHAM_SCALE) / (b.y - a.y);
+			}
+			pixel_index_t invSlope2 = 1;
+			if (c.y != a.y)
+			{
+				invSlope2 = ((pixel_index_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
+			}
 
 			// Starting x positions in fixed-point
-			int32_t x1 = (int32_t)a.x << BRESENHAM_SCALE;
-			int32_t x2 = x1;
+			pixel_index_t x1 = (pixel_index_t)a.x << BRESENHAM_SCALE;
+			pixel_index_t x2 = x1;
 
 			// Loop from a.y to b.y (inclusive)
-			const int16_t startY = a.y;
-			const int16_t endY = min((int16_t)(FrameHeight - 1), (int16_t)b.y);
+			const pixel_t startY = a.y;
+			const pixel_t endY = min((pixel_t)(FrameHeight - 1), (pixel_t)b.y);
 
-			for (int16_t y = startY; y <= endY; y++)
+			for (pixel_t y = startY; y < endY; y++)
 			{
 				if (y >= 0 && y < FrameHeight)
 				{
-					int16_t xStart{};
-					int16_t xEnd{};
+					pixel_t xStart{};
+					pixel_t xEnd{};
 
 					if (x1 > x2)
 					{
@@ -616,12 +644,16 @@ namespace Egfx
 						xEnd = x2 >> BRESENHAM_SCALE;
 					}
 
-					xStart = MaxValue((pixel_t)0, (pixel_t)(xStart));
-					xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(xEnd));
+					xStart = MaxValue(pixel_t(0), xStart);
+					xEnd = MinValue(pixel_t(FrameWidth - 1), xEnd);
 
 					if (xStart < xEnd)
 					{
 						LineHorizontalRaw(rawColor, xStart, y, xEnd);
+					}
+					else if (xStart == xEnd)
+					{
+						PixelRaw(rawColor, xStart, y);
 					}
 				}
 
@@ -633,23 +665,23 @@ namespace Egfx
 		void BresenhamFlatTopFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
 		{
 			// Calculate inverse slopes in fixed-point
-			const int32_t invSlope1 = ((int32_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
-			const int32_t invSlope2 = ((int32_t)(c.x - b.x) << BRESENHAM_SCALE) / (c.y - b.y);
+			const pixel_index_t invSlope1 = ((pixel_index_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
+			const pixel_index_t invSlope2 = ((pixel_index_t)(c.x - b.x) << BRESENHAM_SCALE) / (c.y - b.y);
 
 			// Starting x positions in fixed-point
-			int32_t x1 = (int32_t)c.x << BRESENHAM_SCALE;
-			int32_t x2 = x1;
+			pixel_index_t x1 = (pixel_index_t)c.x << BRESENHAM_SCALE;
+			pixel_index_t x2 = x1;
 
 			// Loop from c.y down to a.y (inclusive)
-			const int16_t startY = c.y;
-			const int16_t endY = max((int16_t)0, (int16_t)a.y);
+			const pixel_t startY = c.y;
+			const pixel_t endY = MaxValue(pixel_t(0), a.y);
 
-			for (int16_t y = startY; y >= endY; y--)
+			for (pixel_t y = startY; y >= endY; y--)
 			{
 				if (y >= 0 && y < FrameHeight)
 				{
-					int16_t xStart{};
-					int16_t xEnd{};
+					pixel_t xStart{};
+					pixel_t xEnd{};
 
 					if (x1 > x2)
 					{
@@ -662,12 +694,16 @@ namespace Egfx
 						xEnd = x2 >> BRESENHAM_SCALE;
 					}
 
-					xStart = MaxValue((pixel_t)0, (pixel_t)(xStart));
-					xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(xEnd));
+					xStart = MaxValue(pixel_t(0), xStart);
+					xEnd = MinValue(pixel_t(FrameWidth - 1), xEnd);
 
 					if (xStart < xEnd)
 					{
 						LineHorizontalRaw(rawColor, xStart, y, xEnd);
+					}
+					else if (xStart == xEnd)
+					{
+						PixelRaw(rawColor, xStart, y);
 					}
 				}
 

@@ -28,12 +28,12 @@ namespace Egfx
 
 	public:
 		using BaseClass::BufferSize;
+		using typename BaseClass::color_t;
 
 	protected:
 		using BaseClass::Buffer;
 		using BaseClass::Inverted;
 		using BaseClass::DisplayMirror;
-		using typename BaseClass::color_t;
 
 	public:
 		MonochromeFrameBuffer(uint8_t buffer[BufferSize] = nullptr)

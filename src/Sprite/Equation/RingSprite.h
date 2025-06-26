@@ -19,12 +19,12 @@ namespace Egfx
 		{
 		}
 
-		const pixel_t GetWidth() const final
+		pixel_t GetWidth() const final
 		{
 			return OuterRadius * 2;
 		}
 
-		const pixel_t GetHeight() const final
+		pixel_t GetHeight() const final
 		{
 			return GetWidth();
 		}
@@ -63,7 +63,7 @@ namespace Egfx
 			return distancePow <= OuterRadiusPow && distancePow >= InnerRadiusPow;
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			if (IsInsideRing(x, y))
 			{

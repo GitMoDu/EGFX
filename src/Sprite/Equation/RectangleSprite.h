@@ -9,14 +9,14 @@ namespace Egfx
 {
 	template<const pixel_t width,
 		const pixel_t height>
-	class RectangleSprite : public AbstractSprite<width, height>
+	class RectangleFixedSprite : public AbstractSprite<width, height>
 	{
 	public:
-		RectangleSprite() : AbstractSprite<width, height>()
+		RectangleFixedSprite() : AbstractSprite<width, height>()
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 

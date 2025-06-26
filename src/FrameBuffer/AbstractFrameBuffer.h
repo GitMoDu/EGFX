@@ -143,6 +143,11 @@ namespace Egfx
 			}
 		}
 
+		virtual void Pixel(const rgb_color_t color, const pixel_point_t point) final
+		{
+			Pixel(color, point.x, point.y);
+		}
+
 		virtual void Fill(const rgb_color_t color) final
 		{
 			const color_t rawColor = ColorConverter::GetRawColor(color);

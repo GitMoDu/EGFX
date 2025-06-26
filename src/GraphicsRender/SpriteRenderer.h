@@ -24,8 +24,8 @@ namespace Egfx
 		static void TransformDraw(IFrameBuffer* frame, ISprite* sprite, ITransform* transform,
 			const pixel_t positionX, const pixel_t positionY)
 		{
-			const pixel_t height = sprite->GetHeight();
 			const pixel_t width = sprite->GetWidth();
+			const pixel_t height = sprite->GetHeight();
 
 			rgb_color_t color{};
 			pixel_t xNew = 0;
@@ -40,10 +40,7 @@ namespace Egfx
 					if (sprite->Get(color, xNew, yNew)
 						&& transform->Transform(xNew, yNew))
 					{
-						xNew += positionX;
-						yNew += positionY;
-
-						frame->Pixel(color, xNew, yNew);
+						frame->Pixel(color, xNew + positionX, yNew + positionY);
 					}
 				}
 			}

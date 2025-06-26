@@ -18,18 +18,145 @@ namespace SSD1306
 
 	enum class CommandEnum : uint8_t
 	{
+		/// <summary>
+		/// Indicates the start of a command sequence.
+		/// </summary>
 		CommandStart = 0x00,
+
+		/// <summary>
+		/// Resets the display.
+		/// </summary>
 		Reset = 0x03,
-		BufferStart = 0x40,
+
+		/// <summary>
+		/// Indicates the start of data buffer.
+		/// </summary>
+		SetLineStart = 0x40,
+
+		/// <summary>
+		/// Sets the column address.
+		/// </summary>
 		Column = 0x21,
+
+		/// <summary>
+		/// Sets the page address.
+		/// </summary>
 		Page = 0x22,
+
+		/// <summary>
+		/// Sets the contrast level.
+		/// </summary>
 		SetContrast = 0x81,
-		ShowFullWhite = 0xA4,
-		RamDisplay = 0xA5,
-		InvertDisplay = 0xA5,
-		Backlight = 0xAD,
+
+		/// <summary>
+		/// Controls the charge pump setting.
+		/// </summary>
+		ChargePump = 0x8D,
+
+		/// <summary>
+		/// Sets the segment remap.
+		/// </summary>
+		SegmentRemap = 0xA0,
+
+		/// <summary>
+		/// Turns on all pixels.
+		/// </summary>
+		EntireDisplayOn = 0xA4,
+
+		/// <summary>
+		/// Resumes to RAM content display.
+		/// </summary>
+		EntireDisplayOnResume = 0xA5,
+
+		/// <summary>
+		/// Sets the display to normal mode.
+		/// </summary>
+		NormalDisplay = 0xA6,
+
+		/// <summary>
+		/// Inverts the display.
+		/// </summary>
+		InvertDisplay = 0xA7,
+
+		/// <summary>
+		/// Sets the multiplex ratio.
+		/// </summary>
+		SetMultiplexRatio = 0xA8,
+
+		/// <summary>
+		/// Turns the display off.
+		/// </summary>
 		DisplayOff = 0xAE,
-		DisplayOn = 0xAF
+
+		/// <summary>
+		/// Turns the display on.
+		/// </summary>
+		DisplayOn = 0xAF,
+
+		/// <summary>
+		/// Sets the display offset.
+		/// </summary>
+		SetDisplayOffset = 0xD3,
+
+		/// <summary>
+		/// Sets the display clock divide ratio/oscillator frequency.
+		/// </summary>
+		SetDisplayClockDiv = 0xD5,
+
+		/// <summary>
+		/// Sets the pre-charge period.
+		/// </summary>
+		SetPrecharge = 0xD9,
+
+		/// <summary>
+		/// Sets the COM pins hardware configuration.
+		/// </summary>
+		SetComPins = 0xDA,
+
+		/// <summary>
+		/// Sets the VCOMH deselect level.
+		/// </summary>
+		SetVcomDetect = 0xDB,
+
+		/// <summary>
+		/// No operation.
+		/// </summary>
+		Nop = 0xE3,
+
+		/// <summary>
+		/// Scrolls the display to the right.
+		/// </summary>
+		ScrollRight = 0x26,
+
+		/// <summary>
+		/// Scrolls the display to the left.
+		/// </summary>
+		ScrollLeft = 0x27,
+
+		/// <summary>
+		/// Scrolls the display vertically and to the right.
+		/// </summary>
+		ScrollVerticalRight = 0x29,
+
+		/// <summary>
+		/// Scrolls the display vertically and to the left.
+		/// </summary>
+		ScrollVerticalLeft = 0x2A,
+
+		/// <summary>
+		/// Deactivates scrolling.
+		/// </summary>
+		DeactivateScroll = 0x2E,
+
+		/// <summary>
+		/// Activates scrolling.
+		/// </summary>
+		ActivateScroll = 0x2F,
+
+		/// <summary>
+		/// Sets the vertical scroll area.
+		/// </summary>
+		SetVerticalScrollArea = 0xA3,
 	};
 
 	enum class BacklightEnum : uint8_t

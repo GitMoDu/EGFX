@@ -95,13 +95,13 @@ namespace Egfx
 		}
 
 	private:
-		static constexpr uint8_t TextWidth(const uint8_t characterCount)
+		static constexpr pixel_t TextWidth(const uint8_t characterCount)
 		{
 			return (FontRendererType::FontWidth() * characterCount)
 				+ (FontRendererType::FontKerning() * characterCount);
 		}
 
-		static constexpr uint8_t TextMaxWidth()
+		static constexpr pixel_t TextMaxWidth()
 		{
 			return TextWidth(7); //"999 fps"
 		}
@@ -118,14 +118,16 @@ namespace Egfx
 
 		static constexpr FpsDrawerPosition DrawerPosition() { return fpsDrawerPosition; }
 
-		static constexpr uint8_t GetX()
+		static constexpr pixel_t GetX()
 		{
-			return (IsLeft() * (ScreenLayout::X() + 1)) | (!IsLeft() * (ScreenLayout::Width() - 1 - TextMaxWidth()));
+			return ScreenLayout::X() +
+				(IsLeft() ? 1 : (ScreenLayout::Width() - 1 - TextMaxWidth()));
 		}
 
-		static constexpr uint8_t GetY()
+		static constexpr pixel_t GetY()
 		{
-			return (IsTop() * (ScreenLayout::Y() + 1)) | (!IsTop() * (ScreenLayout::Height() - 1 - FontRendererType::Height));
+			return ScreenLayout::Y() +
+				(IsTop() ? 1 : (ScreenLayout::Height() - 1 - FontRendererType::Height));
 		}
 	};
 }

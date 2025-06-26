@@ -23,5 +23,34 @@ namespace Egfx
 			return true;
 		}
 	};
+
+	class RectangleSprite : public ISprite
+	{
+	public:
+		pixel_t Width = 0;
+		pixel_t Height = 0;
+
+	public:
+		RectangleSprite() : ISprite()
+		{
+		}
+
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		{
+			color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
+
+			return true;
+		}
+
+		virtual pixel_t GetWidth() const
+		{
+			return Width;
+		}
+
+		virtual pixel_t GetHeight() const
+		{
+			return Height;
+		}
+	};
 }
 #endif

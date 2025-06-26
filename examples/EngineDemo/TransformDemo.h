@@ -36,7 +36,7 @@ private:
 
 	ColorShader<HeartSprite> Heart{};
 	HorizontalGradientShader<PyramidSprite> Pyramid{};
-	GridShader<RectangleSprite<RectangleLayout::Width(), RectangleLayout::Height()>> Rectangle{};
+	GridShader<RectangleFixedSprite<RectangleLayout::Width(), RectangleLayout::Height()>> Rectangle{};
 
 	SkewHorizontalTransform<RectangleLayout::Height()> RectangleHorizontalSkewer{};
 	SkewVerticalTransform<RectangleLayout::Width()> RectangleVerticalSkewer{};

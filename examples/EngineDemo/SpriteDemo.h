@@ -8,6 +8,7 @@
 #include "Sprites.h"
 
 using namespace DemoSprites;
+using namespace SpriteSource;
 using namespace SpriteShader;
 using namespace SpriteShaderEffect;
 using namespace SpriteTransform;
@@ -81,13 +82,14 @@ private:
 	};
 
 private:
-	ColorShader<ExplosionSprite> AnimatedExplosion{};
-	ColorShader<ArrowSprite> Arrow{};
-	ColorShader<TransparentGridEffect<RingSprite>> Ring{};
+	SpriteShader::ColorShader<ExplosionSprite> AnimatedExplosion{};
+	SpriteShader::ColorShader<ArrowSprite> Arrow{};
+	SpriteShader::ColorShader<SpriteShaderEffect::TransparentGridEffect<RingSprite>> Ring{};
 
-	FlipTransform<> ArrowInvert{};
-	FlipInvertXTransform<ArrowSprite::Height> ArrowFlipInvertX{};
-	InvertYTransform<ArrowSprite::Height> ArrowInvertY{};
+	SpriteTransform::FlipInvertYTransform<ArrowSprite::Width> ArrowInvert{};
+	SpriteTransform::FlipInvertXTransform<ArrowSprite::Width> ArrowFlipInvertX{};
+
+	SpriteTransform::InvertYTransform<ArrowSprite::Height> ArrowInvertY{};
 
 public:
 	SpriteDemo()
@@ -134,31 +136,31 @@ private:
 		case 3:
 		case 4:
 			AnimatedExplosion.SetColor(Rgb::Color(0, UINT8_MAX, UINT8_MAX));
-			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask);
+			AnimatedExplosion.SetMask(Explosion::Mask);
 			break;
 		case 5:
 			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, INT8_MAX, INT8_MAX));
-			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask2);
+			AnimatedExplosion.SetMask(Explosion::Mask2);
 			break;
 		case 7:
 			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, 0, 0));
-			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask2);
+			AnimatedExplosion.SetMask(Explosion::Mask2);
 			break;
 		case 8:
 		case 9:
 			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, UINT8_MAX, 0));
-			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask3);
+			AnimatedExplosion.SetMask(Explosion::Mask3);
 			break;
 		case 10:
 		case 11:
 			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, INT8_MAX, 0));
-			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask4);
+			AnimatedExplosion.SetMask(Explosion::Mask4);
 			break;
 		case 12:
 		case 13:
 		case 14:
 			AnimatedExplosion.SetColor(Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX));
-			AnimatedExplosion.SetMask(SpriteSource::Explosion::Mask5);
+			AnimatedExplosion.SetMask(Explosion::Mask5);
 			break;
 		default:
 			return;

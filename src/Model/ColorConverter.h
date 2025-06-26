@@ -4,12 +4,18 @@
 #define _COLOR_CONVERTER_h
 
 #include "RgbColor.h"
+#include "GraphicsBuffer.h"
 
 namespace Egfx
 {
 	struct AbstractColorConverter1
 	{
 		using color_t = uint8_t;
+
+		const uint8_t GetColorSize() const
+		{
+			return sizeof(color_t);
+		}
 
 		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
 		{
@@ -31,6 +37,11 @@ namespace Egfx
 	{
 		using color_t = uint8_t;
 
+		const uint8_t ColorSize() const
+		{
+			return sizeof(color_t);
+		}
+
 		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
@@ -40,6 +51,26 @@ namespace Egfx
 	struct AbstractColorConverter16
 	{
 		using color_t = uint16_t;
+
+		static uint8_t ColorSize()
+		{
+			return sizeof(color_t);
+		}
+
+		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		{
+			return Egfx::GetFrameBufferSize<color_t>(width, height);
+		}
+	};
+
+	struct AbstractColorConverter32
+	{
+		using color_t = uint32_t;
+
+		const uint8_t ColorSize() const
+		{
+			return sizeof(color_t);
+		}
 
 		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
 		{
@@ -103,6 +134,36 @@ namespace Egfx
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
 			return color;
+		}
+#endif
+	};
+
+	/// <summary>
+	/// Converter for 32 bit color, 8-8-8 color format.
+	/// </summary>
+	struct ColorConverter32 : public AbstractColorConverter32
+	{
+#if defined(EGFX_PLATFORM_HDR)
+		/// <summary>
+		/// Passthrough 8-8-8 color.
+		/// </summary>
+		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <returns>Framebuffer-native color (8-8-8).</returns>
+
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return color;
+		}
+
+#else
+		/// <summary>
+		/// Convert 5-6-5 color to 8-8-8 color.
+		/// </summary>
+		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <returns>Framebuffer-native color (8-8-8).</returns>
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return Rgb::Color(Rgb::R(color), Rgb::G(color), Rgb::B(color));
 		}
 #endif
 	};

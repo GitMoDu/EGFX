@@ -1,5 +1,3 @@
-// Color8FrameBuffer.h
-
 #ifndef _EGFX_COLOR_8_FRAME_BUFFER_h
 #define _EGFX_COLOR_8_FRAME_BUFFER_h
 
@@ -127,7 +125,7 @@ namespace Egfx
 				const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + lineStart;
 				memset(&Buffer[offset], value, width);
 			}
-		}*/
+		}
 	};
 }
 #endif

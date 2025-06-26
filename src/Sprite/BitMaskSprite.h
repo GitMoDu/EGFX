@@ -16,7 +16,7 @@ namespace Egfx
 	class AbstractBitMaskSprite : public AbstractSprite<width, height>
 	{
 	private:
-		using BaseClass = AbstractSprite<width, height>;
+		using Base = AbstractSprite<width, height>;
 
 	protected:
 		static constexpr uint8_t BitScale = ((width - 1) / 8) + 1;
@@ -26,7 +26,7 @@ namespace Egfx
 
 	public:
 		AbstractBitMaskSprite(const uint8_t* mask = nullptr)
-			: BaseClass()
+			: Base()
 			, Mask(mask)
 		{
 		}
@@ -36,14 +36,14 @@ namespace Egfx
 			Mask = mask;
 		}
 
-		const pixel_t GetWidth() const final
+		pixel_t GetWidth() const final
 		{
-			return (Mask != nullptr) * BaseClass::GetWidth();
+			return (Mask != nullptr) * Base::GetWidth();
 		}
 
-		const pixel_t GetHeight() const final
+		pixel_t GetHeight() const final
 		{
-			return (Mask != nullptr) * BaseClass::GetHeight();
+			return (Mask != nullptr) * Base::GetHeight();
 		}
 	};
 
@@ -52,19 +52,19 @@ namespace Egfx
 	class BitMaskSprite : public AbstractBitMaskSprite<Width, Height>
 	{
 	private:
-		using BaseClass = AbstractBitMaskSprite<Width, Height>;
+		using Base = AbstractBitMaskSprite<Width, Height>;
 
 	protected:
-		using BaseClass::Mask;
-		using BaseClass::BitScale;
+		using Base::Mask;
+		using Base::BitScale;
 
 	public:
 		BitMaskSprite(const uint8_t* mask = nullptr)
-			: BaseClass(mask)
+			: Base(mask)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t yByte = (pixel_index_t)y * BitScale;
 			const pixel_t xByte = (x / 8);
@@ -90,10 +90,10 @@ namespace Egfx
 	class BitMaskBufferSprite : public BitMaskSprite<Width, Height>
 	{
 	private:
-		using BaseClass = BitMaskSprite<Width, Height>;
+		using Base = BitMaskSprite<Width, Height>;
 
 	protected:
-		using BaseClass::BitScale;
+		using Base::BitScale;
 
 	private:
 		static constexpr pixel_index_t MaskSize = ((pixel_index_t)Width * Height) / 8;
@@ -102,7 +102,7 @@ namespace Egfx
 
 	public:
 		BitMaskBufferSprite()
-			: BaseClass(Mask)
+			: Base(Mask)
 		{
 		}
 
@@ -133,19 +133,19 @@ namespace Egfx
 	class FlashBitMaskSprite : public AbstractBitMaskSprite<Width, Height>
 	{
 	private:
-		using BaseClass = AbstractBitMaskSprite<Width, Height>;
+		using Base = AbstractBitMaskSprite<Width, Height>;
 
 	private:
-		using BaseClass::Mask;
-		using BaseClass::BitScale;
+		using Base::Mask;
+		using Base::BitScale;
 
 	public:
 		FlashBitMaskSprite(const uint8_t* mask = nullptr)
-			: BaseClass(mask)
+			: Base(mask)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t yByte = (pixel_index_t)y * BitScale;
 			const pixel_t xByte = (x / 8);

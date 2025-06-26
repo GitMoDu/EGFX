@@ -14,14 +14,14 @@ namespace Egfx
 	class AbstractBitmapSprite : public AbstractSprite<width, height>
 	{
 	private:
-		using BaseClass = AbstractSprite<width, height>;
+		using Base = AbstractSprite<width, height>;
 
 	protected:
 		const ColorType* RgbBitmap;
 
 	public:
 		AbstractBitmapSprite(const ColorType* rgbBitmap)
-			: BaseClass()
+			: Base()
 			, RgbBitmap(rgbBitmap)
 		{
 		}
@@ -31,14 +31,14 @@ namespace Egfx
 			RgbBitmap = rgbBitmap;
 		}
 
-		const pixel_t GetWidth() const final
+		pixel_t GetWidth() const final
 		{
-			return (RgbBitmap != nullptr) * BaseClass::GetWidth();
+			return (RgbBitmap != nullptr) * Base::GetWidth();
 		}
 
-		const pixel_t GetHeight() const final
+		pixel_t GetHeight() const final
 		{
-			return (RgbBitmap != nullptr) * BaseClass::GetHeight();
+			return (RgbBitmap != nullptr) * Base::GetHeight();
 		}
 	};
 
@@ -47,17 +47,17 @@ namespace Egfx
 	class BitmapRgb332Sprite : public AbstractBitmapSprite<uint8_t, width, height>
 	{
 	private:
-		using BaseClass = AbstractBitmapSprite<uint8_t, width, height>;
+		using Base = AbstractBitmapSprite<uint8_t, width, height>;
 
 	protected:
-		using BaseClass::RgbBitmap;
+		using Base::RgbBitmap;
 
 	public:
-		BitmapRgb332Sprite(const uint8_t* rgbBitmap = nullptr) : BaseClass(rgbBitmap)
+		BitmapRgb332Sprite(const uint8_t* rgbBitmap = nullptr) : Base(rgbBitmap)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
 
@@ -72,17 +72,17 @@ namespace Egfx
 	class BitmapRgb565Sprite : public AbstractBitmapSprite<uint16_t, width, height>
 	{
 	private:
-		using BaseClass = AbstractBitmapSprite<uint16_t, width, height>;
+		using Base = AbstractBitmapSprite<uint16_t, width, height>;
 
 	protected:
-		using BaseClass::RgbBitmap;
+		using Base::RgbBitmap;
 
 	public:
-		BitmapRgb565Sprite(const uint16_t* rgbBitmap = nullptr) : BaseClass(rgbBitmap)
+		BitmapRgb565Sprite(const uint16_t* rgbBitmap = nullptr) : Base(rgbBitmap)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
 
@@ -97,17 +97,17 @@ namespace Egfx
 	class BitmapRgb888Sprite : public AbstractBitmapSprite<uint32_t, width, height>
 	{
 	private:
-		using BaseClass = AbstractBitmapSprite<uint32_t, width, height>;
+		using Base = AbstractBitmapSprite<uint32_t, width, height>;
 
 	protected:
-		using BaseClass::RgbBitmap;
+		using Base::RgbBitmap;
 
 	public:
-		BitmapRgb888Sprite(const uint32_t* rgbBitmap = nullptr) : BaseClass(rgbBitmap)
+		BitmapRgb888Sprite(const uint32_t* rgbBitmap = nullptr) : Base(rgbBitmap)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
 
@@ -123,22 +123,21 @@ namespace Egfx
 	class FlashBitmapRgb332Sprite : public AbstractBitmapSprite<uint8_t, width, height>
 	{
 	private:
-		using BaseClass = AbstractBitmapSprite<uint8_t, width, height>;
+		using Base = AbstractBitmapSprite<uint8_t, width, height>;
 
 	protected:
-		using BaseClass::RgbBitmap;
+		using Base::RgbBitmap;
 
 	public:
 		FlashBitmapRgb332Sprite(const uint8_t* rgbBitmap = nullptr)
-			: BaseClass(rgbBitmap)
+			: Base(rgbBitmap)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((pixel_index_t)y * width) + x;
-			const uint8_t* bitmap = (const uint8_t*)RgbBitmap;
-			const uint8_t value = pgm_read_byte(&bitmap[offset]);
+			const uint8_t value = pgm_read_byte(&RgbBitmap[offset]);
 
 			color = Rgb::Color(value);
 
@@ -151,26 +150,21 @@ namespace Egfx
 	class FlashBitmapRgb565Sprite : public AbstractBitmapSprite<uint16_t, width, height>
 	{
 	private:
-		using BaseClass = AbstractBitmapSprite<uint16_t, width, height>;
+		using Base = AbstractBitmapSprite<uint16_t, width, height>;
 
 	protected:
-		using BaseClass::RgbBitmap;
+		using Base::RgbBitmap;
 
 	public:
 		FlashBitmapRgb565Sprite(const uint16_t* rgbBitmap = nullptr)
-			: BaseClass(rgbBitmap)
+			: Base(rgbBitmap)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = (((pixel_index_t)y * width) + x);
 			const uint16_t value = (uint16_t)pgm_read_word(&RgbBitmap[offset]);
-
-			/*const pixel_index_t offset = (((pixel_index_t)y * width) + x) * sizeof(uint16_t);
-			const uint8_t* bitmap = (const uint8_t*)RgbBitmap;
-
-			const uint16_t value = (uint16_t)pgm_read_byte(&bitmap[offset + 0]) | ((uint16_t)pgm_read_byte(&bitmap[offset + 1]) << 8);*/
 
 			color = Rgb::Color(value);
 
@@ -183,25 +177,24 @@ namespace Egfx
 	class FlashBitmapRgb888Sprite : public AbstractBitmapSprite<uint32_t, width, height>
 	{
 	private:
-		using BaseClass = AbstractBitmapSprite<uint32_t, width, height>;
+		using Base = AbstractBitmapSprite<uint32_t, width, height>;
 
 	protected:
-		using BaseClass::RgbBitmap;
+		using Base::RgbBitmap;
 
 	public:
 		FlashBitmapRgb888Sprite(const uint32_t* rgbBitmap = nullptr)
-			: BaseClass(rgbBitmap)
+			: Base(rgbBitmap)
 		{
 		}
 
-		virtual const bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = (((pixel_index_t)y * width) + x) * sizeof(uint32_t);
-			const uint8_t* bitmap = (const uint8_t*)RgbBitmap;
 
-			color = Rgb::Color((uint8_t)pgm_read_byte(&bitmap[offset + 2])
-				, (uint8_t)pgm_read_byte(&bitmap[offset + 1])
-				, (uint8_t)pgm_read_byte(&bitmap[offset + 0]));
+			const uint32_t value = (uint32_t)pgm_read_dword(&RgbBitmap[offset]);
+
+			color = Rgb::Color(value);
 
 			return true;
 		}

@@ -1,5 +1,3 @@
-// SpriteDemo.h
-
 #ifndef _SPRITE_DEMO_h
 #define _SPRITE_DEMO_h
 

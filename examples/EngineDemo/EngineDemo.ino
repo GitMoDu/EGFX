@@ -67,15 +67,13 @@
 
 
 // Process scheduler.
-TS::Scheduler SchedulerBase;
+TS::Scheduler SchedulerBase{};
 //
 
 // Forward declare the used communications hardware.
 TwoWire& WireInstance(Wire);
 #if ARDUINO_MAPLE_MINI
 Egfx::SpiType SpiInstance(1);
-#else
-Egfx::SpiType& SpiInstance(SPI);
 #endif
 
 // Uncomment Driver and matching framebuffer type. Drivers will have Async, DMA, and RTOS variants, depending on the platform.
@@ -118,53 +116,43 @@ GraphicsEngineTask GraphicsEngine(&SchedulerBase, &FrameBuffer, &ScreenDriver, F
 //
 
 // Drawer demos.
-BitmaskDemo<FullLayout> BitmaskDemoDrawer{};
-#if defined(ARDUINO_ARCH_AVR) 
-#if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
-SpriteDemo<FullLayout> SpriteDemoDrawer{};
-TextCharactersDemo TextCharactersDemoDrawer{};
 PrimitiveDemo<FullLayout> PrimitiveDemoDrawer{};
-#endif
-#else
 TransformDemo<FullLayout> TransformDemoDrawer{};
+BitmaskDemo<FullLayout> BitmaskDemoDrawer{};
+
+
+#if defined(ARDUINO_ARCH_AVR) 
+SpriteDemo<FullLayout> SpriteDemoDrawer{};
 NumberAlignmentDemo<FullLayout> NumberAlignmentDemoDrawer{};
+#else
+TextSpriteDemo<FullLayout> TextSpriteDemoDrawer{};
+BitmapDemo<FullLayout> BitmapDemoDrawer{};
 SpriteDemo<FullLayout> SpriteDemoDrawer{};
 TextCharactersDemo TextCharactersDemoDrawer{};
-PrimitiveDemo<FullLayout> PrimitiveDemoDrawer{};
-BitmapDemo<FullLayout> BitmapDemoDrawer{};
-TextSpriteDemo<FullLayout> TextSpriteDemoDrawer{};
 CloneDemo<FullLayout> CloneDemoDrawer{};
+NumberAlignmentDemo<FullLayout> NumberAlignmentDemoDrawer{};
 #endif
 //
 
-
-using FpsLayout = LayoutElement<0, 0, FrameBufferType::FrameWidth, FrameBufferType::FrameHeight>;
-DisplayFpsDrawer<FpsLayout,
-	SpriteShader::ColorShader<SpriteFont3x5Renderer>,
-	FpsDrawerPosition::TopRight>
-	FpsDrawer(&GraphicsEngine);
-
 // Demo Cycler task.
-DemoCyclerTask<8000> DemoCycler(&SchedulerBase, &GraphicsEngine, &FpsDrawer,
-	&BitmaskDemoDrawer
-#if defined(ARDUINO_ARCH_AVR) 
-#if !defined(DEBUG) && !defined(GRAPHICS_ENGINE_MEASURE)
-	, & TextCharactersDemoDrawer
-	, & PrimitiveDemoDrawer
-	, & SpriteDemoDrawer
-#endif
-#else
+DemoCyclerTask<7000> DemoCycler(&SchedulerBase, &GraphicsEngine,
+	&PrimitiveDemoDrawer
+#if defined(ARDUINO_ARCH_AVR)
 	, & TransformDemoDrawer
+	, & BitmaskDemoDrawer
+	, & SpriteDemoDrawer
 	, & NumberAlignmentDemoDrawer
+#else
 	, & TextCharactersDemoDrawer
 	, & TextSpriteDemoDrawer
 	, & SpriteDemoDrawer
 	, & PrimitiveDemoDrawer
 	, & CloneDemoDrawer
 	, & BitmapDemoDrawer
+	, & NumberAlignmentDemoDrawer
 #endif
 );
-//
+
 
 #if defined(GRAPHICS_ENGINE_MEASURE)
 EngineLogTask<500> EngineLog(SchedulerBase, GraphicsEngine);

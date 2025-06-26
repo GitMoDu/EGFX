@@ -7,7 +7,8 @@
 #include <TSchedulerDeclarations.hpp>
 
 #include <ArduinoGraphicsCore.h>
-#include <ArduinoGraphicsDrawers.h>
+
+using namespace Egfx;
 
 /// <summary>
 /// Add up to 10 different drawers to automatically rotate every DemoStepDurationMillis.
@@ -22,18 +23,15 @@ public:
 private:
 	IFrameEngine* Engine;
 
-	MultiDrawerWrapper<2> DrawerWrapper{};
 
 private:
-	IFrameDraw* FpsOverlay;
 	IFrameDraw* Demos[MaxDemoCount];
 	uint8_t Index = 0;
 
 public:
 	DemoCyclerTask(TS::Scheduler* scheduler,
 		IFrameEngine* engine,
-		IFrameDraw* fpsOverlay,
-		IFrameDraw* demo0 = nullptr,
+		IFrameDraw* demo0,
 		IFrameDraw* demo1 = nullptr,
 		IFrameDraw* demo2 = nullptr,
 		IFrameDraw* demo3 = nullptr,
@@ -46,13 +44,8 @@ public:
 	)
 		: TS::Task(0, TASK_FOREVER, scheduler, true)
 		, Engine(engine)
-		, FpsOverlay(fpsOverlay)
 		, Demos{ demo0, demo1, demo2, demo3, demo4, demo5, demo6, demo7, demo8, demo9 }
 	{
-		Engine->SetDrawer(&DrawerWrapper);
-		DrawerWrapper.ClearDrawers();
-		DrawerWrapper.AddDrawer(demo0);
-		DrawerWrapper.AddDrawer(fpsOverlay);
 	}
 
 	bool Callback() final
@@ -62,9 +55,7 @@ public:
 		Serial.println(Index);
 #endif
 
-		DrawerWrapper.ClearDrawers();
-		DrawerWrapper.AddDrawer(Demos[Index]);
-		DrawerWrapper.AddDrawer(FpsOverlay);
+		Engine->SetDrawer(Demos[Index]);
 
 		IFrameDraw* demo = nullptr;
 		while (demo == nullptr)

@@ -7,8 +7,6 @@
 
 #include <Wire.h>
 
-using namespace Egfx;
-
 namespace Egfx
 {
 	template<const pixel_t width,

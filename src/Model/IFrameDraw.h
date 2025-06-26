@@ -5,8 +5,6 @@
 
 #include "IFrameBuffer.h"
 
-//using namespace Egfx;
-
 namespace Egfx
 {
 	class IFrameDraw

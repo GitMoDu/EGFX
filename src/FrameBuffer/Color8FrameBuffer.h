@@ -54,7 +54,7 @@ namespace Egfx
 	protected:
 		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
-			const pixel_index_t offset = (sizeof(color_t) * y * frameWidth) + x;
+			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 
 			if (Inverted)
 			{
@@ -87,7 +87,7 @@ namespace Egfx
 		/// </summary>
 		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
 		{
-			const pixel_index_t offset = ((pixel_index_t)frameWidth * y) + x1;
+			const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + (sizeof(color_t) * x1);
 			if (Inverted)
 			{
 				memset(&Buffer[offset], ~rawColor, x2 - x1 + 1);

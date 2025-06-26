@@ -14,8 +14,8 @@
 /// Disabled: use internal 5-6-5 color for rendering.
 /// Defaults to HDR on 64 bit platforms.
 /// </summary>
-#if !defined(EGFX_PLATFORM_HDR) && defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 4)
-#define(EGFX_PLATFORM_HDR)
+#if !defined(EGFX_PLATFORM_HDR) && !defined(ARDUINO)
+#define EGFX_PLATFORM_HDR
 #endif
 
 /// <summary>
@@ -23,7 +23,7 @@
 /// EGFX Platform Small: suports 128x128 screens.
 /// Defaults to Big on 32 bit platforms.
 /// </summary>
-#if !defined(EGFX_PLATFORM_BIG) && defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 2)
+#if !defined(EGFX_PLATFORM_BIG) && (defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 2)) || (!defined(ARDUINO))
 #define EGFX_PLATFORM_BIG
 #endif
 
@@ -46,13 +46,13 @@ namespace Egfx
 	/// </summary>
 	static constexpr uint8_t BRESENHAM_SCALE = 16;
 #else
-	typedef int8_t pixel_t;
-	typedef uint16_t pixel_index_t;
+	typedef int16_t pixel_t;
+	typedef int16_t pixel_index_t;
 
 	/// <summary>
 	/// Supports 128x128 screens.
 	/// </summary>
-	static constexpr pixel_t MAX_PIXEL_SIZE = 128;
+	static constexpr pixel_index_t MAX_PIXEL_SIZE = 128;
 
 	/// <summary>
 	/// Line/Triangle sampling factor.

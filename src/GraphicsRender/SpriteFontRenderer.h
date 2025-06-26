@@ -1,9 +1,9 @@
-// SpriteFontRenderer.h
-
 #ifndef _EGFX_SPRITE_FONT_RENDERER_h
 #define _EGFX_SPRITE_FONT_RENDERER_h
 
+#if defined(ARDUINO)
 #include <WString.h>
+#endif
 #include "../Model/Character.h"
 #include "../Sprite/Shader/SpriteShader.h"
 
@@ -57,6 +57,7 @@ namespace Egfx
 			TextTopRight(frame, x, y - FontHeight(), str);
 		}
 
+#if defined(ARDUINO)
 		void TextBottomLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const __FlashStringHelper* ifsh)
 		{
 			TextTopLeft(frame, x, y - FontHeight(), ifsh);
@@ -132,6 +133,7 @@ namespace Egfx
 			TextTopRight(frame, x, y, reinterpret_cast<const char*>(ifsh));
 #endif		
 		}
+#endif
 
 		void TextTopLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char* str)
 		{

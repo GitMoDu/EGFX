@@ -92,50 +92,23 @@ namespace Egfx
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <param name="width"></param>
-		void LineHorizontalRaw(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t width) final
+		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
 		{
-			pixel_t x1 = 0;
-			uint8_t yByte = 0;
-			uint8_t yBit = 0;
-
-			//TODO: Handle rotation. This switches Width and Height around.
-			switch (DisplayMirror)
-			{
-			case DisplayMirrorEnum::MirrorY:
-				x1 = x;
-				yByte = (frameHeight - 1 - y) / 8;
-				yBit = (frameHeight - 1 - y) % 8;
-				break;
-			case DisplayMirrorEnum::MirrorXY:
-				x1 = frameWidth - width - x;
-				yByte = (frameHeight - 1 - y) / 8;
-				yBit = (frameHeight - 1 - y) % 8;
-				break;
-			case DisplayMirrorEnum::MirrorX:
-				x1 = frameWidth - width - x;
-				yByte = y / 8;
-				yBit = y % 8;
-				break;
-			case DisplayMirrorEnum::NoMirror:
-			default:
-				x1 = x;
-				yByte = y / 8;
-				yBit = y % 8;
-				break;
-			}
+			const uint8_t yByte = y >> 3;
+			const uint8_t yBit = y % 8;
 
 			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
 
 			if (((bool)(rawColor > 0) ^ (bool)Inverted))
 			{
-				for (uint_fast8_t i = 0; i < width; i++)
+				for (uint_fast8_t i = 0; i <= x2 - x1; i++)
 				{
 					Buffer[offset + i] |= 1 << yBit;
 				}
 			}
 			else
 			{
-				for (uint_fast8_t i = 0; i < width; i++)
+				for (uint_fast8_t i = 0; i <= x2 - x1; i++)
 				{
 					Buffer[offset + i] &= ~(1 << yBit);
 				}
@@ -148,53 +121,13 @@ namespace Egfx
 		/// </summary>
 		void LineVerticalBuggy(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t height)
 		{
-			if (x >= frameWidth
-				|| y >= frameHeight
-				|| height > frameHeight - y)
-			{
-#if defined(GRAPHICS_ENGINE_DEBUG)
-				Serial.println(F("LV x,y "));
-				Serial.print(x);
-				Serial.print(',');
-				Serial.print(y);
-				Serial.print('\t');
-				Serial.println(height);
-#endif
-				return;
-			}
-
-			pixel_t x1 = 0;
-			pixel_t y1 = 0;
-
-			//TODO: Handle rotation. This switches Width and Height around.
-			switch (DisplayMirror)
-			{
-			case DisplayMirrorEnum::MirrorY:
-				x1 = x;
-				y1 = frameHeight - height - y;
-				break;
-			case DisplayMirrorEnum::MirrorXY:
-				x1 = frameWidth - 1 - x;
-				y1 = frameHeight - height - y;
-				break;
-			case DisplayMirrorEnum::MirrorX:
-				x1 = frameWidth - 1 - x;
-				y1 = y;
-				break;
-			case DisplayMirrorEnum::NoMirror:
-			default:
-				x1 = x;
-				y1 = y;
-				break;
-			}
-
 			if (((bool)(rawColor > 0) ^ (bool)Inverted))
 			{
 				if (height >= 8)
 				{
-					const uint8_t byte0 = y1 / 8;
+					const uint8_t byte0 = y / 8;
 					uint8_t byte1;
-					if (y1 == (byte0 * 8))
+					if (y == (byte0 * 8))
 					{
 						byte1 = byte0;
 					}
@@ -202,13 +135,13 @@ namespace Egfx
 					{
 						byte1 = byte0 + 1;
 
-						const uint8_t yBitStart = ((byte1 * 8) - y1);
+						const uint8_t yBitStart = ((byte1 * 8) - y);
 						for (uint_fast8_t i = 0; i < yBitStart; i++)
 						{
-							const uint8_t yByte = (y1 + i) / 8;
-							const uint8_t yBit = (y1 + i) % 8;
+							const uint8_t yByte = (y + i) / 8;
+							const uint8_t yBit = (y + i) % 8;
 
-							const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x1;
+							const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
 
 							Buffer[offset] |= 1 << yBit;
 						}
@@ -218,7 +151,7 @@ namespace Egfx
 					for (uint_fast8_t i = 0; i < byteHeight; i++)
 					{
 						const uint8_t yByte = byte1 + i;
-						const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x1;
+						const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
 
 						Buffer[offset] = UINT8_MAX;
 					}
@@ -228,10 +161,10 @@ namespace Egfx
 					{
 						for (uint_fast8_t i = broadHeight; i < height; i++)
 						{
-							const uint8_t yByte = ((y1 + i) / 8);
-							const uint8_t yBit = (y1 + i) % 8;
+							const uint8_t yByte = ((y + i) / 8);
+							const uint8_t yBit = (y + i) % 8;
 
-							const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x1;
+							const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
 
 							Buffer[offset] |= 1 << yBit;
 						}
@@ -241,10 +174,10 @@ namespace Egfx
 				{
 					for (uint_fast8_t i = 0; i < height; i++)
 					{
-						const uint8_t yByte = (y1 + i) / 8;
-						const uint8_t yBit = (y1 + i) % 8;
+						const uint8_t yByte = (y + i) / 8;
+						const uint8_t yBit = (y + i) % 8;
 
-						const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x1;
+						const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
 
 						Buffer[offset] |= 1 << yBit;
 					}
@@ -254,10 +187,10 @@ namespace Egfx
 			{
 				for (uint_fast8_t i = 0; i < height; i++)
 				{
-					const uint8_t yByte = (y1 + i) / 8;
-					const uint8_t yBit = (y1 + i) % 8;
+					const uint8_t yByte = (y + i) / 8;
+					const uint8_t yBit = (y + i) % 8;
 
-					const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x1;
+					const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
 
 					Buffer[offset] &= ~(1 << yBit);
 				}

@@ -59,12 +59,12 @@ namespace Egfx
 
 		static void NumberBottomRight(IFrameBuffer* frame, const FontStyle& font, const pixel_t x2, const pixel_t y2, const uint8_t number)
 		{
-			NumberTopRight(frame, font, x2, y2 - font.Height, number);
+			NumberTopRight(frame, font, x2, y2 - font.Height - 1, number);
 		}
 
 		static void NumberBottomLeft(IFrameBuffer* frame, const FontStyle& font, const pixel_t x1, const pixel_t y2, const uint8_t number)
 		{
-			NumberTopLeft(frame, font, x1, y2 - font.Height, number);
+			NumberTopLeft(frame, font, x1, y2 - font.Height - 1, number);
 		}
 
 	public:
@@ -72,22 +72,18 @@ namespace Egfx
 		{
 			if (number > UINT8_MAX)
 			{
-				if (x1 < frame->GetFrameWidth() - font.Width
-					&& y1 < frame->GetFrameHeight())
+				pixel_t offset = 0;
+				for (int_fast8_t i = 3; i >= 0; i--)
 				{
-					pixel_t offset = 0;
-					for (int_fast8_t i = 3; i >= 0; i--)
-					{
-						const uint16_t power = (uint16_t)Character::PowerOfTen[i];
+					const uint16_t power = (uint16_t)Character::PowerOfTen[i];
 
-						if (number >= power)
-						{
-							DigitRenderer::Digit(frame, font, x1 + offset, y1, ((number / power) % 10));
-							offset += font.Width + font.Kerning;
-						}
+					if (number >= power)
+					{
+						DigitRenderer::Digit(frame, font, x1 + offset, y1, ((number / power) % 10));
+						offset += font.Width + font.Kerning;
 					}
-					DigitRenderer::Digit(frame, font, x1 + offset, y1, number % 10);
 				}
+				DigitRenderer::Digit(frame, font, x1 + offset, y1, number % 10);
 			}
 			else
 			{
@@ -99,29 +95,25 @@ namespace Egfx
 		{
 			if (number > UINT8_MAX)
 			{
-				if (x2 < frame->GetFrameWidth()
-					&& y1 < frame->GetFrameHeight())
+				const pixel_t x1 = x2 - font.Width;
+
+				DigitRenderer::Digit(frame, font, x1, y1, number % 10);
+
+				uint16_t remainder = number / 10;
+				pixel_t offset = font.Width + font.Kerning;
+				for (uint_fast8_t i = 0; i < 4; i++)
 				{
-					const pixel_t x1 = x2 - font.Width;
-
-					DigitRenderer::Digit(frame, font, x1, y1, number % 10);
-
-					uint16_t remainder = number / 10;
-					pixel_t offset = font.Width + font.Kerning;
-					for (uint_fast8_t i = 0; i < 4; i++)
+					const uint16_t power = (uint16_t)Character::PowerOfTen[i];
+					if (number >= power)
 					{
-						const uint16_t power = (uint16_t)Character::PowerOfTen[i];
-						if (number >= power)
-						{
-							DigitRenderer::Digit(frame, font, x1 - offset, y1, remainder % 10);
+						DigitRenderer::Digit(frame, font, x1 - offset, y1, remainder % 10);
 
-							offset += font.Width + font.Kerning;
-							remainder /= 10;
-						}
-						else
-						{
-							return;
-						}
+						offset += font.Width + font.Kerning;
+						remainder /= 10;
+					}
+					else
+					{
+						return;
 					}
 				}
 			}
@@ -136,21 +128,17 @@ namespace Egfx
 		{
 			if (number > UINT16_MAX)
 			{
-				if (x1 < frame->GetFrameWidth() - font.Width
-					&& y1 < frame->GetFrameHeight())
+				pixel_t offset = 0;
+				for (int_fast8_t i = 8; i >= 0; i--)
 				{
-					pixel_t offset = 0;
-					for (int_fast8_t i = 8; i >= 0; i--)
+					const uint32_t power = Character::PowerOfTen[i];
+					if (number >= power)
 					{
-						const uint32_t power = Character::PowerOfTen[i];
-						if (number >= power)
-						{
-							DigitRenderer::Digit(frame, font, x1 + offset, y1, ((number / power) % 10));
-							offset += font.Width + font.Kerning;
-						}
+						DigitRenderer::Digit(frame, font, x1 + offset, y1, ((number / power) % 10));
+						offset += font.Width + font.Kerning;
 					}
-					DigitRenderer::Digit(frame, font, x1 + offset, y1, number % 10);
 				}
+				DigitRenderer::Digit(frame, font, x1 + offset, y1, number % 10);
 			}
 			else
 			{
@@ -162,28 +150,24 @@ namespace Egfx
 		{
 			if (number > UINT16_MAX)
 			{
-				if (x2 < frame->GetFrameWidth()
-					&& y1 < frame->GetFrameHeight())
+				const pixel_t x1 = x2 - font.Width;
+
+				DigitRenderer::Digit(frame, font, x1, y1, number % 10);
+
+				uint32_t remainder = number / 10;
+				pixel_t offset = font.Width + font.Kerning;
+				for (uint_fast8_t i = 0; i < 9; i++)
 				{
-					const pixel_t x1 = x2 - font.Width;
-
-					DigitRenderer::Digit(frame, font, x1, y1, number % 10);
-
-					uint32_t remainder = number / 10;
-					pixel_t offset = font.Width + font.Kerning;
-					for (uint_fast8_t i = 0; i < 9; i++)
+					if (number >= Character::PowerOfTen[i])
 					{
-						if (number >= Character::PowerOfTen[i])
-						{
-							DigitRenderer::Digit(frame, font, x1 - offset, y1, remainder % 10);
+						DigitRenderer::Digit(frame, font, x1 - offset, y1, remainder % 10);
 
-							offset += font.Width + font.Kerning;
-							remainder /= 10;
-						}
-						else
-						{
-							return;
-						}
+						offset += font.Width + font.Kerning;
+						remainder /= 10;
+					}
+					else
+					{
+						return;
 					}
 				}
 			}
@@ -195,12 +179,12 @@ namespace Egfx
 
 		static void NumberBottomRight(IFrameBuffer* frame, const FontStyle& font, const pixel_t x2, const pixel_t y2, const uint32_t number)
 		{
-			NumberTopRight(frame, font, x2, y2 - font.Height, number);
+			NumberTopRight(frame, font, x2, y2 - font.Height - 1, number);
 		}
 
 		static void NumberBottomLeft(IFrameBuffer* frame, const FontStyle& font, const pixel_t x1, const pixel_t y2, const uint32_t number)
 		{
-			NumberTopLeft(frame, font, x1, y2 - font.Height, number);
+			NumberTopLeft(frame, font, x1, y2 - font.Height - 1, number);
 		}
 
 	public:

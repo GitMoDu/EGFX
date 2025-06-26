@@ -15,7 +15,7 @@ namespace Egfx
 		static constexpr uint8_t WIDTH_RATIO_DEFAULT = 191;
 		static constexpr uint8_t WIDTH_RATIO_THIN = 144;
 
-		static constexpr uint8_t KERNING_RATIO_DEFAULT = 32;
+		static constexpr uint8_t KERNING_RATIO_DEFAULT = 64;
 
 	private:
 		static constexpr uint8_t FONT_HEIGHT_MIN = 5;
@@ -54,7 +54,7 @@ namespace Egfx
 
 		void SetStyle(const rgb_color_t color,
 			const pixel_t height,
-			const uint16_t widthRatio = KERNING_RATIO_DEFAULT,
+			const uint16_t widthRatio = WIDTH_RATIO_DEFAULT,
 			const uint8_t kerningRatio = KERNING_RATIO_DEFAULT)
 		{
 			Color = color;
@@ -102,7 +102,7 @@ namespace Egfx
 			return (((pixel_index_t)width) * (UINT8_MAX + widthRatio)) / UINT8_MAX;
 		}
 
-		static constexpr uint8_t GetKerning(const uint8_t ratio, const uint8_t value)
+		static constexpr uint8_t GetKerning(const uint8_t ratio, const pixel_t value)
 		{
 			return 1 + (((pixel_index_t)value) * ratio) / UINT8_MAX;
 		}

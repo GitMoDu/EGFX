@@ -1,5 +1,3 @@
-// CloneDemo.h
-
 #ifndef _CLONE_DEMO_h
 #define _CLONE_DEMO_h
 

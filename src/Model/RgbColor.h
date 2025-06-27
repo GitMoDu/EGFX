@@ -1,7 +1,5 @@
-// RgbColor.h
-
-#ifndef _RGB_COLOR_h
-#define _RGB_COLOR_h
+#ifndef _EGFX_RGB_COLOR_h
+#define _EGFX_RGB_COLOR_h
 
 #include "../Platform/Platform.h"
 

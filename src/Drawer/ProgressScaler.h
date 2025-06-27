@@ -1,7 +1,5 @@
-// ProgressScaler.h
-
-#ifndef _PROGRESS_SCALER_h
-#define _PROGRESS_SCALER_h
+#ifndef _EGFX_PROGRESS_SCALER_h
+#define _EGFX_PROGRESS_SCALER_h
 
 #include <stdint.h>
 

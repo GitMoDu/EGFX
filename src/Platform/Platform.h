@@ -1,5 +1,3 @@
-// Platform.h
-
 #ifndef _EGFX_PLATFORM_h
 #define _EGFX_PLATFORM_h
 

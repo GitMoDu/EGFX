@@ -1,5 +1,3 @@
-// IScreenDriver.h
-
 #ifndef _I_SCREEN_DRIVER_h
 #define _I_SCREEN_DRIVER_h
 

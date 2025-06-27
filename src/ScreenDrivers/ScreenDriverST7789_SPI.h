@@ -1,5 +1,3 @@
-// ScreenDriverST7789_SPI.h
-
 #ifndef _SCREEN_DRIVER_ST7789_SPI_h
 #define _SCREEN_DRIVER_ST7789_SPI_h
 

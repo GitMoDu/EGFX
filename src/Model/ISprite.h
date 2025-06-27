@@ -1,5 +1,3 @@
-// ISprite.h
-
 #ifndef _EGFX_I_SPRITE_h
 #define _EGFX_I_SPRITE_h
 

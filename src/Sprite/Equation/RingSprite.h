@@ -1,5 +1,3 @@
-// RingSprite.h
-
 #ifndef _EGFX_RING_SPRITE_h
 #define _EGFX_RING_SPRITE_h
 

@@ -1,5 +1,3 @@
-// SpriteFont1x5.h
-
 #ifndef _EGFX_SPRITE_FONT_1X5_h
 #define _EGFX_SPRITE_FONT_1X5_h
 

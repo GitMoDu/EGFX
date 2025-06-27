@@ -1,5 +1,3 @@
-// BitmapSprite.h
-
 #ifndef _EGFX_BITMAP_SPRITE_h
 #define _EGFX_BITMAP_SPRITE_h
 

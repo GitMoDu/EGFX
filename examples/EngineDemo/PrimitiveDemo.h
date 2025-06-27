@@ -1,5 +1,3 @@
-// PrimitiveDemo.h
-
 #ifndef _PRIMITIVE_DEMO_h
 #define _PRIMITIVE_DEMO_h
 

@@ -1,5 +1,3 @@
-// ST7789.h
-
 #ifndef _ST7789_h
 #define _ST7789_h
 

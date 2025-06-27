@@ -1,5 +1,3 @@
-// IFrameEngine.h
-
 #ifndef _EGFX_I_FRAME_ENGINE_h
 #define _EGFX_I_FRAME_ENGINE_h
 

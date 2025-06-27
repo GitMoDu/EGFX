@@ -1,5 +1,3 @@
-// ScreenDriverSSD1306.h
-
 #ifndef _SCREEN_DRIVER_SSD1306_I2C_h
 #define _SCREEN_DRIVER_SSD1306_I2C_h
 

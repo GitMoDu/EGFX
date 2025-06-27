@@ -1,5 +1,3 @@
-// SH1106.h
-
 #ifndef _SH1106_h
 #define _SH1106_h
 

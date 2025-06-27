@@ -1,5 +1,3 @@
-// ScreenDriverSSD1306_SPI.h
-
 #ifndef _SCREEN_DRIVER_SSD1306_SPI_h
 #define _SCREEN_DRIVER_SSD1306_SPI_h
 

@@ -1,5 +1,3 @@
-// TemplateScreenDriverSpiDma.h
-
 #ifndef _TEMPLATE_SCREEN_DRIVER_SPI_DMA_h
 #define _TEMPLATE_SCREEN_DRIVER_SPI_DMA_h
 

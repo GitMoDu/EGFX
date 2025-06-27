@@ -1,5 +1,3 @@
-// SSD1306.h
-
 #ifndef _SSD1306_h
 #define _SSD1306_h
 

@@ -1,5 +1,3 @@
-// RectangleSprite.h
-
 #ifndef _EGFX_RECTANGLE_SPRITE_h
 #define _EGFX_RECTANGLE_SPRITE_h
 

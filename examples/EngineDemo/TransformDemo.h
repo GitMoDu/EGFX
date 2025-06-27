@@ -1,5 +1,3 @@
-// SpriteTransformDemo.h
-
 #ifndef _SPRITE_TRANSFORM_DEMO_h
 #define _SPRITE_TRANSFORM_DEMO_h
 

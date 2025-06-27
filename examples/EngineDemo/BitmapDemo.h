@@ -1,5 +1,3 @@
-// BitmapDemo.h
-
 #ifndef _BITMAP_DEMO_h
 #define _BITMAP_DEMO_h
 

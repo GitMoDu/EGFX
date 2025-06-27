@@ -1,5 +1,3 @@
-// ST7735.h
-
 #ifndef _ST7735_h
 #define _ST7735_h
 

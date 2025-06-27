@@ -1,5 +1,3 @@
-// ScreenDriverSH1106_SPI.h
-
 #ifndef _SCREEN_DRIVER_SH1106_SPI_h
 #define _SCREEN_DRIVER_SH1106_SPI_h
 

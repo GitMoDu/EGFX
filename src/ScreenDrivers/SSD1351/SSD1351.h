@@ -1,5 +1,3 @@
-// SSD1351.h
-
 #ifndef _SSD1351_h
 #define _SSD1351_h
 

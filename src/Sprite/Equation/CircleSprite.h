@@ -1,5 +1,3 @@
-// CircleSprite.h
-
 #ifndef _EGFX_CIRCLE_SPRITE_h
 #define _EGFX_CIRCLE_SPRITE_h
 

@@ -1,5 +1,3 @@
-// AbstractScreenDriverI2C.h
-
 #ifndef _ABSTRACT_SCREEN_DRIVER_I2C_h
 #define _ABSTRACT_SCREEN_DRIVER_I2C_h
 

@@ -50,7 +50,7 @@ namespace Egfx
 			BaseClass::EndBuffer();
 		}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			if (BaseClass::Start())
 			{

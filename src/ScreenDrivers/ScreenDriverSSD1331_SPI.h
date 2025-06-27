@@ -51,7 +51,7 @@ namespace Egfx
 		}
 
 	protected:
-		const bool Initialize(const uint8_t rgbMode)
+		bool Initialize(const uint8_t rgbMode)
 		{
 			PinReset(SSD1331::RESET_WAIT_MICROS);
 			delayMicroseconds(SSD1331::RESET_DELAY_MICROS);
@@ -80,7 +80,7 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1331_96x64x8_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(SSD1331::MapRgb332);
 		}
@@ -98,7 +98,7 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1331_96x64x16_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(SSD1331::MapRgb565);
 		}

@@ -43,7 +43,7 @@ namespace Egfx
 		}
 
 	public:
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			if (BaseClass::Start())
 			{

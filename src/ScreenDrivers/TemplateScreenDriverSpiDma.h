@@ -23,7 +23,7 @@ namespace Egfx
 	public:
 		TemplateScreenDriverSpiDma(Egfx::SpiType& spi) : InlineSpiScreenDriver(spi) {}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
 #if defined(ARDUINO_ARCH_STM32F1)
 			SpiInstance.dmaSendAsync((void*)frameBuffer, (uint16_t)BufferSize, true);
@@ -34,7 +34,7 @@ namespace Egfx
 			return pushSleepDuration;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		bool PushingBuffer(const uint8_t* frameBuffer) final
 		{
 #if defined(ARDUINO_ARCH_STM32F1)
 			return !spi_is_tx_empty(SpiInstance.dev())

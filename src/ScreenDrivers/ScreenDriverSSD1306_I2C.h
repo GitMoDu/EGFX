@@ -69,7 +69,7 @@ namespace Egfx
 			CommandEnd();
 		}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start();
 		}
@@ -80,7 +80,7 @@ namespace Egfx
 			WireInstance.end();
 		}
 
-		virtual const bool CanPushBuffer()
+		virtual bool CanPushBuffer()
 		{
 			return true;
 		}
@@ -90,7 +90,7 @@ namespace Egfx
 			CommandStartBuffer();
 		}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
+		virtual uint32_t PushBuffer(const uint8_t* frameBuffer)
 		{
 			for (uint8_t i = 0; i < BUFFER_WHOLE; i++)
 			{
@@ -105,7 +105,7 @@ namespace Egfx
 			return 0;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer)
+		virtual bool PushingBuffer(const uint8_t* frameBuffer)
 		{
 			return false;
 		}
@@ -115,7 +115,7 @@ namespace Egfx
 		}
 
 	protected:
-		const bool Initialize(const bool backlightInternal = false)
+		bool Initialize(const bool backlightInternal = false)
 		{
 			CommandReset();
 
@@ -211,7 +211,7 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1306_64x32x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(false);
 		}
@@ -220,12 +220,12 @@ namespace Egfx
 	class ScreenDriverSSD1306_64x48x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_64x48::Width, SSD1306_64x48::Height, SSD1306_64x48::VerticalOffset, SSD1306::I2CAddress>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSSD1306_I2C < SSD1306_64x48::Width, SSD1306_64x48::Height, SSD1306_64x48::VerticalOffset, SSD1306::I2CAddress>;
+		using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_64x48::Width, SSD1306_64x48::Height, SSD1306_64x48::VerticalOffset, SSD1306::I2CAddress>;
 
 	public:
 		ScreenDriverSSD1306_64x48x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(false);
 		}
@@ -239,7 +239,7 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1306_72x40x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(true);
 		}
@@ -253,7 +253,7 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1306_128x32x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(false);
 		}
@@ -267,7 +267,7 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1306_128x64x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(false);
 		}

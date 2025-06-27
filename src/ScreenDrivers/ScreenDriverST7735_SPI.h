@@ -65,7 +65,7 @@ namespace Egfx
 		}
 
 	public:
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			if (sizeof(pixel_t) != sizeof(uint16_t))
 			{

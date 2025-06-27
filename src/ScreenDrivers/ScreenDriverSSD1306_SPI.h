@@ -62,7 +62,7 @@ namespace Egfx
 		}
 
 	protected:
-		const bool Initialize(const bool backlightInternal = false)
+		bool Initialize(const bool backlightInternal = false)
 		{
 			PinReset(SSD1306::RESET_WAIT_MICROS);
 			delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
@@ -114,7 +114,7 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1306_128x64x1_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize(false);
 		}

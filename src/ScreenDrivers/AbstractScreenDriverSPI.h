@@ -42,7 +42,7 @@ namespace Egfx
 		{
 		}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			if (pinDC == UINT8_MAX)
 			{
@@ -72,19 +72,19 @@ namespace Egfx
 			}
 		}
 
-		virtual const bool CanPushBuffer()
+		virtual bool CanPushBuffer()
 		{
 			return true;
 		}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
+		virtual uint32_t PushBuffer(const uint8_t* frameBuffer)
 		{
 			SpiTransfer(frameBuffer, bufferSize);
 
 			return 0;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer)
+		virtual bool PushingBuffer(const uint8_t* frameBuffer)
 		{
 			return false;
 		}
@@ -94,12 +94,12 @@ namespace Egfx
 			CommandEnd();
 		}
 
-		const pixel_t GetScreenWidth() const final
+		pixel_t GetScreenWidth() const final
 		{
 			return ScreenWidth;
 		}
 
-		const pixel_t GetScreenHeight() const final
+		pixel_t GetScreenHeight() const final
 		{
 			return ScreenHeight;
 		}

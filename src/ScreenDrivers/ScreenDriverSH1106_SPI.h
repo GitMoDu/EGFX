@@ -45,7 +45,7 @@ namespace Egfx
 		}
 
 	public:
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
+		virtual uint32_t PushBuffer(const uint8_t* frameBuffer)
 		{
 			for (uint_fast8_t p = 0; p < SH1106_128x64::Pages; p++)
 			{
@@ -63,7 +63,7 @@ namespace Egfx
 		}
 
 	protected:
-		const bool Initialize()
+		bool Initialize()
 		{
 			PinReset(SH1106::RESET_WAIT_MICROS);
 			delayMicroseconds(SH1106::RESET_DELAY_MICROS);
@@ -104,7 +104,7 @@ namespace Egfx
 	public:
 		ScreenDriverSH1106_128x64x1_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize();
 		}
@@ -140,7 +140,7 @@ namespace Egfx
 	public:
 		ScreenDriverSH1106_128x64x1_SPI_Async(Egfx::SpiType& spi) : BaseClass(spi) {}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
 			PushIndex = 0;
 
@@ -157,7 +157,7 @@ namespace Egfx
 			return 0;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		bool PushingBuffer(const uint8_t* frameBuffer) final
 		{
 			CommandStart(Settings);
 			SpiInstance.transfer((uint8_t)SH1106::CommandEnum::PushPage + PushIndex);
@@ -209,7 +209,7 @@ namespace Egfx
 	public:
 		ScreenDriverSH1106_128x64x1_SPI_Dma(Egfx::SpiType& spi) : BaseClass(spi) {}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
 			PushIndex = 0;
 
@@ -229,7 +229,7 @@ namespace Egfx
 			return pushSleepDuration;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		bool PushingBuffer(const uint8_t* frameBuffer) final
 		{
 #if defined(ARDUINO_ARCH_STM32F1)
 			const bool dmaBusy = !spi_is_tx_empty(SpiInstance.dev())

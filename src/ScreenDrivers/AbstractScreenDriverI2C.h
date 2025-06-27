@@ -31,17 +31,17 @@ namespace Egfx
 		{
 		}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return true;
 		}
 
-		virtual const pixel_t GetScreenWidth() const final
+		virtual pixel_t GetScreenWidth() const final
 		{
 			return ScreenWidth;
 		}
 
-		virtual const pixel_t GetScreenHeight() const final
+		virtual pixel_t GetScreenHeight() const final
 		{
 			return ScreenHeight;
 		}

@@ -34,7 +34,7 @@ namespace Egfx
 			LayerIndex = 0;
 		}
 
-		virtual const bool IsEnabled() const
+		virtual bool IsEnabled() const
 		{
 			for (uint_fast8_t i = 0; i < LayersCount; i++)
 			{
@@ -87,7 +87,7 @@ namespace Egfx
 			return false;
 		}
 
-		virtual const bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
+		virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 		{
 			if (frameCounter != LastFrame
 				&& LayerIndex != 0)

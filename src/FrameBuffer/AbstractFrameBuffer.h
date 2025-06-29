@@ -66,12 +66,12 @@ namespace Egfx
 		}
 
 	public:
-		virtual const pixel_t GetFrameWidth() const final
+		virtual pixel_t GetFrameWidth() const final
 		{
 			return FrameWidth;
 		}
 
-		virtual const pixel_t GetFrameHeight() const final
+		virtual pixel_t GetFrameHeight() const final
 		{
 			return FrameHeight;
 		}
@@ -81,12 +81,12 @@ namespace Egfx
 			Inverted = inverted;
 		}
 
-		virtual const uint8_t* GetFrameBuffer() final
+		virtual const uint8_t* GetFrameBuffer() const final
 		{
 			return (const uint8_t*)Buffer;
 		}
 
-		virtual const bool ClearFrameBuffer() final
+		virtual bool ClearFrameBuffer() final
 		{
 			// Background color full, when inverted.
 			if (Inverted)

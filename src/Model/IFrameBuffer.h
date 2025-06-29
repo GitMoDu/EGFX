@@ -57,22 +57,22 @@ namespace Egfx
 
 
 	public:
-		virtual const pixel_t GetFrameWidth() const { return 0; }
-		virtual const pixel_t GetFrameHeight() const { return 0; }
+		virtual pixel_t GetFrameWidth() const { return 0; }
+		virtual pixel_t GetFrameHeight() const { return 0; }
 
-		virtual const bool IsMonochrome() const { return false; }
-		virtual const uint8_t GetColorDepth() const { return 0; }
+		virtual bool IsMonochrome() const { return false; }
+		virtual uint8_t GetColorDepth() const { return 0; }
 
 		/// <summary>
 		/// Exposes the frame buffer for pushing to IScreenDriver.
 		/// </summary>
 		/// <returns>Pointer to framebuffer.</returns>
-		virtual const uint8_t* GetFrameBuffer() { return nullptr; }
+		virtual const uint8_t* GetFrameBuffer() const { return nullptr; }
 
 		/// <summary>
 		/// Clear the frame buffer.
 		/// </summary>
-		virtual const bool ClearFrameBuffer() { return false; }
+		virtual bool ClearFrameBuffer() { return false; }
 
 		/// <summary>
 		/// Set inverted color for frame-buffer.

@@ -1,5 +1,3 @@
-// MonochromeFrameBuffer.h
-
 #ifndef _EGFX_MONOCHROME_FRAME_BUFFER_h
 #define _EGFX_MONOCHROME_FRAME_BUFFER_h
 
@@ -41,12 +39,12 @@ namespace Egfx
 		{
 		}
 
-		const bool IsMonochrome() const final
+		bool IsMonochrome() const final
 		{
 			return true;
 		}
 
-		const uint8_t GetColorDepth() const final
+		uint8_t GetColorDepth() const final
 		{
 			return 1;
 		}

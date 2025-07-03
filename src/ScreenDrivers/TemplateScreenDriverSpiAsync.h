@@ -29,7 +29,7 @@ namespace Egfx
 	public:
 		TemplateScreenDriverSpiAsync(Egfx::SpiType& spi) : InlineSpiScreenDriver(spi) {}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
 			PushIndex = 0;
 
@@ -42,7 +42,7 @@ namespace Egfx
 			return 0;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		bool PushingBuffer(const uint8_t* frameBuffer) final
 		{
 			if (PushIndex < WHOLE_SIZE)
 			{

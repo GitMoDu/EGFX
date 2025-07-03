@@ -60,6 +60,7 @@ namespace Egfx
 			SpiInstance.transfer(rgbMode);
 
 			SpiTransfer(SSD1331::CommonConfigBatch, sizeof(SSD1331::CommonConfigBatch));
+			SpiInstance.transfer((uint8_t)SSD1331::CommandEnum::DisplayOn);
 			CommandEnd();
 
 			return true;

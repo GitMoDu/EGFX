@@ -18,6 +18,12 @@ namespace ST7789
 		return ((speed < SpiMaxSpeed) * (speed)) | ((speed >= SpiMaxSpeed) * (SpiMaxSpeed));
 	}
 
+#if defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
+	static constexpr size_t SpiMaxChunkSize = size_t(UINT8_MAX);
+#else
+	static constexpr size_t SpiMaxChunkSize = SIZE_MAX;
+#endif
+
 	enum class CommandEnum : uint8_t
 	{
 		Nop = 0x00,

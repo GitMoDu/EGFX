@@ -35,7 +35,11 @@ namespace Egfx
 
 			if (WHOLE_SIZE > 0)
 			{
+#if defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
+				SpiInstance.transfer((uint8_t*)frameBuffer, CHUNK_SIZE);
+#else
 				SpiInstance.transfer((void*)frameBuffer, CHUNK_SIZE);
+#endif
 				PushIndex += CHUNK_SIZE;
 			}
 
@@ -46,7 +50,11 @@ namespace Egfx
 		{
 			if (PushIndex < WHOLE_SIZE)
 			{
+#if defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
+				SpiInstance.transfer((uint8_t*)&frameBuffer[PushIndex], CHUNK_SIZE);
+#else
 				SpiInstance.transfer((void*)&frameBuffer[PushIndex], CHUNK_SIZE);
+#endif
 				PushIndex += CHUNK_SIZE;
 
 				return true;
@@ -55,7 +63,11 @@ namespace Egfx
 			{
 				if (REMAINDER_SIZE > 0)
 				{
+#if defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
+					SpiInstance.transfer((uint8_t*)&frameBuffer[REMAINDER_START], CHUNK_SIZE);
+#else
 					SpiInstance.transfer((void*)&frameBuffer[REMAINDER_START], REMAINDER_SIZE);
+#endif
 				}
 
 				return false;

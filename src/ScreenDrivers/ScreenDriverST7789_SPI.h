@@ -124,7 +124,7 @@ namespace Egfx
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = 4000000,
 		const uint32_t pushSleepDuration = 0>
-	using ScreenDriverST7789_240x240x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
+	using ScreenDriverST7789_240x240x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, ST7789::SpiMaxChunkSize>;
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)

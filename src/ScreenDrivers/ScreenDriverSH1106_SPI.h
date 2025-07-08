@@ -219,6 +219,8 @@ namespace Egfx
 			digitalWrite(pinDC, HIGH);
 #if defined(ARDUINO_ARCH_STM32F1)
 			SpiInstance.dmaSendAsync((void*)&frameBuffer[0], (uint16_t)SH1106_128x64::PageChunkSize, true);
+#elif defined(ARDUINO_ARCH_STM32F4)
+			SpiInstance.dmaSend((void*)&frameBuffer[0], (uint16_t)SH1106_128x64::PageChunkSize, true);
 #elif defined(ARDUINO_ARCH_RP2040)
 			SpiInstance.transferAsync((const void*)&frameBuffer[0], (void*)nullptr, SH1106_128x64::PageChunkSize);
 #endif
@@ -232,6 +234,8 @@ namespace Egfx
 #if defined(ARDUINO_ARCH_STM32F1)
 			const bool dmaBusy = !spi_is_tx_empty(SpiInstance.dev())
 				|| spi_is_busy(SpiInstance.dev());
+#elif defined(ARDUINO_ARCH_STM32F4)
+			const bool dmaBusy = !SpiInstance.dmaSendReady();
 #elif defined(ARDUINO_ARCH_RP2040)
 			const bool dmaBusy = !SpiInstance.finishedAsync();
 #endif
@@ -248,6 +252,8 @@ namespace Egfx
 					digitalWrite(pinDC, HIGH);
 #if defined(ARDUINO_ARCH_STM32F1)
 					SpiInstance.dmaSendAsync((void*)&frameBuffer[(uint_least16_t)PushIndex * SH1106_128x64::PageChunkSize], (uint16_t)SH1106_128x64::PageChunkSize, true);
+#elif defined(ARDUINO_ARCH_STM32F4)
+					SpiInstance.dmaSend((void*)&frameBuffer[(uint_least16_t)PushIndex * SH1106_128x64::PageChunkSize], (uint16_t)SH1106_128x64::PageChunkSize, true);
 #elif defined(ARDUINO_ARCH_RP2040)
 					SpiInstance.transferAsync((const void*)&frameBuffer[(uint_least16_t)PushIndex * SH1106_128x64::PageChunkSize], (void*)nullptr, SH1106_128x64::PageChunkSize);
 #endif

@@ -23,7 +23,11 @@ namespace Egfx
 
 		virtual void SetBrightness(const uint8_t brightness) {}
 
+#if defined(ARDUINO_ARCH_NRF52)
+		virtual void SetBufferTaskCallback(SchedulerRTOS::taskfunc_t taskCallback) {}
+#else
 		virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) {}
+#endif
 
 		virtual void BufferTaskCallback(void* parameter) {}
 	};

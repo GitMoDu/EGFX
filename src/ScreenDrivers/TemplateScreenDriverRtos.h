@@ -51,8 +51,15 @@ namespace Egfx
 		uint8_t* FrameBuffer = nullptr;
 		uint8_t* TaskFrameBuffer = nullptr;
 
+#if defined(ARDUINO_ARCH_NRF52)
+		SchedulerRTOS::taskfunc_t TaskCallback = nullptr;
+#else
 		TaskFunction_t TaskCallback = nullptr;
+#endif
+
+#if !defined(ARDUINO_ARCH_NRF52)
 		TaskHandle_t BufferTaskHandle = NULL;
+#endif
 
 		volatile bool TaskReady = false;
 
@@ -63,40 +70,45 @@ namespace Egfx
 		{
 		}
 
-		virtual const bool Start() final
+		bool Start() final
 		{
 			if (TaskCallback != nullptr
 				&& Mutex != NULL
 				&& BaseClass::Start())
 			{
+#if defined(ARDUINO_ARCH_NRF52)
+				return Scheduler.startLoop(TaskCallback, stackHeight, (UBaseType_t)priority, "BufferTask");
+#else
 #if defined(ARDUINO_ARCH_ESP32)
 				xTaskCreatePinnedToCore(TaskCallback, "BufferTask", stackHeight, NULL, priority, &BufferTaskHandle, coreAffinity);
 #elif defined(ARDUINO_ARCH_RP2040)
 				xTaskCreateAffinitySet((TaskFunction_t)TaskCallback, "BufferTask", stackHeight, NULL, priority, coreAffinity, &BufferTaskHandle);
-#elif defined(ARDUINO_ARCH_NRF52)
-				xTaskCreate(TaskCallback, "BufferTask", stackHeight, NULL, (UBaseType_t)priority, &BufferTaskHandle);
 #endif
 				if (BufferTaskHandle != NULL)
 				{
 					return true;
 				}
+#endif
 			}
 
 			return false;
 		}
 
-		virtual void Stop() final
+		void Stop() final
 		{
+#if !defined(ARDUINO_ARCH_NRF52)
 			if (BufferTaskHandle != NULL)
 			{
+#endif
 				if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
 				{
 					TaskReady = false;
 					xSemaphoreGive(Mutex);
 				}
-
+#if !defined(ARDUINO_ARCH_NRF52)
 				vTaskDelete(BufferTaskHandle);
 			}
+#endif
 
 			TaskFrameBuffer = nullptr;
 			TaskReady = false;
@@ -104,7 +116,7 @@ namespace Egfx
 			BaseClass::Stop();
 		}
 
-		virtual const bool CanPushBuffer() final
+		bool CanPushBuffer() final
 		{
 			if (BaseClass::CanPushBuffer())
 			{
@@ -123,11 +135,11 @@ namespace Egfx
 			return false;
 		}
 
-		virtual void StartBuffer() final
+		void StartBuffer() final
 		{
 		}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
 			if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
 			{
@@ -135,12 +147,15 @@ namespace Egfx
 				xSemaphoreGive(Mutex);
 			}
 
+#if defined(ARDUINO_ARCH_NRF52)
+#else 
 			vTaskResume(BufferTaskHandle);
+#endif
 
 			return pushSleepDuration;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		bool PushingBuffer(const uint8_t* frameBuffer) final
 		{
 			bool pushing = true;
 			if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
@@ -152,17 +167,69 @@ namespace Egfx
 			return pushing;
 		}
 
-		virtual void EndBuffer() final
+		void EndBuffer() final
 		{
 		}
 
-		virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) final
+#if defined(ARDUINO_ARCH_NRF52)
+		void SetBufferTaskCallback(SchedulerRTOS::taskfunc_t taskCallback) final
+#else
+		void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) final
+#endif
 		{
 			TaskCallback = taskCallback;
 		}
 
-		virtual void BufferTaskCallback(void* parameter) final
+#if defined(ARDUINO_ARCH_NRF52)
+		void BufferTaskCallback(void* parameter) final
 		{
+			if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+			{
+				TaskFrameBuffer = FrameBuffer;
+				xSemaphoreGive(Mutex);
+
+				if (TaskFrameBuffer == nullptr)
+				{
+					yield();
+					return;
+				}
+
+				if (TaskReady && TaskFrameBuffer != nullptr)
+				{
+					BaseClass::StartBuffer();
+
+					const uint32_t pushSleep = BaseClass::PushBuffer(TaskFrameBuffer);
+					vTaskDelay(pushSleep / portTICK_PERIOD_MS);
+
+					while (BaseClass::PushingBuffer(TaskFrameBuffer))
+					{
+						yield();
+					}
+
+					BaseClass::EndBuffer();
+					TaskFrameBuffer = nullptr;
+					yield();
+
+					if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+					{
+						FrameBuffer = nullptr;
+						xSemaphoreGive(Mutex);
+					}
+				}
+				else
+				{
+					if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
+					{
+						TaskReady = true;
+						xSemaphoreGive(Mutex);
+					}
+				}
+			}
+		}
+#else
+		void BufferTaskCallback(void* parameter) final
+		{
+
 			for (;;)
 			{
 				if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
@@ -216,6 +283,8 @@ namespace Egfx
 
 			vTaskDelete(BufferTaskHandle);
 		}
+#endif
+
 	};
 }
 #endif

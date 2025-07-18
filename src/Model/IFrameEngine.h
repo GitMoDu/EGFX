@@ -143,15 +143,15 @@ namespace Egfx
 		};
 
 	public:
-		virtual const bool Start() { return false; }
-		virtual void Stop() {}
-		virtual void SetDrawer(IFrameDraw* drawer) {}
-		virtual void SetInverted(const bool inverted) {}
-		virtual void SetBrightness(const uint8_t brightness) {}
+		virtual bool Start() = 0;
+		virtual void Stop() = 0;
+		virtual void SetDrawer(IFrameDraw* drawer) = 0;
+		virtual void SetInverted(const bool inverted) = 0;
+		virtual void SetBrightness(const uint8_t brightness) = 0;
 
 	public:
-		virtual const uint32_t GetFrameDuration() const { return 0; }
-		virtual void GetEngineStatus(EngineStatusStruct& status) {}
+		virtual uint32_t GetFrameDuration() const = 0;
+		virtual void GetEngineStatus(EngineStatusStruct& status) = 0;
 	};
 }
 #endif

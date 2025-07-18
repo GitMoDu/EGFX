@@ -108,7 +108,7 @@ namespace Egfx
 		}
 
 	public: // IFrameEngine implementation.
-		virtual void SetDrawer(IFrameDraw* drawer) final
+		void SetDrawer(IFrameDraw* drawer) final
 		{
 			if (drawer != nullptr)
 			{
@@ -121,7 +121,7 @@ namespace Egfx
 			}
 		}
 
-		virtual void SetInverted(const bool inverted) final
+		void SetInverted(const bool inverted) final
 		{
 			if (FrameBuffer != nullptr)
 			{
@@ -129,7 +129,7 @@ namespace Egfx
 			}
 		}
 
-		virtual const bool Start() final
+		bool Start() final
 		{
 			if (FrameBuffer != nullptr
 				&& FrameBuffer->GetFrameWidth() == ScreenDriver->GetScreenWidth()
@@ -150,12 +150,6 @@ namespace Egfx
 #endif
 					return true;
 				}
-#if defined(GRAPHICS_ENGINE_DEBUG)
-				else
-				{
-					Serial.println(F("Sink Start failed."));
-				}
-#endif
 			}
 #if defined(GRAPHICS_ENGINE_DEBUG)
 			else
@@ -190,7 +184,7 @@ namespace Egfx
 			return false;
 		}
 
-		virtual void Stop() final
+		void Stop() final
 		{
 			if (ScreenDriver != nullptr)
 			{
@@ -199,7 +193,7 @@ namespace Egfx
 			TS::Task::disable();
 		}
 
-		virtual void GetEngineStatus(EngineStatusStruct& status) final
+		void GetEngineStatus(EngineStatusStruct& status) final
 		{
 #if defined(GRAPHICS_ENGINE_MEASURE)
 			EngineStatus.CopyTo(status);
@@ -209,7 +203,7 @@ namespace Egfx
 #endif
 		}
 
-		virtual const uint32_t GetFrameDuration() const final
+		uint32_t GetFrameDuration() const final
 		{
 			return FrameDuration;
 		}

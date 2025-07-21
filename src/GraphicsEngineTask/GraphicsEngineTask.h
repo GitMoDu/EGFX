@@ -171,21 +171,32 @@ namespace Egfx
 					Serial.print(FrameBuffer->GetFrameWidth());
 					Serial.print('x');
 					Serial.println(FrameBuffer->GetFrameHeight());
+
+					if ((FrameBuffer->GetFrameWidth() != ScreenDriver->GetScreenWidth())
+						|| (FrameBuffer->GetFrameHeight() != ScreenDriver->GetScreenHeight()))
+						Serial.println(F("FrameBuffer dimensions don't match ScreenDriver."));
+				}
+				else
+				{
+					Serial.println(F("No FrameBuffer."));
 				}
 
-				Serial.print(F("ScreenDriver: "));
-				Serial.print(ScreenDriver->GetScreenWidth());
-				Serial.print('x');
-				Serial.println(ScreenDriver->GetScreenHeight());
+				if (ScreenDriver != nullptr)
+				{
+					Serial.print(F("ScreenDriver: "));
+					Serial.print(ScreenDriver->GetScreenWidth());
+					Serial.print('x');
+					Serial.println(ScreenDriver->GetScreenHeight());
 
-				//TODO: check if driver needs a frame buffer.
-				//if (FrameBuffer == nullptr)
-				//	Serial.println(F("IFrameBuffer == nullptr"));
-				if ((FrameBuffer->GetFrameWidth() != ScreenDriver->GetScreenWidth()) || (FrameBuffer->GetFrameHeight() != ScreenDriver->GetScreenHeight()))
-					Serial.println(F("FrameBuffer dimensions don't match ScreenDriver."));
-				if ((ScreenDriver->GetScreenWidth() == 0)
-					|| (ScreenDriver->GetScreenWidth() > INT8_MAX))
-					Serial.println(F("Invalid dimensions."));
+					//TODO: check if driver needs a frame buffer.
+					if ((ScreenDriver->GetScreenWidth() == 0)
+						|| (ScreenDriver->GetScreenWidth() > INT8_MAX))
+						Serial.println(F("Invalid dimensions."));
+				}
+				else
+				{
+					Serial.println(F("No ScreenDriver."));
+				}
 			}
 #endif
 			Stop();

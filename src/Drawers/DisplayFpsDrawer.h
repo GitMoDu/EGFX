@@ -53,7 +53,8 @@ namespace Egfx
 			return TextDrawer;
 		}
 
-		virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
+	protected:
+		void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
 		{
 			switch (elementIndex)
 			{

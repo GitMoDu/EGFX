@@ -21,7 +21,7 @@ namespace Egfx
 	/// Frame Buffer rendering from Drawer.
 	/// Buffer pushing using ScreenDriver.
 	/// </summary>
-	class GraphicsEngineTask : public virtual IFrameEngine, private TS::Task
+	class GraphicsEngineTask : public IFrameEngine, private TS::Task
 	{
 	private:
 		enum class EngineStateEnum : uint8_t
@@ -91,7 +91,11 @@ namespace Egfx
 		{
 		}
 
+#if defined(ARDUINO_ARCH_NRF52)
+		void SetBufferTaskCallback(SchedulerRTOS::taskfunc_t taskCallback)
+#else
 		void SetBufferTaskCallback(void (*taskCallback)(void* parameter))
+#endif
 		{
 			if (ScreenDriver != nullptr)
 			{
@@ -127,6 +131,11 @@ namespace Egfx
 			{
 				FrameBuffer->SetInverted(inverted);
 			}
+		}
+
+		void SetBrightness(const uint8_t brightness) final
+		{
+			//TODO: integrate with ScreenDriver brightness control.
 		}
 
 		bool Start() final

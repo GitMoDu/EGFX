@@ -41,12 +41,12 @@ namespace Egfx
 			return ElementsCount;
 		}
 
-		virtual bool IsEnabled() const
+		bool IsEnabled() const
 		{
 			return OriginalCount > 0 && ElementsCount == OriginalCount;
 		}
 
-		virtual void SetEnabled(const bool enabled)
+		void SetEnabled(const bool enabled)
 		{
 			if (enabled)
 			{
@@ -73,7 +73,7 @@ namespace Egfx
 			}
 		}
 
-		virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
+		bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 		{
 			if (ElementIndex >= ElementsCount)
 			{

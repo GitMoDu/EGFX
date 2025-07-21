@@ -52,7 +52,7 @@ namespace Egfx
 		}
 
 	protected:
-		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
@@ -71,7 +71,7 @@ namespace Egfx
 		/// <summary>
 		/// Optimized version for color_t = uint16_t.
 		/// </summary>
-		virtual void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
+		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2) final
 		{
 			constexpr pixel_index_t lineSize = sizeof(color_t) * frameWidth;
 			const uint8_t high = Inverted ? ~((uint8_t)(rawColor >> 8)) : ((uint8_t)(rawColor >> 8));
@@ -88,7 +88,7 @@ namespace Egfx
 		/// <summary>
 		/// Optimized version for color_t = uint16_t.
 		/// </summary>
-		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
+		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
 			const uint8_t high = Inverted ? ~((uint8_t)(rawColor >> 8)) : ((uint8_t)(rawColor >> 8));
 			const uint8_t low = Inverted ? ~((uint8_t)rawColor) : ((uint8_t)rawColor);
@@ -101,7 +101,7 @@ namespace Egfx
 			}
 		}
 
-		virtual void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
+		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
 			const pixel_t lineStart = (sizeof(color_t) * x1);
 			const uint8_t high = Inverted ? ~((uint8_t)(rawColor >> 8)) : ((uint8_t)(rawColor >> 8));

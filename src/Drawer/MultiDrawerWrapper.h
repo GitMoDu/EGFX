@@ -28,13 +28,18 @@ namespace Egfx
 		{
 		}
 
+		uint8_t DrawerCount() const
+		{
+			return LayersCount;
+		}
+
 		void ClearDrawers()
 		{
 			LayersCount = 0;
 			LayerIndex = 0;
 		}
 
-		virtual bool IsEnabled() const
+		bool IsEnabled() const
 		{
 			for (uint_fast8_t i = 0; i < LayersCount; i++)
 			{
@@ -48,7 +53,7 @@ namespace Egfx
 			return false;
 		}
 
-		virtual void SetEnabled(const bool enabled)
+		void SetEnabled(const bool enabled)
 		{
 			for (uint_fast8_t i = 0; i < LayersCount; i++)
 			{
@@ -59,12 +64,12 @@ namespace Egfx
 			}
 		}
 
-		const bool AddDrawer(IFrameDraw& drawer)
+		bool AddDrawer(IFrameDraw& drawer)
 		{
 			return AddDrawer(&drawer);
 		}
 
-		const bool AddDrawer(IFrameDraw* drawer)
+		bool AddDrawer(IFrameDraw* drawer)
 		{
 			if (drawer != nullptr
 				&& LayersCount < MaxLayerCount)
@@ -87,7 +92,7 @@ namespace Egfx
 			return false;
 		}
 
-		virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
+		bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
 		{
 			if (frameCounter != LastFrame
 				&& LayerIndex != 0)
@@ -115,7 +120,7 @@ namespace Egfx
 		}
 
 	private:
-		const bool DrawerExists(const IFrameDraw* drawer) const
+		bool DrawerExists(const IFrameDraw* drawer) const
 		{
 			for (uint_fast8_t i = 0; i < LayersCount; i++)
 			{

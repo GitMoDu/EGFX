@@ -66,27 +66,27 @@ namespace Egfx
 		}
 
 	public:
-		virtual pixel_t GetFrameWidth() const final
+		pixel_t GetFrameWidth() const final
 		{
 			return FrameWidth;
 		}
 
-		virtual pixel_t GetFrameHeight() const final
+		pixel_t GetFrameHeight() const final
 		{
 			return FrameHeight;
 		}
 
-		virtual void SetInverted(const bool inverted) final
+		void SetInverted(const bool inverted) final
 		{
 			Inverted = inverted;
 		}
 
-		virtual const uint8_t* GetFrameBuffer() const final
+		const uint8_t* GetFrameBuffer() final
 		{
 			return (const uint8_t*)Buffer;
 		}
 
-		virtual bool ClearFrameBuffer() final
+		bool ClearFrameBuffer() final
 		{
 			// Background color full, when inverted.
 			if (Inverted)
@@ -117,7 +117,7 @@ namespace Egfx
 			Buffer = buffer;
 		}
 
-		virtual void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
 			if (x >= 0 && x < FrameWidth &&
 				y >= 0 && y < FrameHeight)
@@ -143,25 +143,25 @@ namespace Egfx
 			}
 		}
 
-		virtual void Pixel(const rgb_color_t color, const pixel_point_t point) final
+		void Pixel(const rgb_color_t color, const pixel_point_t point) final
 		{
 			Pixel(color, point.x, point.y);
 		}
 
-		virtual void Fill(const rgb_color_t color) final
+		void Fill(const rgb_color_t color) final
 		{
 			const color_t rawColor = ColorConverter::GetRawColor(color);
 			FillRaw(rawColor);
 		}
 
-		virtual void Line(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
+		void Line(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
 			const pixel_line_t line{ {x1, y1}, {x2, y2} };
 
 			Line(color, line);
 		}
 
-		virtual void Line(const rgb_color_t color, const pixel_line_t& line) final
+		void Line(const rgb_color_t color, const pixel_line_t& line) final
 		{
 			const color_t rawColor = ColorConverter::GetRawColor(color);
 
@@ -264,7 +264,7 @@ namespace Egfx
 			}
 		}
 
-		virtual void RectangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
+		void RectangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
 			// Integrity and bounds check.
 			if (x1 > x2 || y1 > y2
@@ -353,7 +353,12 @@ namespace Egfx
 			}
 		}
 
-		virtual void Rectangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
+		void RectangleFill(const rgb_color_t color, const pixel_rectangle_t& rectangle) final
+		{
+			RectangleFill(color, rectangle.topLeft.x, rectangle.topLeft.y, rectangle.bottomRight.x, rectangle.bottomRight.y);
+		}
+
+		void Rectangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
 			// Integrity and bounds check.
 			if (x1 > x2 || y1 > y2
@@ -434,7 +439,12 @@ namespace Egfx
 			}
 		}
 
-		virtual void Triangle(const rgb_color_t color, const pixel_triangle_t& triangle) final
+		void Rectangle(const rgb_color_t color, const pixel_rectangle_t& rectangle) final
+		{
+			Rectangle(color, rectangle.topLeft.x, rectangle.topLeft.y, rectangle.bottomRight.x, rectangle.bottomRight.y);
+		}
+
+		void Triangle(const rgb_color_t color, const pixel_triangle_t& triangle) final
 		{
 			pixel_line_t line{ {triangle.a.x, triangle.a.y}, {triangle.b.x, triangle.b.y } };
 			Line(color, line);
@@ -444,21 +454,21 @@ namespace Egfx
 			Line(color, line);
 		}
 
-		virtual void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
+		void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
 		{
 			const pixel_triangle_t triangle{ {x1,y1},{x2,y2},{x3,y3} };
 
 			Triangle(color, triangle);
 		}
 
-		virtual void TriangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
+		void TriangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
 		{
 			const pixel_triangle_t triangle{ {x1,y1},{x2,y2},{x3,y3} };
 
 			TriangleFill(color, triangle);
 		}
 
-		virtual void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) final
+		void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) final
 		{
 			const color_t rawColor = ColorConverter::GetRawColor(color);
 

@@ -841,6 +841,28 @@ namespace Egfx
 					{
 						PixelRaw(rawColor, xStart, y);
 					}
+					else
+					{
+						return;
+					}
+
+					switch (displayOptions::AntiAliasing)
+					{
+					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+						if (y >= 0 && y < FrameHeight)
+						{
+							int16_t x = xStart - 1;
+							if (x >= 0 && x < FrameWidth)
+								PixelRawBlend(rawColor, x, y);
+							x = xEnd + 1;
+							if (x >= 0 && x < FrameWidth)
+								PixelRawBlend(rawColor, x, y);
+						}
+						break;
+					case DisplayOptions::AntiAliasingEnum::None:
+					default:
+						break;
+					}
 				}
 
 				x1 += invSlope1;
@@ -890,6 +912,28 @@ namespace Egfx
 					else if (xStart == xEnd)
 					{
 						PixelRaw(rawColor, xStart, y);
+					}
+					else
+					{
+						return;
+					}
+
+					switch (displayOptions::AntiAliasing)
+					{
+					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+						if (y >= 0 && y < FrameHeight)
+						{
+							int16_t x = xStart - 1;
+							if (x >= 0 && x < FrameWidth)
+								PixelRawBlend(rawColor, x, y);
+							x = xEnd + 1;
+							if (x >= 0 && x < FrameWidth)
+								PixelRawBlend(rawColor, x, y);
+						}
+						break;
+					case DisplayOptions::AntiAliasingEnum::None:
+					default:
+						break;
 					}
 				}
 
@@ -971,6 +1015,20 @@ namespace Egfx
 				{
 					y += slopeUnit;
 					slopeError -= scaledWidth;
+
+					switch (displayOptions::AntiAliasing)
+					{
+					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+						if (x >= 0 && x < FrameWidth &&
+							y >= 0 && y < FrameHeight)
+						{
+							PixelRawBlend(rawColor, x, y);
+						}
+						break;
+					case DisplayOptions::AntiAliasingEnum::None:
+					default:
+						break;
+					}
 				}
 			}
 		}
@@ -999,6 +1057,20 @@ namespace Egfx
 				{
 					x += slopeUnit;
 					slopeError -= scaledHeight;
+
+					switch (displayOptions::AntiAliasing)
+					{
+					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+						if (x >= 0 && x < FrameWidth &&
+							y >= 0 && y < FrameHeight)
+						{
+							PixelRawBlend(rawColor, x, y);
+						}
+						break;
+					case DisplayOptions::AntiAliasingEnum::None:
+					default:
+						break;
+					}
 				}
 			}
 		}

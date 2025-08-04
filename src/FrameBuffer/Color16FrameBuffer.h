@@ -96,6 +96,84 @@ namespace Egfx
 				}
 			}
 		}
+
+		void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
+			const color_t blendedColor = Rgb::Color565From565(
+				(((uint16_t)Rgb::R5(existingColor) + Rgb::R5(rawColor)) >> 1),
+				(((uint16_t)Rgb::G6(existingColor) + Rgb::G6(rawColor)) >> 1),
+				(((uint16_t)Rgb::B5(existingColor) + Rgb::B5(rawColor)) >> 1));
+
+			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
+			Buffer[offset + 1] = ((uint8_t)blendedColor);
+		}
+
+		void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha) final
+		{
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
+			const color_t blendedColor = Rgb::Color565From565(
+				((((uint16_t)Rgb::R5(existingColor) * (255 - alpha)) + (Rgb::R5(rawColor) * alpha)) >> 8),
+				((((uint16_t)Rgb::G6(existingColor) * (255 - alpha)) + (Rgb::G6(rawColor) * alpha)) >> 8),
+				((((uint16_t)Rgb::B5(existingColor) * (255 - alpha)) + (Rgb::B5(rawColor) * alpha)) >> 8));
+
+			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
+			Buffer[offset + 1] = ((uint8_t)blendedColor);
+		}
+
+		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
+			const color_t blendedColor = Rgb::Color565From565(
+				MinValue((uint16_t)(Rgb::R5(existingColor) + Rgb::R5(rawColor)), (uint16_t)31),
+				MinValue((uint16_t)(Rgb::G6(existingColor) + Rgb::G6(rawColor)), (uint16_t)63),
+				MinValue((uint16_t)(Rgb::B5(existingColor) + Rgb::B5(rawColor)), (uint16_t)31));
+
+			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
+			Buffer[offset + 1] = ((uint8_t)blendedColor);
+		}
+
+		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
+			const color_t blendedColor = Rgb::Color565From565(
+				MaxValue<int16_t>(0, int16_t(Rgb::R5(existingColor)) - Rgb::R5(rawColor)),
+				MaxValue<int16_t>(0, int16_t(Rgb::G6(existingColor)) - Rgb::G6(rawColor)),
+				MaxValue<int16_t>(0, int16_t(Rgb::B5(existingColor)) - Rgb::B5(rawColor)));
+
+			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
+			Buffer[offset + 1] = ((uint8_t)blendedColor);
+		}
+
+		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
+			const color_t blendedColor = Rgb::Color565From565(
+				((uint16_t(Rgb::R5(existingColor)) * uint16_t(Rgb::R5(rawColor))) >> 5),
+				((uint16_t(Rgb::G6(existingColor)) * uint16_t(Rgb::G6(rawColor))) >> 6),
+				((uint16_t(Rgb::B5(existingColor)) * uint16_t(Rgb::B5(rawColor))) >> 5));
+
+			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
+			Buffer[offset + 1] = ((uint8_t)blendedColor);
+		}
+
+		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
+			const color_t blendedColor = Rgb::Color565From565(
+				MinValue((uint8_t)(31 - ((31 - Rgb::R5(existingColor)) * (31 - Rgb::R5(rawColor)) >> 5)), (uint8_t)31),
+				MinValue((uint8_t)(63 - ((63 - Rgb::G6(existingColor)) * (63 - Rgb::G6(rawColor)) >> 6)), (uint8_t)63),
+				MinValue((uint8_t)(31 - ((31 - Rgb::B5(existingColor)) * (31 - Rgb::B5(rawColor)) >> 5)), (uint8_t)31));
+
+			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
+			Buffer[offset + 1] = ((uint8_t)blendedColor);
+		}
 	};
 }
 #endif

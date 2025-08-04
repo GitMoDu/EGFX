@@ -79,6 +79,13 @@ namespace Egfx
 		virtual void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
 		virtual void Pixel(const rgb_color_t color, const pixel_point_t point) = 0;
 
+		virtual void PixelBlend(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendAlpha(const rgb_color_t color, const pixel_t x, const pixel_t y, const uint8_t alpha) = 0;
+		virtual void PixelBlendAdd(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendSubtract(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendMultiply(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendScreen(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+
 		/// <summary>
 		/// Draw a line. 
 		/// Special orientations (horizontal and vertical) are internally optimized.

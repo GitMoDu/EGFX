@@ -56,6 +56,12 @@ namespace Egfx
 	protected:
 		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) = 0;
 
+		virtual void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y) {}
+		virtual void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha) {}
+		virtual void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) {}
+		virtual void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) {}
+		virtual void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y) {}
+		virtual void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y) {}
 
 	public:
 		AbstractFrameBuffer(uint8_t buffer[BufferSize] = nullptr)
@@ -555,6 +561,167 @@ namespace Egfx
 				else
 				{
 					TriangleYOrderedFill(rawColor, { cx, cy }, { bx, by }, { ax, ay });
+				}
+			}
+		}
+
+		void PixelBlend(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					PixelRawBlend(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					PixelRawBlend(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					PixelRawBlend(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					PixelRawBlend(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendAlpha(const rgb_color_t color, const pixel_t x, const pixel_t y, const uint8_t alpha) final
+		{
+			if (alpha == UINT8_MAX / 2)
+			{
+				PixelBlend(color, x, y);
+				return;
+			}
+
+			if (alpha > 0 &&
+				x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t uninvertedColor = ColorConverter::GetRawColor(color);
+				const color_t rawColor = displayOptions::Inverted
+					? (uninvertedColor & 0xFF000000) | (~uninvertedColor & 0x00FFFFFF)
+					: uninvertedColor;
+
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					PixelRawBlendAlpha(rawColor, MirrorX(x), y, alpha);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					PixelRawBlendAlpha(rawColor, x, MirrorY(y), alpha);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					PixelRawBlendAlpha(rawColor, MirrorX(x), MirrorY(y), alpha);
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					PixelRawBlendAlpha(rawColor, x, y, alpha);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendAdd(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					PixelRawBlendAdd(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					PixelRawBlendAdd(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					PixelRawBlendAdd(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					PixelRawBlendAdd(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendSubtract(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					PixelRawBlendSubtract(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					PixelRawBlendSubtract(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					PixelRawBlendSubtract(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					PixelRawBlendSubtract(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendMultiply(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					PixelRawBlendMultiply(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					PixelRawBlendMultiply(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					PixelRawBlendMultiply(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					PixelRawBlendMultiply(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendScreen(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					PixelRawBlendScreen(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					PixelRawBlendScreen(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					PixelRawBlendScreen(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					PixelRawBlendScreen(rawColor, x, y);
+					break;
 				}
 			}
 		}

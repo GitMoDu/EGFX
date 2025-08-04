@@ -11,9 +11,8 @@ namespace Egfx
 	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
-	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter8.</typeparam>
+	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter1.</typeparam>
 	/// <typeparam name="displayAxis">Display mirror option.</typeparam>
-	/// <typeparam name="displayRotation">Display rotation option.</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename ColorConverter = BinaryColorConverter1
@@ -66,7 +65,7 @@ namespace Egfx
 		/// Optimized version 1 bit color.
 		/// </summary>
 		/// <param name="rawColor"></param>
-		virtual void FillRaw(const color_t rawColor)
+		void FillRaw(const color_t rawColor) final
 		{
 			if (((bool)(rawColor > 0) ^ (bool)Inverted))
 			{
@@ -85,9 +84,9 @@ namespace Egfx
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <param name="width"></param>
-		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
+		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
-			const uint8_t yByte = y >> 3;
+			const uint8_t yByte = y / 8;
 			const uint8_t yBit = y % 8;
 
 			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;

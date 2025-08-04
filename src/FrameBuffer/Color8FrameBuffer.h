@@ -13,12 +13,11 @@ namespace Egfx
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter8.</typeparam>
 	/// <typeparam name="displayAxis">Display mirror option.</typeparam>
-	/// <typeparam name="displayRotation">Display rotation option.</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename ColorConverter = ColorConverter8
 		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
-	class Color8FrameBuffer
+	class Color8FrameBuffer final
 		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>
 	{
 	private:
@@ -40,7 +39,7 @@ namespace Egfx
 		}
 
 	protected:
-		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 
@@ -58,7 +57,7 @@ namespace Egfx
 		/// Optimized version color_t = uint8_t.
 		/// </summary>
 		/// <param name="rawColor"></param>
-		virtual void FillRaw(const color_t rawColor)
+		void FillRaw(const color_t rawColor) final
 		{
 			if (Inverted)
 			{
@@ -73,7 +72,7 @@ namespace Egfx
 		/// <summary>
 		/// Optimized version for color_t = uint8_t.
 		/// </summary>
-		virtual void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
+		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2) final
 		{
 			constexpr pixel_index_t lineSize = sizeof(color_t) * frameWidth;
 			const uint8_t value = Inverted ? ~rawColor : rawColor;
@@ -88,7 +87,7 @@ namespace Egfx
 		/// <summary>
 		/// Optimized version for color_t = uint8_t.
 		/// </summary>
-		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
+		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
 			const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + (sizeof(color_t) * x1);
 			if (Inverted)
@@ -104,7 +103,7 @@ namespace Egfx
 		/// <summary>
 		/// Optimized version for color_t = uint8_t.
 		/// </summary>
-		virtual void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
+		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
 			const pixel_t lineStart = (sizeof(color_t) * x1);
 			const uint8_t value = Inverted ? ~rawColor : rawColor;

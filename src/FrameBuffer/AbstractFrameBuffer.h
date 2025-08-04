@@ -20,7 +20,6 @@ namespace Egfx
 	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="displayAxis">Display mirror option.</typeparam>
-	/// <typeparam name="displayRotation">Display rotation option.</typeparam>
 	template<typename ColorConverter
 		, const uint8_t clearDivisorPower
 		, const pixel_t frameWidth

@@ -39,11 +39,6 @@ namespace Egfx
 		{
 		}
 
-		bool IsMonochrome() const final
-		{
-			return true;
-		}
-
 		uint8_t GetColorDepth() const final
 		{
 			return 1;

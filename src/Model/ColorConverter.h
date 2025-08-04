@@ -12,7 +12,7 @@ namespace Egfx
 	{
 		using color_t = uint8_t;
 
-		const uint8_t GetColorSize() const
+		static constexpr uint8_t ColorSize()
 		{
 			return sizeof(color_t);
 		}
@@ -20,6 +20,11 @@ namespace Egfx
 		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferMonochromeSize(width, height);
+		}
+
+		static constexpr bool IsMonochrome()
+		{
+			return true;
 		}
 	};
 
@@ -31,13 +36,18 @@ namespace Egfx
 		{
 			return Egfx::GetFrameBufferLowColorSize<4>(width, height);
 		}
+
+		static constexpr bool IsMonochrome()
+		{
+			return true;
+		}
 	};
 
 	struct AbstractColorConverter8
 	{
 		using color_t = uint8_t;
 
-		const uint8_t ColorSize() const
+		static constexpr uint8_t ColorSize()
 		{
 			return sizeof(color_t);
 		}
@@ -52,7 +62,7 @@ namespace Egfx
 	{
 		using color_t = uint16_t;
 
-		static uint8_t ColorSize()
+		static constexpr uint8_t ColorSize()
 		{
 			return sizeof(color_t);
 		}
@@ -60,6 +70,11 @@ namespace Egfx
 		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
+		}
+
+		static constexpr bool IsMonochrome()
+		{
+			return false;
 		}
 	};
 
@@ -67,7 +82,7 @@ namespace Egfx
 	{
 		using color_t = uint32_t;
 
-		const uint8_t ColorSize() const
+		static constexpr uint8_t ColorSize()
 		{
 			return sizeof(color_t);
 		}
@@ -75,6 +90,11 @@ namespace Egfx
 		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
+		}
+
+		static constexpr bool IsMonochrome()
+		{
+			return false;
 		}
 	};
 
@@ -108,6 +128,11 @@ namespace Egfx
 				| (Rgb::B5(color) >> 3);
 		}
 #endif
+
+		static constexpr bool IsMonochrome()
+		{
+			return false;
+		}
 	};
 
 	/// <summary>
@@ -149,7 +174,6 @@ namespace Egfx
 		/// </summary>
 		/// <param name="color">EGFX-native color (8-8-8).</param>
 		/// <returns>Framebuffer-native color (8-8-8).</returns>
-
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
 			return color;
@@ -208,6 +232,10 @@ namespace Egfx
 			return (uint16_t)Rgb::B5(color) + Rgb::R5(color) + (Rgb::G6(color) << 2);
 		}
 #endif
+		static constexpr bool IsMonochrome()
+		{
+			return true;
+		}
 	};
 
 	/// <summary>
@@ -265,6 +293,11 @@ namespace Egfx
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
 			return color > 0;
+		}
+
+		static constexpr bool IsMonochrome()
+		{
+			return true;
 		}
 	};
 }

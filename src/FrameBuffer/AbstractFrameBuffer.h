@@ -66,6 +66,16 @@ namespace Egfx
 		}
 
 	public:
+		bool IsMonochrome() const final
+		{
+			return ColorConverter::IsMonochrome();
+		}
+
+		uint8_t GetColorDepth() const
+		{
+			return ColorConverter::ColorSize() * 8;
+		}
+
 		pixel_t GetFrameWidth() const final
 		{
 			return FrameWidth;

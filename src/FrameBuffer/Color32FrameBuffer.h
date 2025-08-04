@@ -39,16 +39,6 @@ namespace Egfx
 		{
 		}
 
-		bool IsMonochrome() const final
-		{
-			return false;
-		}
-
-		uint8_t GetColorDepth() const final
-		{
-			return sizeof(color_t) * 8;
-		}
-
 	protected:
 		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{

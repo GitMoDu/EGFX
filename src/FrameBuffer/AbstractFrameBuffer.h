@@ -55,7 +55,8 @@ namespace Egfx
 		bool Inverted = 0;
 
 	protected:
-		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) {}
+		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) = 0;
+
 
 	public:
 		AbstractFrameBuffer(uint8_t buffer[BufferSize] = nullptr)

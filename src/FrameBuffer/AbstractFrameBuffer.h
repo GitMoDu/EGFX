@@ -4,8 +4,8 @@
 #define _ABSTRACT_FRAME_BUFFER_h
 
 #include "../Model/RgbColor.h"
-#include "../Model/DisplayOrientation.h"
 #include "../Model/ColorConverter.h"
+#include "../Model/DisplayOptions.h"
 #include "../Model/IFrameBuffer.h"
 #include <IntegerSignal.h>
 
@@ -19,18 +19,19 @@ namespace Egfx
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="displayAxis">Display mirror option.</typeparam>
+	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
 	template<typename ColorConverter
-		, const uint8_t clearDivisorPower
-		, const pixel_t frameWidth
-		, const pixel_t frameHeight
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
+		, uint8_t clearDivisorPower
+		, pixel_t frameWidth
+		, pixel_t frameHeight
+		, typename displayOptions = DisplayOptions::Default>
 	class AbstractFrameBuffer : public IFrameBuffer
 	{
 	public:
+		using Configuration = displayOptions;
+
 		static constexpr pixel_t FrameWidth = frameWidth;
 		static constexpr pixel_t FrameHeight = frameHeight;
-		static constexpr DisplayMirrorEnum DisplayMirror = displayMirror;
 		static constexpr size_t BufferSize = ColorConverter::GetBufferSize(FrameWidth, FrameHeight);
 
 	protected:
@@ -51,8 +52,6 @@ namespace Egfx
 
 	protected:
 		uint8_t ClearIndex = 0;
-
-		bool Inverted = 0;
 
 	protected:
 		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) = 0;
@@ -86,11 +85,6 @@ namespace Egfx
 			return FrameHeight;
 		}
 
-		void SetInverted(const bool inverted) final
-		{
-			Inverted = inverted;
-		}
-
 		const uint8_t* GetFrameBuffer() final
 		{
 			return (const uint8_t*)Buffer;
@@ -99,7 +93,7 @@ namespace Egfx
 		bool ClearFrameBuffer() final
 		{
 			// Background color full, when inverted.
-			if (Inverted)
+			if (displayOptions::Inverted)
 			{
 				memset(&Buffer[ClearStepByteCount() * ClearIndex], UINT8_MAX, ClearStepByteCount());
 			}
@@ -132,20 +126,20 @@ namespace Egfx
 			if (x >= 0 && x < FrameWidth &&
 				y >= 0 && y < FrameHeight)
 			{
-				const color_t rawColor = ColorConverter::GetRawColor(color);
+				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 
-				switch (DisplayMirror)
+				switch (displayOptions::Mirror)
 				{
-				case DisplayMirrorEnum::MirrorX:
+				case DisplayOptions::MirrorEnum::MirrorX:
 					PixelRaw(rawColor, MirrorX(x), y);
 					break;
-				case DisplayMirrorEnum::MirrorY:
+				case DisplayOptions::MirrorEnum::MirrorY:
 					PixelRaw(rawColor, x, MirrorY(y));
 					break;
-				case DisplayMirrorEnum::MirrorXY:
+				case DisplayOptions::MirrorEnum::MirrorXY:
 					PixelRaw(rawColor, MirrorX(x), MirrorY(y));
 					break;
-				case DisplayMirrorEnum::NoMirror:
+				case DisplayOptions::MirrorEnum::None:
 				default:
 					PixelRaw(rawColor, x, y);
 					break;
@@ -160,7 +154,7 @@ namespace Egfx
 
 		void Fill(const rgb_color_t color) final
 		{
-			const color_t rawColor = ColorConverter::GetRawColor(color);
+			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 			FillRaw(rawColor);
 		}
 
@@ -173,7 +167,7 @@ namespace Egfx
 
 		void Line(const rgb_color_t color, const pixel_line_t& line) final
 		{
-			const color_t rawColor = ColorConverter::GetRawColor(color);
+			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 
 			pixel_t startX;
 			pixel_t startY;
@@ -181,27 +175,27 @@ namespace Egfx
 			pixel_t endY;
 
 			// Apply mirroring.
-			switch (DisplayMirror)
+			switch (displayOptions::Mirror)
 			{
-			case DisplayMirrorEnum::MirrorX:
+			case DisplayOptions::MirrorEnum::MirrorX:
 				startX = MirrorX(line.start.x);
 				endX = MirrorX(line.end.x);
 				startY = line.start.y;
 				endY = line.end.y;
 				break;
-			case DisplayMirrorEnum::MirrorY:
+			case DisplayOptions::MirrorEnum::MirrorY:
 				startX = line.start.x;
 				startY = MirrorY(line.start.y);
 				endX = line.end.x;
 				endY = MirrorY(line.end.y);
 				break;
-			case DisplayMirrorEnum::MirrorXY:
+			case DisplayOptions::MirrorEnum::MirrorXY:
 				startX = MirrorX(line.start.x);
 				startY = MirrorY(line.start.y);
 				endX = MirrorX(line.end.x);
 				endY = MirrorY(line.end.y);
 				break;
-			case DisplayMirrorEnum::NoMirror:
+			case DisplayOptions::MirrorEnum::None:
 			default:
 				startX = line.start.x;
 				startY = line.start.y;
@@ -284,32 +278,32 @@ namespace Egfx
 				return;
 			}
 
-			const color_t rawColor = ColorConverter::GetRawColor(color);
+			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 
 			pixel_t mx1, mx2, my1, my2;
 
 			// Apply mirroring.
-			switch (DisplayMirror)
+			switch (displayOptions::Mirror)
 			{
-			case DisplayMirrorEnum::MirrorX:
+			case DisplayOptions::MirrorEnum::MirrorX:
 				mx1 = MirrorX(x2);
 				mx2 = MirrorX(x1);
 				my1 = y1;
 				my2 = y2;
 				break;
-			case DisplayMirrorEnum::MirrorY:
+			case DisplayOptions::MirrorEnum::MirrorY:
 				mx1 = x1;
 				mx2 = x2;
 				my1 = MirrorY(y2);
 				my2 = MirrorY(y1);
 				break;
-			case DisplayMirrorEnum::MirrorXY:
+			case DisplayOptions::MirrorEnum::MirrorXY:
 				mx1 = MirrorX(x2);
 				mx2 = MirrorX(x1);
 				my1 = MirrorY(y2);
 				my2 = MirrorY(y1);
 				break;
-			case DisplayMirrorEnum::NoMirror:
+			case DisplayOptions::MirrorEnum::None:
 			default:
 				mx1 = x1;
 				mx2 = x2;
@@ -378,32 +372,32 @@ namespace Egfx
 				return;
 			}
 
-			const color_t rawColor = ColorConverter::GetRawColor(color);
+			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 
 			pixel_t mx1, mx2, my1, my2;
 
 			// Apply mirroring.
-			switch (DisplayMirror)
+			switch (displayOptions::Mirror)
 			{
-			case DisplayMirrorEnum::MirrorX:
+			case DisplayOptions::MirrorEnum::MirrorX:
 				mx1 = MirrorX(x2);
 				mx2 = MirrorX(x1);
 				my1 = y1;
 				my2 = y2;
 				break;
-			case DisplayMirrorEnum::MirrorY:
+			case DisplayOptions::MirrorEnum::MirrorY:
 				mx1 = x1;
 				mx2 = x2;
 				my1 = MirrorY(y2);
 				my2 = MirrorY(y1);
 				break;
-			case DisplayMirrorEnum::MirrorXY:
+			case DisplayOptions::MirrorEnum::MirrorXY:
 				mx1 = MirrorX(x2);
 				mx2 = MirrorX(x1);
 				my1 = MirrorY(y2);
 				my2 = MirrorY(y1);
 				break;
-			case DisplayMirrorEnum::NoMirror:
+			case DisplayOptions::MirrorEnum::None:
 			default:
 				mx1 = x1;
 				mx2 = x2;
@@ -480,7 +474,7 @@ namespace Egfx
 
 		void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) final
 		{
-			const color_t rawColor = ColorConverter::GetRawColor(color);
+			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 
 			pixel_t ax;
 			pixel_t ay;
@@ -490,9 +484,9 @@ namespace Egfx
 			pixel_t cy;
 
 			// Apply mirroring
-			switch (DisplayMirror)
+			switch (displayOptions::Mirror)
 			{
-			case DisplayMirrorEnum::MirrorX:
+			case DisplayOptions::MirrorEnum::MirrorX:
 				ax = MirrorX(triangle.a.x);
 				ay = triangle.a.y;
 				bx = MirrorX(triangle.b.x);
@@ -500,7 +494,7 @@ namespace Egfx
 				cx = MirrorX(triangle.c.x);
 				cy = triangle.c.y;
 				break;
-			case DisplayMirrorEnum::MirrorY:
+			case DisplayOptions::MirrorEnum::MirrorY:
 				ax = triangle.a.x;
 				ay = MirrorY(triangle.a.y);
 				bx = triangle.b.x;
@@ -508,7 +502,7 @@ namespace Egfx
 				cx = triangle.c.x;
 				cy = MirrorY(triangle.c.y);
 				break;
-			case DisplayMirrorEnum::MirrorXY:
+			case DisplayOptions::MirrorEnum::MirrorXY:
 				ax = MirrorX(triangle.a.x);
 				ay = MirrorY(triangle.a.y);
 				bx = MirrorX(triangle.b.x);
@@ -516,7 +510,7 @@ namespace Egfx
 				cx = MirrorX(triangle.c.x);
 				cy = MirrorY(triangle.c.y);
 				break;
-			case DisplayMirrorEnum::NoMirror:
+			case DisplayOptions::MirrorEnum::None:
 			default:
 				ax = triangle.a.x;
 				ay = triangle.a.y;

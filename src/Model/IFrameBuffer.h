@@ -1,11 +1,9 @@
-// IFrameBuffer.h
-
 #ifndef _EGFX_I_FRAME_BUFFER_h
 #define _EGFX_I_FRAME_BUFFER_h
 
 #include <stdint.h>
 #include "RgbColor.h"
-#include "DisplayOrientation.h"
+#include "DisplayOptions.h"
 
 namespace Egfx
 {
@@ -48,8 +46,6 @@ namespace Egfx
 
 	class IFrameBuffer
 	{
-
-
 	public:
 		virtual pixel_t GetFrameWidth() const = 0;
 		virtual pixel_t GetFrameHeight() const = 0;
@@ -67,12 +63,6 @@ namespace Egfx
 		/// Clear the frame buffer.
 		/// </summary>
 		virtual bool ClearFrameBuffer() = 0;
-
-		/// <summary>
-		/// Set inverted color for frame-buffer.
-		/// </summary>
-		/// <param name="inverted"></param>
-		virtual void SetInverted(const bool inverted) = 0;
 
 		/// <summary>
 		/// Fill the whole frame with the provided color.

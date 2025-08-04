@@ -125,14 +125,6 @@ namespace Egfx
 			}
 		}
 
-		void SetInverted(const bool inverted) final
-		{
-			if (FrameBuffer != nullptr)
-			{
-				FrameBuffer->SetInverted(inverted);
-			}
-		}
-
 		void SetBrightness(const uint8_t brightness) final
 		{
 			//TODO: integrate with ScreenDriver brightness control.

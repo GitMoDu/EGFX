@@ -12,16 +12,16 @@ namespace Egfx
 	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter1.</typeparam>
-	/// <typeparam name="displayAxis">Display mirror option.</typeparam>
+	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename ColorConverter = BinaryColorConverter1
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
+		, typename displayOptions = DisplayOptions::Default>
 	class MonochromeFrameBuffer final
-		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>
+		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayOptions>
 	{
 	private:
-		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>;
+		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayOptions>;
 
 	public:
 		using BaseClass::BufferSize;
@@ -29,8 +29,6 @@ namespace Egfx
 
 	protected:
 		using BaseClass::Buffer;
-		using BaseClass::Inverted;
-		using BaseClass::DisplayMirror;
 
 	public:
 		MonochromeFrameBuffer(uint8_t buffer[BufferSize] = nullptr)
@@ -51,7 +49,7 @@ namespace Egfx
 
 			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
 
-			if (((bool)(rawColor > 0) ^ (bool)Inverted))
+			if (rawColor > 0)
 			{
 				Buffer[offset] |= 1 << yBit;
 			}
@@ -67,7 +65,7 @@ namespace Egfx
 		/// <param name="rawColor"></param>
 		void FillRaw(const color_t rawColor) final
 		{
-			if (((bool)(rawColor > 0) ^ (bool)Inverted))
+			if (rawColor > 0)
 			{
 				memset(Buffer, UINT8_MAX, BufferSize);
 			}
@@ -91,7 +89,7 @@ namespace Egfx
 
 			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
 
-			if (((bool)(rawColor > 0) ^ (bool)Inverted))
+			if (rawColor > 0)
 			{
 				for (uint_fast8_t i = 0; i <= x2 - x1; i++)
 				{
@@ -113,7 +111,7 @@ namespace Egfx
 		/// </summary>
 		void LineVerticalBuggy(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t height)
 		{
-			if (((bool)(rawColor > 0) ^ (bool)Inverted))
+			if (rawColor > 0)
 			{
 				if (height >= 8)
 				{

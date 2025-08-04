@@ -13,11 +13,10 @@ namespace Egfx
 	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
-	/// <typeparam name="displayAxis">Display mirror option.</typeparam>
-	/// <typeparam name="displayRotation">Display rotation option.</typeparam>
+	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
-	using BinaryFrameBuffer = MonochromeFrameBuffer<frameWidth, frameHeight, clearDivisorPower, BinaryColorConverter1, displayMirror>;
+		, typename displayOptions = DisplayOptions::Default>
+	using BinaryFrameBuffer = MonochromeFrameBuffer<frameWidth, frameHeight, clearDivisorPower, BinaryColorConverter1, displayOptions>;
 }
 #endif

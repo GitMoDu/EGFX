@@ -146,7 +146,6 @@ namespace Egfx
 		virtual bool Start() = 0;
 		virtual void Stop() = 0;
 		virtual void SetDrawer(IFrameDraw* drawer) = 0;
-		virtual void SetInverted(const bool inverted) = 0;
 		virtual void SetBrightness(const uint8_t brightness) = 0;
 
 	public:

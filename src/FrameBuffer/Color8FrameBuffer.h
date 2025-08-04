@@ -12,16 +12,16 @@ namespace Egfx
 	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter8.</typeparam>
-	/// <typeparam name="displayAxis">Display mirror option.</typeparam>
+	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename ColorConverter = ColorConverter8
-		, DisplayMirrorEnum displayMirror = DisplayMirrorEnum::NoMirror>
+		, typename displayOptions = DisplayOptions::Default>
 	class Color8FrameBuffer final
-		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>
+		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayOptions>
 	{
 	private:
-		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayMirror>;
+		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayOptions>;
 
 	public:
 		using BaseClass::BufferSize;
@@ -29,8 +29,6 @@ namespace Egfx
 
 	protected:
 		using BaseClass::Buffer;
-		using BaseClass::Inverted;
-		using BaseClass::DisplayMirror;
 
 	public:
 		Color8FrameBuffer(uint8_t buffer[BufferSize] = nullptr)
@@ -42,15 +40,7 @@ namespace Egfx
 		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
-
-			if (Inverted)
-			{
-				Buffer[offset] = ~rawColor;
-			}
-			else
-			{
-				Buffer[offset] = rawColor;
-			}
+			Buffer[offset] = rawColor;
 		}
 
 		/// <summary>
@@ -59,14 +49,7 @@ namespace Egfx
 		/// <param name="rawColor"></param>
 		void FillRaw(const color_t rawColor) final
 		{
-			if (Inverted)
-			{
-				memset(Buffer, ~rawColor, BufferSize);
-			}
-			else
-			{
-				memset(Buffer, rawColor, BufferSize);
-			}
+			memset(Buffer, rawColor, BufferSize);
 		}
 
 		/// <summary>
@@ -75,12 +58,11 @@ namespace Egfx
 		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2) final
 		{
 			constexpr pixel_index_t lineSize = sizeof(color_t) * frameWidth;
-			const uint8_t value = Inverted ? ~rawColor : rawColor;
 			pixel_index_t offset = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x);
 
 			for (pixel_t i = y1; i <= y2; i++, offset += lineSize)
 			{
-				Buffer[offset] = value;
+				Buffer[offset] = rawColor;
 			}
 		}
 
@@ -90,14 +72,7 @@ namespace Egfx
 		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
 			const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + (sizeof(color_t) * x1);
-			if (Inverted)
-			{
-				memset(&Buffer[offset], ~rawColor, x2 - x1 + 1);
-			}
-			else
-			{
-				memset(&Buffer[offset], rawColor, x2 - x1 + 1);
-			}
+			memset(&Buffer[offset], rawColor, x2 - x1 + 1);
 		}
 
 		/// <summary>
@@ -106,13 +81,12 @@ namespace Egfx
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
 			const pixel_t lineStart = (sizeof(color_t) * x1);
-			const uint8_t value = Inverted ? ~rawColor : rawColor;
 			const uint16_t width = x2 - x1 + 1;
 
 			for (pixel_t y = y1; y <= y2; y++)
 			{
 				const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + lineStart;
-				memset(&Buffer[offset], value, width);
+				memset(&Buffer[offset], rawColor, width);
 			}
 		}
 	};

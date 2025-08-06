@@ -60,9 +60,8 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Optimized version 1 bit color.
+		/// Optimized version for 1 bit color.
 		/// </summary>
-		/// <param name="rawColor"></param>
 		void FillRaw(const color_t rawColor) final
 		{
 			if (rawColor > 0)
@@ -76,12 +75,70 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Optimized version 1 bit color.
+		/// Optimized version for 1 bit color.
 		/// </summary>
-		/// <param name="rawColor"></param>
-		/// <param name="x1"></param>
-		/// <param name="y"></param>
-		/// <param name="x2"></param>
+		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2) final
+		{
+			const pixel_t yStart = (y1 <= y2) ? y1 : y2;
+			const pixel_t yEnd = (y1 <= y2) ? y2 : y1;
+			const pixel_t startByte = yStart / 8;
+			const pixel_t endByte = yEnd / 8;
+			const pixel_index_t xOffset = x;
+
+			if (startByte == endByte)
+			{
+				// Single byte case
+				const uint8_t startBit = yStart % 8;
+				const uint8_t endBit = yEnd % 8;
+				const uint8_t mask = ((uint8_t(0xFF) << startBit) & (uint8_t(0xFF) >> (7 - endBit)));
+				const pixel_index_t offset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
+
+				if (rawColor > 0)
+					Buffer[offset] |= mask;
+				else
+					Buffer[offset] &= ~mask;
+
+				return;
+			}
+
+			// First byte - partial
+			const uint8_t startBit = yStart % 8;
+			const pixel_index_t startOffset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
+
+			if (startBit > 0)
+			{
+				const uint8_t firstByteMask = uint8_t(0xFF) << startBit;
+				if (rawColor > 0)
+					Buffer[startOffset] |= firstByteMask;
+				else
+					Buffer[startOffset] &= ~firstByteMask;
+			}
+			else
+			{
+				Buffer[startOffset] = (rawColor > 0) ? 0xFF : 0x00;
+			}
+
+			// Middle bytes - full bytes
+			for (pixel_t byteIndex = startByte + 1; byteIndex < endByte; byteIndex++)
+			{
+				const pixel_index_t midOffset = (sizeof(color_t) * frameWidth * byteIndex) + xOffset;
+				Buffer[midOffset] = (rawColor > 0) ? 0xFF : 0x00;
+			}
+
+			// Last byte - partial
+			const uint8_t endBit = yEnd % 8;
+			const uint8_t lastByteMask = uint8_t(0xFF) >> (7 - endBit);
+			const pixel_index_t endOffset = (sizeof(color_t) * frameWidth * endByte) + xOffset;
+
+			if (rawColor > 0)
+				Buffer[endOffset] |= lastByteMask;
+			else
+				Buffer[endOffset] &= ~lastByteMask;
+		}
+
+		/// <summary>
+		/// Optimized version for 1 bit color.
+		/// </summary>
 		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
 			const uint8_t yByte = y / 8;
@@ -101,88 +158,6 @@ namespace Egfx
 			{
 				for (pixel_t i = 0; i <= width; i++, offset += sign)
 				{
-					Buffer[offset] &= ~(1 << yBit);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Optimized version.
-		/// TODO: fix address issues and rename to LineVerticalRaw.
-		/// </summary>
-		void LineVerticalBuggy(const color_t rawColor, const pixel_t x, const pixel_t y, const pixel_t height)
-		{
-			if (rawColor > 0)
-			{
-				if (height >= 8)
-				{
-					const uint8_t byte0 = y / 8;
-					uint8_t byte1;
-					if (y == (byte0 * 8))
-					{
-						byte1 = byte0;
-					}
-					else
-					{
-						byte1 = byte0 + 1;
-
-						const uint8_t yBitStart = ((byte1 * 8) - y);
-						for (uint_fast8_t i = 0; i < yBitStart; i++)
-						{
-							const uint8_t yByte = (y + i) / 8;
-							const uint8_t yBit = (y + i) % 8;
-
-							const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
-
-							Buffer[offset] |= 1 << yBit;
-						}
-					}
-
-					const uint8_t byteHeight = (height / 8) - byte1;
-					for (uint_fast8_t i = 0; i < byteHeight; i++)
-					{
-						const uint8_t yByte = byte1 + i;
-						const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
-
-						Buffer[offset] = UINT8_MAX;
-					}
-
-					const uint8_t broadHeight = byteHeight * 8;
-					if (height > broadHeight)
-					{
-						for (uint_fast8_t i = broadHeight; i < height; i++)
-						{
-							const uint8_t yByte = ((y + i) / 8);
-							const uint8_t yBit = (y + i) % 8;
-
-							const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
-
-							Buffer[offset] |= 1 << yBit;
-						}
-					}
-				}
-				else
-				{
-					for (uint_fast8_t i = 0; i < height; i++)
-					{
-						const uint8_t yByte = (y + i) / 8;
-						const uint8_t yBit = (y + i) % 8;
-
-						const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
-
-						Buffer[offset] |= 1 << yBit;
-					}
-				}
-			}
-			else
-			{
-				for (uint_fast8_t i = 0; i < height; i++)
-				{
-					const uint8_t yByte = (y + i) / 8;
-					const uint8_t yBit = (y + i) % 8;
-
-					const size_t offset = (sizeof(color_t) * ((size_t)yByte * frameWidth)) + x;
-
 					Buffer[offset] &= ~(1 << yBit);
 				}
 			}

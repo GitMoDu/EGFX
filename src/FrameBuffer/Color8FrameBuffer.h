@@ -46,7 +46,6 @@ namespace Egfx
 		/// <summary>
 		/// Optimized version color_t = uint8_t.
 		/// </summary>
-		/// <param name="rawColor"></param>
 		void FillRaw(const color_t rawColor) final
 		{
 			memset(Buffer, rawColor, BufferSize);

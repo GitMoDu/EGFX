@@ -85,12 +85,14 @@ namespace Egfx
 		/// </summary>
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
-			const pixel_t lineStart = (sizeof(color_t) * x1);
-			const uint16_t width = x2 - x1 + 1;
+			const pixel_t width = x2 - x1 + 1;
+			const int8_t sign = (y2 >= y1) ? 1 : -1;
+			const pixel_index_t lineSize = sign * pixel_index_t(sizeof(color_t) * frameWidth);
+			pixel_index_t offset = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x1);
+			const pixel_index_t offsetEnd = offset + (lineSize * ((pixel_t(sign) * (y2 - y1)) + 1));
 
-			for (pixel_t y = y1; y <= y2; y++)
+			for (; offset != offsetEnd; offset += lineSize)
 			{
-				const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + lineStart;
 				memset(&Buffer[offset], rawColor, width);
 			}
 		}
@@ -99,13 +101,10 @@ namespace Egfx
 		{
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 			const color_t existingColor = Buffer[offset];
-			const uint8_t r = (Rgb::R3(existingColor) + Rgb::R3(rawColor)) >> 1;
-			const uint8_t g = (Rgb::G3(existingColor) + Rgb::G3(rawColor)) >> 1;
-			const uint8_t b = (Rgb::B2(existingColor) + Rgb::B2(rawColor)) >> 1;
 			Buffer[offset] = Rgb::Color332From332(
-				MinValue<uint8_t>(r, uint8_t(7)),
-				MinValue<uint8_t>(g, uint8_t(7)),
-				MinValue<uint8_t>(b, uint8_t(3))
+				MinValue<uint8_t>((Rgb::R3(existingColor) + Rgb::R3(rawColor)) >> 1, uint8_t(7)),
+				MinValue<uint8_t>((Rgb::G3(existingColor) + Rgb::G3(rawColor)) >> 1, uint8_t(7)),
+				MinValue<uint8_t>((Rgb::B2(existingColor) + Rgb::B2(rawColor)) >> 1, uint8_t(3))
 			);
 		}
 
@@ -124,56 +123,46 @@ namespace Egfx
 			const uint8_t b1 = Rgb::B2(rawColor);
 
 			// Blend channels
-			const uint8_t r = ((uint16_t(r0) * (255 - alpha) + uint16_t(r1) * alpha) >> 8);
-			const uint8_t g = ((uint16_t(g0) * (255 - alpha) + uint16_t(g1) * alpha) >> 8);
-			const uint8_t b = ((uint16_t(b0) * (255 - alpha) + uint16_t(b1) * alpha) >> 8);
-
 			Buffer[offset] = Rgb::Color332From332(
-				MinValue<uint8_t>(r, uint8_t(7)),
-				MinValue<uint8_t>(g, uint8_t(7)),
-				MinValue<uint8_t>(b, uint8_t(3))
-			);
+				MinValue<uint8_t>(((uint16_t(r0) * (255 - alpha)) + (uint16_t(r1) * alpha)) >> 8, 7),
+				MinValue<uint8_t>(((uint16_t(g0) * (255 - alpha)) + (uint16_t(g1) * alpha)) >> 8, 7),
+				MinValue<uint8_t>(((uint16_t(b0) * (255 - alpha)) + (uint16_t(b1) * alpha)) >> 8, 3));
 		}
 
 		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 			const color_t existingColor = Buffer[offset];
-			const uint8_t r = MinValue<uint8_t>(uint8_t(Rgb::R3(existingColor)) + Rgb::R3(rawColor), uint8_t(7));
-			const uint8_t g = MinValue<uint8_t>(uint8_t(Rgb::G3(existingColor)) + Rgb::G3(rawColor), uint8_t(7));
-			const uint8_t b = MinValue<uint8_t>(uint8_t(Rgb::B2(existingColor)) + Rgb::B2(rawColor), uint8_t(3));
-
-			Buffer[offset] = Rgb::Color332From332(r, g, b);
+			Buffer[offset] = Rgb::Color332From332(MinValue<uint8_t>(Rgb::R3(existingColor) + Rgb::R3(rawColor), 7),
+				MinValue<uint8_t>(uint8_t(Rgb::G3(existingColor)) + Rgb::G3(rawColor), 7),
+				MinValue<uint8_t>(uint8_t(Rgb::B2(existingColor)) + Rgb::B2(rawColor), 3));
 		}
 
 		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 			const color_t existingColor = Buffer[offset];
-			const uint8_t r = MaxValue<int16_t>(int16_t(Rgb::R3(existingColor)) - Rgb::R3(rawColor), 0);
-			const uint8_t g = MaxValue<int16_t>(int16_t(Rgb::G3(existingColor)) - Rgb::G3(rawColor), 0);
-			const uint8_t b = MaxValue<int16_t>(int16_t(Rgb::B2(existingColor)) - Rgb::B2(rawColor), 0);
-			Buffer[offset] = Rgb::Color332From332(r, g, b);
+			Buffer[offset] = Rgb::Color332From332(MaxValue<int16_t>(int16_t(Rgb::R3(existingColor)) - Rgb::R3(rawColor), 0),
+				MaxValue<int16_t>(int16_t(Rgb::G3(existingColor)) - Rgb::G3(rawColor), 0),
+				MaxValue<int16_t>(int16_t(Rgb::B2(existingColor)) - Rgb::B2(rawColor), 0));
 		}
 
 		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 			const color_t existingColor = Buffer[offset];
-			const uint8_t r = MinValue<uint8_t>(uint8_t(Rgb::R3(existingColor)) * Rgb::R3(rawColor) / 7, uint8_t(7));
-			const uint8_t g = MinValue<uint8_t>(uint8_t(Rgb::G3(existingColor)) * Rgb::G3(rawColor) / 7, uint8_t(7));
-			const uint8_t b = MinValue<uint8_t>(uint8_t(Rgb::B2(existingColor)) * Rgb::B2(rawColor) / 3, uint8_t(3));
-			Buffer[offset] = Rgb::Color332From332(r, g, b);
+			Buffer[offset] = Rgb::Color332From332(MinValue<uint8_t>(uint8_t(Rgb::R3(existingColor)) * Rgb::R3(rawColor) / 7, 7),
+				MinValue<uint8_t>(uint8_t(Rgb::G3(existingColor)) * Rgb::G3(rawColor) / 7, 7),
+				MinValue<uint8_t>(uint8_t(Rgb::B2(existingColor)) * Rgb::B2(rawColor) / 3, 3));
 		}
 
 		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 			const color_t existingColor = Buffer[offset];
-			const uint8_t r = MinValue<uint8_t>(uint8_t(Rgb::R3(existingColor)) + Rgb::R3(rawColor) - ((Rgb::R3(existingColor) * Rgb::R3(rawColor)) / 7), uint8_t(7));
-			const uint8_t g = MinValue<uint8_t>(uint8_t(Rgb::G3(existingColor)) + Rgb::G3(rawColor) - ((Rgb::G3(existingColor) * Rgb::G3(rawColor)) / 7), uint8_t(7));
-			const uint8_t b = MinValue<uint8_t>(uint8_t(Rgb::B2(existingColor)) + Rgb::B2(rawColor) - ((Rgb::B2(existingColor) * Rgb::B2(rawColor)) / 3), uint8_t(3));
-			Buffer[offset] = Rgb::Color332From332(r, g, b);
+			Buffer[offset] = Rgb::Color332From332(MinValue<int16_t>(int16_t(Rgb::R3(existingColor)) + Rgb::R3(rawColor) - ((Rgb::R3(existingColor) * Rgb::R3(rawColor)) / 7), 7),
+				MinValue<int16_t>(int16_t(Rgb::G3(existingColor)) + Rgb::G3(rawColor) - ((Rgb::G3(existingColor) * Rgb::G3(rawColor)) / 7), 7),
+				MinValue<int16_t>(int16_t(Rgb::B2(existingColor)) + Rgb::B2(rawColor) - ((Rgb::B2(existingColor) * Rgb::B2(rawColor)) / 3), 3));
 		}
 	};
 }

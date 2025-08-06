@@ -42,8 +42,8 @@ namespace Egfx
 		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
-			Buffer[offset] = ((uint8_t)(rawColor >> 8));
-			Buffer[offset + 1] = ((uint8_t)rawColor);
+			Buffer[offset] = uint8_t(rawColor >> 8);
+			Buffer[offset + 1] = (uint8_t)rawColor;
 		}
 
 		/// <summary>
@@ -85,18 +85,16 @@ namespace Egfx
 
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
-			const pixel_t lineStart = (sizeof(color_t) * x1);
-			const uint8_t high = rawColor >> 8;
-			const uint8_t low = (uint8_t)rawColor;
+			const uint8_t highColor = rawColor >> 8;
+			const pixel_index_t offsetStart = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x1);
 
 			for (pixel_t y = y1; y <= y2; y++)
 			{
-				pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + lineStart;
-
-				for (pixel_t i = x1; i <= x2; i++, offset++)
+				pixel_index_t offset = offsetStart + (sizeof(color_t) * frameWidth * (y - y1));
+				for (pixel_t x = x1; x <= x2; x++)
 				{
-					Buffer[offset++] = high;
-					Buffer[offset] = low;
+					Buffer[offset++] = highColor;
+					Buffer[offset++] = (uint8_t)rawColor;
 				}
 			}
 		}
@@ -110,8 +108,8 @@ namespace Egfx
 				(((uint16_t)Rgb::G6(existingColor) + Rgb::G6(rawColor)) >> 1),
 				(((uint16_t)Rgb::B5(existingColor) + Rgb::B5(rawColor)) >> 1));
 
-			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
-			Buffer[offset + 1] = ((uint8_t)blendedColor);
+			Buffer[offset] = uint8_t(blendedColor >> 8);
+			Buffer[offset + 1] = uint8_t(blendedColor);
 		}
 
 		void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha) final
@@ -123,8 +121,8 @@ namespace Egfx
 				((((uint16_t)Rgb::G6(existingColor) * (255 - alpha)) + (Rgb::G6(rawColor) * alpha)) >> 8),
 				((((uint16_t)Rgb::B5(existingColor) * (255 - alpha)) + (Rgb::B5(rawColor) * alpha)) >> 8));
 
-			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
-			Buffer[offset + 1] = ((uint8_t)blendedColor);
+			Buffer[offset] = uint8_t(blendedColor >> 8);
+			Buffer[offset + 1] = uint8_t(blendedColor);
 		}
 
 		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) final
@@ -136,8 +134,8 @@ namespace Egfx
 				MinValue((uint16_t)(Rgb::G6(existingColor) + Rgb::G6(rawColor)), (uint16_t)63),
 				MinValue((uint16_t)(Rgb::B5(existingColor) + Rgb::B5(rawColor)), (uint16_t)31));
 
-			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
-			Buffer[offset + 1] = ((uint8_t)blendedColor);
+			Buffer[offset] = uint8_t(blendedColor >> 8);
+			Buffer[offset + 1] = uint8_t(blendedColor);
 		}
 
 		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) final
@@ -149,8 +147,8 @@ namespace Egfx
 				MaxValue<int16_t>(0, int16_t(Rgb::G6(existingColor)) - Rgb::G6(rawColor)),
 				MaxValue<int16_t>(0, int16_t(Rgb::B5(existingColor)) - Rgb::B5(rawColor)));
 
-			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
-			Buffer[offset + 1] = ((uint8_t)blendedColor);
+			Buffer[offset] = uint8_t(blendedColor >> 8);
+			Buffer[offset + 1] = uint8_t(blendedColor);
 		}
 
 		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y) final
@@ -162,8 +160,8 @@ namespace Egfx
 				((uint16_t(Rgb::G6(existingColor)) * uint16_t(Rgb::G6(rawColor))) >> 6),
 				((uint16_t(Rgb::B5(existingColor)) * uint16_t(Rgb::B5(rawColor))) >> 5));
 
-			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
-			Buffer[offset + 1] = ((uint8_t)blendedColor);
+			Buffer[offset] = uint8_t(blendedColor >> 8);
+			Buffer[offset + 1] = uint8_t(blendedColor);
 		}
 
 		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y) final
@@ -175,8 +173,8 @@ namespace Egfx
 				MinValue((uint8_t)(63 - ((63 - Rgb::G6(existingColor)) * (63 - Rgb::G6(rawColor)) >> 6)), (uint8_t)63),
 				MinValue((uint8_t)(31 - ((31 - Rgb::B5(existingColor)) * (31 - Rgb::B5(rawColor)) >> 5)), (uint8_t)31));
 
-			Buffer[offset] = ((uint8_t)(blendedColor >> 8));
-			Buffer[offset + 1] = ((uint8_t)blendedColor);
+			Buffer[offset] = uint8_t(blendedColor >> 8);
+			Buffer[offset + 1] = uint8_t(blendedColor);
 		}
 	};
 }

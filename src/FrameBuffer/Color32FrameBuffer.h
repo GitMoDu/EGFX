@@ -69,9 +69,9 @@ namespace Egfx
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			// Add each channel, clamp to 255
-			Buffer[offset + 2] = std::min<uint16_t>(255, uint16_t(Buffer[offset + 2]) + uint16_t(Rgb::R(rawColor)));
-			Buffer[offset + 1] = std::min<uint16_t>(255, uint16_t(Buffer[offset + 1]) + uint16_t(Rgb::G(rawColor)));
-			Buffer[offset] = std::min<uint16_t>(255, uint16_t(Buffer[offset + 0]) + uint16_t(Rgb::B(rawColor)));
+			Buffer[offset + 2] = MinValue<uint16_t>(255, uint16_t(Buffer[offset + 2]) + uint16_t(Rgb::R(rawColor)));
+			Buffer[offset + 1] = MinValue<uint16_t>(255, uint16_t(Buffer[offset + 1]) + uint16_t(Rgb::G(rawColor)));
+			Buffer[offset] = MinValue<uint16_t>(255, uint16_t(Buffer[offset + 0]) + uint16_t(Rgb::B(rawColor)));
 		}
 
 		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) final

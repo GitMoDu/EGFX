@@ -44,18 +44,18 @@ namespace Egfx
 	protected:
 		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
 		{
-			const uint8_t yByte = y / 8;
+			const pixel_t yByte = y / 8;
 			const uint8_t yBit = y % 8;
 
-			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
 
 			if (rawColor > 0)
 			{
-				Buffer[offset] |= 1 << yBit;
+				Buffer[offset] |= uint8_t(1) << yBit;
 			}
 			else
 			{
-				Buffer[offset] &= ~(1 << yBit);
+				Buffer[offset] &= ~(uint8_t(1) << yBit);
 			}
 		}
 

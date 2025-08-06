@@ -241,8 +241,8 @@ namespace Egfx
 				{
 					if (endX > startX)
 					{
-						startX = MaxValue((pixel_t)0, (pixel_t)(startX));
-						endX = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(endX));
+						startX = MaxValue<pixel_t>(0, startX);
+						endX = MinValue<pixel_t>(FrameWidth - 1, endX);
 						if (endX > startX)
 						{
 							LineHorizontalRaw(rawColor, startX, startY, endX);
@@ -254,8 +254,8 @@ namespace Egfx
 					}
 					else
 					{
-						endX = MaxValue((pixel_t)0, (pixel_t)(endX));
-						startX = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(startX));
+						endX = MaxValue<pixel_t>(0, endX);
+						startX = MinValue<pixel_t>(FrameWidth - 1, startX);
 						if (startX > endX)
 						{
 							LineHorizontalRaw(rawColor, endX, startY, startX);
@@ -595,10 +595,8 @@ namespace Egfx
 			if (alpha == UINT8_MAX / 2)
 			{
 				PixelBlend(color, x, y);
-				return;
 			}
-
-			if (alpha > 0 &&
+			else if (alpha > 0 &&
 				x >= 0 && x < FrameWidth &&
 				y >= 0 && y < FrameHeight)
 			{
@@ -1004,7 +1002,6 @@ namespace Egfx
 
 			pixel_index_t slopeError = slopeMagnitude - (end.x - start.x);
 			pixel_t y = start.y;
-
 
 			for (pixel_t x = start.x; x <= xEnd; x++)
 			{

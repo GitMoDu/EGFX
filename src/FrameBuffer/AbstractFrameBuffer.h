@@ -729,7 +729,9 @@ namespace Egfx
 	protected:
 		virtual void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
 		{
-			for (pixel_t y = y1; y <= y2; y++)
+			const int8_t sign = (y2 >= y1) ? 1 : -1;
+			const pixel_t endY = (y2 + sign);
+			for (pixel_t y = y1; y != endY; y += sign)
 			{
 				PixelRaw(rawColor, x, y);
 			}
@@ -737,7 +739,9 @@ namespace Egfx
 
 		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
 		{
-			for (pixel_t x = x1; x <= x2; x++)
+			const int8_t sign = (x2 >= x1) ? 1 : -1;
+			const pixel_t endX = (x2 + sign);
+			for (pixel_t x = x1; x != endX; x += sign)
 			{
 				PixelRaw(rawColor, x, y);
 			}

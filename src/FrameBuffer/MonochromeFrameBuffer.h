@@ -79,28 +79,29 @@ namespace Egfx
 		/// Optimized version 1 bit color.
 		/// </summary>
 		/// <param name="rawColor"></param>
-		/// <param name="x"></param>
+		/// <param name="x1"></param>
 		/// <param name="y"></param>
-		/// <param name="width"></param>
+		/// <param name="x2"></param>
 		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
 			const uint8_t yByte = y / 8;
 			const uint8_t yBit = y % 8;
-
-			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
+			const int8_t sign = (x2 >= x1) ? 1 : -1;
+			const pixel_t width = (pixel_t(sign) * (x2 - x1));
+			pixel_index_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
 
 			if (rawColor > 0)
 			{
-				for (uint_fast8_t i = 0; i <= x2 - x1; i++)
+				for (pixel_t i = 0; i <= width; i++, offset += sign)
 				{
-					Buffer[offset + i] |= 1 << yBit;
+					Buffer[offset] |= 1 << yBit;
 				}
 			}
 			else
 			{
-				for (uint_fast8_t i = 0; i <= x2 - x1; i++)
+				for (pixel_t i = 0; i <= width; i++, offset += sign)
 				{
-					Buffer[offset + i] &= ~(1 << yBit);
+					Buffer[offset] &= ~(1 << yBit);
 				}
 			}
 		}

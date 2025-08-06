@@ -51,15 +51,16 @@ namespace Egfx
 		/// </summary>
 		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2) final
 		{
-			constexpr pixel_index_t lineSize = sizeof(color_t) * frameWidth;
-			const uint8_t high = rawColor >> 8;
-			const uint8_t low = (uint8_t)rawColor;
+			const uint8_t highColor = rawColor >> 8;
+			const int8_t sign = (y2 >= y1) ? 1 : -1;
+			const pixel_index_t lineSize = sign * pixel_index_t(sizeof(color_t) * frameWidth);
 			pixel_index_t offset = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x);
+			const pixel_index_t offsetEnd = offset + (lineSize * ((pixel_t(sign) * (y2 - y1)) + 1));
 
-			for (pixel_t i = y1; i <= y2; i++, offset += lineSize)
+			for (; offset != offsetEnd; offset += lineSize)
 			{
-				Buffer[offset] = high;
-				Buffer[offset + 1] = low;
+				Buffer[offset] = highColor;
+				Buffer[offset + 1] = (uint8_t)rawColor;
 			}
 		}
 
@@ -68,14 +69,17 @@ namespace Egfx
 		/// </summary>
 		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
-			const uint8_t high = rawColor >> 8;
-			const uint8_t low = (uint8_t)rawColor;
+			const uint8_t highColor = rawColor >> 8;
+			const int8_t sign = (x2 >= x1) ? 1 : -1;
+			const int8_t columnOffset = sizeof(color_t) * sign;
 			pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + (sizeof(color_t) * x1);
+			const pixel_index_t offsetEnd = offset + (sign * pixel_index_t(sizeof(color_t) * ((pixel_t(sign) * (x2 - x1)) + 1)));
 
-			for (pixel_t i = x1; i <= x2; i++, offset++)
+			for (; offset != offsetEnd; )
 			{
-				Buffer[offset++] = high;
-				Buffer[offset] = low;
+				Buffer[offset] = highColor;
+				Buffer[offset + 1] = (uint8_t)rawColor;
+				offset += columnOffset;
 			}
 		}
 

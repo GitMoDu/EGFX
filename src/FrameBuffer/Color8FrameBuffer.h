@@ -57,10 +57,12 @@ namespace Egfx
 		/// </summary>
 		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2) final
 		{
-			constexpr pixel_index_t lineSize = sizeof(color_t) * frameWidth;
+			const int8_t sign = (y2 >= y1) ? 1 : -1;
+			const pixel_index_t lineSize = sign * pixel_index_t(sizeof(color_t) * frameWidth);
 			pixel_index_t offset = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x);
+			const pixel_index_t offsetEnd = offset + (lineSize * ((pixel_t(sign) * (y2 - y1)) + 1));
 
-			for (pixel_t i = y1; i <= y2; i++, offset += lineSize)
+			for (; offset != offsetEnd; offset += lineSize)
 			{
 				Buffer[offset] = rawColor;
 			}
@@ -71,8 +73,11 @@ namespace Egfx
 		/// </summary>
 		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2) final
 		{
-			const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + (sizeof(color_t) * x1);
-			memset(&Buffer[offset], rawColor, x2 - x1 + 1);
+			const pixel_t xStart = (x2 >= x1) ? x1 : x2;
+			const pixel_t xEnd = (x2 >= x1) ? x2 : x1;
+			const pixel_index_t offset = (sizeof(color_t) * frameWidth * y) + (sizeof(color_t) * xStart);
+
+			memset(&Buffer[offset], rawColor, xEnd - xStart + 1);
 		}
 
 		/// <summary>

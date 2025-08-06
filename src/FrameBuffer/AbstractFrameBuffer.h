@@ -318,6 +318,13 @@ namespace Egfx
 				break;
 			}
 
+			// Apply bounds limiting for rectangle.
+			mx1 = MaxValue<pixel_t>(0, mx1);
+			my1 = MaxValue<pixel_t>(0, my1);
+
+			mx2 = MinValue<pixel_t>(FrameWidth - 1, mx2);
+			my2 = MinValue<pixel_t>(FrameHeight - 1, my2);
+
 			if (mx1 == mx2)
 			{
 				if (my1 == my2)
@@ -327,39 +334,17 @@ namespace Egfx
 				}
 				else
 				{
-					// Apply bounds limiting for line.
-					const pixel_t yStart = MaxValue((pixel_t)0, (pixel_t)(my1));
-					const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(my2));
-					if (yStart < yEnd)
-					{
-						LineVerticalRaw(rawColor, mx1, yStart, yEnd);
-					}
+					LineVerticalRaw(rawColor, mx1, my1, my2);
 				}
 			}
 			else if (my1 == my2)
 			{
 				// Apply bounds limiting for line.
-				const pixel_t xStart = MaxValue((pixel_t)0, (pixel_t)(mx1));
-				const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(mx2));
-				if (xStart < xEnd)
-				{
-					LineHorizontalRaw(rawColor, xStart, my1, xEnd);
-				}
+				LineHorizontalRaw(rawColor, mx1, my1, mx2);
 			}
 			else
 			{
-				// Apply bounds limiting for rectangle.
-				const pixel_t xStart = MaxValue((pixel_t)0, (pixel_t)(mx1));
-				const pixel_t yStart = MaxValue((pixel_t)0, (pixel_t)(my1));
-
-				const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(mx2));
-				const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(my2));
-
-				if (xStart < xEnd
-					&& yStart < yEnd)
-				{
-					RectangleFillRaw(rawColor, xStart, yStart, xEnd, yEnd);
-				}
+				RectangleFillRaw(rawColor, mx1, my1, mx2, my2);
 			}
 		}
 

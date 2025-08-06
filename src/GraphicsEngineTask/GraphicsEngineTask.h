@@ -136,7 +136,7 @@ namespace Egfx
 				&& FrameBuffer->GetFrameWidth() == ScreenDriver->GetScreenWidth()
 				&& FrameBuffer->GetFrameHeight() == ScreenDriver->GetScreenHeight()
 				&& ScreenDriver->GetScreenWidth() > 0
-				&& ScreenDriver->GetScreenWidth() < MAX_PIXEL_SIZE)
+				&& ScreenDriver->GetScreenWidth() <= MAX_PIXEL_SIZE)
 			{
 				if (ScreenDriver->Start())
 				{
@@ -182,7 +182,7 @@ namespace Egfx
 
 					//TODO: check if driver needs a frame buffer.
 					if ((ScreenDriver->GetScreenWidth() == 0)
-						|| (ScreenDriver->GetScreenWidth() > INT8_MAX))
+						|| (ScreenDriver->GetScreenWidth() > MAX_PIXEL_SIZE))
 						Serial.println(F("Invalid dimensions."));
 				}
 				else

@@ -51,12 +51,12 @@ namespace Egfx
 
 			static constexpr bool HasRotation()
 			{
-				return rotation != RotationEnum::NoRotation;
+				return rotation != RotationEnum::None;
 			}
 
 			static constexpr bool HasMirroring()
 			{
-				return mirror != MirrorEnum::NoMirror;
+				return mirror != MirrorEnum::None;
 			}
 
 			static constexpr bool HasAntiAliasing()

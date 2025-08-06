@@ -795,61 +795,40 @@ namespace Egfx
 			pixel_index_t x1 = (pixel_index_t)a.x << BRESENHAM_SCALE;
 			pixel_index_t x2 = x1;
 
+			pixel_t xSide1{};
+			pixel_t xSide2{};
+
 			// Loop from a.y to b.y (inclusive)
-			const pixel_t startY = a.y;
-			const pixel_t endY = min((pixel_t)(FrameHeight - 1), (pixel_t)b.y);
-
-			for (pixel_t y = startY; y < endY; y++)
+			for (pixel_t y = a.y; y <= b.y; y++)
 			{
-				if (y >= 0 && y < FrameHeight)
+				xSide1 = LimitValue<pixel_t>(x1 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
+				xSide2 = LimitValue<pixel_t>(x2 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
+
+				if (xSide1 == xSide2)
 				{
-					pixel_t xStart{};
-					pixel_t xEnd{};
+					PixelRaw(rawColor, xSide1, y);
+				}
+				else
+				{
+					LineHorizontalRaw(rawColor, xSide1, y, xSide2);
+				}
 
-					if (x1 > x2)
-					{
-						xStart = x2 >> BRESENHAM_SCALE;
-						xEnd = x1 >> BRESENHAM_SCALE;
-					}
-					else
-					{
-						xStart = x1 >> BRESENHAM_SCALE;
-						xEnd = x2 >> BRESENHAM_SCALE;
-					}
+				switch (displayOptions::AntiAliasing)
+				{
+				case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+				{
+					const pixel_t aax1 = (xSide2 >= xSide1) ? (xSide1 - 1) : (xSide1 + 1);
+					const pixel_t aax2 = (xSide2 >= xSide1) ? (xSide2 + 1) : (xSide2 - 1);
 
-					xStart = MaxValue(pixel_t(0), xStart);
-					xEnd = MinValue(pixel_t(FrameWidth - 1), xEnd);
-
-					if (xStart < xEnd)
-					{
-						LineHorizontalRaw(rawColor, xStart, y, xEnd);
-					}
-					else if (xStart == xEnd)
-					{
-						PixelRaw(rawColor, xStart, y);
-					}
-					else
-					{
-						return;
-					}
-
-					switch (displayOptions::AntiAliasing)
-					{
-					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
-						if (y >= 0 && y < FrameHeight)
-						{
-							int16_t x = xStart - 1;
-							if (x >= 0 && x < FrameWidth)
-								PixelRawBlend(rawColor, x, y);
-							x = xEnd + 1;
-							if (x >= 0 && x < FrameWidth)
-								PixelRawBlend(rawColor, x, y);
-						}
-						break;
-					case DisplayOptions::AntiAliasingEnum::None:
-					default:
-						break;
-					}
+					if (aax1 >= 0 && aax1 < FrameWidth)
+						PixelRawBlend(rawColor, aax1, y);
+					if (aax2 >= 0 && aax2 < FrameWidth)
+						PixelRawBlend(rawColor, aax2, y);
+				}
+				break;
+				case DisplayOptions::AntiAliasingEnum::None:
+				default:
+					break;
 				}
 
 				x1 += invSlope1;
@@ -867,61 +846,40 @@ namespace Egfx
 			pixel_index_t x1 = (pixel_index_t)c.x << BRESENHAM_SCALE;
 			pixel_index_t x2 = x1;
 
+			pixel_t xSide1{};
+			pixel_t xSide2{};
+
 			// Loop from c.y down to a.y (inclusive)
-			const pixel_t startY = c.y;
-			const pixel_t endY = MaxValue(pixel_t(0), a.y);
-
-			for (pixel_t y = startY; y >= endY; y--)
+			for (pixel_t y = c.y; y >= a.y; y--)
 			{
-				if (y >= 0 && y < FrameHeight)
+				xSide1 = LimitValue<pixel_t>(x1 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
+				xSide2 = LimitValue<pixel_t>(x2 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
+
+				if (xSide1 == xSide2)
 				{
-					pixel_t xStart{};
-					pixel_t xEnd{};
+					PixelRaw(rawColor, xSide1, y);
+				}
+				else
+				{
+					LineHorizontalRaw(rawColor, xSide1, y, xSide2);
+				}
 
-					if (x1 > x2)
-					{
-						xStart = x2 >> BRESENHAM_SCALE;
-						xEnd = x1 >> BRESENHAM_SCALE;
-					}
-					else
-					{
-						xStart = x1 >> BRESENHAM_SCALE;
-						xEnd = x2 >> BRESENHAM_SCALE;
-					}
+				switch (displayOptions::AntiAliasing)
+				{
+				case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+				{
+					const pixel_t aax1 = (xSide2 >= xSide1) ? (xSide1 - 1) : (xSide1 + 1);
+					const pixel_t aax2 = (xSide2 >= xSide1) ? (xSide2 + 1) : (xSide2 - 1);
 
-					xStart = MaxValue(pixel_t(0), xStart);
-					xEnd = MinValue(pixel_t(FrameWidth - 1), xEnd);
-
-					if (xStart < xEnd)
-					{
-						LineHorizontalRaw(rawColor, xStart, y, xEnd);
-					}
-					else if (xStart == xEnd)
-					{
-						PixelRaw(rawColor, xStart, y);
-					}
-					else
-					{
-						return;
-					}
-
-					switch (displayOptions::AntiAliasing)
-					{
-					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
-						if (y >= 0 && y < FrameHeight)
-						{
-							int16_t x = xStart - 1;
-							if (x >= 0 && x < FrameWidth)
-								PixelRawBlend(rawColor, x, y);
-							x = xEnd + 1;
-							if (x >= 0 && x < FrameWidth)
-								PixelRawBlend(rawColor, x, y);
-						}
-						break;
-					case DisplayOptions::AntiAliasingEnum::None:
-					default:
-						break;
-					}
+					if (aax1 >= 0 && aax1 < FrameWidth)
+						PixelRawBlend(rawColor, aax1, y);
+					if (aax2 >= 0 && aax2 < FrameWidth)
+						PixelRawBlend(rawColor, aax2, y);
+				}
+				break;
+				case DisplayOptions::AntiAliasingEnum::None:
+				default:
+					break;
 				}
 
 				x1 -= invSlope1;

@@ -30,6 +30,9 @@ namespace Egfx
 	protected:
 		using BaseClass::Buffer;
 
+	private:
+		uint16_t AlphaRng = 42;
+
 	public:
 		MonochromeFrameBuffer(uint8_t buffer[BufferSize] = nullptr)
 			: BaseClass(buffer)
@@ -161,6 +164,113 @@ namespace Egfx
 					Buffer[offset] &= ~(1 << yBit);
 				}
 			}
+		}
+
+		void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const bool currentPixel = GetPixelRaw(x, y);
+			const bool newPixel = rawColor > 0;
+
+			// If pixels are already the same, no change needed
+			if (currentPixel == newPixel)
+				return;
+
+			// Use 50/50 dithering to decide whether to draw the pixel
+			if (Dither(INT8_MAX))
+			{
+				PixelRaw(rawColor, x, y);
+			}
+		}
+
+		void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha) final
+		{
+			const bool currentPixel = GetPixelRaw(x, y);
+			const bool newPixel = rawColor > 0;
+
+			// If pixels are already the same, no change needed
+			if (currentPixel == newPixel)
+				return;
+
+			// Use dithering to decide whether to draw the pixel based on alpha
+			if (Dither(alpha))
+			{
+				PixelRaw(rawColor, x, y);
+			}
+		}
+
+		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const bool currentPixel = GetPixelRaw(x, y);
+
+			// In add mode, if current pixel is already white, it stays white
+			if (currentPixel)
+				return;
+
+			// If new pixel is white, chance to turn current pixel white
+			if (rawColor > 0 && Dither(INT8_MAX))
+			{
+				PixelRaw(1, x, y);
+			}
+		}
+
+		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const bool currentPixel = GetPixelRaw(x, y);
+
+			// In subtract mode, if current pixel is already black, it stays black
+			if (!currentPixel)
+				return;
+
+			// If new pixel is white, chance to turn current pixel black
+			if (rawColor > 0 && Dither(INT8_MAX))
+			{
+				PixelRaw(0, x, y);
+			}
+		}
+
+		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const bool currentPixel = GetPixelRaw(x, y);
+			const bool newPixel = rawColor > 0;
+
+			// In multiply mode, result is white only if both are white
+			if (currentPixel && !newPixel)
+			{
+				PixelRaw(0, x, y); // Change from white to black
+			}
+			// Otherwise no change needed
+		}
+
+		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		{
+			const bool currentPixel = GetPixelRaw(x, y);
+			const bool newPixel = rawColor > 0;
+
+			// In screen mode, result is black only if both are black
+			if (!currentPixel && newPixel)
+			{
+				PixelRaw(1, x, y); // Change from black to white
+			}
+			// Otherwise no change needed
+		}
+
+	private:
+		bool GetPixelRaw(const pixel_t x, const pixel_t y) const
+		{
+			const pixel_t yByte = y / 8;
+			const uint8_t yBit = y % 8;
+			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
+
+			return (Buffer[offset] & (uint8_t(1) << yBit)) != 0;
+		}
+
+		bool Dither(const uint8_t alpha)
+		{
+			AlphaRng ^= AlphaRng << 7;
+			AlphaRng ^= AlphaRng >> 9;
+			AlphaRng ^= AlphaRng << 8;
+
+			return alpha >= uint8_t(AlphaRng);
 		}
 	};
 }

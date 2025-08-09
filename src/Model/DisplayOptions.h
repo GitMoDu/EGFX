@@ -25,10 +25,34 @@ namespace Egfx
 			Minus90
 		};
 
+		/// <summary>
+		/// Anti-aliasing modes for edge rendering.
+		/// </summary>
 		enum class AntiAliasingEnum
 		{
+			/// <summary>
+			/// No anti-aliasing. 
+			/// - Fastest, no extra computation or memory.
+			/// - Jagged edges (aliasing artifacts) are visible, especially on diagonal or curved shapes.
+			/// </summary>
 			None,
-			ScanlineEdge
+
+			/// <summary>
+			/// EdgeBlend: Simple scanline edge blending.
+			/// - Fast, visually softens edges by blending adjacent pixels.
+			/// - Only blends a single pixel on each edge, so results are not as smooth as more advanced methods.
+			/// - May not be effective for very thin or high-contrast shapes.
+			/// </summary>
+			EdgeBlend,
+
+			/// <summary>
+			/// PixelCoverage: Subpixel coverage-based alpha blending.
+			/// - Produces smoother, more accurate edges by calculating the fractional coverage of edge pixels.
+			/// - Reduces visible aliasing and works well for both thin and thick shapes.
+			/// - Slightly higher computational cost than EdgeBlend.
+			/// - AA Coverage is biased towards vertical/diagonal edges, so it may not work as well for horizontal edges.
+			/// </summary>
+			PixelCoverage
 		};
 
 		/// <summary>

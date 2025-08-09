@@ -813,15 +813,14 @@ namespace Egfx
 
 				switch (displayOptions::AntiAliasing)
 				{
-				case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+				case DisplayOptions::AntiAliasingEnum::EdgeBlend:
 				{
-					const pixel_t aax1 = (xSide2 >= xSide1) ? (xSide1 - 1) : (xSide1 + 1);
-					const pixel_t aax2 = (xSide2 >= xSide1) ? (xSide2 + 1) : (xSide2 - 1);
-
-					if (aax1 >= 0 && aax1 < FrameWidth)
-						PixelRawBlend(rawColor, aax1, y);
-					if (aax2 >= 0 && aax2 < FrameWidth)
-						PixelRawBlend(rawColor, aax2, y);
+					TriangleEdgeAntiAliasingEdgeBlend(rawColor, xSide1, xSide2, y);
+				}
+				break;
+				case DisplayOptions::AntiAliasingEnum::PixelCoverage:
+				{
+					TriangleEdgeAntiAliasingPixelCoverage(rawColor, x1, x2, xSide1, xSide2, y);
 				}
 				break;
 				case DisplayOptions::AntiAliasingEnum::None:
@@ -864,15 +863,14 @@ namespace Egfx
 
 				switch (displayOptions::AntiAliasing)
 				{
-				case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+				case DisplayOptions::AntiAliasingEnum::EdgeBlend:
 				{
-					const pixel_t aax1 = (xSide2 >= xSide1) ? (xSide1 - 1) : (xSide1 + 1);
-					const pixel_t aax2 = (xSide2 >= xSide1) ? (xSide2 + 1) : (xSide2 - 1);
-
-					if (aax1 >= 0 && aax1 < FrameWidth)
-						PixelRawBlend(rawColor, aax1, y);
-					if (aax2 >= 0 && aax2 < FrameWidth)
-						PixelRawBlend(rawColor, aax2, y);
+					TriangleEdgeAntiAliasingEdgeBlend(rawColor, xSide1, xSide2, y);
+				}
+				break;
+				case DisplayOptions::AntiAliasingEnum::PixelCoverage:
+				{
+					TriangleEdgeAntiAliasingPixelCoverage(rawColor, x1, x2, xSide1, xSide2, y);
 				}
 				break;
 				case DisplayOptions::AntiAliasingEnum::None:
@@ -960,14 +958,13 @@ namespace Egfx
 
 					switch (displayOptions::AntiAliasing)
 					{
-					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+					case DisplayOptions::AntiAliasingEnum::EdgeBlend:
 						if (x >= 0 && x < FrameWidth &&
 							y >= 0 && y < FrameHeight)
 						{
 							PixelRawBlend(rawColor, x, y);
 						}
 						break;
-					case DisplayOptions::AntiAliasingEnum::None:
 					default:
 						break;
 					}
@@ -1002,17 +999,77 @@ namespace Egfx
 
 					switch (displayOptions::AntiAliasing)
 					{
-					case DisplayOptions::AntiAliasingEnum::ScanlineEdge:
+					case DisplayOptions::AntiAliasingEnum::EdgeBlend:
 						if (x >= 0 && x < FrameWidth &&
 							y >= 0 && y < FrameHeight)
 						{
 							PixelRawBlend(rawColor, x, y);
 						}
 						break;
-					case DisplayOptions::AntiAliasingEnum::None:
 					default:
 						break;
 					}
+				}
+			}
+		}
+
+		void TriangleEdgeAntiAliasingEdgeBlend(const color_t rawColor,
+			const pixel_t xSide1, const pixel_t xSide2,
+			const pixel_t y)
+		{
+			// Get edge pixels.
+			const bool leftToRight = (xSide2 >= xSide1);
+			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
+			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
+
+			// Blend the edge pixels.
+			if (aax1 >= 0 && aax1 < FrameWidth)
+				PixelRawBlend(rawColor, aax1, y);
+			if (aax2 >= 0 && aax2 < FrameWidth)
+				PixelRawBlend(rawColor, aax2, y);
+		}
+
+		void TriangleEdgeAntiAliasingPixelCoverage(const color_t rawColor,
+			const pixel_index_t x1, const pixel_index_t x2,
+			const pixel_t xSide1, const pixel_t xSide2,
+			const pixel_t y)
+		{
+			// Get edge pixels.
+			const bool leftToRight = (xSide2 >= xSide1);
+			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
+			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
+
+			// For left-to-right scanning:
+			// - Left edge: high alpha when x1 fraction is LOW (just entered the shape)
+			// - Right edge: high alpha when x2 fraction is HIGH (about to exit the shape)
+			if (aax1 >= 0 && aax1 < FrameWidth)
+			{
+				if (leftToRight)
+				{
+					// Left edge: invert the sub-pixel position for correct coverage
+					const uint8_t alpha = (255 - (((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
+					PixelRawBlendAlpha(rawColor, aax1, y, alpha);
+				}
+				else
+				{
+					// Right-to-left: normal sub-pixel position for correct coverage
+					const uint8_t alpha = ((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
+					PixelRawBlendAlpha(rawColor, aax1, y, alpha);
+				}
+			}
+
+			if (aax2 >= 0 && aax2 < FrameWidth)
+			{
+				if (leftToRight) {
+					// Right edge: normal sub-pixel position for correct coverage
+					const uint8_t alpha = ((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
+					PixelRawBlendAlpha(rawColor, aax2, y, alpha);
+				}
+				else
+				{
+					// Right-to-left: invert the sub-pixel position for correct coverage
+					const uint8_t alpha = (255 - (((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
+					PixelRawBlendAlpha(rawColor, aax2, y, alpha);
 				}
 			}
 		}

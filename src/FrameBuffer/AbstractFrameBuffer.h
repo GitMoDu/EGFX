@@ -45,6 +45,14 @@ namespace Egfx
 			return (uint32_t)(1) << clearDivisorPower;
 		}
 
+		enum class OutcodeEnum : uint8_t
+		{
+			OUT_LEFT = 1,
+			OUT_RIGHT = 2,
+			OUT_BOTTOM = 4,
+			OUT_TOP = 8
+		};
+
 	protected:
 		uint8_t* Buffer;
 
@@ -171,178 +179,109 @@ namespace Egfx
 
 		void Line(const rgb_color_t color, const pixel_line_t& line) final
 		{
-			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+			pixel_point_t start = line.start;
+			pixel_point_t end = line.end;
 
-			pixel_t startX;
-			pixel_t startY;
-			pixel_t endX;
-			pixel_t endY;
-
-			// Apply mirroring.
-			switch (displayOptions::Mirror)
-			{
-			case DisplayOptions::MirrorEnum::MirrorX:
-				startX = MirrorX(line.start.x);
-				endX = MirrorX(line.end.x);
-				startY = line.start.y;
-				endY = line.end.y;
-				break;
-			case DisplayOptions::MirrorEnum::MirrorY:
-				startX = line.start.x;
-				startY = MirrorY(line.start.y);
-				endX = line.end.x;
-				endY = MirrorY(line.end.y);
-				break;
-			case DisplayOptions::MirrorEnum::MirrorXY:
-				startX = MirrorX(line.start.x);
-				startY = MirrorY(line.start.y);
-				endX = MirrorX(line.end.x);
-				endY = MirrorY(line.end.y);
-				break;
-			case DisplayOptions::MirrorEnum::None:
-			default:
-				startX = line.start.x;
-				startY = line.start.y;
-				endX = line.end.x;
-				endY = line.end.y;
-				break;
-			}
-
-			if (startX == endX)
-			{
-				if (startX >= 0 && startX < FrameWidth)
-				{
-					if (startY == endY)
-					{
-						if (startY >= 0 && startY < FrameHeight)
-						{
-							PixelRaw(rawColor, startX, startY);
-						}
-					}
-					else if (endY > startY)
-					{
-						startY = MaxValue((pixel_t)0, (pixel_t)(startY));
-						endY = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(endY));
-						LineVerticalRaw(rawColor, startX, startY, endY);
-					}
-					else
-					{
-						endY = MaxValue((pixel_t)0, (pixel_t)(endY));
-						startY = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(startY));
-						LineVerticalRaw(rawColor, startX, endY, startY);
-					}
-				}
-			}
-			else if (startY == endY)
-			{
-				if (startY >= 0 && startY < FrameHeight)
-				{
-					if (endX > startX)
-					{
-						startX = MaxValue<pixel_t>(0, startX);
-						endX = MinValue<pixel_t>(FrameWidth - 1, endX);
-						if (endX > startX)
-						{
-							LineHorizontalRaw(rawColor, startX, startY, endX);
-						}
-						else if (endX == startX)
-						{
-							PixelRaw(rawColor, startX, startY);
-						}
-					}
-					else
-					{
-						endX = MaxValue<pixel_t>(0, endX);
-						startX = MinValue<pixel_t>(FrameWidth - 1, startX);
-						if (startX > endX)
-						{
-							LineHorizontalRaw(rawColor, endX, startY, startX);
-						}
-						else if (endX == startX)
-						{
-							PixelRaw(rawColor, startX, startY);
-						}
-					}
-				}
-			}
-			else
-			{
-				// No bounds checking for BresenhamDiagonal
-				BresenhamDiagonal(rawColor, { startX, startY }, { endX, endY });
-			}
-		}
-
-		void RectangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
-		{
-			// Integrity and bounds check.
-			if (x1 > x2 || y1 > y2
-				|| x2 < 0 || x1 >= FrameWidth
-				|| y2 < 0 || y1 >= FrameHeight)
+			if (!ClipLine(start, end))
 			{
 				return;
 			}
 
 			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 
-			pixel_t mx1, mx2, my1, my2;
+			// Apply mirroring.
+			switch (displayOptions::Mirror)
+			{
+			case DisplayOptions::MirrorEnum::MirrorX:
+				start = { MirrorX(start.x), start.y };
+				end = { MirrorX(end.x), end.y };
+				break;
+			case DisplayOptions::MirrorEnum::MirrorY:
+				start = { start.x, MirrorY(start.y) };
+				end = { end.x, MirrorY(end.y) };
+				break;
+			case DisplayOptions::MirrorEnum::MirrorXY:
+				start = { MirrorX(start.x), MirrorY(start.y) };
+				end = { MirrorX(end.x), MirrorY(end.y) };
+				break;
+			case DisplayOptions::MirrorEnum::None:
+			default:
+				break;
+			}
+
+			if (start.x == end.x)
+			{
+				if (start.y == end.y)
+				{
+					PixelRaw(rawColor, start.x, start.y);
+				}
+				else
+				{
+					LineVerticalRaw(rawColor, start.x, start.y, end.y);
+				}
+			}
+			else if (start.y == end.y)
+			{
+				LineHorizontalRaw(rawColor, start.x, start.y, end.x);
+			}
+			else
+			{
+				BresenhamDiagonal(rawColor, start, end);
+			}
+		}
+
+		void RectangleFill(const rgb_color_t color,
+			const pixel_t topLeftX, const pixel_t topLeftY,
+			const pixel_t bottomRightX, const pixel_t bottomRightY) final
+		{
+			pixel_point_t topLeft = { topLeftX, topLeftY };
+			pixel_point_t bottomRight = { bottomRightX , bottomRightY };
+
+			if (!ClipRectangle(topLeft, bottomRight))
+			{
+				return;
+			}
+
+			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
 
 			// Apply mirroring.
 			switch (displayOptions::Mirror)
 			{
 			case DisplayOptions::MirrorEnum::MirrorX:
-				mx1 = MirrorX(x2);
-				mx2 = MirrorX(x1);
-				my1 = y1;
-				my2 = y2;
+				topLeft = { MirrorX(topLeft.x), topLeft.y };
+				bottomRight = { MirrorX(bottomRight.x), bottomRight.y };
 				break;
 			case DisplayOptions::MirrorEnum::MirrorY:
-				mx1 = x1;
-				mx2 = x2;
-				my1 = MirrorY(y2);
-				my2 = MirrorY(y1);
+				topLeft = { topLeft.x, MirrorY(topLeft.y) };
+				bottomRight = { bottomRight.x, MirrorY(bottomRight.y) };
 				break;
 			case DisplayOptions::MirrorEnum::MirrorXY:
-				mx1 = MirrorX(x2);
-				mx2 = MirrorX(x1);
-				my1 = MirrorY(y2);
-				my2 = MirrorY(y1);
+				topLeft = { MirrorX(topLeft.x), MirrorY(topLeft.y) };
+				bottomRight = { MirrorX(bottomRight.x), MirrorY(bottomRight.y) };
 				break;
 			case DisplayOptions::MirrorEnum::None:
 			default:
-				mx1 = x1;
-				mx2 = x2;
-				my1 = y1;
-				my2 = y2;
 				break;
 			}
 
-			// Apply bounds limiting for rectangle.
-			mx1 = MaxValue<pixel_t>(0, mx1);
-			my1 = MaxValue<pixel_t>(0, my1);
-
-			mx2 = MinValue<pixel_t>(FrameWidth - 1, mx2);
-			my2 = MinValue<pixel_t>(FrameHeight - 1, my2);
-
-			if (mx1 == mx2)
+			if (topLeft.x == bottomRight.x)
 			{
-				if (my1 == my2)
+				if (topLeft.y == bottomRight.y)
 				{
-					// Degenerate line, single pixel.
-					PixelRaw(rawColor, mx1, my1);
+					PixelRaw(rawColor, topLeft.x, topLeft.y);
 				}
 				else
 				{
-					LineVerticalRaw(rawColor, mx1, my1, my2);
+					LineVerticalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.y);
 				}
 			}
-			else if (my1 == my2)
+			else if (topLeft.y == bottomRight.y)
 			{
-				// Apply bounds limiting for line.
-				LineHorizontalRaw(rawColor, mx1, my1, mx2);
+				LineHorizontalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x);
 			}
 			else
 			{
-				RectangleFillRaw(rawColor, mx1, my1, mx2, my2);
+				RectangleFillRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
 			}
 		}
 
@@ -351,83 +290,67 @@ namespace Egfx
 			RectangleFill(color, rectangle.topLeft.x, rectangle.topLeft.y, rectangle.bottomRight.x, rectangle.bottomRight.y);
 		}
 
-		void Rectangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
+		void Rectangle(const rgb_color_t color, const pixel_t topLeftX, const pixel_t topLeftY,
+			const pixel_t bottomRightX, const pixel_t bottomRightY) final
 		{
-			// Integrity and bounds check.
-			if (x1 > x2 || y1 > y2
-				|| x2 < 0 || x1 >= FrameWidth
-				|| y2 < 0 || y1 >= FrameHeight)
-			{
-				return;
-			}
-
-			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-
-			pixel_t mx1, mx2, my1, my2;
+			pixel_point_t topLeft = { topLeftX, topLeftY };
+			pixel_point_t bottomRight = { bottomRightX , bottomRightY };
 
 			// Apply mirroring.
 			switch (displayOptions::Mirror)
 			{
 			case DisplayOptions::MirrorEnum::MirrorX:
-				mx1 = MirrorX(x2);
-				mx2 = MirrorX(x1);
-				my1 = y1;
-				my2 = y2;
+				topLeft = { MirrorX(topLeft.x), topLeft.y };
+				bottomRight = { MirrorX(bottomRight.x), bottomRight.y };
 				break;
 			case DisplayOptions::MirrorEnum::MirrorY:
-				mx1 = x1;
-				mx2 = x2;
-				my1 = MirrorY(y2);
-				my2 = MirrorY(y1);
+				topLeft = { topLeft.x, MirrorY(topLeft.y) };
+				bottomRight = { bottomRight.x, MirrorY(bottomRight.y) };
 				break;
 			case DisplayOptions::MirrorEnum::MirrorXY:
-				mx1 = MirrorX(x2);
-				mx2 = MirrorX(x1);
-				my1 = MirrorY(y2);
-				my2 = MirrorY(y1);
+				topLeft = { MirrorX(topLeft.x), MirrorY(topLeft.y) };
+				bottomRight = { MirrorX(bottomRight.x), MirrorY(bottomRight.y) };
 				break;
 			case DisplayOptions::MirrorEnum::None:
 			default:
-				mx1 = x1;
-				mx2 = x2;
-				my1 = y1;
-				my2 = y2;
 				break;
 			}
 
-			// Apply bounds limiting for rectangle.
-			const pixel_t xStart = MaxValue((pixel_t)0, (pixel_t)(mx1));
-			const pixel_t yStart = MaxValue((pixel_t)0, (pixel_t)(my1 + 1));
-			const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(mx2));
-			const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(my2 - 1));
+			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+			const pixel_point_t topLeftLimited = { LimitValue<pixel_t>(topLeft.x, 0, FrameWidth - 1), LimitValue<pixel_t>(topLeft.y, 0, FrameHeight - 1) };
+			const pixel_point_t bottomRightLimited = { LimitValue<pixel_t>(bottomRight.x, 0, FrameWidth - 1), LimitValue<pixel_t>(bottomRight.y, 0, FrameHeight - 1) };
 
-			if (xEnd >= xStart)
+			if (((topLeft.x >= 0 && topLeft.x < FrameWidth) ||
+				(bottomRight.x >= 0 && bottomRight.x < FrameWidth))
+				&& bottomRightLimited.x >= topLeftLimited.x)
 			{
 				// Draw top horizontal line.
-				if (my1 >= 0 && my1 < FrameHeight)
+				if (topLeft.y >= 0 && topLeft.y < FrameHeight)
 				{
-					LineHorizontalRaw(rawColor, xStart, my1, xEnd);
+					LineHorizontalRaw(rawColor, topLeftLimited.x, topLeft.y, bottomRightLimited.x);
 				}
 
 				// Draw bottom horizontal line.
-				if (my2 >= 0 && my2 < FrameHeight)
+				if (bottomRight.y >= 0 && bottomRight.y < FrameHeight)
 				{
-					LineHorizontalRaw(rawColor, xStart, my2, xEnd);
+					LineHorizontalRaw(rawColor, topLeftLimited.x, bottomRight.y, bottomRightLimited.x);
 				}
 			}
 
-			if (yEnd >= yStart)
+			if (((topLeft.y >= 0 && topLeft.y < FrameHeight) ||
+				(bottomRight.y >= 0 && bottomRight.y < FrameHeight))
+				&& bottomRightLimited.y >= topLeftLimited.y)
 			{
 				// Draw left vertical line.
-				if (mx1 >= 0 && mx1 < FrameWidth)
+				if (topLeft.x >= 0 && topLeft.x < FrameWidth)
 				{
-					LineVerticalRaw(rawColor, mx1, yStart, yEnd);
+					LineVerticalRaw(rawColor, topLeft.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
 				}
 
 				// Draw right vertical line.
-				if (mx2 >= 0 && mx2 < FrameWidth)
+				if (bottomRight.x >= 0 && bottomRight.x < FrameWidth)
 				{
-					LineVerticalRaw(rawColor, mx2, yStart, yEnd);
+					LineVerticalRaw(rawColor, bottomRight.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
 				}
 			}
 		}
@@ -439,12 +362,9 @@ namespace Egfx
 
 		void Triangle(const rgb_color_t color, const pixel_triangle_t& triangle) final
 		{
-			pixel_line_t line{ {triangle.a.x, triangle.a.y}, {triangle.b.x, triangle.b.y } };
-			Line(color, line);
-			line = { {triangle.b.x, triangle.b.y}, {triangle.c.x, triangle.c.y } };
-			Line(color, line);
-			line = { {triangle.a.x, triangle.a.y}, {triangle.c.x, triangle.c.y } };
-			Line(color, line);
+			Line(color, triangle.a.x, triangle.a.y, triangle.b.x, triangle.b.y);
+			Line(color, triangle.b.x, triangle.b.y, triangle.c.x, triangle.c.y);
+			Line(color, triangle.a.x, triangle.a.y, triangle.c.x, triangle.c.y);
 		}
 
 		void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
@@ -933,22 +853,17 @@ namespace Egfx
 
 		void BresenhamRight(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
 		{
-			const pixel_t xEnd = MinValue((pixel_t)(FrameWidth - 1), (pixel_t)(end.x));
-
 			const pixel_t scaledWidth = (end.x - start.x) << 1;
 			const pixel_index_t slopeMagnitude = AbsValue(end.y - start.y) << 1;
 			const int8_t slopeUnit = (end.y >= start.y) ? 1 : -1;
+			const int8_t slopeSign = (end.x >= start.x) ? 1 : -1;
 
 			pixel_index_t slopeError = slopeMagnitude - (end.x - start.x);
 			pixel_t y = start.y;
 
-			for (pixel_t x = start.x; x <= xEnd; x++)
+			for (pixel_t x = start.x; x != end.x; x += slopeSign)
 			{
-				if (x >= 0 && x < FrameWidth &&
-					y >= 0 && y < FrameHeight)
-				{
-					PixelRaw(rawColor, x, y);
-				}
+				PixelRaw(rawColor, x, y);
 
 				slopeError += slopeMagnitude;
 				if (slopeError >= 0)
@@ -974,22 +889,17 @@ namespace Egfx
 
 		void BresenhamUp(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
 		{
-			const pixel_t yEnd = MinValue((pixel_t)(FrameHeight - 1), (pixel_t)(end.y));
-
 			const pixel_t scaledHeight = (end.y - start.y) << 1;
 			const pixel_t slopeMagnitude = AbsValue(end.x - start.x) << 1;
 			const int8_t slopeUnit = (end.x >= start.x) ? 1 : -1;
+			const int8_t slopeSign = (end.y >= start.y) ? 1 : -1;
 
 			pixel_index_t slopeError = (pixel_index_t)slopeMagnitude - (end.y - start.y);
 			pixel_t x = start.x;
 
-			for (pixel_t y = start.y; y <= yEnd; y++)
+			for (pixel_t y = start.y; y != end.y; y += slopeSign)
 			{
-				if (x >= 0 && x < FrameWidth &&
-					y >= 0 && y < FrameHeight)
-				{
-					PixelRaw(rawColor, x, y);
-				}
+				PixelRaw(rawColor, x, y);
 
 				slopeError += slopeMagnitude;
 				if (slopeError >= 0)
@@ -1011,6 +921,122 @@ namespace Egfx
 					}
 				}
 			}
+		}
+
+		/// <summary>
+		/// Clips a rectangle defined by its top-left and bottom-right points to fit within the frame boundaries.
+		/// </summary>
+		/// <param name="topLeft">Reference to the top-left corner of the rectangle. May be modified to fit within the frame.</param>
+		/// <param name="bottomRight">Reference to the bottom-right corner of the rectangle. May be modified to fit within the frame.</param>
+		/// <returns>True if the rectangle is valid and was clipped; false if the rectangle is invalid or completely outside the frame.</returns>
+		static bool ClipRectangle(pixel_point_t& topLeft, pixel_point_t& bottomRight)
+		{
+			if ((topLeft.x < 0 && bottomRight.x < 0)
+				|| (topLeft.y < 0 && bottomRight.y < 0)
+				|| (topLeft.x >= FrameWidth && bottomRight.x >= FrameWidth)
+				|| (topLeft.y >= FrameHeight && bottomRight.y >= FrameHeight)
+				|| (topLeft.x > bottomRight.x || topLeft.y > bottomRight.y))
+			{
+				return false; // Invalid rectangle
+			}
+
+			topLeft.x = LimitValue<pixel_t>(topLeft.x, 0, FrameWidth - 1);
+			topLeft.y = LimitValue<pixel_t>(topLeft.y, 0, FrameHeight - 1);
+			bottomRight.x = LimitValue<pixel_t>(bottomRight.x, 0, FrameWidth - 1);
+			bottomRight.y = LimitValue<pixel_t>(bottomRight.y, 0, FrameHeight - 1);
+
+			return true;
+		}
+
+		/// <summary>
+		/// Clips a line segment to the screen boundaries using the Cohen–Sutherland algorithm.
+		/// </summary>
+		/// <param name="p0">Reference to the first endpoint of the line segment. On return, may be modified to the clipped position.</param>
+		/// <param name="p1">Reference to the second endpoint of the line segment. On return, may be modified to the clipped position.</param>
+		/// <returns>true if the line segment is at least partially within the screen and has been clipped (if necessary); false if the line segment lies entirely outside the screen.</returns>
+		static bool ClipLine(pixel_point_t& p0, pixel_point_t& p1)
+		{
+			pixel_t x0 = p0.x, y0 = p0.y, x1 = p1.x, y1 = p1.y;
+			uint8_t outcode0 = ComputeOutCode(x0, y0);
+			uint8_t outcode1 = ComputeOutCode(x1, y1);
+			pixel_t x = 0;
+			pixel_t y = 0;
+			while (true)
+			{
+				if (!(outcode0 | outcode1))
+				{
+					// Both endpoints inside
+					p0 = { x0 , y0 };
+					p1 = { x1 , y1 };
+					return true;
+
+				}
+				else if (outcode0 & outcode1)
+				{
+					// Both endpoints share an outside zone
+					return false;
+				}
+				else
+				{
+					// At least one endpoint is outside
+					uint8_t outcodeOut = outcode0 ? outcode0 : outcode1;
+					x = 0;
+					y = 0;
+
+					if (outcodeOut & (uint8_t)OutcodeEnum::OUT_TOP)
+					{
+						if (y1 == y0) return false; // Parallel to top
+						x = x0 + (x1 - x0) * (0 - y0) / (y1 - y0);
+						y = 0;
+					}
+					else if (outcodeOut & (uint8_t)OutcodeEnum::OUT_BOTTOM)
+					{
+						if (y1 == y0) return false; // Parallel to bottom
+						x = x0 + (x1 - x0) * (FrameHeight - 1 - y0) / (y1 - y0);
+						y = FrameHeight - 1;
+					}
+					else if (outcodeOut & (uint8_t)OutcodeEnum::OUT_RIGHT)
+					{
+						if (x1 == x0) return false; // Parallel to right
+						y = y0 + (y1 - y0) * (FrameWidth - 1 - x0) / (x1 - x0);
+						x = FrameWidth - 1;
+					}
+					else // OUT_LEFT
+					{
+						if (x1 == x0) return false; // Parallel to left
+						y = y0 + (y1 - y0) * (0 - x0) / (x1 - x0);
+						x = 0;
+					}
+
+					if (outcodeOut == outcode0)
+					{
+						x0 = x; y0 = y;
+						outcode0 = ComputeOutCode(x0, y0);
+					}
+					else
+					{
+						x1 = x; y1 = y;
+						outcode1 = ComputeOutCode(x1, y1);
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Computes the outcode for a point based on its position relative to the frame boundaries.
+		/// </summary>
+		/// <param name="x">The x-coordinate of the point.</param>
+		/// <param name="y">The y-coordinate of the point.</param>
+		/// <returns>A uint8_t value representing the outcode, indicating which sides of the frame (left, right, top, bottom) the point is outside of.</returns>
+		static uint8_t ComputeOutCode(const pixel_t x, const pixel_t y)
+		{
+			uint8_t code = 0;
+			if (x < 0) code |= (uint8_t)OutcodeEnum::OUT_LEFT;
+			else if (x >= FrameWidth) code |= (uint8_t)OutcodeEnum::OUT_RIGHT;
+			if (y < 0) code |= (uint8_t)OutcodeEnum::OUT_TOP;
+			else if (y >= FrameHeight) code |= (uint8_t)OutcodeEnum::OUT_BOTTOM;
+
+			return code;
 		}
 
 		void TriangleEdgeAntiAliasingEdgeBlend(const color_t rawColor,

@@ -274,7 +274,7 @@ namespace Egfx
 	/// Uses GrayScaleConverter8 for conversion before comparison.
 	/// </summary>
 	/// <typeparam name="threshold">Grayscale threshold for color.</typeparam>
-	template<const uint8_t threshold = 0>
+	template<const uint8_t threshold = 127>
 	struct MonochromeColorConverter1 : public AbstractColorConverter1
 	{
 		static constexpr color_t GetRawColor(const rgb_color_t color)

@@ -1,5 +1,3 @@
-// AbstractFrameBuffer.h
-
 #ifndef _ABSTRACT_FRAME_BUFFER_h
 #define _ABSTRACT_FRAME_BUFFER_h
 
@@ -32,7 +30,7 @@ namespace Egfx
 
 		static constexpr pixel_t FrameWidth = frameWidth;
 		static constexpr pixel_t FrameHeight = frameHeight;
-		static constexpr size_t BufferSize = ColorConverter::GetBufferSize(FrameWidth, FrameHeight);
+		static constexpr size_t BufferSize = ColorConverter::BufferSize(FrameWidth, FrameHeight);
 
 	protected:
 		using color_t = typename ColorConverter::color_t;
@@ -73,12 +71,12 @@ namespace Egfx
 	public:
 		bool IsMonochrome() const final
 		{
-			return ColorConverter::IsMonochrome();
+			return ColorConverter::Monochrome();
 		}
 
-		uint8_t GetColorDepth() const
+		uint8_t GetColorDepth() const final
 		{
-			return ColorConverter::ColorSize() * 8;
+			return ColorConverter::ColorDepth();
 		}
 
 		pixel_t GetFrameWidth() const final

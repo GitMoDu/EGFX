@@ -1,5 +1,3 @@
-// Color16FrameBuffer.h
-
 #ifndef _EGFX_COLOR_16_FRAME_BUFFER_h
 #define _EGFX_COLOR_16_FRAME_BUFFER_h
 

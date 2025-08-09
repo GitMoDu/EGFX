@@ -1,5 +1,3 @@
-// ColorConverter.h
-
 #ifndef _COLOR_CONVERTER_h
 #define _COLOR_CONVERTER_h
 
@@ -12,17 +10,17 @@ namespace Egfx
 	{
 		using color_t = uint8_t;
 
-		static constexpr uint8_t ColorSize()
+		static constexpr uint8_t ColorDepth()
 		{
-			return sizeof(color_t);
+			return 1;
 		}
 
-		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferMonochromeSize(width, height);
 		}
 
-		static constexpr bool IsMonochrome()
+		static constexpr bool Monochrome()
 		{
 			return true;
 		}
@@ -32,12 +30,17 @@ namespace Egfx
 	{
 		using color_t = uint8_t;
 
-		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferLowColorSize<4>(width, height);
 		}
 
-		static constexpr bool IsMonochrome()
+		static constexpr uint8_t ColorDepth()
+		{
+			return 4;
+		}
+
+		static constexpr bool Monochrome()
 		{
 			return true;
 		}
@@ -47,12 +50,12 @@ namespace Egfx
 	{
 		using color_t = uint8_t;
 
-		static constexpr uint8_t ColorSize()
+		static constexpr uint8_t ColorDepth()
 		{
-			return sizeof(color_t);
+			return 8;
 		}
 
-		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
 		}
@@ -62,17 +65,17 @@ namespace Egfx
 	{
 		using color_t = uint16_t;
 
-		static constexpr uint8_t ColorSize()
+		static constexpr uint8_t ColorDepth()
 		{
-			return sizeof(color_t);
+			return 16;
 		}
 
-		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
 		}
 
-		static constexpr bool IsMonochrome()
+		static constexpr bool Monochrome()
 		{
 			return false;
 		}
@@ -82,17 +85,17 @@ namespace Egfx
 	{
 		using color_t = uint32_t;
 
-		static constexpr uint8_t ColorSize()
+		static constexpr uint8_t ColorDepth()
 		{
-			return sizeof(color_t);
+			return 24;
 		}
 
-		static constexpr size_t GetBufferSize(const uint16_t width, const uint16_t height)
+		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
 		}
 
-		static constexpr bool IsMonochrome()
+		static constexpr bool Monochrome()
 		{
 			return false;
 		}
@@ -129,7 +132,7 @@ namespace Egfx
 		}
 #endif
 
-		static constexpr bool IsMonochrome()
+		static constexpr bool Monochrome()
 		{
 			return false;
 		}
@@ -232,7 +235,7 @@ namespace Egfx
 			return (uint16_t)Rgb::B5(color) + Rgb::R5(color) + (Rgb::G6(color) << 2);
 		}
 #endif
-		static constexpr bool IsMonochrome()
+		static constexpr bool Monochrome()
 		{
 			return true;
 		}
@@ -295,7 +298,7 @@ namespace Egfx
 			return color > 0;
 		}
 
-		static constexpr bool IsMonochrome()
+		static constexpr bool Monochrome()
 		{
 			return true;
 		}

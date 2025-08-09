@@ -29,6 +29,7 @@ namespace Egfx
 
 	protected:
 		using BaseClass::Buffer;
+		using BaseClass::Dither;
 
 	private:
 		uint16_t AlphaRng = 42;
@@ -37,11 +38,6 @@ namespace Egfx
 		MonochromeFrameBuffer(uint8_t buffer[BufferSize] = nullptr)
 			: BaseClass(buffer)
 		{
-		}
-
-		uint8_t GetColorDepth() const final
-		{
-			return 1;
 		}
 
 	protected:

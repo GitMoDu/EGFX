@@ -114,10 +114,16 @@ namespace Egfx
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
-			const color_t blendedColor = Rgb::Color565From565(
-				((((uint16_t)Rgb::R5(existingColor) * (255 - alpha)) + (Rgb::R5(rawColor) * alpha)) >> 8),
-				((((uint16_t)Rgb::G6(existingColor) * (255 - alpha)) + (Rgb::G6(rawColor) * alpha)) >> 8),
-				((((uint16_t)Rgb::B5(existingColor) * (255 - alpha)) + (Rgb::B5(rawColor) * alpha)) >> 8));
+
+			// Mix in RGB8 color space.
+			const uint8_t r = ((((uint16_t)Rgb::R(existingColor) * (255 - alpha)) + ((uint16_t)Rgb::R(rawColor) * alpha)) >> 8);
+			const uint8_t g = ((((uint16_t)Rgb::G(existingColor) * (255 - alpha)) + ((uint16_t)Rgb::G(rawColor) * alpha)) >> 8);
+			const uint8_t b = ((((uint16_t)Rgb::B(existingColor) * (255 - alpha)) + ((uint16_t)Rgb::B(rawColor) * alpha)) >> 8);
+
+			// Convert back to RGB565.
+			const color_t blendedColor = ((uint16_t)(r >> 3) << 11)
+				| ((uint16_t)(g >> 2) << 5)
+				| ((b >> 3));
 
 			Buffer[offset] = uint8_t(blendedColor >> 8);
 			Buffer[offset + 1] = uint8_t(blendedColor);

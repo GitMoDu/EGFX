@@ -112,20 +112,13 @@ namespace Egfx
 			const pixel_index_t offset = (pixel_index_t(sizeof(color_t)) * y * frameWidth) + x;
 			const color_t existingColor = Buffer[offset];
 
-			// Extract channels
-			const uint8_t r0 = Rgb::R3(existingColor);
-			const uint8_t g0 = Rgb::G3(existingColor);
-			const uint8_t b0 = Rgb::B2(existingColor);
+			// Mix in RGB8 color space.
+			const uint8_t r = (((uint16_t)Rgb::R(existingColor) * (255 - alpha)) + ((uint16_t)Rgb::R(rawColor) * alpha)) >> 8;
+			const uint8_t g = (((uint16_t)Rgb::G(existingColor) * (255 - alpha)) + ((uint16_t)Rgb::G(rawColor) * alpha)) >> 8;
+			const uint8_t b = (((uint16_t)Rgb::B(existingColor) * (255 - alpha)) + ((uint16_t)Rgb::B(rawColor) * alpha)) >> 8;
 
-			const uint8_t r1 = Rgb::R3(rawColor);
-			const uint8_t g1 = Rgb::G3(rawColor);
-			const uint8_t b1 = Rgb::B2(rawColor);
-
-			// Blend channels
-			Buffer[offset] = Rgb::Color332From332(
-				MinValue<uint8_t>(((uint16_t(r0) * (255 - alpha)) + (uint16_t(r1) * alpha)) >> 8, 7),
-				MinValue<uint8_t>(((uint16_t(g0) * (255 - alpha)) + (uint16_t(g1) * alpha)) >> 8, 7),
-				MinValue<uint8_t>(((uint16_t(b0) * (255 - alpha)) + (uint16_t(b1) * alpha)) >> 8, 3));
+			// Convert back to RGB332.
+			Buffer[offset] = ((r & 0xE0)) | ((g & 0xE0) >> 3) | ((b & 0xC0) >> 6);
 		}
 
 		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) final

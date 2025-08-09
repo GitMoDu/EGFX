@@ -192,9 +192,6 @@ void setup()
 	// Optional callback for RTOS driver variants.
 	GraphicsEngine.SetBufferTaskCallback(BufferTaskCallback);
 
-	// Frame buffer can be inverted at any time.
-	GraphicsEngine.SetInverted(false);
-
 	// Set the Display Sync Type.
 	GraphicsEngine.SetSyncType(DisplaySyncType::VSync);
 

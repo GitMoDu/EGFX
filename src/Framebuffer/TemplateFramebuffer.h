@@ -1,50 +1,31 @@
-#ifndef _ABSTRACT_FRAME_BUFFER_h
-#define _ABSTRACT_FRAME_BUFFER_h
+#ifndef _TEMPLATE_FRAME_BUFFER_h
+#define _TEMPLATE_FRAME_BUFFER_h
 
 #include "../Model/RgbColor.h"
-#include "../Model/ColorConverter.h"
 #include "../Model/DisplayOptions.h"
-#include "../Model/IFrameBuffer.h"
-#include <IntegerSignal.h>
 
 namespace Egfx
 {
 	/// <summary>
-	/// Abstract frame buffer, with primitive implementation.
-	/// Diagonal (Bresenham) Line implementation based on https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
+	/// Generic framebuffer template providing 2D drawing, blending, and buffer management for any color depth and display configuration.
+	/// Supports mirroring, inversion, anti-aliasing, and partial buffer clearing via template parameters.
+	/// Used as the core implementation for all framebuffer types in Egfx.
 	/// </summary>
-	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter.</typeparam>
-	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
-	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+	/// <typeparam name="FramePainter">The base class providing low-level drawing and buffer access functionality.</typeparam>
+	/// <typeparam name="clearDivisorPower">An unsigned 8-bit integer specifying the power-of-two divisor for buffer clearing steps.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
-	template<typename ColorConverter
+	template<typename FramePainter
 		, uint8_t clearDivisorPower
-		, pixel_t frameWidth
-		, pixel_t frameHeight
 		, typename displayOptions = DisplayOptions::Default>
-	class AbstractFrameBuffer : public IFrameBuffer
+	class TemplateFramebuffer : public FramePainter
 	{
 	public:
+		using FramePainter::BufferSize;
+		using typename FramePainter::color_t;
+
 		using Configuration = displayOptions;
 
-		static constexpr pixel_t FrameWidth = frameWidth;
-		static constexpr pixel_t FrameHeight = frameHeight;
-		static constexpr size_t BufferSize = ColorConverter::BufferSize(FrameWidth, FrameHeight);
-
-	protected:
-		using color_t = typename ColorConverter::color_t;
-
-		static constexpr size_t ClearStepByteCount()
-		{
-			return BufferSize / ClearStepsCount();
-		}
-
-		static constexpr uint8_t ClearStepsCount()
-		{
-			return (uint32_t)(1) << clearDivisorPower;
-		}
-
+	private:
 		enum class OutcodeEnum : uint8_t
 		{
 			OUT_LEFT = 1,
@@ -54,39 +35,18 @@ namespace Egfx
 		};
 
 	protected:
-		uint8_t* Buffer;
+		using FramePainter::Buffer;
 
-	protected:
+	private:
 		uint8_t ClearIndex = 0;
 
-	protected:
-		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) = 0;
-
-		virtual void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y) {}
-		virtual void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha) {}
-		virtual void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) {}
-		virtual void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) {}
-		virtual void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y) {}
-		virtual void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y) {}
-
 	public:
-		AbstractFrameBuffer(uint8_t buffer[BufferSize] = nullptr)
-			: IFrameBuffer()
-			, Buffer(buffer)
+		TemplateFramebuffer(uint8_t buffer[BufferSize] = nullptr)
+			: FramePainter(buffer)
 		{
 		}
 
 	public:
-		bool IsMonochrome() const final
-		{
-			return ColorConverter::Monochrome();
-		}
-
-		uint8_t GetColorDepth() const final
-		{
-			return ColorConverter::ColorDepth();
-		}
-
 		pixel_t GetFrameWidth() const final
 		{
 			return FrameWidth;
@@ -138,22 +98,22 @@ namespace Egfx
 			if (x >= 0 && x < FrameWidth &&
 				y >= 0 && y < FrameHeight)
 			{
-				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+				const color_t rawColor = GetRawColor(color);
 
 				switch (displayOptions::Mirror)
 				{
 				case DisplayOptions::MirrorEnum::MirrorX:
-					PixelRaw(rawColor, MirrorX(x), y);
+					FramePainter::PixelRaw(rawColor, MirrorX(x), y);
 					break;
 				case DisplayOptions::MirrorEnum::MirrorY:
-					PixelRaw(rawColor, x, MirrorY(y));
+					FramePainter::PixelRaw(rawColor, x, MirrorY(y));
 					break;
 				case DisplayOptions::MirrorEnum::MirrorXY:
-					PixelRaw(rawColor, MirrorX(x), MirrorY(y));
+					FramePainter::PixelRaw(rawColor, MirrorX(x), MirrorY(y));
 					break;
 				case DisplayOptions::MirrorEnum::None:
 				default:
-					PixelRaw(rawColor, x, y);
+					FramePainter::PixelRaw(rawColor, x, y);
 					break;
 				}
 			}
@@ -164,10 +124,168 @@ namespace Egfx
 			Pixel(color, point.x, point.y);
 		}
 
+		void PixelBlend(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					FramePainter::PixelRawBlend(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					FramePainter::PixelRawBlend(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					FramePainter::PixelRawBlend(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					FramePainter::PixelRawBlend(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendAlpha(const rgb_color_t color, const pixel_t x, const pixel_t y, const uint8_t alpha) final
+		{
+			if (alpha == UINT8_MAX / 2)
+			{
+				PixelBlend(color, x, y);
+			}
+			else if (alpha > 0 &&
+				x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t uninvertedColor = FramePainter::GetRawColor(color);
+				const color_t rawColor = displayOptions::Inverted
+					? (uninvertedColor & 0xFF000000) | (~uninvertedColor & 0x00FFFFFF)
+					: uninvertedColor;
+
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					FramePainter::PixelRawBlendAlpha(rawColor, MirrorX(x), y, alpha);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					FramePainter::PixelRawBlendAlpha(rawColor, x, MirrorY(y), alpha);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					FramePainter::PixelRawBlendAlpha(rawColor, MirrorX(x), MirrorY(y), alpha);
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					FramePainter::PixelRawBlendAlpha(rawColor, x, y, alpha);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendAdd(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					FramePainter::PixelRawBlendAdd(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					FramePainter::PixelRawBlendAdd(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					FramePainter::PixelRawBlendAdd(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					FramePainter::PixelRawBlendAdd(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendSubtract(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					FramePainter::PixelRawBlendSubtract(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					FramePainter::PixelRawBlendSubtract(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					FramePainter::PixelRawBlendSubtract(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					FramePainter::PixelRawBlendSubtract(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendMultiply(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					FramePainter::PixelRawBlendMultiply(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					FramePainter::PixelRawBlendMultiply(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					FramePainter::PixelRawBlendMultiply(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					FramePainter::PixelRawBlendMultiply(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
+		void PixelBlendScreen(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			if (x >= 0 && x < FrameWidth &&
+				y >= 0 && y < FrameHeight)
+			{
+				const color_t rawColor = GetRawColor(color);
+				switch (displayOptions::Mirror)
+				{
+				case DisplayOptions::MirrorEnum::MirrorX:
+					FramePainter::PixelRawBlendScreen(rawColor, MirrorX(x), y);
+					break;
+				case DisplayOptions::MirrorEnum::MirrorY:
+					FramePainter::PixelRawBlendScreen(rawColor, x, MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::MirrorXY:
+					FramePainter::PixelRawBlendScreen(rawColor, MirrorX(x), MirrorY(y));
+					break;
+				case DisplayOptions::MirrorEnum::None:
+				default:
+					FramePainter::PixelRawBlendScreen(rawColor, x, y);
+					break;
+				}
+			}
+		}
+
 		void Fill(const rgb_color_t color) final
 		{
-			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-			FillRaw(rawColor);
+			FramePainter::FillRaw(GetRawColor(color));
 		}
 
 		void Line(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
@@ -187,7 +305,7 @@ namespace Egfx
 				return;
 			}
 
-			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+			const color_t rawColor = GetRawColor(color);
 
 			// Apply mirroring.
 			switch (displayOptions::Mirror)
@@ -213,16 +331,16 @@ namespace Egfx
 			{
 				if (start.y == end.y)
 				{
-					PixelRaw(rawColor, start.x, start.y);
+					FramePainter::PixelRaw(rawColor, start.x, start.y);
 				}
 				else
 				{
-					LineVerticalRaw(rawColor, start.x, start.y, end.y);
+					FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
 				}
 			}
 			else if (start.y == end.y)
 			{
-				LineHorizontalRaw(rawColor, start.x, start.y, end.x);
+				FramePainter::LineHorizontalRaw(rawColor, start.x, start.y, end.x);
 			}
 			else
 			{
@@ -242,7 +360,7 @@ namespace Egfx
 				return;
 			}
 
-			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+			const color_t rawColor = GetRawColor(color);
 
 			// Apply mirroring.
 			switch (displayOptions::Mirror)
@@ -268,20 +386,20 @@ namespace Egfx
 			{
 				if (topLeft.y == bottomRight.y)
 				{
-					PixelRaw(rawColor, topLeft.x, topLeft.y);
+					FramePainter::PixelRaw(rawColor, topLeft.x, topLeft.y);
 				}
 				else
 				{
-					LineVerticalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.y);
+					FramePainter::LineVerticalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.y);
 				}
 			}
 			else if (topLeft.y == bottomRight.y)
 			{
-				LineHorizontalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x);
+				FramePainter::LineHorizontalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x);
 			}
 			else
 			{
-				RectangleFillRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+				FramePainter::RectangleFillRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
 			}
 		}
 
@@ -316,7 +434,7 @@ namespace Egfx
 				break;
 			}
 
-			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
+			const color_t rawColor = GetRawColor(color);
 			const pixel_point_t topLeftLimited = { LimitValue<pixel_t>(topLeft.x, 0, FrameWidth - 1), LimitValue<pixel_t>(topLeft.y, 0, FrameHeight - 1) };
 			const pixel_point_t bottomRightLimited = { LimitValue<pixel_t>(bottomRight.x, 0, FrameWidth - 1), LimitValue<pixel_t>(bottomRight.y, 0, FrameHeight - 1) };
 
@@ -327,13 +445,13 @@ namespace Egfx
 				// Draw top horizontal line.
 				if (topLeft.y >= 0 && topLeft.y < FrameHeight)
 				{
-					LineHorizontalRaw(rawColor, topLeftLimited.x, topLeft.y, bottomRightLimited.x);
+					FramePainter::LineHorizontalRaw(rawColor, topLeftLimited.x, topLeft.y, bottomRightLimited.x);
 				}
 
 				// Draw bottom horizontal line.
 				if (bottomRight.y >= 0 && bottomRight.y < FrameHeight)
 				{
-					LineHorizontalRaw(rawColor, topLeftLimited.x, bottomRight.y, bottomRightLimited.x);
+					FramePainter::LineHorizontalRaw(rawColor, topLeftLimited.x, bottomRight.y, bottomRightLimited.x);
 				}
 			}
 
@@ -344,13 +462,13 @@ namespace Egfx
 				// Draw left vertical line.
 				if (topLeft.x >= 0 && topLeft.x < FrameWidth)
 				{
-					LineVerticalRaw(rawColor, topLeft.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
+					FramePainter::LineVerticalRaw(rawColor, topLeft.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
 				}
 
 				// Draw right vertical line.
 				if (bottomRight.x >= 0 && bottomRight.x < FrameWidth)
 				{
-					LineVerticalRaw(rawColor, bottomRight.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
+					FramePainter::LineVerticalRaw(rawColor, bottomRight.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
 				}
 			}
 		}
@@ -383,8 +501,6 @@ namespace Egfx
 
 		void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) final
 		{
-			const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-
 			pixel_t ax;
 			pixel_t ay;
 			pixel_t bx;
@@ -430,6 +546,8 @@ namespace Egfx
 				break;
 			}
 
+			const color_t rawColor = GetRawColor(color);
+
 			if (ay <= by && ay <= cy)
 			{
 				// Vertex A is at the top.
@@ -468,203 +586,7 @@ namespace Egfx
 			}
 		}
 
-		void PixelBlend(const rgb_color_t color, const pixel_t x, const pixel_t y) final
-		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
-			{
-				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					PixelRawBlend(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					PixelRawBlend(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					PixelRawBlend(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					PixelRawBlend(rawColor, x, y);
-					break;
-				}
-			}
-		}
-
-		void PixelBlendAlpha(const rgb_color_t color, const pixel_t x, const pixel_t y, const uint8_t alpha) final
-		{
-			if (alpha == UINT8_MAX / 2)
-			{
-				PixelBlend(color, x, y);
-			}
-			else if (alpha > 0 &&
-				x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
-			{
-				const color_t uninvertedColor = ColorConverter::GetRawColor(color);
-				const color_t rawColor = displayOptions::Inverted
-					? (uninvertedColor & 0xFF000000) | (~uninvertedColor & 0x00FFFFFF)
-					: uninvertedColor;
-
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					PixelRawBlendAlpha(rawColor, MirrorX(x), y, alpha);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					PixelRawBlendAlpha(rawColor, x, MirrorY(y), alpha);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					PixelRawBlendAlpha(rawColor, MirrorX(x), MirrorY(y), alpha);
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					PixelRawBlendAlpha(rawColor, x, y, alpha);
-					break;
-				}
-			}
-		}
-
-		void PixelBlendAdd(const rgb_color_t color, const pixel_t x, const pixel_t y) final
-		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
-			{
-				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					PixelRawBlendAdd(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					PixelRawBlendAdd(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					PixelRawBlendAdd(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					PixelRawBlendAdd(rawColor, x, y);
-					break;
-				}
-			}
-		}
-
-		void PixelBlendSubtract(const rgb_color_t color, const pixel_t x, const pixel_t y) final
-		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
-			{
-				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					PixelRawBlendSubtract(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					PixelRawBlendSubtract(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					PixelRawBlendSubtract(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					PixelRawBlendSubtract(rawColor, x, y);
-					break;
-				}
-			}
-		}
-
-		void PixelBlendMultiply(const rgb_color_t color, const pixel_t x, const pixel_t y) final
-		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
-			{
-				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					PixelRawBlendMultiply(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					PixelRawBlendMultiply(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					PixelRawBlendMultiply(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					PixelRawBlendMultiply(rawColor, x, y);
-					break;
-				}
-			}
-		}
-
-		void PixelBlendScreen(const rgb_color_t color, const pixel_t x, const pixel_t y) final
-		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
-			{
-				const color_t rawColor = displayOptions::Inverted ? ~ColorConverter::GetRawColor(color) : ColorConverter::GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					PixelRawBlendScreen(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					PixelRawBlendScreen(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					PixelRawBlendScreen(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					PixelRawBlendScreen(rawColor, x, y);
-					break;
-				}
-			}
-		}
-
-	protected:
-		virtual void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
-		{
-			const int8_t sign = (y2 >= y1) ? 1 : -1;
-			const pixel_t endY = (y2 + sign);
-			for (pixel_t y = y1; y != endY; y += sign)
-			{
-				PixelRaw(rawColor, x, y);
-			}
-		}
-
-		virtual void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
-		{
-			const int8_t sign = (x2 >= x1) ? 1 : -1;
-			const pixel_t endX = (x2 + sign);
-			for (pixel_t x = x1; x != endX; x += sign)
-			{
-				PixelRaw(rawColor, x, y);
-			}
-		}
-
-		virtual void FillRaw(const color_t rawColor)
-		{
-			RectangleFillRaw(rawColor, 0, 0, FrameWidth - 1, FrameHeight - 1);
-		}
-
-		virtual void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
-		{
-			for (pixel_t y = y1; y <= y2; y++)
-			{
-				LineHorizontalRaw(rawColor, x1, y, x2);
-			}
-		}
-
 	private:
-		pixel_t MirrorX(const pixel_t x) const { return FrameWidth - 1 - x; }
-		pixel_t MirrorY(const pixel_t y) const { return FrameHeight - 1 - y; }
-
 		void TriangleYOrderedFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
 		{
 			if (b.y == c.y) // Flat bottom.
@@ -724,11 +646,11 @@ namespace Egfx
 
 				if (xSide1 == xSide2)
 				{
-					PixelRaw(rawColor, xSide1, y);
+					FramePainter::PixelRaw(rawColor, xSide1, y);
 				}
 				else
 				{
-					LineHorizontalRaw(rawColor, xSide1, y, xSide2);
+					FramePainter::LineHorizontalRaw(rawColor, xSide1, y, xSide2);
 				}
 
 				switch (displayOptions::AntiAliasing)
@@ -774,11 +696,11 @@ namespace Egfx
 
 				if (xSide1 == xSide2)
 				{
-					PixelRaw(rawColor, xSide1, y);
+					FramePainter::PixelRaw(rawColor, xSide1, y);
 				}
 				else
 				{
-					LineHorizontalRaw(rawColor, xSide1, y, xSide2);
+					FramePainter::LineHorizontalRaw(rawColor, xSide1, y, xSide2);
 				}
 
 				switch (displayOptions::AntiAliasing)
@@ -803,6 +725,13 @@ namespace Egfx
 			}
 		}
 
+		/// <summary>
+		/// Draws a diagonal line between two points using Bresenham's algorithm, selecting the optimal direction based on the line's slope.
+		/// Implementation based on https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
+		/// </summary>
+		/// <param name="rawColor">The color to use when drawing the line.</param>
+		/// <param name="start">The starting point of the line.</param>
+		/// <param name="end">The ending point of the line.</param>
 		void BresenhamDiagonal(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
 		{
 			if (end.x > start.x)
@@ -863,7 +792,7 @@ namespace Egfx
 
 			for (pixel_t x = start.x; x != end.x; x += slopeSign)
 			{
-				PixelRaw(rawColor, x, y);
+				FramePainter::PixelRaw(rawColor, x, y);
 
 				slopeError += slopeMagnitude;
 				if (slopeError >= 0)
@@ -877,7 +806,7 @@ namespace Egfx
 						if (x >= 0 && x < FrameWidth &&
 							y >= 0 && y < FrameHeight)
 						{
-							PixelRawBlend(rawColor, x, y);
+							FramePainter::PixelRawBlend(rawColor, x, y);
 						}
 						break;
 					default:
@@ -899,7 +828,7 @@ namespace Egfx
 
 			for (pixel_t y = start.y; y != end.y; y += slopeSign)
 			{
-				PixelRaw(rawColor, x, y);
+				FramePainter::PixelRaw(rawColor, x, y);
 
 				slopeError += slopeMagnitude;
 				if (slopeError >= 0)
@@ -913,7 +842,7 @@ namespace Egfx
 						if (x >= 0 && x < FrameWidth &&
 							y >= 0 && y < FrameHeight)
 						{
-							PixelRawBlend(rawColor, x, y);
+							FramePainter::PixelRawBlend(rawColor, x, y);
 						}
 						break;
 					default:
@@ -921,6 +850,86 @@ namespace Egfx
 					}
 				}
 			}
+		}
+
+		void TriangleEdgeAntiAliasingEdgeBlend(const color_t rawColor,
+			const pixel_t xSide1, const pixel_t xSide2,
+			const pixel_t y)
+		{
+			// Get edge pixels.
+			const bool leftToRight = (xSide2 >= xSide1);
+			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
+			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
+
+			// Blend the edge pixels.
+			if (aax1 >= 0 && aax1 < FrameWidth)
+				FramePainter::PixelRawBlend(rawColor, aax1, y);
+			if (aax2 >= 0 && aax2 < FrameWidth)
+				FramePainter::PixelRawBlend(rawColor, aax2, y);
+		}
+
+		void TriangleEdgeAntiAliasingPixelCoverage(const color_t rawColor,
+			const pixel_index_t x1, const pixel_index_t x2,
+			const pixel_t xSide1, const pixel_t xSide2,
+			const pixel_t y)
+		{
+			// Get edge pixels.
+			const bool leftToRight = (xSide2 >= xSide1);
+			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
+			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
+
+			// For left-to-right scanning:
+			// - Left edge: high alpha when x1 fraction is LOW (just entered the shape)
+			// - Right edge: high alpha when x2 fraction is HIGH (about to exit the shape)
+			if (aax1 >= 0 && aax1 < FrameWidth)
+			{
+				if (leftToRight)
+				{
+					// Left edge: invert the sub-pixel position for correct coverage
+					const uint8_t alpha = (255 - (((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
+					FramePainter::PixelRawBlendAlpha(rawColor, aax1, y, alpha);
+				}
+				else
+				{
+					// Right-to-left: normal sub-pixel position for correct coverage
+					const uint8_t alpha = ((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
+					FramePainter::PixelRawBlendAlpha(rawColor, aax1, y, alpha);
+				}
+			}
+
+			if (aax2 >= 0 && aax2 < FrameWidth)
+			{
+				if (leftToRight) {
+					// Right edge: normal sub-pixel position for correct coverage
+					const uint8_t alpha = ((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
+					FramePainter::PixelRawBlendAlpha(rawColor, aax2, y, alpha);
+				}
+				else
+				{
+					// Right-to-left: invert the sub-pixel position for correct coverage
+					const uint8_t alpha = (255 - (((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
+					FramePainter::PixelRawBlendAlpha(rawColor, aax2, y, alpha);
+				}
+			}
+		}
+
+	private:
+		static pixel_t MirrorX(const pixel_t x) { return FrameWidth - 1 - x; }
+		static pixel_t MirrorY(const pixel_t y) { return FrameHeight - 1 - y; }
+
+		static constexpr size_t ClearStepByteCount()
+		{
+			return BufferSize / ClearStepsCount();
+		}
+
+		static constexpr uint8_t ClearStepsCount()
+		{
+			return (uint32_t)(1) << clearDivisorPower;
+		}
+
+		static constexpr color_t GetRawColor(const rgb_color_t color)
+		{
+			return displayOptions::Inverted ? ~FramePainter::GetRawColor(color) : FramePainter::GetRawColor(color);
 		}
 
 		/// <summary>
@@ -949,7 +958,7 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Clips a line segment to the screen boundaries using the Cohen–Sutherland algorithm.
+		/// Clips a line segment to the screen boundaries using the Cohen-Sutherland algorithm.
 		/// </summary>
 		/// <param name="p0">Reference to the first endpoint of the line segment. On return, may be modified to the clipped position.</param>
 		/// <param name="p1">Reference to the second endpoint of the line segment. On return, may be modified to the clipped position.</param>
@@ -986,25 +995,25 @@ namespace Egfx
 					if (outcodeOut & (uint8_t)OutcodeEnum::OUT_TOP)
 					{
 						if (y1 == y0) return false; // Parallel to top
-						x = x0 + (x1 - x0) * (0 - y0) / (y1 - y0);
+						x = x0 + int32_t(x1 - x0) * (0 - y0) / (y1 - y0);
 						y = 0;
 					}
 					else if (outcodeOut & (uint8_t)OutcodeEnum::OUT_BOTTOM)
 					{
 						if (y1 == y0) return false; // Parallel to bottom
-						x = x0 + (x1 - x0) * (FrameHeight - 1 - y0) / (y1 - y0);
+						x = x0 + int32_t(x1 - x0) * (FrameHeight - 1 - y0) / (y1 - y0);
 						y = FrameHeight - 1;
 					}
 					else if (outcodeOut & (uint8_t)OutcodeEnum::OUT_RIGHT)
 					{
 						if (x1 == x0) return false; // Parallel to right
-						y = y0 + (y1 - y0) * (FrameWidth - 1 - x0) / (x1 - x0);
+						y = y0 + int32_t(y1 - y0) * (FrameWidth - 1 - x0) / (x1 - x0);
 						x = FrameWidth - 1;
 					}
 					else // OUT_LEFT
 					{
 						if (x1 == x0) return false; // Parallel to left
-						y = y0 + (y1 - y0) * (0 - x0) / (x1 - x0);
+						y = y0 + int32_t(y1 - y0) * (0 - x0) / (x1 - x0);
 						x = 0;
 					}
 
@@ -1037,67 +1046,6 @@ namespace Egfx
 			else if (y >= FrameHeight) code |= (uint8_t)OutcodeEnum::OUT_BOTTOM;
 
 			return code;
-		}
-
-		void TriangleEdgeAntiAliasingEdgeBlend(const color_t rawColor,
-			const pixel_t xSide1, const pixel_t xSide2,
-			const pixel_t y)
-		{
-			// Get edge pixels.
-			const bool leftToRight = (xSide2 >= xSide1);
-			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
-			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
-
-			// Blend the edge pixels.
-			if (aax1 >= 0 && aax1 < FrameWidth)
-				PixelRawBlend(rawColor, aax1, y);
-			if (aax2 >= 0 && aax2 < FrameWidth)
-				PixelRawBlend(rawColor, aax2, y);
-		}
-
-		void TriangleEdgeAntiAliasingPixelCoverage(const color_t rawColor,
-			const pixel_index_t x1, const pixel_index_t x2,
-			const pixel_t xSide1, const pixel_t xSide2,
-			const pixel_t y)
-		{
-			// Get edge pixels.
-			const bool leftToRight = (xSide2 >= xSide1);
-			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
-			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
-
-			// For left-to-right scanning:
-			// - Left edge: high alpha when x1 fraction is LOW (just entered the shape)
-			// - Right edge: high alpha when x2 fraction is HIGH (about to exit the shape)
-			if (aax1 >= 0 && aax1 < FrameWidth)
-			{
-				if (leftToRight)
-				{
-					// Left edge: invert the sub-pixel position for correct coverage
-					const uint8_t alpha = (255 - (((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
-					PixelRawBlendAlpha(rawColor, aax1, y, alpha);
-				}
-				else
-				{
-					// Right-to-left: normal sub-pixel position for correct coverage
-					const uint8_t alpha = ((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
-					PixelRawBlendAlpha(rawColor, aax1, y, alpha);
-				}
-			}
-
-			if (aax2 >= 0 && aax2 < FrameWidth)
-			{
-				if (leftToRight) {
-					// Right edge: normal sub-pixel position for correct coverage
-					const uint8_t alpha = ((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
-					PixelRawBlendAlpha(rawColor, aax2, y, alpha);
-				}
-				else
-				{
-					// Right-to-left: invert the sub-pixel position for correct coverage
-					const uint8_t alpha = (255 - (((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
-					PixelRawBlendAlpha(rawColor, aax2, y, alpha);
-				}
-			}
 		}
 	};
 }

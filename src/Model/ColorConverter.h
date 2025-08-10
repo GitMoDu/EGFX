@@ -74,11 +74,6 @@ namespace Egfx
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
 		}
-
-		static constexpr bool Monochrome()
-		{
-			return false;
-		}
 	};
 
 	struct AbstractColorConverter32
@@ -143,6 +138,11 @@ namespace Egfx
 	/// </summary>
 	struct ColorConverter16 : public AbstractColorConverter16
 	{
+		static constexpr bool Monochrome()
+		{
+			return false;
+		}
+
 #if defined(EGFX_PLATFORM_HDR)
 		/// <summary>
 		/// Convert 8-8-8 color to 5-6-5 color.
@@ -270,22 +270,10 @@ namespace Egfx
 	};
 
 	/// <summary>
-	/// Converter for 1 bit color, with configurable threshold.
-	/// Uses GrayScaleConverter8 for conversion before comparison.
+	/// Fast Converter for 1 bit color, with templated threshold.
 	/// </summary>
 	/// <typeparam name="threshold">Grayscale threshold for color.</typeparam>
-	template<const uint8_t threshold = 127>
-	struct MonochromeColorConverter1 : public AbstractColorConverter1
-	{
-		static constexpr color_t GetRawColor(const rgb_color_t color)
-		{
-			return (color_t)GrayScaleConverter8::GetRawColor(color) > threshold;
-		}
-	};
-
-	/// <summary>
-	/// Fast Converter for 1 bit color, with fixed threshold at 0.
-	/// </summary>
+	template<const uint8_t threshold>
 	struct BinaryColorConverter1 : public AbstractColorConverter1
 	{
 		/// <summary>
@@ -295,7 +283,9 @@ namespace Egfx
 		/// <returns>Framebuffer-native color (1).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
-			return color > 0;
+			return Rgb::R(color) > threshold
+				|| Rgb::G(color) > threshold
+				|| Rgb::B(color) > threshold;
 		}
 
 		static constexpr bool Monochrome()

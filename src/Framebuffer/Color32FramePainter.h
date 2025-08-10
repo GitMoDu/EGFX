@@ -1,43 +1,33 @@
-#ifndef _EGFX_COLOR_32_FRAME_BUFFER_h
-#define _EGFX_COLOR_32_FRAME_BUFFER_h
+#ifndef _EGFX_COLOR32_FRAME_PAINTER_h
+#define _EGFX_COLOR32_FRAME_PAINTER_h
 
-#include "AbstractFrameBuffer.h"
+#include "AbstractFramePainter.h"
 
 namespace Egfx
 {
 	/// <summary>
-	/// 32 bit color frame buffer.
+	/// A template class for painting 32-bit color frames, providing various pixel and blending operations on a frame buffer.
 	/// </summary>
-	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
-	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter32.</typeparam>
-	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
-	template<const pixel_t frameWidth, const pixel_t frameHeight
-		, const uint8_t clearDivisorPower = 0
-		, typename ColorConverter = ColorConverter32
-		, typename displayOptions = DisplayOptions::Default>
-	class Color32FrameBuffer final
-		: public AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayOptions>
+	/// <typeparam name="frameWidth">The width of the frame in pixels.</typeparam>
+	/// <typeparam name="frameHeight">The height of the frame in pixels.</typeparam>
+	template<const pixel_t frameWidth, const pixel_t frameHeight>
+	class Color32FramePainter : public AbstractFramePainter<ColorConverter32, frameWidth, frameHeight>
 	{
 	private:
-		using BaseClass = AbstractFrameBuffer<ColorConverter, clearDivisorPower, frameWidth, frameHeight, displayOptions>;
-
-	public:
-		using BaseClass::BufferSize;
-		using typename BaseClass::color_t;
+		using Base = AbstractFramePainter<ColorConverter32, frameWidth, frameHeight>;
 
 	protected:
-		using BaseClass::Buffer;
+		using Base::Buffer;
 
 	public:
-		Color32FrameBuffer(uint8_t buffer[BufferSize] = nullptr)
-			: BaseClass(buffer)
-		{
-		}
+		using Base::BufferSize;
+		using typename Base::color_t;
+
+	public:
+		Color32FramePainter(uint8_t* buffer = nullptr) : Base(buffer) {}
 
 	protected:
-		virtual void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 			Buffer[offset] = Rgb::B(rawColor);
@@ -45,7 +35,7 @@ namespace Egfx
 			Buffer[offset + 2] = Rgb::R(rawColor);
 		}
 
-		void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
@@ -55,7 +45,7 @@ namespace Egfx
 			Buffer[offset] = ((uint16_t(Buffer[offset + 0]) + uint16_t(Rgb::B(rawColor))) >> 1);
 		}
 
-		void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha) final
+		void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 			const uint8_t alphaInv = 255 - alpha;
@@ -64,7 +54,7 @@ namespace Egfx
 			Buffer[offset] = ((uint16_t(Buffer[offset + 0]) * alphaInv) + (uint16_t(Rgb::B(rawColor) * alpha))) >> 8;
 		}
 
-		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
@@ -74,7 +64,7 @@ namespace Egfx
 			Buffer[offset] = MinValue<uint16_t>(255, uint16_t(Buffer[offset + 0]) + uint16_t(Rgb::B(rawColor)));
 		}
 
-		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 			// Subtract each channel, clamp to 0
@@ -83,7 +73,7 @@ namespace Egfx
 			Buffer[offset] = MaxValue<int16_t>(0, int16_t(Buffer[offset + 0]) - int16_t(Rgb::B(rawColor)));
 		}
 
-		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
@@ -93,7 +83,7 @@ namespace Egfx
 			Buffer[offset] = ((uint16_t(Buffer[offset + 0]) * uint16_t(Rgb::B(rawColor))) >> 8);
 		}
 
-		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y) final
+		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
@@ -101,6 +91,39 @@ namespace Egfx
 			Buffer[offset + 2] = 255 - ((uint16_t(255 - Buffer[offset + 2]) * uint16_t(255 - Rgb::R(rawColor))) >> 8);
 			Buffer[offset + 1] = 255 - ((uint16_t(255 - Buffer[offset + 1]) * uint16_t(255 - Rgb::G(rawColor))) >> 8);
 			Buffer[offset] = 255 - ((uint16_t(255 - Buffer[offset + 0]) * uint16_t(255 - Rgb::B(rawColor))) >> 8);
+		}
+
+		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
+		{
+			const int8_t sign = (y2 >= y1) ? 1 : -1;
+			const pixel_t endY = (y2 + sign);
+			for (pixel_t y = y1; y != endY; y += sign)
+			{
+				PixelRaw(rawColor, x, y);
+			}
+		}
+
+		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
+		{
+			const int8_t sign = (x2 >= x1) ? 1 : -1;
+			const pixel_t endX = (x2 + sign);
+			for (pixel_t x = x1; x != endX; x += sign)
+			{
+				PixelRaw(rawColor, x, y);
+			}
+		}
+
+		void FillRaw(const color_t rawColor)
+		{
+			RectangleFillRaw(rawColor, 0, 0, FrameWidth - 1, FrameHeight - 1);
+		}
+
+		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
+		{
+			for (pixel_t y = y1; y <= y2; y++)
+			{
+				LineHorizontalRaw(rawColor, x1, y, x2);
+			}
 		}
 	};
 }

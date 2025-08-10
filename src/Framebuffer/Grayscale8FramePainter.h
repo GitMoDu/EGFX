@@ -20,6 +20,7 @@ namespace Egfx
 		using Base::Buffer;
 
 	public:
+		using Base::BufferSize;
 		using typename Base::color_t;
 
 	public:

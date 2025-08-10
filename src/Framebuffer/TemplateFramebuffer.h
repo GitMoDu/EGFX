@@ -21,6 +21,8 @@ namespace Egfx
 	{
 	public:
 		using FramePainter::BufferSize;
+		using FramePainter::FrameWidth;
+		using FramePainter::FrameHeight;
 		using typename FramePainter::color_t;
 
 		using Configuration = displayOptions;

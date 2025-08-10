@@ -23,10 +23,14 @@ namespace Egfx
 		, const uint8_t clearDivisorPower = 0
 		, const uint8_t threshold = 0
 		, typename displayOptions = DisplayOptions::Default>
-	struct BinaryFramebuffer final
-		: TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold>, clearDivisorPower, displayOptions>
+	class BinaryFramebuffer final
+		: public TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold>, clearDivisorPower, displayOptions>
 	{
-		BinaryFramebuffer(uint8_t buffer[BufferSize] = nullptr) : TemplateFramebuffer(buffer) {}
+	private:
+		using Base = TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold>, clearDivisorPower, displayOptions>;
+
+	public:
+		BinaryFramebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
 	};
 
 	/// <summary>
@@ -39,10 +43,14 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	struct Color8Framebuffer final
-		: TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+	class Color8Framebuffer final
+		: public TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
-		Color8Framebuffer(uint8_t buffer[BufferSize] = nullptr) : TemplateFramebuffer(buffer) {}
+	private:
+		using Base = TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+
+	public:
+		Color8Framebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
 	};
 
 	/// <summary>
@@ -55,10 +63,14 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	struct Grayscale8Framebuffer final
-		: TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+	class Grayscale8Framebuffer final
+		: public TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
-		Grayscale8Framebuffer(uint8_t buffer[BufferSize] = nullptr) : TemplateFramebuffer(buffer) {}
+	private:
+		using Base = TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+
+	public:
+		Grayscale8Framebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
 	};
 
 	/// <summary>
@@ -71,10 +83,14 @@ namespace Egfx
 	template<pixel_t frameWidth, pixel_t frameHeight
 		, uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	struct Color16Framebuffer final
-		: TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+	class Color16Framebuffer final
+		: public TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
-		Color16Framebuffer(uint8_t buffer[BufferSize] = nullptr) : TemplateFramebuffer(buffer) {}
+	private:
+		using Base = TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+
+	public:
+		Color16Framebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
 	};
 
 	/// <summary>
@@ -88,10 +104,14 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	struct Color32FrameBuffer final
-		: TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+	class Color32FrameBuffer final
+		: public TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
-		Color32FrameBuffer(uint8_t buffer[BufferSize] = nullptr) : TemplateFramebuffer(buffer) {}
+	private:
+		using Base = TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+
+	public:
+		Color32FrameBuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
 	};
 }
 #endif

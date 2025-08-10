@@ -115,7 +115,7 @@ namespace Egfx
 
 		void FillRaw(const color_t rawColor)
 		{
-			RectangleFillRaw(rawColor, 0, 0, FrameWidth - 1, FrameHeight - 1);
+			RectangleFillRaw(rawColor, 0, 0, frameWidth - 1, frameHeight - 1);
 		}
 
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)

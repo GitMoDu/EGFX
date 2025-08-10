@@ -108,7 +108,7 @@ namespace Egfx
 		: public TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
 	private:
-		using Base = TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+		using Base = TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
 
 	public:
 		Color32FrameBuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}

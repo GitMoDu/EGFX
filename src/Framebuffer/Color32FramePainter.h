@@ -59,18 +59,18 @@ namespace Egfx
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			// Add each channel, clamp to 255
-			Buffer[offset + 2] = MinValue<uint16_t>(255, uint16_t(Buffer[offset + 2]) + uint16_t(Rgb::R(rawColor)));
-			Buffer[offset + 1] = MinValue<uint16_t>(255, uint16_t(Buffer[offset + 1]) + uint16_t(Rgb::G(rawColor)));
-			Buffer[offset] = MinValue<uint16_t>(255, uint16_t(Buffer[offset + 0]) + uint16_t(Rgb::B(rawColor)));
+			Buffer[offset + 2] = uint8_t(MinValue<uint16_t>(255, uint16_t(Buffer[offset + 2]) + uint16_t(Rgb::R(rawColor))));
+			Buffer[offset + 1] = uint8_t(MinValue<uint16_t>(255, uint16_t(Buffer[offset + 1]) + uint16_t(Rgb::G(rawColor))));
+			Buffer[offset] = uint8_t(MinValue<uint16_t>(255, uint16_t(Buffer[offset + 0]) + uint16_t(Rgb::B(rawColor))));
 		}
 
 		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 			// Subtract each channel, clamp to 0
-			Buffer[offset + 2] = MaxValue<int16_t>(0, int16_t(Buffer[offset + 2]) - int16_t(Rgb::R(rawColor)));
-			Buffer[offset + 1] = MaxValue<int16_t>(0, int16_t(Buffer[offset + 1]) - int16_t(Rgb::G(rawColor)));
-			Buffer[offset] = MaxValue<int16_t>(0, int16_t(Buffer[offset + 0]) - int16_t(Rgb::B(rawColor)));
+			Buffer[offset + 2] = uint8_t(MaxValue<int16_t>(0, int16_t(Buffer[offset + 2]) - int16_t(Rgb::R(rawColor))));
+			Buffer[offset + 1] = uint8_t(MaxValue<int16_t>(0, int16_t(Buffer[offset + 1]) - int16_t(Rgb::G(rawColor))));
+			Buffer[offset] = uint8_t(MaxValue<int16_t>(0, int16_t(Buffer[offset + 0]) - int16_t(Rgb::B(rawColor))));
 		}
 
 		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y)
@@ -78,9 +78,9 @@ namespace Egfx
 			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			// Multiply each channel, normalize to 8 bits
-			Buffer[offset + 2] = ((uint16_t(Buffer[offset + 2]) * uint16_t(Rgb::R(rawColor))) >> 8);
-			Buffer[offset + 1] = ((uint16_t(Buffer[offset + 1]) * uint16_t(Rgb::G(rawColor))) >> 8);
-			Buffer[offset] = ((uint16_t(Buffer[offset + 0]) * uint16_t(Rgb::B(rawColor))) >> 8);
+			Buffer[offset + 2] = uint8_t((uint16_t(Buffer[offset + 2]) * uint16_t(Rgb::R(rawColor))) >> 8);
+			Buffer[offset + 1] = uint8_t((uint16_t(Buffer[offset + 1]) * uint16_t(Rgb::G(rawColor))) >> 8);
+			Buffer[offset] = uint8_t((uint16_t(Buffer[offset + 0]) * uint16_t(Rgb::B(rawColor))) >> 8);
 		}
 
 		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y)

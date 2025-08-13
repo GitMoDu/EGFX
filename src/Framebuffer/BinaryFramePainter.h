@@ -218,23 +218,31 @@ namespace Egfx
 			}
 		}
 
-		void FillRaw(const color_t rawColor)
-		{
-			if (rawColor > 0)
-			{
-				memset(Buffer, UINT8_MAX, BufferSize);
-			}
-			else
-			{
-				memset(Buffer, 0, BufferSize);
-			}
-		}
-
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
 			for (pixel_t y = y1; y < y2; y++)
 			{
 				LineHorizontalRaw(rawColor, x1, y, x2);
+			}
+		}
+
+		void FillRaw(const color_t rawColor)
+		{
+			memset(Buffer, rawColor, BufferSize);
+		}
+
+		template<bool inverted, uint8_t Sections>
+		void ClearRaw(const uint8_t section)
+		{
+			static constexpr size_t sectionSize = BufferSize / Sections;
+			const size_t sectionOffset = sectionSize * section;
+			if (inverted)
+			{
+				memset(&Buffer[sectionOffset], UINT8_MAX, sectionSize);
+			}
+			else
+			{
+				memset(&Buffer[sectionOffset], 0, sectionSize);
 			}
 		}
 

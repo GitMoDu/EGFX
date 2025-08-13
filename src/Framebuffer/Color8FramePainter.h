@@ -115,24 +115,35 @@ namespace Egfx
 			memset(&Buffer[offset], rawColor, xEnd - xStart + 1);
 		}
 
-		void FillRaw(const color_t rawColor)
-		{
-			memset(Buffer, rawColor, BufferSize);
-		}
-
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
 			const pixel_t width = x2 - x1 + 1;
-			const int8_t sign = (y2 >= y1) ? 1 : -1;
-			const pixel_index_t lineSize = sign * pixel_index_t(sizeof(color_t) * frameWidth);
+			const pixel_index_t lineSize = pixel_index_t(sizeof(color_t) * frameWidth);
 			pixel_index_t offset = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x1);
-			const pixel_index_t offsetEnd = offset + (lineSize * ((pixel_t(sign) * (y2 - y1)) + 1));
+			const pixel_index_t offsetEnd = offset + (lineSize * ((y2 - y1) + 1));
 
 			for (; offset != offsetEnd; offset += lineSize)
 			{
 				memset(&Buffer[offset], rawColor, width);
 			}
 		}
+
+		void FillRaw(const color_t rawColor)
+		{
+			memset(Buffer, rawColor, BufferSize);
+		}
+
+		template<bool inverted, uint8_t Sections>
+		void ClearRaw(const uint8_t section)
+		{
+			static constexpr size_t sectionSize = BufferSize / Sections;
+			const size_t sectionOffset = sectionSize * section;
+			if (inverted)
+				memset(&Buffer[sectionOffset], UINT8_MAX, sectionSize);
+			else
+				memset(&Buffer[sectionOffset], 0, sectionSize);
+		}
+
 	};
 }
 #endif

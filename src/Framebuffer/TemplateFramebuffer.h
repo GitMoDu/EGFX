@@ -36,6 +36,8 @@ namespace Egfx
 			OUT_TOP = 8
 		};
 
+		static constexpr uint8_t ClearStepsCount = uint8_t(1) << clearDivisorPower;
+
 	protected:
 		using FramePainter::Buffer;
 
@@ -66,19 +68,12 @@ namespace Egfx
 
 		bool ClearFrameBuffer() final
 		{
-			// Background color full, when inverted.
-			if (displayOptions::Inverted)
-			{
-				memset(&Buffer[ClearStepByteCount() * ClearIndex], UINT8_MAX, ClearStepByteCount());
-			}
-			else
-			{
-				memset(&Buffer[ClearStepByteCount() * ClearIndex], 0, ClearStepByteCount());
-			}
+			// The template keyword is required in this context to disambiguate between a static method and a template method.
+			FramePainter::template ClearRaw<displayOptions::Inverted, ClearStepsCount>(ClearIndex);
 
 			ClearIndex++;
 
-			if (ClearIndex >= ClearStepsCount())
+			if (ClearIndex >= ClearStepsCount)
 			{
 				ClearIndex = 0; // Ready for next clear.
 
@@ -283,11 +278,6 @@ namespace Egfx
 					break;
 				}
 			}
-		}
-
-		void Fill(const rgb_color_t color) final
-		{
-			FramePainter::FillRaw(GetRawColor(color));
 		}
 
 		void Line(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
@@ -588,6 +578,10 @@ namespace Egfx
 			}
 		}
 
+		void Fill(const rgb_color_t color) final
+		{
+			FramePainter::FillRaw(GetRawColor(color));
+		}
 	private:
 		void TriangleYOrderedFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
 		{
@@ -918,16 +912,6 @@ namespace Egfx
 	private:
 		static pixel_t MirrorX(const pixel_t x) { return FrameWidth - 1 - x; }
 		static pixel_t MirrorY(const pixel_t y) { return FrameHeight - 1 - y; }
-
-		static constexpr size_t ClearStepByteCount()
-		{
-			return BufferSize / ClearStepsCount();
-		}
-
-		static constexpr uint8_t ClearStepsCount()
-		{
-			return (uint32_t)(1) << clearDivisorPower;
-		}
 
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{

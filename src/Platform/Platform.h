@@ -10,9 +10,9 @@
 /// <summary>
 /// Enabled: use internal 8-8-8 color for rendering.
 /// Disabled: use internal 5-6-5 color for rendering.
-/// Defaults to HDR on 64 bit platforms.
+/// Defaults to HDR on 32 bit platforms.
 /// </summary>
-#if !defined(EGFX_PLATFORM_HDR) && !defined(ARDUINO)
+#if !defined(EGFX_PLATFORM_HDR) && (!defined(ARDUINO) || (defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 2)) ) 
 #define EGFX_PLATFORM_HDR
 #endif
 

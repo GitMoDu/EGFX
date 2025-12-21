@@ -64,8 +64,9 @@ namespace Egfx
 		/// <typeparam name="inverted">A boolean indicating whether color inversion is enabled.</typeparam>
 		template<MirrorEnum mirror
 			, RotationEnum rotation
-			, AntiAliasingEnum antiAliasing
-			, bool inverted>
+			, bool inverted = false
+			, AntiAliasingEnum antiAliasing = AntiAliasingEnum::None
+		>
 		struct TemplateOptions
 		{
 			static constexpr MirrorEnum Mirror = mirror;
@@ -92,7 +93,7 @@ namespace Egfx
 		/// <summary>
 		/// Alias for DisplayOptions with default settings.
 		/// </summary>
-		using Default = TemplateOptions<MirrorEnum::None, RotationEnum::None, AntiAliasingEnum::None, false>;
+		using Default = TemplateOptions<MirrorEnum::None, RotationEnum::None, false, AntiAliasingEnum::None>;
 	}
 
 }

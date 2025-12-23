@@ -37,7 +37,7 @@ namespace Egfx
 			: Color(Rgb::Color(INT8_MAX, INT8_MAX, INT8_MAX))
 		{
 		}
-		const pixel_t GetTextWidth(const uint8_t characterCount) const
+		pixel_t GetTextWidth(const uint8_t characterCount) const
 		{
 			return GetTextWidth(characterCount, Width, Kerning);
 		}
@@ -113,8 +113,8 @@ namespace Egfx
 		}
 	};
 
-	template<const uint16_t widthRatio = FontStyle::WIDTH_RATIO_DEFAULT,
-		const uint8_t kerningRatio = FontStyle::KERNING_RATIO_DEFAULT>
+	template<uint16_t widthRatio = FontStyle::WIDTH_RATIO_DEFAULT,
+		uint8_t kerningRatio = FontStyle::KERNING_RATIO_DEFAULT>
 	class TemplateFontStyle : public FontStyle
 	{
 	public:

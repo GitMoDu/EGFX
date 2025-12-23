@@ -10,7 +10,7 @@ namespace Egfx
 	/// </summary>
 	struct ITransform
 	{
-		virtual const bool Transform(pixel_t& x, pixel_t& y)
+		virtual bool Transform(pixel_t& /*x*/, pixel_t& /*y*/)
 		{
 			return true;
 		}

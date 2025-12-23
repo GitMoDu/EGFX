@@ -106,7 +106,7 @@ namespace Egfx
 				pixel_t offset = 0;
 				while (size--)
 				{
-					FontRenderer::Write(frame, font, x1 + offset, y1, (const uint8_t)*ch++);
+					FontRenderer::Write(frame, font, x1 + offset, y1, static_cast<const char>(*ch++));
 					offset += font.Width + font.Kerning;
 				}
 			}

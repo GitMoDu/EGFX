@@ -41,7 +41,7 @@ namespace Egfx
 		using BaseClass = SpriteType;
 
 	protected:
-		virtual void SetCharacter(const int8_t character) {}
+		virtual void SetCharacter(const int8_t character) = 0;
 
 	public:
 		AbstractSpriteFontRenderer() : BaseClass() {}
@@ -71,13 +71,11 @@ namespace Egfx
 		void TextTopLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const __FlashStringHelper* ifsh)
 		{
 #if defined(ARDUINO_ARCH_AVR)
-			if (ifsh != NULL
-				&& x < frame->GetFrameWidth() - FontWidth()
-				&& y < frame->GetFrameHeight() - FontHeight())
+			if (ifsh != NULL)
 			{
 				char* ptr = (char*)reinterpret_cast<const char*>(ifsh);
 				pixel_t offset = 0;
-				while (x < frame->GetFrameWidth() - offset)
+				while (true)
 				{
 					const int8_t character = pgm_read_byte(ptr++);
 					if (character == Character::Break)
@@ -99,9 +97,7 @@ namespace Egfx
 		void TextTopRight(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const __FlashStringHelper* ifsh)
 		{
 #if defined(ARDUINO_ARCH_AVR)
-			if (ifsh != NULL
-				&& x < frame->GetFrameWidth()
-				&& y < frame->GetFrameHeight() - FontHeight())
+			if (ifsh != NULL)
 			{
 				const pixel_t x1 = x - FontHeight();
 
@@ -137,17 +133,12 @@ namespace Egfx
 
 		void TextTopLeft(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char* str)
 		{
-			const pixel_t width = frame->GetFrameWidth();
-			const pixel_t height = frame->GetFrameHeight();
-
-			if (str != NULL
-				&& y < height)
+			if (str != NULL)
 			{
 				size_t size = strlen(str);
 				uint8_t* ch = (uint8_t*)str;
 				pixel_t offset = 0;
-				while (size--
-					&& (x < (width - offset)))
+				while (size--)
 				{
 					Write(frame, x + offset, y, (const uint8_t)*ch++);
 					offset += FontWidth() + FontKerning();
@@ -157,17 +148,12 @@ namespace Egfx
 
 		void TextTopRight(IFrameBuffer* frame, const pixel_t x, const pixel_t y, const char* str)
 		{
-			const pixel_t width = frame->GetFrameWidth();
-			const pixel_t height = frame->GetFrameHeight();
-
-			if (str != NULL
-				&& y < height)
+			if (str != NULL)
 			{
 				size_t size = strlen(str);
 				uint8_t* ch = (uint8_t*)str + size - 1;
 				pixel_t offset = 0;
-				while (size--
-					&& (x < (width - offset)))
+				while (size--)
 				{
 					Write(frame, x - offset, y, (const uint8_t)*ch--);
 					offset += FontWidth() + FontKerning();

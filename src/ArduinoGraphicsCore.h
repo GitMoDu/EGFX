@@ -8,6 +8,4 @@
 #include "Model/IScreenDriver.h"
 
 #include "Framebuffer/Framebuffers.h"
-
-#include "ArduinoGraphicsDrawer.h"
 #endif

@@ -1,5 +1,3 @@
-// ElementDrawer.h
-
 #ifndef _ELEMENT_DRAWER_h
 #define _ELEMENT_DRAWER_h
 

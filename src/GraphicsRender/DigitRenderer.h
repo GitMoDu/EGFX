@@ -1,5 +1,3 @@
-// DigitRenderer.h
-
 #ifndef _EGFX_DIGIT_RENDERER_h
 #define _EGFX_DIGIT_RENDERER_h
 

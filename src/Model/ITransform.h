@@ -1,5 +1,3 @@
-// ITransform.h
-
 #ifndef _EGFX_I_TRANSFORM_h
 #define _EGFX_I_TRANSFORM_h
 

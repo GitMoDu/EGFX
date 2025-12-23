@@ -1,5 +1,3 @@
-// IFrameDraw.h
-
 #ifndef _EGFX_I_FRAME_DRAW_h
 #define _EGFX_I_FRAME_DRAW_h
 

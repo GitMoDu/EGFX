@@ -1,5 +1,3 @@
-// MultiDrawerWrapper.h
-
 #ifndef _MULTI_DRAWER_WRAPPER_h
 #define _MULTI_DRAWER_WRAPPER_h
 

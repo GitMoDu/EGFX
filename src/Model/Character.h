@@ -1,7 +1,5 @@
-// Character.h
-
-#ifndef _CHARACTER_h
-#define _CHARACTER_h
+#ifndef _EGFX_CHARACTER_h
+#define _EGFX_CHARACTER_h
 
 #include <stdint.h>
 

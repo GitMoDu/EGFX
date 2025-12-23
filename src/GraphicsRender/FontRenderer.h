@@ -1,5 +1,3 @@
-// FontRenderer.h
-
 #ifndef _EGFX_FONT_RENDERER_h
 #define _EGFX_FONT_RENDERER_h
 

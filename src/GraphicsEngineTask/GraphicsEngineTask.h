@@ -1,5 +1,3 @@
-// GraphicsEngineTask.h
-
 #ifndef _GRAPHICS_ENGINE_TASK_h
 #define _GRAPHICS_ENGINE_TASK_h
 

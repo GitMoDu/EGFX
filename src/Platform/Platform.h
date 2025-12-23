@@ -2,27 +2,24 @@
 #define _EGFX_PLATFORM_h
 
 #include <stdint.h>
-
 #include <IntegerSignal.h>
 #include <IntegerTrigonometry.h>
 
+/// <summary>
+/// EGFX Platform 32 bit: platform with int size > 2 bytes.
+/// 32 Bit supports 8000x8000 screens; otherwise 128x128 screens.
+/// </summary>
+#if defined(ARDUINO_ARCH_NRF52) || (defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 2))
+#define EGFX_PLATFORM_32BIT
+#endif
 
 /// <summary>
 /// Enabled: use internal 8-8-8 color for rendering.
 /// Disabled: use internal 5-6-5 color for rendering.
 /// Defaults to HDR on 32 bit platforms.
 /// </summary>
-#if !defined(EGFX_PLATFORM_HDR) && (!defined(ARDUINO) || (defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 2)) ) 
+#if !defined(EGFX_PLATFORM_HDR) && (!defined(ARDUINO) || defined(EGFX_PLATFORM_32BIT) ) 
 #define EGFX_PLATFORM_HDR
-#endif
-
-/// <summary>
-/// EGFX Platform Big: suports 8000x8000 screens.
-/// EGFX Platform Small: suports 128x128 screens.
-/// Defaults to Big on 32 bit platforms.
-/// </summary>
-#if !defined(EGFX_PLATFORM_BIG) && (defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 2)) || (!defined(ARDUINO))
-#define EGFX_PLATFORM_BIG
 #endif
 
 namespace Egfx
@@ -30,7 +27,7 @@ namespace Egfx
 	using namespace IntegerSignal;
 	using namespace IntegerSignal::Trigonometry;
 
-#if defined(EGFX_PLATFORM_BIG)
+#if defined(EGFX_PLATFORM_32BIT)
 	typedef int16_t pixel_t;
 	typedef int32_t pixel_index_t;
 
@@ -38,11 +35,6 @@ namespace Egfx
 	/// Supports 8000x8000 screens.
 	/// </summary>
 	static constexpr pixel_t MAX_PIXEL_SIZE = 8000;
-
-	/// <summary>
-	/// Line/Triangle sampling factor.
-	/// </summary>
-	static constexpr uint8_t BRESENHAM_SCALE = 16;
 #else
 	typedef int16_t pixel_t;
 	typedef int16_t pixel_index_t;
@@ -51,11 +43,6 @@ namespace Egfx
 	/// Supports 128x128 screens.
 	/// </summary>
 	static constexpr pixel_index_t MAX_PIXEL_SIZE = 128;
-
-	/// <summary>
-	/// Line/Triangle sampling factor.
-	/// </summary>
-	static constexpr uint8_t BRESENHAM_SCALE = 8;
 #endif
 
 #if defined(EGFX_PLATFORM_HDR)

@@ -47,17 +47,16 @@ namespace Egfx
 	class IFrameBuffer
 	{
 	public:
-		virtual pixel_t GetFrameWidth() const = 0;
-		virtual pixel_t GetFrameHeight() const = 0;
-
-		virtual bool IsMonochrome() const = 0;
-		virtual uint8_t GetColorDepth() const = 0;
-
 		/// <summary>
 		/// Exposes the frame buffer for pushing to IScreenDriver.
 		/// </summary>
 		/// <returns>Pointer to framebuffer.</returns>
-		virtual const uint8_t* GetFrameBuffer() = 0;
+		virtual uint8_t* GetFrameBuffer() const = 0;
+
+		/// <summary>
+		/// Flips the underlying buffer. No-op for single framesbuffers.
+		/// </summary>
+		virtual void Flip() = 0;
 
 		/// <summary>
 		/// Clear the frame buffer.
@@ -185,7 +184,6 @@ namespace Egfx
 		/// </summary>
 		/// <param name="color">The fill color.</param>
 		virtual void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) = 0;
-
 	};
 }
 #endif

@@ -5,9 +5,7 @@
 
 namespace Egfx
 {
-	using Fraction::ufraction8_t;
-	using Fraction::ufraction16_t;
-	using Fraction::ufraction32_t;
+	using namespace IntegerSignal::FixedPoint::ScalarFraction;
 
 	/// <summary>
 	/// RGB color model (rgb_color_t) operands.
@@ -403,18 +401,9 @@ namespace Egfx
 		template<typename ufraction_t, typename color_t>
 		static constexpr color_t InterpolateLinear(const ufraction_t fraction, const color_t from, const color_t to)
 		{
-			return Rgb::Color(Fraction::Interpolate(fraction, R(from), R(to)),
-				Fraction::Interpolate(fraction, G(from), G(to)),
-				Fraction::Interpolate(fraction, B(from), B(to)));
-		}
-
-
-		template<typename color_t>
-		static constexpr color_t InterpolateLinear2(const ufraction8_t fraction, const color_t from, const color_t to)
-		{
-			return Rgb::Color(Fraction::Interpolate(fraction, R(from), R(to)),
-				Fraction::Interpolate(fraction, G(from), G(to)),
-				Fraction::Interpolate(fraction, B(from), B(to)));
+			return Rgb::Color(static_cast<uint8_t>(UFraction16::Interpolate(fraction, R(from), R(to))),
+				static_cast<uint8_t>(UFraction16::Interpolate(fraction, G(from), G(to))),
+				static_cast<uint8_t>(UFraction16::Interpolate(fraction, B(from), B(to))));
 		}
 
 		/// <summary>
@@ -428,9 +417,9 @@ namespace Egfx
 		template<typename ufraction_t, typename color_t>
 		static color_t Interpolate(const ufraction_t fraction, const color_t from, const color_t to)
 		{
-			return Rgb::Color(SquareRoot16(Fraction::Interpolate(fraction, Power8(R(from)), Power8(R(to)))),
-				SquareRoot16(Fraction::Interpolate(fraction, Power8(G(from)), Power8(G(to)))),
-				SquareRoot16(Fraction::Interpolate(fraction, Power8(B(from)), Power8(B(to)))));
+			return Rgb::Color(SquareRoot16(UFraction16::Interpolate(fraction, Power8(R(from)), Power8(R(to)))),
+				SquareRoot16(UFraction16::Interpolate(fraction, Power8(G(from)), Power8(G(to)))),
+				SquareRoot16(UFraction16::Interpolate(fraction, Power8(B(from)), Power8(B(to)))));
 		}
 	};
 

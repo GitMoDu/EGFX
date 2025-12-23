@@ -1,7 +1,5 @@
-// GraphicsBuffer.h
-
-#ifndef _GRAPHICS_BUFFER_h
-#define _GRAPHICS_BUFFER_h
+#ifndef _EGFX_GRAPHICS_BUFFER_h
+#define _EGFX_GRAPHICS_BUFFER_h
 
 #include "../Platform/Platform.h"
 

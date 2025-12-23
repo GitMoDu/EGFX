@@ -29,6 +29,9 @@ namespace Egfx
 		{
 		}
 
+		virtual void BufferTaskCallback(void* /*parameter*/) {}
+		virtual void SetBufferTaskCallback(void (*/*taskCallback*/)(void* parameter)) {}
+
 		virtual bool Start()
 		{
 			return true;

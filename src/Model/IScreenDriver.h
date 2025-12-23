@@ -1,5 +1,5 @@
-#ifndef _I_SCREEN_DRIVER_h
-#define _I_SCREEN_DRIVER_h
+#ifndef _EGFX_I_SCREEN_DRIVER_h
+#define _EGFX_I_SCREEN_DRIVER_h
 
 #include "Model/RgbColor.h"
 #include "Model/GraphicsBuffer.h"
@@ -8,28 +8,24 @@ namespace Egfx
 {
 	struct IScreenDriver
 	{
-		virtual bool CanPushBuffer() { return  false; }
-		virtual void StartBuffer() {}
-		virtual uint32_t PushBuffer(const uint8_t* frameBuffer) { return 0; }
-		virtual bool PushingBuffer(const uint8_t* frameBuffer) { return false; }
-		virtual void EndBuffer() {}
+		virtual bool CanPushBuffer() = 0;
+		virtual void StartBuffer() = 0;
+		virtual uint32_t PushBuffer(const uint8_t* frameBuffer) = 0;
+		virtual bool PushingBuffer(const uint8_t* frameBuffer) = 0;
+		virtual void EndBuffer() = 0;
 
-		virtual pixel_t GetScreenWidth() const { return 0; }
-		virtual pixel_t GetScreenHeight() const { return 0; }
+		virtual pixel_t GetScreenWidth() const = 0;
+		virtual pixel_t GetScreenHeight() const = 0;
 
-		virtual bool Start() { return false; }
+		virtual bool Start() = 0;
 
-		virtual void Stop() {}
+		virtual void Stop() = 0;
 
-		virtual void SetBrightness(const uint8_t brightness) {}
+		//virtual void SetBrightness(const uint8_t brightness) {} //TODO:
 
-#if defined(ARDUINO_ARCH_NRF52)
-		virtual void SetBufferTaskCallback(SchedulerRTOS::taskfunc_t taskCallback) {}
-#else
-		virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) {}
-#endif
+		virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) = 0;
 
-		virtual void BufferTaskCallback(void* parameter) {}
+		virtual void BufferTaskCallback(void* parameter) = 0;
 	};
 }
 #endif

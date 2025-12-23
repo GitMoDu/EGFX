@@ -24,7 +24,7 @@ namespace Egfx
 		/// <param name="frameTime"></param>
 		/// <param name="frameCounter"></param>
 		/// <param name="elementIndex"></param>
-		virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) {}
+		virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) = 0;
 
 	public:
 		ElementDrawer(const uint8_t elementsCount)
@@ -33,6 +33,11 @@ namespace Egfx
 			, OriginalCount(elementsCount)
 		{
 		}
+
+		/// <summary>
+		/// Virtual destructor to maintain a proper virtual chain.
+		/// </summary>
+		virtual ~ElementDrawer() = default;
 
 		uint8_t GetElementsCount() const
 		{

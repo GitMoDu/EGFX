@@ -11,13 +11,13 @@ namespace Egfx
 		/// Sprite width.
 		/// </summary>
 		/// <returns></returns>
-		virtual pixel_t GetWidth() const { return 0; }
+		virtual pixel_t GetWidth() const = 0;
 
 		/// <summary>
 		/// Sprite height.
 		/// </summary>
 		/// <returns></returns>
-		virtual pixel_t GetHeight() const { return 0; }
+		virtual pixel_t GetHeight() const = 0;
 
 		/// <summary>
 		/// Color getter for sprite.
@@ -26,7 +26,7 @@ namespace Egfx
 		/// <param name="x">Sprite coordinate X.</param>
 		/// <param name="y">Sprite coordinate Y.</param>
 		/// <returns>False when pixel is transparent at these coordinates.</returns>
-		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y) { return false; }
+		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y) = 0;
 	};
 
 	/// <summary>

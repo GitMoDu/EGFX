@@ -23,7 +23,7 @@ namespace Egfx
 		, const uint8_t clearDivisorPower = 0
 		, const uint8_t threshold = 0
 		, typename displayOptions = DisplayOptions::Default>
-	class BinaryFramebuffer final
+	class BinaryFramebuffer
 		: public TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold>, clearDivisorPower, displayOptions>
 	{
 	private:
@@ -43,7 +43,7 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	class Color8Framebuffer final
+	class Color8Framebuffer
 		: public TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
 	private:
@@ -63,7 +63,7 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	class Grayscale8Framebuffer final
+	class Grayscale8Framebuffer
 		: public TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
 	private:
@@ -83,7 +83,7 @@ namespace Egfx
 	template<pixel_t frameWidth, pixel_t frameHeight
 		, uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	class Color16Framebuffer final
+	class Color16Framebuffer
 		: public TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
 	private:
@@ -104,7 +104,7 @@ namespace Egfx
 	template<const pixel_t frameWidth, const pixel_t frameHeight
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
-	class Color32FrameBuffer final
+	class Color32FrameBuffer
 		: public TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
 	{
 	private:

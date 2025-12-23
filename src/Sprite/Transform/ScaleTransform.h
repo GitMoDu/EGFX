@@ -7,7 +7,7 @@ namespace Egfx
 {
 	namespace SpriteTransform
 	{
-		template<const pixel_t Width,
+		template<pixel_t Width,
 			typename BaseTransform = ITransform>
 		class DownScaleXTransform : public BaseTransform
 		{
@@ -22,12 +22,12 @@ namespace Egfx
 				DownScale = downScale;
 			}
 
-			const pixel_t GetDownScaleX()
+			pixel_t GetDownScaleX() const
 			{
 				return DownScale;
 			}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
@@ -46,7 +46,7 @@ namespace Egfx
 			}
 		};
 
-		template<const pixel_t Height,
+		template<pixel_t Height,
 			typename BaseTransform = ITransform>
 		class DownScaleYTransform : public BaseTransform
 		{
@@ -61,12 +61,12 @@ namespace Egfx
 				DownScale = downScale;
 			}
 
-			const pixel_t GetDownScaleY()
+			pixel_t GetDownScaleY() const
 			{
 				return DownScale;
 			}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
@@ -84,8 +84,8 @@ namespace Egfx
 			}
 		};
 
-		template<const pixel_t Width,
-			const pixel_t Height,
+		template<pixel_t Width,
+			pixel_t Height,
 			typename BaseTransform = ITransform>
 		class DownScaleXYTransform : public BaseTransform
 		{
@@ -100,12 +100,12 @@ namespace Egfx
 				DownScale = downScale;
 			}
 
-			const pixel_t GetDownScaleXY()
+			pixel_t GetDownScaleXY() const
 			{
 				return DownScale;
 			}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{

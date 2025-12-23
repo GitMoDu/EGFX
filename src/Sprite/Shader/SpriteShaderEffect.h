@@ -7,11 +7,7 @@ namespace Egfx
 {
 	namespace SpriteShaderEffect
 	{
-		using Fraction::ufraction16_t;
-		using Fraction::fraction8_t;
-		using Fraction::fraction16_t;
-		using Fraction::FRACTION16_1X;
-		using Fraction::UFRACTION16_1X;
+		using namespace IntegerSignal::FixedPoint::ScalarFraction;
 
 		/// <summary>
 		/// Masks the pixels with a rectangle crop.
@@ -85,7 +81,7 @@ namespace Egfx
 			}
 
 		private:
-			const bool IsInsideCircle(const pixel_t x, const pixel_t y)
+			bool IsInsideCircle(const pixel_t x, const pixel_t y)
 			{
 				const int16_t xx = x - OffsetX;
 				const int16_t yy = y - OffsetY;
@@ -220,8 +216,8 @@ namespace Egfx
 			}
 
 		private:
-			template<const uint8_t AddLimit>
-			const uint8_t LimitedAdd(const uint8_t value) const
+			template<uint8_t AddLimit>
+			uint8_t LimitedAdd(const uint8_t value) const
 			{
 				if (value < (AddLimit - Shift))
 				{
@@ -233,7 +229,7 @@ namespace Egfx
 				}
 			}
 
-			const uint8_t LimitedSubtract(const uint8_t value) const
+			uint8_t LimitedSubtract(const uint8_t value) const
 			{
 				if (value > -Shift)
 				{
@@ -254,7 +250,8 @@ namespace Egfx
 		class BrightnessEffect : public BaseClass
 		{
 		private:
-			fraction16_t Brightness = 0;
+			ufraction16_t Progress = 0;
+			int8_t Sign = 0;
 
 		public:
 			BrightnessEffect() : BaseClass() {}
@@ -265,24 +262,34 @@ namespace Egfx
 			/// <param name="brightness">[FRACTION16_NEGATIVE_1X ; FRACTION16_1X] Absolute shift in RGB space.</param>
 			void SetBrightness(const fraction16_t brightness)
 			{
-
-				Brightness = brightness;
+				Sign = (brightness >= 0) ? 1 : -1;
+				if (Sign >= 0)
+				{
+					//Progress = Fraction(brightness, UFRACTION16_1X);
+					Progress = brightness << 1;
+				}
+				else
+				{
+					Progress = UFRACTION16_1X - (-(brightness + 1) << 1);
+				}
 			}
 
 			virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
 			{
 				if (BaseClass::Get(color, x, y))
 				{
-					if (Brightness > 0)
+					if (Progress != 0)
 					{
-						color = Rgb::InterpolateLinear(ufraction16_t(uint16_t(Brightness) << 1), color, RGB_COLOR_WHITE);
-					}
-					else if (Brightness < 0)
-					{
-						ufraction16_t reverseFraction = UFRACTION16_1X - (uint16_t(-Brightness) << 1);
-						color = Rgb::Color(Fraction::Scale(reverseFraction, Rgb::R(color)),
-							Fraction::Scale(reverseFraction, Rgb::G(color)),
-							Fraction::Scale(reverseFraction, Rgb::B(color)));
+						if (Sign >= 0)
+						{
+							color = Rgb::InterpolateLinear(Progress, color, RGB_COLOR_WHITE);
+						}
+						else
+						{
+							color = Rgb::Color(Fraction(Progress, Rgb::R(color)),
+								Fraction(Progress, Rgb::G(color)),
+								Fraction(Progress, Rgb::B(color)));
+						}
 					}
 
 					return true;
@@ -360,7 +367,7 @@ namespace Egfx
 			}
 
 		private:
-			const uint8_t ConstrastUp(const uint8_t value, const int8_t scale)
+			uint8_t ConstrastUp(const uint8_t value, const int8_t scale)
 			{
 				const int16_t delta = value - Center;
 
@@ -397,7 +404,7 @@ namespace Egfx
 				}
 			}
 
-			const uint8_t ConstrastDown(const uint8_t value, const int8_t scale)
+			uint8_t ConstrastDown(const uint8_t value, const int8_t scale)
 			{
 				const int16_t delta = value - Center;
 

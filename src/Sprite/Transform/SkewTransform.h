@@ -7,7 +7,12 @@ namespace Egfx
 {
 	namespace SpriteTransform
 	{
-		template<const pixel_t Height,
+		/// <summary>
+		///  Pixel perfect horizontal skew transform.
+		/// </summary>
+		/// <typeparam name="BaseTransform">The base transform class to inherit from, defaults to ITransform. Allows chaining of multiple transformations.</typeparam>
+		/// <typeparam name="Height">The total height in pixels of the coordinate space being transformed.</typeparam>
+		template<pixel_t Height,
 			typename BaseTransform = ITransform>
 		class SkewHorizontalTransform : public BaseTransform
 		{
@@ -18,13 +23,13 @@ namespace Egfx
 		public:
 			SkewHorizontalTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
 					if (Skew != 0)
 					{
-						x += ((((int16_t)y - ReferenceY)) * Skew) / (Height - 1);
+						x += (((static_cast<pixel_index_t>(y) - ReferenceY)) * Skew) / (Height - 1);
 					}
 					return true;
 				}
@@ -37,7 +42,7 @@ namespace Egfx
 				Skew = skewPixels;
 			}
 
-			const pixel_t GetSkewX() const
+			pixel_t GetSkewX() const
 			{
 				return Skew;
 			}
@@ -47,13 +52,18 @@ namespace Egfx
 				ReferenceY = reference;
 			}
 
-			const pixel_t GetReferenceY() const
+			pixel_t GetReferenceY() const
 			{
 				return ReferenceY;
 			}
 		};
 
-		template<const pixel_t Width,
+		/// <summary>
+		/// Pixel perfect vertical skew transform.
+		/// </summary>
+		/// <typeparam name="BaseTransform">The base transformation class to inherit from. Defaults to ITransform.</typeparam>
+		/// <typeparam name="Width">The width in pixels used for skew calculations and default reference point.</typeparam>
+		template<pixel_t Width,
 			typename BaseTransform = ITransform>
 		class SkewVerticalTransform : public BaseTransform
 		{
@@ -64,13 +74,13 @@ namespace Egfx
 		public:
 			SkewVerticalTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
 					if (Skew != 0)
 					{
-						y += ((((int16_t)x - ReferenceX)) * Skew) / (Width - 1);
+						y += (((static_cast<pixel_index_t>(x) - ReferenceX)) * Skew) / (Width - 1);
 					}
 
 					return true;
@@ -84,7 +94,7 @@ namespace Egfx
 				Skew = skewPixels;
 			}
 
-			const pixel_t GetSkewY() const
+			pixel_t GetSkewY() const
 			{
 				return Skew;
 			}
@@ -94,7 +104,7 @@ namespace Egfx
 				ReferenceX = reference;
 			}
 
-			const pixel_t GetReferenceX() const
+			pixel_t GetReferenceX() const
 			{
 				return ReferenceX;
 			}

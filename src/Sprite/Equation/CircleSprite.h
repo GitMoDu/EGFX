@@ -22,7 +22,7 @@ namespace Egfx
 		{
 		}
 
-		const bool IsInsideCircle(const pixel_t x, const pixel_t y)
+		bool IsInsideCircle(const pixel_t x, const pixel_t y)
 		{
 			const int16_t dx = -(int16_t)Radius + x + 1;
 			const int16_t dy = -(int16_t)Radius + y + 1;
@@ -85,7 +85,7 @@ namespace Egfx
 			}
 		}
 
-		const bool IsInsideCircle(const pixel_t x, const pixel_t y)
+		bool IsInsideCircle(const pixel_t x, const pixel_t y)
 		{
 			const int16_t dx = -(int16_t)Radius + x + 1;
 			const int16_t dy = -(int16_t)Radius + y + 1;

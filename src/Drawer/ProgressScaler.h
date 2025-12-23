@@ -8,12 +8,12 @@ namespace Egfx
 	struct ProgressScaler
 	{
 		template<const uint32_t PeriodMicros>
-		static constexpr const uint16_t GetProgress(const uint32_t frameTime)
+		static constexpr uint16_t GetProgress(const uint32_t frameTime)
 		{
 			return ((uint64_t)(frameTime % PeriodMicros) * UINT16_MAX) / PeriodMicros;
 		}
 
-		static constexpr const uint16_t GetProgress(const uint32_t periodMicros, const uint32_t frameTime)
+		static constexpr uint16_t GetProgress(const uint32_t periodMicros, const uint32_t frameTime)
 		{
 			return uint16_t(((uint64_t)(frameTime % periodMicros) * UINT16_MAX) / periodMicros);
 		}
@@ -33,7 +33,7 @@ namespace Egfx
 			return uint16_t((((uint64_t)progress) * value) / UINT16_MAX);
 		}
 
-		static const uint16_t TriangleResponse(const uint16_t progress)
+		static uint16_t TriangleResponse(const uint16_t progress)
 		{
 			if (progress < ((uint16_t)INT16_MAX + 1))
 			{

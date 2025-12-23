@@ -19,7 +19,7 @@ namespace Egfx
 		{
 			InvertXTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
@@ -31,7 +31,7 @@ namespace Egfx
 				return false;
 			}
 
-			static void TransformStatic(pixel_t& x, pixel_t& y)
+			static void TransformStatic(pixel_t& x, pixel_t& /*y*/)
 			{
 				x = Width - 1 - x;
 			}
@@ -48,7 +48,7 @@ namespace Egfx
 		{
 			InvertYTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
@@ -60,7 +60,7 @@ namespace Egfx
 				return false;
 			}
 
-			static void TransformStatic(pixel_t& x, pixel_t& y)
+			static void TransformStatic(pixel_t& /*x*/, pixel_t& y)
 			{
 				y = Height - 1 - y;
 			}
@@ -77,7 +77,7 @@ namespace Egfx
 		{
 			InvertTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
@@ -104,7 +104,7 @@ namespace Egfx
 		{
 			FlipTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
@@ -135,7 +135,7 @@ namespace Egfx
 		{
 			FlipInvertXTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{
@@ -166,7 +166,7 @@ namespace Egfx
 		{
 			FlipInvertYTransform() : BaseTransform() {}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (BaseTransform::Transform(x, y))
 				{

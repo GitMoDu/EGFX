@@ -10,6 +10,8 @@ namespace Egfx
 {
 	namespace SpriteShader
 	{
+		using namespace IntegerSignal::FixedPoint::ScalarFraction;
+
 		template<typename SpriteType>
 		class AbstractOneColorShader : public SpriteType
 		{
@@ -139,7 +141,7 @@ namespace Egfx
 			{
 				if (SpriteType::Get(color, x, y))
 				{
-					const Fraction::ufraction16_t fraction = Fraction::GetFraction16((pixel_index_t)x, SpriteType::Width - 1);
+					const ufraction16_t fraction = UFraction16::GetScalar<pixel_t>(x, SpriteType::Width - 1);
 
 					color = Rgb::Interpolate(fraction, ShaderColor1, ShaderColor2);
 
@@ -168,7 +170,7 @@ namespace Egfx
 			{
 				if (SpriteType::Get(color, x, y))
 				{
-					const Fraction::ufraction16_t fraction = Fraction::GetFraction16((pixel_index_t)y, SpriteType::Height - 1);
+					const ufraction16_t fraction = UFraction16::GetScalar<pixel_t>(y, SpriteType::Height - 1);
 
 					color = Rgb::Interpolate(fraction, ShaderColor1, ShaderColor2);
 

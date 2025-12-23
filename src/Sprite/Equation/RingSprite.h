@@ -52,7 +52,7 @@ namespace Egfx
 			}
 		}
 
-		const bool IsInsideRing(const pixel_t x, const pixel_t y)
+		bool IsInsideRing(const pixel_t x, const pixel_t y)
 		{
 			const int16_t dx = -(int16_t)OuterRadius + x;
 			const int16_t dy = -(int16_t)OuterRadius + y;

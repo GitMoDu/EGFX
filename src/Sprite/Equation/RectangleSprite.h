@@ -14,7 +14,7 @@ namespace Egfx
 		{
 		}
 
-		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t /*x*/, const pixel_t /*y*/)
 		{
 			color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 
@@ -33,7 +33,7 @@ namespace Egfx
 		{
 		}
 
-		virtual bool Get(rgb_color_t& color, const pixel_t x, const pixel_t y)
+		virtual bool Get(rgb_color_t& color, const pixel_t /*x*/, const pixel_t /*y*/)
 		{
 			color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
 

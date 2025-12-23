@@ -19,6 +19,12 @@ namespace Egfx
 	using SpiType = SPIClass;
 #endif
 
+	// Selector for the screen communications hardware instance.
+	template<> struct InterfaceSelector<InterfaceTypeEnum::SPI>
+	{
+		using Type = SpiType;
+	};
+
 	template<size_t bufferSize,
 		const pixel_t width,
 		const pixel_t height,
@@ -28,15 +34,18 @@ namespace Egfx
 	class AbstractScreenDriverSPI : public IScreenDriver
 	{
 	public:
+		using InterfaceType = SpiType;
+
+	public:
 		static constexpr size_t BufferSize = bufferSize;
 		static constexpr pixel_t ScreenWidth = width;
 		static constexpr pixel_t ScreenHeight = height;
 
 	protected:
-		Egfx::SpiType& SpiInstance;
+		SpiType& SpiInstance;
 
 	public:
-		AbstractScreenDriverSPI(Egfx::SpiType& spi)
+		AbstractScreenDriverSPI(SpiType& spi)
 			: IScreenDriver()
 			, SpiInstance(spi)
 		{

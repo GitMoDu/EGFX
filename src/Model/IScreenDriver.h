@@ -6,6 +6,26 @@
 
 namespace Egfx
 {
+	/// <summary>
+	/// Platform display communications interface type enumeration.
+	/// </summary>
+	enum class InterfaceTypeEnum : uint8_t
+	{
+		I2C,
+		SPI,
+		SPI_QUAD,
+		SPI_OCTAL,
+		PARALLEL,
+		EnumCount
+	};
+
+	/// <summary>
+	/// Abstract compile time type selector for display communications interface type.
+	/// Implementations provided for each InterfaceTypeEnum value.
+	/// </summary>
+	/// <typeparam name=""></typeparam>
+	template<InterfaceTypeEnum> struct InterfaceSelector;
+
 	struct IScreenDriver
 	{
 		virtual bool CanPushBuffer() = 0;

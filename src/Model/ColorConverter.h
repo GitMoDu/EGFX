@@ -1,5 +1,5 @@
-#ifndef _COLOR_CONVERTER_h
-#define _COLOR_CONVERTER_h
+#ifndef _EGFX_COLOR_CONVERTER_h
+#define _EGFX_COLOR_CONVERTER_h
 
 #include "RgbColor.h"
 #include "GraphicsBuffer.h"
@@ -9,52 +9,34 @@ namespace Egfx
 	struct AbstractColorConverter1
 	{
 		using color_t = uint8_t;
-
-		static constexpr uint8_t ColorDepth()
-		{
-			return 1;
-		}
+		static constexpr uint8_t ColorDepth = 1;
+		static constexpr bool Monochrome = true;
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferMonochromeSize(width, height);
-		}
-
-		static constexpr bool Monochrome()
-		{
-			return true;
 		}
 	};
 
 	struct AbstractColorConverter4
 	{
 		using color_t = uint8_t;
+		static constexpr uint8_t ColorDepth = 4;
+		static constexpr bool Monochrome = true;
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferLowColorSize<4>(width, height);
 		}
-
-		static constexpr uint8_t ColorDepth()
-		{
-			return 4;
-		}
-
-		static constexpr bool Monochrome()
-		{
-			return true;
-		}
 	};
 
+	template<bool monochrome>
 	struct AbstractColorConverter8
 	{
 		using color_t = uint8_t;
 
-		static constexpr uint8_t ColorDepth()
-		{
-			return 8;
-		}
-
+		static constexpr uint8_t ColorDepth = 8;
+		static constexpr bool Monochrome = monochrome;
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
@@ -64,11 +46,8 @@ namespace Egfx
 	struct AbstractColorConverter16
 	{
 		using color_t = uint16_t;
-
-		static constexpr uint8_t ColorDepth()
-		{
-			return 16;
-		}
+		static constexpr uint8_t ColorDepth = 16;
+		static constexpr bool Monochrome = false;
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
@@ -79,27 +58,19 @@ namespace Egfx
 	struct AbstractColorConverter32
 	{
 		using color_t = uint32_t;
-
-		static constexpr uint8_t ColorDepth()
-		{
-			return 24;
-		}
+		static constexpr uint8_t ColorDepth = 24;
+		static constexpr bool Monochrome = false;
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
 			return Egfx::GetFrameBufferSize<color_t>(width, height);
-		}
-
-		static constexpr bool Monochrome()
-		{
-			return false;
 		}
 	};
 
 	/// <summary>
 	/// Converter for 8 bit color, 3-3-2 color format.
 	/// </summary>
-	struct ColorConverter8 : public AbstractColorConverter8
+	struct ColorConverter8 : public AbstractColorConverter8<false>
 	{
 #if defined(EGFX_PLATFORM_HDR)
 		/// <summary>
@@ -126,11 +97,6 @@ namespace Egfx
 				| (Rgb::B5(color) >> 3);
 		}
 #endif
-
-		static constexpr bool Monochrome()
-		{
-			return false;
-		}
 	};
 
 	/// <summary>
@@ -138,11 +104,6 @@ namespace Egfx
 	/// </summary>
 	struct ColorConverter16 : public AbstractColorConverter16
 	{
-		static constexpr bool Monochrome()
-		{
-			return false;
-		}
-
 #if defined(EGFX_PLATFORM_HDR)
 		/// <summary>
 		/// Convert 8-8-8 color to 5-6-5 color.
@@ -198,7 +159,7 @@ namespace Egfx
 	/// <summary>
 	/// Converter for 8 bit grayscale.
 	/// </summary>
-	struct GrayScaleConverter8 : public AbstractColorConverter8
+	struct GrayScaleConverter8 : public AbstractColorConverter8<true>
 	{
 #if defined(EGFX_PLATFORM_HDR)
 	private:
@@ -235,10 +196,6 @@ namespace Egfx
 			return (uint16_t)Rgb::B5(color) + Rgb::R5(color) + (Rgb::G6(color) << 2);
 		}
 #endif
-		static constexpr bool Monochrome()
-		{
-			return true;
-		}
 	};
 
 	/// <summary>
@@ -286,11 +243,6 @@ namespace Egfx
 			return Rgb::R(color) > threshold
 				|| Rgb::G(color) > threshold
 				|| Rgb::B(color) > threshold;
-		}
-
-		static constexpr bool Monochrome()
-		{
-			return true;
 		}
 	};
 }

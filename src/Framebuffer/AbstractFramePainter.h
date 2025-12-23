@@ -8,12 +8,14 @@
 namespace Egfx
 {
 	template<typename ColorConverter, pixel_t frameWidth, pixel_t frameHeight>
-	class AbstractFramePainter: public IFrameBuffer
+	class AbstractFramePainter : public IFrameBuffer
 	{
 	public:
 		static constexpr size_t BufferSize = ColorConverter::BufferSize(frameWidth, frameHeight);
 		static constexpr pixel_t FrameWidth = frameWidth;
 		static constexpr pixel_t FrameHeight = frameHeight;
+		static constexpr uint8_t ColorDepth = ColorConverter::ColorDepth;
+		static constexpr bool Monochrome = ColorConverter::Monochrome;
 
 		using color_t = typename ColorConverter::color_t;
 
@@ -25,16 +27,6 @@ namespace Egfx
 			: IFrameBuffer()
 			, Buffer(buffer)
 		{
-		}
-
-		bool IsMonochrome() const final
-		{
-			return ColorConverter::Monochrome();
-		}
-
-		uint8_t GetColorDepth() const final
-		{
-			return ColorConverter::ColorDepth();
 		}
 
 		static constexpr color_t GetRawColor(const rgb_color_t color)

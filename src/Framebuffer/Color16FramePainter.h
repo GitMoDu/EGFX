@@ -152,11 +152,11 @@ namespace Egfx
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
 			const uint8_t highColor = rawColor >> 8;
-			const pixel_index_t offsetStart = (sizeof(color_t) * frameWidth * y1) + (sizeof(color_t) * x1);
+			const pixel_index_t rowSpan = sizeof(color_t) * frameWidth;
 
 			for (pixel_t y = y1; y <= y2; y++)
 			{
-				pixel_index_t offset = offsetStart + (sizeof(color_t) * frameWidth * (y - y1));
+				pixel_index_t offset = (rowSpan * y) + (sizeof(color_t) * x1);
 				for (pixel_t x = x1; x <= x2; x++)
 				{
 					Buffer[offset++] = highColor;
@@ -168,24 +168,68 @@ namespace Egfx
 		void FillRaw(const color_t rawColor)
 		{
 			const uint8_t highColor = rawColor >> 8;
-			for (pixel_index_t offset = 0; offset < BufferSize; offset += sizeof(color_t))
+			for (pixel_index_t offset = 0; offset < pixel_index_t(BufferSize); offset += sizeof(color_t))
 			{
 				Buffer[offset] = highColor;
 				Buffer[offset + 1] = (uint8_t)rawColor;
 			}
 		}
 
+#if defined(EGFX_PLATFORM_32BIT)
+		template<bool inverted, uint8_t Sections>
+		void ClearRaw(const uint8_t section)
+		{
+			// Compute section bounds.
+			static constexpr size_t sectionSize = BufferSize / Sections;
+			uint8_t* dst = &Buffer[sectionSize * section];
+			size_t remaining = sectionSize;
+
+			// Fill values: only 0x00 or 0xFF (bytes) and 0x00000000 or 0xFFFFFFFF (words).
+			static constexpr uint8_t byteFill = inverted ? UINT8_MAX : 0;
+			static constexpr uint32_t wordFill = inverted ? 0xFFFFFFFFu : 0x00000000u;
+
+			// Head: align to 4-byte boundary using byte writes.
+			while (((reinterpret_cast<uintptr_t>(dst) & 0x3u) != 0) && remaining)
+			{
+				*dst++ = byteFill;
+				--remaining;
+			}
+
+			// Bulk: 32-bit stores (mildly unrolled), no extra buffers.
+			uint32_t* wdst = reinterpret_cast<uint32_t*>(dst);
+			size_t wordCount = remaining >> 2; // divide by 4
+
+			while (wordCount >= 8)
+			{
+				wdst[0] = wordFill; wdst[1] = wordFill; wdst[2] = wordFill; wdst[3] = wordFill;
+				wdst[4] = wordFill; wdst[5] = wordFill; wdst[6] = wordFill; wdst[7] = wordFill;
+				wdst += 8;
+				wordCount -= 8;
+			}
+			while (wordCount)
+			{
+				*wdst++ = wordFill;
+				--wordCount;
+			}
+
+			// Tail: any remaining bytes (remaining % 4).
+			dst = reinterpret_cast<uint8_t*>(wdst);
+			remaining &= 0x3u; // modulo 4
+			while (remaining)
+			{
+				*dst++ = byteFill;
+				--remaining;
+			}
+		}
+#else
 		template<bool inverted, uint8_t Sections>
 		void ClearRaw(const uint8_t section)
 		{
 			static constexpr size_t sectionSize = BufferSize / Sections;
 			const size_t sectionOffset = sectionSize * section;
-			if (inverted)
-				memset(&Buffer[sectionOffset], UINT8_MAX, sectionSize);
-			else
-				memset(&Buffer[sectionOffset], 0, sectionSize);
+			memset(&Buffer[sectionOffset], inverted ? UINT8_MAX : 0, sectionSize);
 		}
-
+#endif
 	};
 }
 #endif

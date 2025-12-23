@@ -1,8 +1,12 @@
-#ifndef _TEMPLATE_FRAME_BUFFER_h
-#define _TEMPLATE_FRAME_BUFFER_h
+#ifndef _EGFX_TEMPLATE_FRAME_BUFFER_h
+#define _EGFX_TEMPLATE_FRAME_BUFFER_h
 
 #include "../Model/RgbColor.h"
 #include "../Model/DisplayOptions.h"
+
+#if defined(ARDUINO_ARCH_RP2040)
+#include "hardware/dma.h"
+#endif
 
 namespace Egfx
 {
@@ -23,9 +27,14 @@ namespace Egfx
 		using FramePainter::BufferSize;
 		using FramePainter::FrameWidth;
 		using FramePainter::FrameHeight;
+
 		using typename FramePainter::color_t;
 
 		using Configuration = displayOptions;
+
+	protected:
+		using FramePainter::IntToFixed;
+		using FramePainter::FixedRoundToInt;
 
 	private:
 		enum class OutcodeEnum : uint8_t
@@ -36,7 +45,19 @@ namespace Egfx
 			OUT_TOP = 8
 		};
 
+		static constexpr uint8_t BRESENHAM_SCALE = 8;
+
+#if defined(ARDUINO_ARCH_RP2040)
+		// Static fill constant lives for the lifetime of the program; safe as DMA source.
+		const uint32_t FillZero32 = 0x00000000u;
+		const uint32_t FillOnes32 = 0xFFFFFFFFu;
+
+		// Async DMA clear state
+		int DmaChan = -1;
+		bool DmaActive = false;
+#else
 		static constexpr uint8_t ClearStepsCount = uint8_t(1) << clearDivisorPower;
+#endif
 
 	protected:
 		using FramePainter::Buffer;
@@ -51,23 +72,26 @@ namespace Egfx
 		}
 
 	public:
-		pixel_t GetFrameWidth() const final
+		virtual void Flip()
 		{
-			return FrameWidth;
+			// No double-buffering support by default.
 		}
 
-		pixel_t GetFrameHeight() const final
+		virtual bool MustWaitForPush()
 		{
-			return FrameHeight;
+			return true;
 		}
 
-		const uint8_t* GetFrameBuffer() final
+		uint8_t* GetFrameBuffer() const
 		{
-			return (const uint8_t*)Buffer;
+			return Buffer;
 		}
 
 		bool ClearFrameBuffer() final
 		{
+#if defined(ARDUINO_ARCH_RP2040)
+			return AsyncClearBuffer();
+#else
 			// The template keyword is required in this context to disambiguate between a static method and a template method.
 			FramePainter::template ClearRaw<displayOptions::Inverted, ClearStepsCount>(ClearIndex);
 
@@ -83,9 +107,10 @@ namespace Egfx
 			{
 				return false;
 			}
+#endif
 		}
 
-		void SetBuffer(uint8_t buffer[BufferSize])
+		virtual void SetBuffer(uint8_t buffer[BufferSize])
 		{
 			Buffer = buffer;
 		}
@@ -344,8 +369,10 @@ namespace Egfx
 			const pixel_t topLeftX, const pixel_t topLeftY,
 			const pixel_t bottomRightX, const pixel_t bottomRightY) final
 		{
-			pixel_point_t topLeft = { topLeftX, topLeftY };
-			pixel_point_t bottomRight = { bottomRightX , bottomRightY };
+			pixel_point_t topLeft = { (topLeftX <= bottomRightX) ? topLeftX : bottomRightX,
+					(topLeftY <= bottomRightY) ? topLeftY : bottomRightY };
+			pixel_point_t bottomRight = { (topLeftX <= bottomRightX) ? bottomRightX : topLeftX,
+				(topLeftY <= bottomRightY) ? bottomRightY : topLeftY };
 
 			if (!ClipRectangle(topLeft, bottomRight))
 			{
@@ -604,7 +631,7 @@ namespace Egfx
 					return; // Degenerate triangle
 
 				// Calculate Vi_x in fixed-point.
-				const pixel_t Vi_x = (((pixel_index_t)a.x << BRESENHAM_SCALE) + ((((pixel_index_t)dxTotal << BRESENHAM_SCALE) * dySegment) / dyTotal)) >> BRESENHAM_SCALE;
+				const pixel_t Vi_x = FixedRoundToInt(IntToFixed(a.x) + (((IntToFixed(dxTotal) * dySegment) / dyTotal)));
 				const pixel_point_t Vi = { Vi_x, b.y };
 
 				// Draw the two sub-triangles
@@ -619,16 +646,16 @@ namespace Egfx
 			pixel_index_t invSlope1 = 1;
 			if (b.y != a.y)
 			{
-				invSlope1 = ((pixel_index_t)(b.x - a.x) << BRESENHAM_SCALE) / (b.y - a.y);
+				invSlope1 = IntToFixed(b.x - a.x) / (b.y - a.y);
 			}
 			pixel_index_t invSlope2 = 1;
 			if (c.y != a.y)
 			{
-				invSlope2 = ((pixel_index_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
+				invSlope2 = IntToFixed(c.x - a.x) / (c.y - a.y);
 			}
 
 			// Starting x positions in fixed-point
-			pixel_index_t x1 = (pixel_index_t)a.x << BRESENHAM_SCALE;
+			pixel_index_t x1 = IntToFixed(a.x);
 			pixel_index_t x2 = x1;
 
 			pixel_t xSide1{};
@@ -637,8 +664,8 @@ namespace Egfx
 			// Loop from a.y to b.y (inclusive)
 			for (pixel_t y = a.y; y <= b.y; y++)
 			{
-				xSide1 = LimitValue<pixel_t>(x1 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
-				xSide2 = LimitValue<pixel_t>(x2 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
+				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FrameWidth - 1);
+				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FrameWidth - 1);
 
 				if (xSide1 == xSide2)
 				{
@@ -674,11 +701,11 @@ namespace Egfx
 		void BresenhamFlatTopFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
 		{
 			// Calculate inverse slopes in fixed-point
-			const pixel_index_t invSlope1 = ((pixel_index_t)(c.x - a.x) << BRESENHAM_SCALE) / (c.y - a.y);
-			const pixel_index_t invSlope2 = ((pixel_index_t)(c.x - b.x) << BRESENHAM_SCALE) / (c.y - b.y);
+			const pixel_index_t invSlope1 = IntToFixed(c.x - a.x) / (c.y - a.y);
+			const pixel_index_t invSlope2 = IntToFixed(c.x - b.x) / (c.y - b.y);
 
 			// Starting x positions in fixed-point
-			pixel_index_t x1 = (pixel_index_t)c.x << BRESENHAM_SCALE;
+			pixel_index_t x1 = IntToFixed(c.x);
 			pixel_index_t x2 = x1;
 
 			pixel_t xSide1{};
@@ -687,8 +714,8 @@ namespace Egfx
 			// Loop from c.y down to a.y (inclusive)
 			for (pixel_t y = c.y; y >= a.y; y--)
 			{
-				xSide1 = LimitValue<pixel_t>(x1 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
-				xSide2 = LimitValue<pixel_t>(x2 >> BRESENHAM_SCALE, 0, FrameWidth - 1);
+				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FrameWidth - 1);
+				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FrameWidth - 1);
 
 				if (xSide1 == xSide2)
 				{
@@ -810,6 +837,9 @@ namespace Egfx
 					}
 				}
 			}
+
+			// Ensure the final endpoint is drawn.
+			FramePainter::PixelRaw(rawColor, end.x, end.y);
 		}
 
 		void BresenhamUp(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
@@ -846,6 +876,9 @@ namespace Egfx
 					}
 				}
 			}
+
+			// Ensure the final endpoint is drawn.
+			FramePainter::PixelRaw(rawColor, end.x, end.y);
 		}
 
 		void TriangleEdgeAntiAliasingEdgeBlend(const color_t rawColor,
@@ -874,6 +907,9 @@ namespace Egfx
 			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
 			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
 
+			static constexpr int32_t MASK = (int32_t(1) << (BRESENHAM_SCALE - 1)) - 1;
+			//static constexpr uint8_t MASK = 127;
+
 			// For left-to-right scanning:
 			// - Left edge: high alpha when x1 fraction is LOW (just entered the shape)
 			// - Right edge: high alpha when x2 fraction is HIGH (about to exit the shape)
@@ -882,13 +918,13 @@ namespace Egfx
 				if (leftToRight)
 				{
 					// Left edge: invert the sub-pixel position for correct coverage
-					const uint8_t alpha = (255 - (((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
+					const uint8_t alpha = 255 - FixedRoundToInt(static_cast<pixel_index_t>(x1 & MASK) * 255);
 					FramePainter::PixelRawBlendAlpha(rawColor, aax1, y, alpha);
 				}
 				else
 				{
 					// Right-to-left: normal sub-pixel position for correct coverage
-					const uint8_t alpha = ((x1 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
+					const uint8_t alpha = FixedRoundToInt(static_cast<pixel_index_t>(x1 & MASK) * 255);
 					FramePainter::PixelRawBlendAlpha(rawColor, aax1, y, alpha);
 				}
 			}
@@ -897,23 +933,22 @@ namespace Egfx
 			{
 				if (leftToRight) {
 					// Right edge: normal sub-pixel position for correct coverage
-					const uint8_t alpha = ((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> (BRESENHAM_SCALE + 0);
+					const uint8_t alpha = FixedRoundToInt(static_cast<pixel_index_t>(x2 & MASK) * 255);
 					FramePainter::PixelRawBlendAlpha(rawColor, aax2, y, alpha);
 				}
 				else
 				{
 					// Right-to-left: invert the sub-pixel position for correct coverage
-					const uint8_t alpha = (255 - (((x2 & ((int32_t(1) << BRESENHAM_SCALE) - 1)) * 255) >> BRESENHAM_SCALE)) >> 0;
+					const uint8_t alpha = 255 - FixedRoundToInt(static_cast<pixel_index_t>(x2 & MASK) * 255);
 					FramePainter::PixelRawBlendAlpha(rawColor, aax2, y, alpha);
 				}
 			}
 		}
-
 	private:
-		static pixel_t MirrorX(const pixel_t x) { return FrameWidth - 1 - x; }
-		static pixel_t MirrorY(const pixel_t y) { return FrameHeight - 1 - y; }
+		pixel_t MirrorX(const pixel_t x) const { return FrameWidth - 1 - x; }
+		pixel_t MirrorY(const pixel_t y) const { return FrameHeight - 1 - y; }
 
-		static constexpr color_t GetRawColor(const rgb_color_t color)
+		inline constexpr color_t GetRawColor(const rgb_color_t color)
 		{
 			return displayOptions::Inverted ? ~FramePainter::GetRawColor(color) : FramePainter::GetRawColor(color);
 		}
@@ -924,7 +959,7 @@ namespace Egfx
 		/// <param name="topLeft">Reference to the top-left corner of the rectangle. May be modified to fit within the frame.</param>
 		/// <param name="bottomRight">Reference to the bottom-right corner of the rectangle. May be modified to fit within the frame.</param>
 		/// <returns>True if the rectangle is valid and was clipped; false if the rectangle is invalid or completely outside the frame.</returns>
-		static bool ClipRectangle(pixel_point_t& topLeft, pixel_point_t& bottomRight)
+		bool ClipRectangle(pixel_point_t& topLeft, pixel_point_t& bottomRight)
 		{
 			if ((topLeft.x < 0 && bottomRight.x < 0)
 				|| (topLeft.y < 0 && bottomRight.y < 0)
@@ -949,7 +984,7 @@ namespace Egfx
 		/// <param name="p0">Reference to the first endpoint of the line segment. On return, may be modified to the clipped position.</param>
 		/// <param name="p1">Reference to the second endpoint of the line segment. On return, may be modified to the clipped position.</param>
 		/// <returns>true if the line segment is at least partially within the screen and has been clipped (if necessary); false if the line segment lies entirely outside the screen.</returns>
-		static bool ClipLine(pixel_point_t& p0, pixel_point_t& p1)
+		bool ClipLine(pixel_point_t& p0, pixel_point_t& p1)
 		{
 			pixel_t x0 = p0.x, y0 = p0.y, x1 = p1.x, y1 = p1.y;
 			uint8_t outcode0 = ComputeOutCode(x0, y0);
@@ -1023,7 +1058,7 @@ namespace Egfx
 		/// <param name="x">The x-coordinate of the point.</param>
 		/// <param name="y">The y-coordinate of the point.</param>
 		/// <returns>A uint8_t value representing the outcode, indicating which sides of the frame (left, right, top, bottom) the point is outside of.</returns>
-		static uint8_t ComputeOutCode(const pixel_t x, const pixel_t y)
+		inline uint8_t ComputeOutCode(const pixel_t x, const pixel_t y)
 		{
 			uint8_t code = 0;
 			if (x < 0) code |= (uint8_t)OutcodeEnum::OUT_LEFT;
@@ -1033,6 +1068,94 @@ namespace Egfx
 
 			return code;
 		}
+
+#if defined(ARDUINO_ARCH_RP2040)
+	private:
+		bool AsyncClearBuffer()
+		{
+			if (Buffer == nullptr || BufferSize == 0)
+				return true;
+
+			if (!DmaActive)
+			{
+				// Align destination to 32-bit boundary: pre-clear leading bytes until aligned.
+				uint8_t* dest = Buffer;
+				size_t remaining = BufferSize;
+
+				// Pre-align to 4-byte boundary with byte memset.
+				while (((reinterpret_cast<uintptr_t>(dest) & 0x3u) != 0) && remaining > 0)
+				{
+					*dest++ = displayOptions::Inverted ? UINT8_MAX : 0;
+					remaining--;
+				}
+
+				// Compute word count for aligned body and leave any tail bytes for after DMA.
+				const size_t wordCount = remaining / sizeof(uint32_t);
+
+				DmaChan = dma_claim_unused_channel(true);
+				dma_channel_config cfg = dma_channel_get_default_config(DmaChan);
+				channel_config_set_read_increment(&cfg, false);
+				channel_config_set_write_increment(&cfg, true);
+				channel_config_set_transfer_data_size(&cfg, DMA_SIZE_32);
+
+				if (wordCount > 0)
+				{
+					dma_channel_configure(
+						DmaChan,
+						&cfg,
+						reinterpret_cast<uint32_t*>(dest), // aligned destination
+						displayOptions::Inverted ? &FillOnes32 : &FillZero32, // static source constant
+						wordCount,                          // number of 32-bit words
+						true                                // start immediately
+					);
+					DmaActive = true;
+					return false; // DMA in progress
+				}
+				else
+				{
+					// No aligned words; clear any remaining tail bytes now.
+					if (remaining)
+					{
+						memset(dest, displayOptions::Inverted ? UINT8_MAX : 0, remaining);
+					}
+					return true;
+				}
+			}
+
+			// Poll DMA completion.
+			if (dma_channel_is_busy(DmaChan))
+			{
+				return false;
+			}
+
+			// DMA complete: clear any tail bytes (remaining % 4).
+			// Recompute aligned region to find tail safely.
+			uint8_t* destAlignedStart = Buffer;
+			size_t remaining = BufferSize;
+
+			while (((reinterpret_cast<uintptr_t>(destAlignedStart) & 0x3u) != 0) && remaining > 0)
+			{
+				// already byte-cleared in start phase
+				destAlignedStart++;
+				remaining--;
+			}
+
+			const size_t alignedBytes = (remaining / sizeof(uint32_t)) * sizeof(uint32_t);
+			uint8_t* tail = destAlignedStart + alignedBytes;
+			const size_t tailBytes = remaining - alignedBytes;
+
+			if (tailBytes)
+			{
+				memset(tail, displayOptions::Inverted ? UINT8_MAX : 0, tailBytes);
+			}
+
+			dma_channel_unclaim(DmaChan);
+			DmaChan = -1;
+			DmaActive = false;
+
+			return true;
+		}
+#endif
 	};
 }
 #endif

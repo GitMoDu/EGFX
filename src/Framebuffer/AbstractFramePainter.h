@@ -33,6 +33,31 @@ namespace Egfx
 		{
 			return ColorConverter::GetRawColor(color);
 		}
+
+	protected:
+		/// <summary>
+		/// Fixed-point scale used by line and triangle rendering.
+		/// </summary>
+		static constexpr uint8_t BRESENHAM_SCALE = 8;
+
+		// Fixed-point rounding helper: add half-unit for the current Bresenham scale, then arithmetic right-shift.
+		static constexpr int16_t FP_ROUND_HALF = SignedLeftShift<int16_t>(1, BRESENHAM_SCALE - 1);
+
+		/// <summary>
+		/// Rounds a 32-bit fixed-point value to the nearest integer using a signed right shift.
+		/// </summary>
+		static constexpr pixel_t FixedRoundToInt(const int32_t fx)
+		{
+			return SignedRightShift(fx + FP_ROUND_HALF, BRESENHAM_SCALE);
+		}
+
+		/// <summary>
+		/// Converts an integer pixel coordinate to fixed-point representation.
+		/// </summary>
+		static constexpr int32_t IntToFixed(const pixel_t x)
+		{
+			return SignedLeftShift<int32_t>(x, BRESENHAM_SCALE);
+		}
 	};
 }
 #endif

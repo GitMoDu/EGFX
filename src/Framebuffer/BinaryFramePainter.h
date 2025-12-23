@@ -141,7 +141,7 @@ namespace Egfx
 			const pixel_t yEnd = (y1 <= y2) ? y2 : y1;
 			const pixel_t startByte = yStart / 8;
 			const pixel_t endByte = yEnd / 8;
-			const pixel_index_t xOffset = x;
+			const pixel_t xOffset = x;
 
 			if (startByte == endByte)
 			{

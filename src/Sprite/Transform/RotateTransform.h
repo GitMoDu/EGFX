@@ -3,21 +3,97 @@
 
 #include "SkewTransform.h"
 #include "InvertTransform.h"
-#if defined(EGFX_PLATFORM_BIG)
-#include <IntegerTrigonometry16.h>
-#else
 #include <IntegerTrigonometry8.h>
-#endif
+#include <IntegerTrigonometry16.h>
 
 namespace Egfx
 {
 	namespace SpriteTransform
 	{
+		using namespace IntegerSignal::FixedPoint;
+		using namespace IntegerSignal::Trigonometry;
+
+		namespace Rotation
+		{
+			template<bool use16>
+			struct fraction_selector { using type = fraction16_t; };
+			template<>
+			struct fraction_selector<false> { using type = fraction8_t; };
+
+			template<int32_t width, int32_t height>
+			static constexpr bool Use16BitFraction()
+			{
+				return (width > 128) || (height > 128);
+			}
+		}
+
 		/// <summary>
-		/// Pixel-retaining rotate done with 3 consecutive skews.
+		/// A fast rotation transformation class for fixed-size images that rotates pixels around the center point using precomputed sine and cosine values.
 		/// </summary>
-		/// <typeparam name="Width"></typeparam>
-		/// <typeparam name="Height"></typeparam>
+		/// <typeparam name="BaseTransform">The base transformation class to inherit from. Defaults to ITransform and allows chaining multiple transformations.</typeparam>
+		/// <typeparam name="Width">The width of the image in pixels. Used to calculate the center point for rotation.</typeparam>
+		/// <typeparam name="Height">The height of the image in pixels. Used to calculate the center point for rotation.</typeparam>
+		template<const pixel_t Width,
+			const pixel_t Height,
+			typename BaseTransform = ITransform>
+		class RotateTransformFast : public BaseTransform
+		{
+		private:
+			using fraction_t = typename Rotation::fraction_selector<Rotation::Use16BitFraction<Width, Height>()>::type;
+
+		private:
+			static constexpr uint8_t BresehamScale = 8;
+			static constexpr pixel_t CenterX = static_cast<pixel_t>(Width - 1) / 2;
+			static constexpr pixel_t CenterY = static_cast<pixel_t>(Height - 1) / 2;
+
+		private:
+			fraction_t RotateCosine{};
+			fraction_t RotateSine{};
+
+		public:
+			RotateTransformFast() : BaseTransform() {}
+
+			void SetRotation(const angle_t angle)
+			{
+				if (Rotation::Use16BitFraction<Width, Height>())
+				{
+					RotateCosine = Cosine16(angle);
+					RotateSine = Sine16(angle);
+				}
+				else
+				{
+					RotateCosine = Cosine8(angle);
+					RotateSine = Sine8(angle);
+				}
+			}
+
+			virtual bool Transform(pixel_t& x, pixel_t& y) override
+			{
+				if (!BaseTransform::Transform(x, y))
+				{
+					return false;
+				}
+
+				const int16_t dx = SignedLeftShift(static_cast<int32_t>(x), BresehamScale) - SignedLeftShift(static_cast<int32_t>(CenterX), BresehamScale);
+				const int16_t dy = SignedLeftShift(static_cast<int32_t>(y), BresehamScale) - SignedLeftShift(static_cast<int32_t>(CenterY), BresehamScale);
+
+				const int16_t cosDx = Fraction<int16_t>(RotateCosine, dx);
+				const int16_t sinDy = Fraction<int16_t>(RotateSine, dy);
+				const int16_t sinDx = Fraction<int16_t>(RotateSine, dx);
+				const int16_t cosDy = Fraction<int16_t>(RotateCosine, dy);
+
+				x = static_cast<pixel_t>(SignedRightShift(cosDx - sinDy, BresehamScale) + CenterX);
+				y = static_cast<pixel_t>(SignedRightShift(sinDx + cosDy, BresehamScale) + CenterY);
+
+				return true;
+			}
+		};
+
+		/// <summary>
+		/// Pixel-accurate rotation transformation class for fixed-size images that rotates pixels around the center point using skew and flip transformations.
+		/// </summary>
+		/// <typeparam name="Width">The width of the image in pixels. Used to calculate the center point for rotation.</typeparam>
+		/// <typeparam name="Height">The height of the image in pixels. Used to calculate the center point for rotation.</typeparam>
 		template<const pixel_t Width,
 			const pixel_t Height,
 			typename BaseTransform = ITransform>
@@ -35,8 +111,8 @@ namespace Egfx
 			};
 
 		private:
-			SpriteTransform::SkewHorizontalTransform<Height> SkewHorizontal{};
-			SpriteTransform::SkewVerticalTransform<Width> SkewVertical{};
+			SpriteTransform::SkewHorizontalTransform<Height + 1> SkewHorizontal{};
+			SpriteTransform::SkewVerticalTransform<Width + 1> SkewVertical{};
 			FlippingEnum Flip = FlippingEnum::NoFlip;
 
 		private:
@@ -104,24 +180,29 @@ namespace Egfx
 				}
 
 				// Calculate skew factors based on the adjusted angle.
-#if defined(EGFX_PLATFORM_BIG)
-				const pixel_t skewX = Fraction::Scale((fraction16_t)-Tangent16(adjustedAngle / 2), (pixel_t)(Width));
-				const pixel_t skewY = Fraction::Scale(Sine16(adjustedAngle), pixel_t(Height));
-#else
-				const pixel_t skewX = Fraction::Scale((fraction8_t)-Tangent8(adjustedAngle / 2), (pixel_t)(Width));
-				const pixel_t skewY = Fraction::Scale(Sine8(adjustedAngle), pixel_t(Height));
-#endif
+				pixel_t skewX, skewY;
+				if (Rotation::Use16BitFraction<Width, Height>()) // Compile-time branch for higher precision.
+				{
+					skewX = Fraction<pixel_t>(static_cast<fraction16_t>(-Tangent16(adjustedAngle >> 1)), Width);
+					skewY = Fraction<pixel_t>(Sine16(adjustedAngle), Height);
+				}
+				else
+				{
+					skewX = Fraction<pixel_t>(static_cast<fraction8_t>(-Tangent8(adjustedAngle >> 1)), Width);
+					skewY = Fraction<pixel_t>(Sine8(adjustedAngle), Height);
+				}
+
 				SkewHorizontal.SetSkewX(skewX);
 				SkewVertical.SetSkewY(skewY);
 			}
 
-			const angle_t GetRotation() const
+			angle_t GetRotation() const
 			{
 				// Return the current rotation angle.
 				return Angle;
 			}
 
-			virtual const bool Transform(pixel_t& x, pixel_t& y)
+			virtual bool Transform(pixel_t& x, pixel_t& y)
 			{
 				if (!BaseTransform::Transform(x, y))
 				{

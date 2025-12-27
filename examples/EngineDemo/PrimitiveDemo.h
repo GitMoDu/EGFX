@@ -3,184 +3,285 @@
 
 #include <ArduinoGraphicsDrawer.h>
 
-template<typename Layout>
-class PrimitiveDemo : public ElementDrawer
+template<typename Layout, bool BinaryDisplay>
+class PrimitiveDemo : public IFrameDraw
 {
 private:
-	enum class DrawElementsEnum : uint8_t
+	enum class DrawCallEnum : uint8_t
 	{
-		DiagonalLines,
-		AlignmentRectangle,
-		AlignmentSquare,
-		BreathSquare,
-		WandererSquare,
-		DrawElementsCount
+		Lines,
+		Rectangle,
+		Triangle,
+		EnumCount
 	};
 
-	static constexpr uint8_t MoveCount = 4;
-	static constexpr uint32_t MovePeriodMicros = 1000000;
-	static constexpr uint32_t BreathPeriodMicros = 2500000;
-	static constexpr uint32_t SquareAlignmentColorPeriodMicros = 1000000 * 3;
-	static constexpr uint32_t SquareColorPeriodMicros = 1000000 * 10;
-
-	static constexpr uint8_t GetWandererDimension()
+	struct LayerLayout
 	{
-		return GetShortest() / 4;
-	}
+		static constexpr pixel_t X() { return Layout::X(); }
+		static constexpr pixel_t Y() { return Layout::Y(); }
+		static constexpr pixel_t Width() { return Layout::Width(); }
+		static constexpr pixel_t Height() { return Layout::Height(); }
+		static constexpr pixel_t CenterX() { return X() + Width() / 2; }
+		static constexpr pixel_t CenterY() { return Y() + Height() / 2; }
 
-	static constexpr uint8_t GetAlignmentCircleDiameter()
-	{
-		return	GetShortest() - (2 * (GetWandererDimension() + 1));
-	}
+		struct Lines
+		{
+			static constexpr pixel_t HorizontalSeparation() { return Layout::Width() / 4; }
+			static constexpr pixel_t VerticalSeparation() { return Layout::Height() / 4; }
+			static constexpr pixel_t HorizontalCount() { return Layout::Width() / HorizontalSeparation(); }
+			static constexpr pixel_t VerticalCount() { return Layout::Height() / VerticalSeparation(); }
+		};
 
-	static constexpr uint8_t GetShortest()
-	{
-		return ((Layout::Height() >= Layout::Width()) * (Layout::Width())) | ((Layout::Height() < Layout::Width()) * (Layout::Height()));
-	}
+		struct Rectangle
+		{
+			static constexpr pixel_t CenterX() { return Layout::X() + (Layout::Width() / 2); }
+			static constexpr pixel_t CenterY() { return Layout::Y() + (Layout::Height() / 2); }
+		};
 
-	rgb_color_t Color;
+		struct Triangle
+		{
+			static constexpr pixel_t CenterX() { return Layout::X() + (Layout::Width() / 2); }
+			static constexpr pixel_t CenterY() { return Layout::Y() + (Layout::Height() / 2); }
+			static constexpr pixel_t MaxHeight() { return ((MinValue(Layout::Width(), Layout::Height())) * 3) / 4; }
+		};
+	};
+
+private:
+	pixel_point_t TriangleA{};
+	pixel_point_t TriangleB{};
+	pixel_point_t TriangleC{};
+
+	uint8_t CallIndex = 0;
 
 public:
-	PrimitiveDemo()
-		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
+	PrimitiveDemo() : IFrameDraw()
 	{
 	}
 
-	/// <summary>
-	/// ElementIndex can be used to separate draw calls, avoiding hogging the co-operative scheduler.
-	/// </summary>
-	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
+	~PrimitiveDemo() = default;
+
+	// Always enabled.
+	virtual bool IsEnabled() const final { return true; }
+	virtual void SetEnabled(const bool /*enabled*/) final {}
+
+#if defined(SERIAL_LOG)
+	void PrintDescription() const
 	{
-		switch (elementIndex)
+		Serial.println(F("Primitives\n\tfast draw lines, rectangles, and triangles."));
+	}
+#endif
+
+	virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
+	{
+		switch (DrawCallEnum(CallIndex))
 		{
-		case (uint8_t)DrawElementsEnum::DiagonalLines:
-			DrawDiagonalLines(frame);
+		case DrawCallEnum::Lines:
+			// Draw moving lines.
+			DrawLines(frame, frameTime, frameCounter);
 			break;
-		case (uint8_t)DrawElementsEnum::AlignmentRectangle:
-			DrawAlignmentRectangle(frame);
-			break;
-		case (uint8_t)DrawElementsEnum::AlignmentSquare:
-			DrawAlignmentSquare(frame, frameTime);
-			break;
-		case (uint8_t)DrawElementsEnum::BreathSquare:
-			DrawBreathSquare(frame, frameTime);
-			break;
-		case (uint8_t)DrawElementsEnum::WandererSquare:
-			DrawWandererSquare(frame, frameTime, frameCounter);
-			break;
+		case DrawCallEnum::Rectangle:
+		{
+			// Animate triangle points.
+			//const uint16_t progress = ProgressScaler::GetProgress<MovePeriodMicros>(frameTime);
+			TriangleA = GetRoundSquare<LayerLayout::Triangle::MaxHeight()>(frameTime / 90);
+			TriangleB = GetRoundSquare<LayerLayout::Triangle::MaxHeight()>(frameTime / 166);
+			TriangleC = GetRoundSquare<LayerLayout::Triangle::MaxHeight()>(frameTime / 75);
+
+			const auto xShift = -GetTriangleXMax() / 2;
+			const auto yShift = -GetTriangleYMax() / 2;
+
+			// Draw rectangle around triangle.
+			if (!BinaryDisplay || frameCounter & 0b1)
+				frame->Rectangle(RGB_COLOR_WHITE,
+					LayerLayout::Rectangle::CenterX() + GetTriangleXMin() - 1 + xShift,
+					LayerLayout::Rectangle::CenterY() + GetTriangleYMin() - 1 + yShift,
+					LayerLayout::Rectangle::CenterX() + GetTriangleXMax() + 1 + xShift,
+					LayerLayout::Rectangle::CenterY() + GetTriangleYMax() + 1 + yShift);
+		}
+		break;
+		case DrawCallEnum::Triangle:
+		{
+			rgb_color_t triangleColor;
+
+			if (BinaryDisplay)
+			{
+				triangleColor = RGB_COLOR_WHITE;
+			}
+			else
+			{
+				const uint8_t segment = (frameTime / 400000) % 3;
+				switch (segment)
+				{
+				case 0:
+					triangleColor = RGB_COLOR_RED;
+					break;
+				case 1:
+					triangleColor = RGB_COLOR_GREEN;
+					break;
+				case 2:
+				default:
+					triangleColor = RGB_COLOR_BLUE;
+					break;
+				}
+			}
+
+			const auto xShift = -GetTriangleXMax() / 2;
+			const auto yShift = -GetTriangleYMax() / 2;
+
+			// Draw triangle.
+			frame->TriangleFill(triangleColor,
+				LayerLayout::Triangle::CenterX() + TriangleA.x + xShift, LayerLayout::Triangle::CenterY() + TriangleA.y + yShift,
+				LayerLayout::Triangle::CenterX() + TriangleB.x + xShift, LayerLayout::Triangle::CenterY() + TriangleB.y + yShift,
+				LayerLayout::Triangle::CenterX() + TriangleC.x + xShift, LayerLayout::Triangle::CenterY() + TriangleC.y + yShift);
+		}
+		break;
 		default:
 			break;
 		}
+
+		CallIndex++; // Advance call index and determine if cycle is complete.
+		if (CallIndex >= uint8_t(DrawCallEnum::EnumCount))
+		{
+			CallIndex = 0;
+			return true;
+		}
+
+		return false;
 	}
 
 private:
-	void DrawDiagonalLines(IFrameBuffer* frame)
+	void DrawLines(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
 	{
-		Color = Rgb::Color(UINT8_MAX / 4, 0, 0);
+		const rgb_color_t lineColor = BinaryDisplay ? RGB_COLOR_WHITE : Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, (uint16_t(UINT8_MAX) * 9) / 10);
 
-		frame->Line(Color, Layout::X(), Layout::Y(),
-			Layout::X() + Layout::Width() - 1, Layout::Y() + Layout::Height() - 1);
-		frame->Line(Color, Layout::X(), Layout::Y() + Layout::Height() - 1, Layout::Width() - 1, 0);
+		pixel_t deltaX = (frameTime / 70000) % LayerLayout::Width();
+		if (deltaX >= LayerLayout::Width() / 2)
+		{
+			deltaX = (LayerLayout::Width() - deltaX) * 2;
+		}
+		else
+		{
+			deltaX = deltaX * 2;
+		}
+
+		pixel_t deltaY = (frameTime / 60000) % LayerLayout::Height();
+		if (deltaY >= LayerLayout::Height() / 2)
+		{
+			deltaY = (LayerLayout::Height() - deltaY) * 2;
+		}
+		else
+		{
+			deltaY = deltaY * 2;
+		}
+
+		for (uint8_t i = 0; i < LayerLayout::Lines::HorizontalCount(); i++)
+		{
+			const pixel_t x = LayerLayout::CenterX() + ((((LayerLayout::Lines::HorizontalSeparation() / 2) * i) + deltaX / 2) % (LayerLayout::Width() / 2));
+			frame->Line(lineColor, x, LayerLayout::Y(), x + deltaX, LayerLayout::Y() + LayerLayout::Height() - 1);
+
+			const pixel_t y = LayerLayout::Y() + ((((LayerLayout::Lines::VerticalSeparation() / 2) * i) + deltaY / 2) % LayerLayout::Height());
+			frame->Line(lineColor, LayerLayout::X(), y, LayerLayout::CenterX(), y + deltaY);
+		}
 	}
 
-	void DrawAlignmentRectangle(IFrameBuffer* frame)
+	template<pixel_t SquareDimension>
+	pixel_point_t GetRoundSquare(const uint16_t progress)
 	{
-		static constexpr pixel_t wandererSize = GetWandererDimension();
-		Color = Rgb::Color(UINT8_MAX, UINT8_MAX, UINT8_MAX);
-
-		frame->Rectangle(Color, Layout::X() + wandererSize + 1, Layout::Y() + wandererSize + 1,
-			Layout::X() + Layout::Width() - 1 - wandererSize - 1, Layout::Y() + Layout::Height() - 1 - wandererSize - 1);
-	}
-
-	void DrawAlignmentSquare(IFrameBuffer* frame, const uint32_t frameTime)
-	{
-		static constexpr pixel_t squareSize = GetShortest() - ((GetWandererDimension() + 2) * 2) - 1;
-
-		static constexpr pixel_t x = Layout::X() + ((Layout::Width() - squareSize) / 2);
-		static constexpr pixel_t y = Layout::Y() + ((Layout::Height() - squareSize) / 2);
-
-		const uint16_t colorProgress = ProgressScaler::GetProgress<SquareAlignmentColorPeriodMicros>(frameTime);
-
-		const uint8_t r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		const uint8_t g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		const uint8_t b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
-
-		Color = Rgb::Color(r, g, b);
-
-		frame->Rectangle(Color, x, y, x + squareSize, y + squareSize);
-	}
-
-	void DrawBreathSquare(IFrameBuffer* frame, const uint32_t frameTime)
-	{
-		static constexpr pixel_t minSquareSize = 2;
-		static constexpr pixel_t maxSquareSize = GetShortest() - ((GetWandererDimension() + 3) * 2) - 1;
-
-		const uint16_t breathProgress = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<BreathPeriodMicros>(frameTime));
-		const pixel_t squareSize = (((uint32_t)breathProgress * maxSquareSize) / UINT16_MAX) + (((uint32_t)(UINT16_MAX - breathProgress) * minSquareSize) / UINT16_MAX);
-
-		const pixel_t x = ((Layout::Width() - squareSize) / 2);
-		const pixel_t y = ((Layout::Height() - squareSize) / 2);
-
-		const uint16_t colorProgress = ProgressScaler::GetProgress<SquareColorPeriodMicros>(frameTime);
-
-		const uint8_t r = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress), (uint8_t)UINT8_MAX);
-		const uint8_t g = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + (UINT16_MAX / 3)), (uint8_t)UINT8_MAX);
-		const uint8_t b = ProgressScaler::ScaleProgress(ProgressScaler::TriangleResponse(colorProgress + ((UINT16_MAX * 2) / 3)), (uint8_t)UINT8_MAX);
-
-		Color = Rgb::Color(r, g, b);
-
-		frame->RectangleFill(Color, x, y, x + squareSize, y + squareSize);
-	}
-
-	void DrawWandererSquare(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
-	{
-		const uint16_t section = ProgressScaler::ScaleProgress(ProgressScaler::GetProgress<MovePeriodMicros * MoveCount>(frameTime), MoveCount);
-		const uint16_t progress = ProgressScaler::GetProgress<MovePeriodMicros>(frameTime);
-		const pixel_t wandererSize = GetWandererDimension();
-
-		pixel_t x = 0;
-		pixel_t y = 0;
-
+		const uint16_t section = ProgressScaler::ScaleProgress(progress, uint8_t(4));
+		const uint16_t innerProgress = static_cast<uint16_t>(progress * 4);
 		switch (section)
 		{
 		case 0:
-			x = ((uint32_t)progress * (Layout::Width() - 1 - wandererSize)) / UINT16_MAX;
-			y = 0;
-			Color = Rgb::Color(UINT8_MAX, 0, 0);
+			return pixel_point_t{
+				static_cast<pixel_t>(ProgressScaler::ScaleProgress(innerProgress, uint16_t(SquareDimension))),
+				static_cast<pixel_t>(0),
+			};
 			break;
 		case 1:
-			x = Layout::Width() - wandererSize - 1;
-			y = ((uint32_t)progress * (Layout::Height() - 1 - wandererSize)) / UINT16_MAX;
-			Color = Rgb::Color(0, UINT8_MAX, 0);
+			return pixel_point_t{
+				static_cast<pixel_t>(SquareDimension - 1),
+				static_cast<pixel_t>(ProgressScaler::ScaleProgress(innerProgress, uint16_t(SquareDimension))),
+			};
 			break;
 		case 2:
-			x = ((uint32_t)(UINT16_MAX - progress) * (Layout::Width() - 1 - wandererSize)) / UINT16_MAX;
-			y = Layout::Height() - wandererSize - 1;
-			Color = Rgb::Color(0, 0, UINT8_MAX);
+			return pixel_point_t{
+				static_cast<pixel_t>(SquareDimension - 1 - int16_t(ProgressScaler::ScaleProgress(innerProgress, uint16_t(SquareDimension)))),
+				static_cast<pixel_t>(SquareDimension - 1),
+			};
 			break;
 		case 3:
-			x = 0;
-			y = ((uint32_t)(UINT16_MAX - progress) * (Layout::Height() - 1 - wandererSize)) / UINT16_MAX;
-
-			switch (frameCounter % 3)
-			{
-			case 0:
-				Color = Rgb::Color(UINT8_MAX, 0, 0);
-				break;
-			case 1:
-				Color = Rgb::Color(0, UINT8_MAX, 0);
-				break;
-			case 2:
-			default:
-				Color = Rgb::Color(0, 0, UINT8_MAX);
-				break;
-			}
 		default:
+			return pixel_point_t{
+			static_cast<pixel_t>(0),
+			static_cast<pixel_t>(SquareDimension - 1 - int16_t(ProgressScaler::ScaleProgress(innerProgress, uint16_t(SquareDimension)))),
+			};
 			break;
 		}
-
-		frame->RectangleFill(Color, Layout::X() + x, Layout::Y() + y, Layout::X() + x + wandererSize, Layout::Y() + y + wandererSize);
 	}
 
+	pixel_t GetTriangleXMin() const
+	{
+		pixel_t minX = TriangleA.x;
+		if (TriangleB.x < minX)
+		{
+			minX = TriangleB.x;
+		}
+		if (TriangleC.x < minX)
+		{
+			minX = TriangleC.x;
+		}
+		return minX;
+	}
+
+	pixel_t GetTriangleXMax() const
+	{
+		pixel_t maxX = TriangleA.x;
+		if (TriangleB.x > maxX)
+		{
+			maxX = TriangleB.x;
+		}
+		if (TriangleC.x > maxX)
+		{
+			maxX = TriangleC.x;
+		}
+		return maxX;
+	}
+
+	pixel_t GetTriangleYMin() const
+	{
+		pixel_t minY = TriangleA.y;
+		if (TriangleB.y < minY)
+		{
+			minY = TriangleB.y;
+		}
+		if (TriangleC.y < minY)
+		{
+			minY = TriangleC.y;
+		}
+		return minY;
+	}
+
+	pixel_t GetTriangleYMax() const
+	{
+		pixel_t maxY = TriangleA.y;
+		if (TriangleB.y > maxY)
+		{
+			maxY = TriangleB.y;
+		}
+		if (TriangleC.y > maxY)
+		{
+			maxY = TriangleC.y;
+		}
+		return maxY;
+	}
+
+	pixel_t GetTriangleHeight() const
+	{
+		return GetTriangleYMax() - GetTriangleYMin() + 1;
+	}
+	pixel_t GetTriangleWidth() const
+	{
+		return GetTriangleXMax() - GetTriangleXMin() + 1;
+	}
 };
 #endif

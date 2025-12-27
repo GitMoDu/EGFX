@@ -7,77 +7,8 @@
 #include <avr/pgmspace.h>
 #endif
 
-namespace SpriteSource
+namespace Assets
 {
-	namespace Arrow
-	{
-		static constexpr uint8_t Mask[] PROGMEM
-		{
-			0b00011000,
-			0b00011000,
-			0b00111100,
-			0b01111110,
-			0b01111110,
-			0b11111111,
-			0b00011000,
-			0b00011000,
-			0b00011000,
-			0b00011000,
-			0b00011000,
-			0b00011000
-		};
-
-		static constexpr uint8_t Width = 8;
-		static constexpr uint8_t Height = sizeof(Mask);
-	}
-
-	namespace RainDrop
-	{
-		static constexpr uint8_t Mask[] PROGMEM
-		{
-			0b00110000,
-			0b00110000,
-			0b00110000,
-			0b01111000,
-			0b01111000,
-			0b01111000,
-			0b11111100,
-			0b11111100,
-			0b11111100,
-			0b01111000,
-			0b01111000,
-		};
-
-		static constexpr uint8_t Width = 6;
-		static constexpr uint8_t Height = sizeof(Mask);
-	}
-
-	namespace Pyramid
-	{
-		static constexpr uint8_t Mask[] PROGMEM
-		{
-			0b00000000,0b00000000,
-			0b00000000,0b00011100,
-			0b00000000,0b00111110,
-			0b00000000,0b00111110,
-			0b00000001,0b00011100,
-			0b00000011,0b10000000,
-			0b00000110,0b11000000,
-			0b00001100,0b11100000,
-			0b00011000,0b11110000,
-			0b00110000,0b11111000,
-			0b01100000,0b11111100,
-			0b11111111,0b11111110,
-			0b00000000,0b00000000,
-			0b00000000,0b00000000,
-			0b00000000,0b00000000,
-			0b00000000,0b00000000
-		};
-
-		static constexpr uint8_t Width = 16;
-		static constexpr uint8_t Height = sizeof(Mask) / sizeof(uint16_t);
-	}
-
 	namespace Heart
 	{
 		static constexpr uint8_t Mask[] PROGMEM
@@ -100,65 +31,38 @@ namespace SpriteSource
 		static constexpr uint8_t Height = sizeof(Mask) / sizeof(uint16_t);
 	}
 
-	namespace Explosion
+	namespace HeartBig
 	{
+		// 32x24 heart, 2x upscaled from HeartSmall, emitted as bit literals.
 		static constexpr uint8_t Mask[] PROGMEM
 		{
-			0b00000000, 0b00000000,
-			0b00000000, 0b00000000,
-			0b00000011, 0b10000000,
-			0b00000011, 0b10000000,
-			0b00000011, 0b10000000,
-			0b00000000, 0b00000000,
-			0b00000000, 0b00000000
+			0b00000111, 0b11000000, 0b00000011, 0b11100000,
+			0b00001111, 0b11100000, 0b00000111, 0b11110000,
+			0b00111111, 0b11111100, 0b00111111, 0b11111100,
+			0b01111111, 0b11111110, 0b01111111, 0b11111110,
+			0b11111111, 0b11111111, 0b11111111, 0b11111111,
+			0b11111111, 0b11111111, 0b11111111, 0b11111111,
+			0b11111111, 0b11111111, 0b11111111, 0b11111111,
+			0b11111111, 0b11111111, 0b11111111, 0b11111111,
+			0b01111111, 0b11111111, 0b11111111, 0b11111110,
+			0b00111111, 0b11111111, 0b11111111, 0b11111100,
+			0b00011111, 0b11111111, 0b11111111, 0b11111000,
+			0b00001111, 0b11111111, 0b11111111, 0b11110000,
+			0b00000111, 0b11111111, 0b11111111, 0b11100000,
+			0b00000011, 0b11111111, 0b11111111, 0b11000000,
+			0b00000001, 0b11111111, 0b11111111, 0b10000000,
+			0b00000000, 0b11111111, 0b11111111, 0b00000000,
+			0b00000000, 0b01111111, 0b11111110, 0b00000000,
+			0b00000000, 0b00111111, 0b11111110, 0b00000000,
+			0b00000000, 0b00011111, 0b11111100, 0b00000000,
+			0b00000000, 0b00001111, 0b11111000, 0b00000000,
+			0b00000000, 0b00000111, 0b11110000, 0b00000000,
+			0b00000000, 0b00000011, 0b11100000, 0b00000000,
+			0b00000000, 0b00000001, 0b10000000, 0b00000000
 		};
 
-		static constexpr uint8_t Width = 16;
-		static constexpr uint8_t Height = sizeof(Mask) / sizeof(uint16_t);
-
-		static constexpr uint8_t Mask2[sizeof(Mask)] PROGMEM
-		{
-			0b00000000, 0b00000000,
-			0b00000001, 0b10000000,
-			0b00000011, 0b10000000,
-			0b00000011, 0b11000000,
-			0b00000111, 0b10000000,
-			0b00000000, 0b10000000,
-			0b00000000, 0b00000000
-		};
-
-		static constexpr uint8_t Mask3[sizeof(Mask)] PROGMEM
-		{
-			0b00000001, 0b10000000,
-			0b00000011, 0b10000000,
-			0b00000110, 0b01000000,
-			0b00000110, 0b00100000,
-			0b00001010, 0b01000000,
-			0b00001001, 0b01000000,
-			0b00000000, 0b10000000
-		};
-
-		static constexpr uint8_t Mask4[sizeof(Mask)] PROGMEM
-		{
-			0b00000100, 0b10000000,
-			0b00100000, 0b00100000,
-			0b00000000, 0b00000000,
-			0b00010000, 0b00001000,
-			0b00100001, 0b00010000,
-			0b00000000, 0b00000000,
-			0b00110001, 0b01100000
-		};
-
-		static constexpr uint8_t Mask5[sizeof(Mask)] PROGMEM
-		{
-			0b10000000, 0b00010000,
-			0b00000000, 0b00000000,
-			0b00000000, 0b01000000,
-			0b10000000, 0b00000001,
-			0b00000000, 0b00000000,
-			0b00000000, 0b00000010,
-			0b00000000, 0b00010000
-		};
+		static constexpr uint8_t Width = 32;
+		static constexpr uint8_t Height = sizeof(Mask) / 4; // 24 rows
 	}
 
 	namespace DogeBit
@@ -228,56 +132,6 @@ namespace SpriteSource
 		static constexpr uint8_t Width = 31;
 		static constexpr uint8_t Height = (sizeof(Bitmap) / Width) / sizeof(uint16_t);
 	}
-}
-
-namespace DemoSprites
-{
-	struct HeartSprite : public FlashBitMaskSprite<SpriteSource::Heart::Width, SpriteSource::Heart::Height>
-	{
-		HeartSprite() : FlashBitMaskSprite<SpriteSource::Heart::Width, SpriteSource::Heart::Height>(SpriteSource::Heart::Mask)
-		{}
-	};
-
-	struct ExplosionSprite : public FlashBitMaskSprite<SpriteSource::Explosion::Width, SpriteSource::Explosion::Height>
-	{
-		ExplosionSprite() : FlashBitMaskSprite<SpriteSource::Explosion::Width, SpriteSource::Explosion::Height>(SpriteSource::Explosion::Mask)
-		{}
-
-		static constexpr uint8_t FrameCount()
-		{
-			return 5;
-		}
-	};
-
-	struct ArrowSprite : public FlashBitMaskSprite<SpriteSource::Arrow::Width, SpriteSource::Arrow::Height>
-	{
-		ArrowSprite() : FlashBitMaskSprite<SpriteSource::Arrow::Width, SpriteSource::Arrow::Height>(SpriteSource::Arrow::Mask)
-		{}
-	};
-
-	struct PyramidSprite : public FlashBitMaskSprite<SpriteSource::Pyramid::Width, SpriteSource::Pyramid::Height>
-	{
-		PyramidSprite() : FlashBitMaskSprite<SpriteSource::Pyramid::Width, SpriteSource::Pyramid::Height>(SpriteSource::Pyramid::Mask)
-		{}
-	};
-
-	struct RainDropSprite : public FlashBitMaskSprite<SpriteSource::RainDrop::Width, SpriteSource::RainDrop::Height>
-	{
-		RainDropSprite() : FlashBitMaskSprite<SpriteSource::RainDrop::Width, SpriteSource::RainDrop::Height>(SpriteSource::RainDrop::Mask)
-		{}
-	};
-
-	struct DogeBitSprite : public FlashBitMaskSprite<SpriteSource::DogeBit::Width, SpriteSource::DogeBit::Height>
-	{
-		DogeBitSprite() : FlashBitMaskSprite<SpriteSource::DogeBit::Width, SpriteSource::DogeBit::Height>(SpriteSource::DogeBit::Mask)
-		{}
-	};
-
-	struct DogeSprite : public FlashBitmapRgb565Sprite<SpriteSource::Doge565::Width, SpriteSource::Doge565::Height>
-	{
-		DogeSprite() : FlashBitmapRgb565Sprite<SpriteSource::Doge565::Width, SpriteSource::Doge565::Height>(SpriteSource::Doge565::Bitmap)
-		{}
-	};
 }
 #endif
 

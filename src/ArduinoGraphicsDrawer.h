@@ -33,11 +33,38 @@
 #include "Sprite/Equation/RingSprite.h"
 #include "Sprite/Equation/RectangleSprite.h"
 
-#include "Sprite/Font/SpriteFont5x5.h"
-#include "Sprite/Font/SpriteFont3x5.h"
-#include "Sprite/Font/SpriteFont2x5.h"
-#include "Sprite/Font/SpriteFont1x5.h"
+// Vector graphics.
+#include "VectorGraphics/Model.h"
+#include "VectorGraphics/TemplateShadeDecoder.h"
+#include "VectorGraphics/SingleColorVectorDrawer.h"
 
+// Vector font, derives from vector graphics.
+#include "VectorFont/Model.h"
+#include "VectorFont/AbstractFontDrawer.h"
+#include "VectorFont/ColorFontDrawer.h"
 
+// Vector font implementations.
+#include "VectorFont/Fonts/Epoxy/EpoxyFullType.h" // Full-featured vector font with uppercase, lowercase, numbers, punctuation, and symbols.
+#include "VectorFont/Fonts/Epoxy/EpoxyNumbersType.h" // Compact vector font with numbers and basic punctuation.
+
+// Code font.
+#include "CodeFont/Model.h"
+#include "CodeFont/AbstractFontDrawer.h"
+#include "CodeFont/ColorFontDrawer.h"
+
+// Code font implementations.
+#include "CodeFont/Fonts/RawBot.h" // Monospaced font with programming ligatures.
+
+// Bitmask font.
+#include "BitmaskFont/AbstractFontDrawer.h"
+#include "BitmaskFont/ColorFontDrawer.h"
+
+// Bitmask font implementations.
+#include "BitmaskFont/Fonts/Plastic/Plastic.h" // Simple small font with 3x5 and 5x5 variants.
+#include "BitmaskFont/Fonts/Micron/Micron.h" // Subpixel-font with 1x5 and 2x5 variants.
+
+// Text rendering.
+#include "Text/FontText.h"
+#include "Text/TemplateTextWriter.h"
 
 #endif

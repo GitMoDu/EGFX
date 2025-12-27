@@ -2,106 +2,125 @@
 #define _BITMAP_DEMO_h
 
 #include <ArduinoGraphicsDrawer.h>
-#include <IntegerTrigonometry16.h>
-#include "Sprites.h"
+#include "Assets.h"
 
-using namespace DemoSprites;
+using namespace Assets;
 using namespace SpriteShader;
 using namespace SpriteShaderEffect;
 using namespace SpriteTransform;
+
+using namespace IntegerSignal::FixedPoint;
 
 /// <summary>
 /// Bitmap with translation, rotation and brightness animation.
 /// Draws the bitmap line by line on each draw call.
 /// </summary>
-/// <typeparam name="Layout"></typeparam>
-template<typename Layout>
-class BitmapDemo : public ElementDrawer
+template<typename Layout, bool Monochrome>
+class BitmapDemo : public IFrameDraw
 {
 private:
 	static constexpr uint32_t TranslationXDuration = 7000000;
 	static constexpr uint32_t TranslationYDuration = 13000000;
-	static constexpr uint32_t BrightnessPeriod = 9876543;
-	static constexpr uint32_t RotationDuration = 4000000;
+	static constexpr uint32_t BrightnessPeriod = 3876543;
+	static constexpr uint16_t RotationFrequency = 50;
 
-
-	static constexpr pixel_t UsableX()
+	struct BitmapLayout
 	{
-		return Layout::Width() - DogeSprite::Width;
-	}
+		static constexpr pixel_t UsableX()
+		{
+			return Layout::Width() - DogeSprite::Width;
+		}
 
-	static constexpr pixel_t UsableY()
-	{
-		return Layout::Height() - DogeSprite::Height;
-	}
+		static constexpr pixel_t UsableY()
+		{
+			return Layout::Height() - DogeSprite::Height;
+		}
 
-	using BitmapLayout = LayoutElement<Layout::X(), Layout::Y(), UsableX(), UsableY()>;
+		static constexpr uint8_t BitmapDrawSteps()
+		{
+			return DogeSprite::Height / 2;
+		}
 
-	enum class DrawElementsEnum : uint8_t
-	{
-		PrepareBitmap = 0,
-		DrawBitmapN = 1,
-		DrawElementsCount = (uint8_t)DrawBitmapN + DogeSprite::Height
+		static constexpr pixel_t SectionHeight()
+		{
+			return DogeSprite::Height / BitmapDrawSteps();
+		}
+
+		static constexpr pixel_t X() { return Layout::X(); }
+		static constexpr pixel_t Y() { return Layout::Y(); }
+		static constexpr pixel_t Width() { return DogeSprite::Width; }
+		static constexpr pixel_t Height() { return DogeSprite::Height; }
+
+		static constexpr pixel_t RangeX() { return Layout::Width() - Width(); }
+		static constexpr pixel_t RangeY() { return Layout::Height() - Height(); }
 	};
 
 private:
 	BrightnessEffect<TransparentColorEffect<DogeSprite>> Doge{};
-
 	RotateTransform<DogeSprite::Width, DogeSprite::Height> DogeRotator{};
 
 	pixel_t x = 0;
 	pixel_t y = 0;
 
+	uint8_t CallIndex = 0;
+
 public:
-	BitmapDemo()
-		: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
+	BitmapDemo() : IFrameDraw()
 	{
 		Doge.SetTransparentColor(0);
 	}
 
-	virtual void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
+	~BitmapDemo() = default;
+
+	// Always enabled.
+	virtual bool IsEnabled() const final { return true; }
+	virtual void SetEnabled(const bool /*enabled*/) final {}
+
+#if defined(SERIAL_LOG)
+	void PrintDescription() const
 	{
-		switch (elementIndex)
+		Serial.println(F("Bitmap\n\twith translation, rotation and brightness animation."));
+	}
+#endif
+
+	virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
+	{
+		// Update bitmap effects on first call.
+		if (CallIndex == 0)
 		{
-		case (uint8_t)DrawElementsEnum::PrepareBitmap:
-			PrepareBitmap(frameTime, frameCounter);
-			break;
-		default:
-			if (elementIndex >= (uint8_t)DrawElementsEnum::DrawBitmapN
-				&& elementIndex < (uint8_t)DrawElementsEnum::DrawElementsCount)
+			const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationXDuration>(frameTime));
+			const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationYDuration>(frameTime));
+
+			x = BitmapLayout::X() + ProgressScaler::ScaleProgress(progressX, (uint16_t)BitmapLayout::RangeX());
+			y = BitmapLayout::Y() + ProgressScaler::ScaleProgress(progressY, (uint16_t)BitmapLayout::RangeY());
+
+			if (Monochrome)
 			{
-				DrawBitmapLine(frame, elementIndex - (uint8_t)DrawElementsEnum::DrawBitmapN);
+				Doge.SetBrightness(0);
 			}
-			break;
+			else
+			{
+				const fraction16_t brightnessFraction = Fraction16::GetScalar((uint32_t)(frameTime % (BrightnessPeriod + 0)), BrightnessPeriod);
+				const angle_t brightnessAngle = Fraction(brightnessFraction, ANGLE_RANGE);
+				Doge.SetBrightness(Sine16(brightnessAngle));
+			}
+
+			DogeRotator.SetRotation(frameTime / RotationFrequency);
 		}
-	}
 
-private:
-	void PrepareBitmap(const uint32_t frameTime, const uint16_t frameCounter)
-	{
-		const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationXDuration>(frameTime));
-		const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationYDuration>(frameTime));
+		// Draw a section of the bitmap.
+		SpriteRenderer::TransformDrawPartial(frame, &Doge, &DogeRotator,
+			x, y, 0, CallIndex * BitmapLayout::SectionHeight(),
+			DogeSprite::Width, BitmapLayout::SectionHeight());
 
-		x = BitmapLayout::X() + ProgressScaler::ScaleProgress(progressX, (uint16_t)BitmapLayout::Width());
-		y = BitmapLayout::Y() + ProgressScaler::ScaleProgress(progressY, (uint16_t)BitmapLayout::Height());
+		CallIndex++; // Advance call index and determine if cycle is complete.
+		if (CallIndex >= BitmapLayout::BitmapDrawSteps())
+		{
+			CallIndex = 0;
+			return true;
+		}
 
-		const ufraction32_t brightnessFraction = GetUFraction32((uint32_t)(frameTime % (BrightnessPeriod + 1)), BrightnessPeriod);
-		const angle_t brightnessAngle = Fraction::Scale(brightnessFraction, ANGLE_RANGE);
-
-		Doge.SetBrightness(Sine16(brightnessAngle));
-
-		const Fraction::ufraction16_t rotateFraction = Fraction::GetUFraction16((uint32_t)(frameTime % (RotationDuration + 1)), RotationDuration);
-
-		DogeRotator.SetRotation(Fraction::Scale(rotateFraction, (uint16_t)ANGLE_RANGE));
-	}
-
-	void DrawBitmapLine(IFrameBuffer* frame, const uint8_t index)
-	{
-		SpriteRenderer::TransformDrawPartial(
-			frame, &Doge, &DogeRotator,
-			x, y,
-			0, index,
-			DogeSprite::Width, 1);
+		return false;
 	}
 };
 #endif

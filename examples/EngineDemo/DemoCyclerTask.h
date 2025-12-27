@@ -3,7 +3,8 @@
 
 #define _TASK_OO_CALLBACKS
 #include <TSchedulerDeclarations.hpp>
-#include <ArduinoGraphicsCore.h>
+
+#include <EgfxCore.h>
 
 using namespace Egfx;
 

@@ -2,7 +2,7 @@
 #define _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
 
 // Core framework.
-#include "ArduinoGraphicsCore.h"
+#include "EgfxCore.h"
 
 // Drawer interface.
 #include "Model/IFrameDraw.h"

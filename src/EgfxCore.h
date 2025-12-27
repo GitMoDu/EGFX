@@ -1,5 +1,5 @@
-#ifndef _ARDUINO_GRAPHICS_CORE_INCLUDE_h
-#define _ARDUINO_GRAPHICS_CORE_INCLUDE_h
+#ifndef _EGFX_CORE_INCLUDE_h
+#define _EGFX_CORE_INCLUDE_h
 
 #include "Platform/Platform.h"
 

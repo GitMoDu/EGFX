@@ -22,7 +22,7 @@
 // Configure display in this header.
 #include "DisplayConfiguration.h"
 
-#include <ArduinoGraphicsEngineTask.h>
+#include <EgfxDisplayTask.h>
 
 // Automatic demo cycler task.
 #include "DemoCyclerTask.h"

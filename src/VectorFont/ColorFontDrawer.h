@@ -2,6 +2,7 @@
 #define _EGFX_VECTOR_FONT_COLOR_FONT_DRAWER_h
 
 #include "AbstractFontDrawer.h"
+#include "../Text/FontText.h"
 
 namespace Egfx
 {
@@ -13,26 +14,8 @@ namespace Egfx
 	/// </summary>
 	namespace VectorFont
 	{
-		struct FontColorSourceFull
-		{
-			static constexpr rgb_color_t GetColor()
-			{
-				return RGB_COLOR_WHITE;
-			}
-		};
-
-		struct FontColorSourceSingle
-		{
-			rgb_color_t Color = RGB_COLOR_WHITE;
-
-			rgb_color_t GetColor() const
-			{
-				return Color;
-			}
-		};
-
 		template<typename VectorFontType,
-			typename FontColorSourceType = FontColorSourceFull,
+			typename FontColorSourceType = FontText::SingleColorSource,
 			typename DimensionType = uint8_t,
 			typename vector_count_t = uint_fast8_t,
 			typename VectorShaderType = typename VectorGraphics::VectorShaders::SingleColorShader<DimensionType>>

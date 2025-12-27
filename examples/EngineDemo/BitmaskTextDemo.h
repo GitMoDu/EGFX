@@ -20,7 +20,7 @@ private:
 
 	// Single color font shading.
 	// Share implementation with binary displays and font drawers.
-	using FontColorType = Egfx::VectorFont::FontColorSourceSingle;
+	using FontColorType = Egfx::FontText::SingleColorSource;
 
 	// Bitmask fonts are set with a template parameter type.
 	// Share font for regular and upscaled font drawers.

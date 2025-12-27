@@ -2,7 +2,7 @@
 #define _EGFX_CODE_FONT_h
 
 #include "../Model/IFrameBuffer.h"
-#include "../Model/AsciiDefinition.h"
+#include "../Text/FontText.h"
 
 namespace Egfx
 {

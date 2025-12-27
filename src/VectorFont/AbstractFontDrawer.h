@@ -2,8 +2,8 @@
 #define _EGFX_VECTOR_FONT_ABSTRACT_FONT_DRAWER_h
 
 #include "Model.h"
-#include "../Model/AsciiDefinition.h"
 #include "../Model/IFrameBuffer.h"
+
 
 namespace Egfx
 {

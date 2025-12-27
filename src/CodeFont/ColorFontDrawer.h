@@ -7,16 +7,8 @@ namespace Egfx
 {
 	namespace CodeFont
 	{
-		struct FontColorSourceContract
-		{
-			static constexpr rgb_color_t GetColor()
-			{
-				return RGB_COLOR_WHITE;
-			}
-		};
-
 		template<typename CodeFontType,
-			typename FontColorSourceType = FontColorSourceContract>
+			typename FontColorSourceType = FontText::FullColorSource>
 		class TemplateColorFontDrawer : public AbstractFontDrawer<CodeFontType>
 		{
 		public:

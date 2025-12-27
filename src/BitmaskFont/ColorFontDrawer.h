@@ -26,6 +26,7 @@ namespace Egfx
 
 		protected:
 			using Base::BitmaskFont;
+			using Base::IsPixelSet;
 
 		public:
 			FontColorSourceType FontColor{};
@@ -77,33 +78,12 @@ namespace Egfx
 					return 0;
 				}
 			}
-
-		private:
-			bool IsPixelSet(const uint8_t* mask, const dimension_t x, const dimension_t y) const
-			{
-				const intermediate_t yByte = static_cast<intermediate_t>(y) * BitScale;
-				const dimension_t xByte = SignedRightShift(x, 3);
-				const intermediate_t offset = yByte + xByte;
-
-				const uint8_t xBit = 7 - (x % 8);
-
-				if (((pgm_read_byte(&mask[offset]) >> xBit) & 0x01) != 0)
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-
-				return true;
-			}
 		};
 
-		template<typename BitmaskFontType,
-			typename FontColorSourceType,
-			uint8_t ScaleX = 1,
-			uint8_t ScaleY = ScaleX>
+		template<typename BitmaskFontType
+			, typename FontColorSourceType
+			, uint8_t ScaleX = 1
+			, uint8_t ScaleY = ScaleX>
 		class TemplateColorScaledFontDrawer : public AbstractScaledFontDrawer<BitmaskFontType, ScaleX, ScaleY>
 		{
 		public:
@@ -119,6 +99,7 @@ namespace Egfx
 
 		protected:
 			using Base::BitmaskFont;
+			using Base::IsPixelSet;
 
 		public:
 			FontColorSourceType FontColor{};
@@ -147,8 +128,8 @@ namespace Egfx
 							{
 								x1 = col * ScaleX;
 								y1 = row * ScaleY;
-								x2 = x1 + ScaleX;
-								y2 = y1 + ScaleY;
+								x2 = x1 + ScaleX - 1;
+								y2 = y1 + ScaleY - 1;
 								framebuffer->RectangleFill(color, x + x1, y + y1, x + x2, y + y2);
 							}
 						}
@@ -175,30 +156,7 @@ namespace Egfx
 					return 0;
 				}
 			}
-
-		private:
-			bool IsPixelSet(const uint8_t* mask, const dimension_t x, const dimension_t y) const
-			{
-				const intermediate_t yByte = static_cast<intermediate_t>(y) * BitScale;
-				const dimension_t xByte = SignedRightShift(x, 3);
-				const intermediate_t offset = yByte + xByte;
-
-				const uint8_t xBit = 7 - (x % 8);
-
-				if (((pgm_read_byte(&mask[offset]) >> xBit) & 0x01) != 0)
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-
-				return true;
-			}
 		};
-
-
 	}
 }
 #endif

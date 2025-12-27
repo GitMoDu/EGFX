@@ -37,39 +37,23 @@ namespace Egfx
 			static constexpr pixel_t Height() { return 1; }
 		};
 
-		
-		//struct FullPixelShader
-		//{
-		//	static constexpr rgb_color_t Shade(const char /*printableChar*/)
-		//	{
-		//		return RGB_COLOR_WHITE;
-		//	}
-		//};
+		struct FullColorSource
+		{
+			static constexpr rgb_color_t GetColor()
+			{
+				return RGB_COLOR_WHITE;
+			}
+		};
 
-		//struct GridTwoColorPixelShader
-		//{
-		//	pixel_t X = 0;
-		//	pixel_t Y = 0;
-		//	rgb_color_t Color1 = RGB_COLOR_WHITE;
-		//	rgb_color_t Color2 = RGB_COLOR_BLACK;
+		struct SingleColorSource
+		{
+			rgb_color_t Color = RGB_COLOR_WHITE;
 
-		//	rgb_color_t Shade(const pixel_t x, const pixel_t y) const
-		//	{
-		//		const bool isEven = ((x + y) & 0b1) == 0;
-		//		return isEven ? Color1 : Color2;
-		//	}
-		//};
-
-		//struct NoPixelShader
-		//{
-		//	pixel_t X = 0;
-		//	pixel_t Y = 0;
-
-		//	static constexpr rgb_color_t Shade(const pixel_t /*x*/, const pixel_t /*y*/)
-		//	{
-		//		return RGB_COLOR_WHITE;
-		//	}
-		//};
+			rgb_color_t GetColor() const
+			{
+				return Color;
+			}
+		};
 	}
 }
 #endif

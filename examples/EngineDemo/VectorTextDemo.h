@@ -45,7 +45,7 @@ private:
 private:
 	// Single color font shading.
 	// Share implementation with binary displays and font drawers.
-	using FontColorType = Egfx::VectorFont::FontColorSourceSingle;
+	using FontColorType = Egfx::FontText::SingleColorSource;
 
 	struct VectorFontDefinitions
 	{

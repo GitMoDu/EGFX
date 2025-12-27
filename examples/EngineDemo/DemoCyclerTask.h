@@ -5,8 +5,8 @@
 #include <TSchedulerDeclarations.hpp>
 
 #include <EgfxCore.h>
+#include <EgfxDrawer.h>
 
-using namespace Egfx;
 
 #if defined(ARDUINO_ARCH_STM32F4)
 extern "C" void* _sbrk(int);
@@ -28,18 +28,18 @@ private:
 	// Repeat alloc/free per type to ensure heap stays stable.
 	static constexpr uint8_t AllocCheckRepeats = 8;
 
-	IFrameEngine* Engine;
+	Egfx::IFrameEngine* Engine;
 
 	// Track current allocated demo (concrete pointer kept as void*)
 	void* CurrentRaw = nullptr;
-	IFrameDraw* CurrentDrawer = nullptr;
+	Egfx::IFrameDraw* CurrentDrawer = nullptr;
 	uint8_t CurrentType = 0; // runtime index into AnimationTypes...
 
 	// Next index to allocate and show
 	uint8_t Index = 0;
 
 public:
-	DynamicDemoCyclerTask(TS::Scheduler* scheduler, IFrameEngine* engine)
+	DynamicDemoCyclerTask(TS::Scheduler* scheduler, Egfx::IFrameEngine* engine)
 		: TS::Task(0, TASK_FOREVER, scheduler, false)
 		, Engine(engine)
 	{
@@ -75,7 +75,7 @@ public:
 			for (uint8_t r = 0; r < AllocCheckRepeats; ++r)
 			{
 				void* tmpRaw = nullptr;
-				IFrameDraw* tmpDrawer = NewByIndex(t, tmpRaw);
+				Egfx::IFrameDraw* tmpDrawer = NewByIndex(t, tmpRaw);
 				if (tmpDrawer == nullptr)
 				{
 #if defined(SERIAL_LOG) && defined(DEBUG)
@@ -156,7 +156,7 @@ private:
 
 		// Allocate new by runtime index
 		void* nextRaw = nullptr;
-		IFrameDraw* nextDrawer = NewByIndex(Index, nextRaw);
+		Egfx::IFrameDraw* nextDrawer = NewByIndex(Index, nextRaw);
 
 		if (nextDrawer != nullptr)
 		{
@@ -194,13 +194,13 @@ private:
 	template<uint8_t I, typename T, typename... Ts>
 	struct RuntimeFactory<I, T, Ts...>
 	{
-		static IFrameDraw* New(uint8_t idx, void*& raw)
+		static Egfx::IFrameDraw* New(uint8_t idx, void*& raw)
 		{
 			if (idx == I)
 			{
 				T* obj = new T();
 				raw = obj;
-				return static_cast<IFrameDraw*>(obj);
+				return static_cast<Egfx::IFrameDraw*>(obj);
 			}
 			return RuntimeFactory<I + 1, Ts...>::New(idx, raw);
 		}
@@ -221,7 +221,7 @@ private:
 	template<uint8_t I>
 	struct RuntimeFactory<I>
 	{
-		static IFrameDraw* New(uint8_t, void*& raw)
+		static Egfx::IFrameDraw* New(uint8_t, void*& raw)
 		{
 			raw = nullptr;
 			return nullptr;
@@ -234,7 +234,7 @@ private:
 		}
 	};
 
-	static IFrameDraw* NewByIndex(uint8_t idx, void*& raw)
+	static Egfx::IFrameDraw* NewByIndex(uint8_t idx, void*& raw)
 	{
 		return RuntimeFactory<0, AnimationTypes...>::New(idx, raw);
 	}

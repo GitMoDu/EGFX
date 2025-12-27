@@ -1,7 +1,9 @@
 #ifndef _VECTOR_TEXT_DEMO_h
 #define _VECTOR_TEXT_DEMO_h
 
-#include <ArduinoGraphicsDrawer.h>
+#include <EgfxDrawer.h>
+
+using namespace Egfx;
 
 template<typename Layout, bool BinaryDisplay>
 class VectorTextDemo final : public IFrameDraw

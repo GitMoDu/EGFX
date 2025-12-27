@@ -1,5 +1,3 @@
-// LayoutElement.h
-
 #ifndef _LAYOUT_ELEMENT_h
 #define _LAYOUT_ELEMENT_h
 

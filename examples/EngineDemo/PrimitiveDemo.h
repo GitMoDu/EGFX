@@ -1,7 +1,9 @@
 #ifndef _PRIMITIVE_DEMO_h
 #define _PRIMITIVE_DEMO_h
 
-#include <ArduinoGraphicsDrawer.h>
+#include <EgfxDrawer.h>
+
+using namespace Egfx;
 
 template<typename Layout, bool BinaryDisplay>
 class PrimitiveDemo : public IFrameDraw

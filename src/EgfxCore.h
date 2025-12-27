@@ -6,6 +6,9 @@
 #include "Model/RgbColor.h"
 #include "Model/GraphicsBuffer.h"
 
+#include "Model/DisplayOptions.h"
+#include "Model/DisplaySyncType.h"
+
 #include "Model/IFrameBuffer.h"
 #include "Model/IFrameEngine.h"
 #include "Model/IScreenDriver.h"

@@ -22,7 +22,8 @@
 // Configure display in this header.
 #include "DisplayConfiguration.h"
 
-#include <EgfxDisplayTask.h>
+#include <EgfxCore.h>
+#include <EgfxDisplayEngine.h>
 
 // Automatic demo cycler task.
 #include "DemoCyclerTask.h"
@@ -73,7 +74,7 @@ Egfx::DisplayEngineTask<DisplayConfiguration::FramebufferType,
 
 // The layout of drawers can be set independently of screen dimensions.
 static constexpr uint8_t Margin = 0;
-using FullLayout = LayoutElement<Margin, Margin, DisplayConfiguration::FramebufferType::FrameWidth - (Margin * 2), DisplayConfiguration::FramebufferType::FrameHeight - (Margin * 2)>;
+using FullLayout = Egfx::LayoutElement<Margin, Margin, DisplayConfiguration::FramebufferType::FrameWidth - (Margin * 2), DisplayConfiguration::FramebufferType::FrameHeight - (Margin * 2)>;
 static constexpr bool BinaryDisplay = DisplayConfiguration::FramebufferType::ColorDepth == 1;
 
 // Demo Cycler task. Auto-magic vararg template listing all demo tasks to cycle through.
@@ -159,7 +160,7 @@ void setup()
 	}
 
 	// Set the Display Sync Type.
-	DisplayEngine.SetSyncType(DisplaySyncType::Vrr);
+	DisplayEngine.SetSyncType(Egfx::DisplaySyncType::Vrr);
 
 #if defined(SERIAL_LOG)
 #if defined(USE_PERFORMANCE_LOG_TASK) // Start performance logging task.

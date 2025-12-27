@@ -1,5 +1,5 @@
-#ifndef _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
-#define _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
+#ifndef _EGFX_DRAWER_INCLUDE_h
+#define _EGFX_DRAWER_INCLUDE_h
 
 // Core framework.
 #include "EgfxCore.h"

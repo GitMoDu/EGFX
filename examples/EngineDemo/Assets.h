@@ -5,6 +5,8 @@
 
 namespace Assets
 {
+	using namespace Egfx;
+
 	namespace Strings
 	{
 		static constexpr char ShortFox1[] PROGMEM = "The quick brown";

@@ -1,10 +1,10 @@
 #ifndef _SPRITE_TRANSFORM_DEMO_h
 #define _SPRITE_TRANSFORM_DEMO_h
 
-#include <ArduinoGraphicsDrawer.h>
+#include <EgfxDrawer.h>
 #include "Assets.h"
 
-using namespace IntegerSignal::FixedPoint;
+using namespace Egfx;
 
 template<typename Layout, bool BinaryDisplay>
 class SpriteTransformDemo final : public IFrameDraw

@@ -1,12 +1,10 @@
 #ifndef _TEXTSPRITEDEMO_h
 #define _TEXTSPRITEDEMO_h
 
-#include <ArduinoGraphicsDrawer.h>
+#include <EgfxDrawer.h>
 
-/// <summary>
-/// Bitmask font sprite demo with shader-capable font rendering.
-/// </summary>
-/// <typeparam name="Layout"></typeparam>
+using namespace Egfx;
+
 template<typename Layout, bool BinaryDisplay>
 class BitmaskTextDemo final : public IFrameDraw
 {

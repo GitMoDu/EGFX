@@ -14,8 +14,8 @@ namespace Egfx
 	/// <summary>
 	/// 1 bit color framebuffer.
 	/// </summary>
-	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+	/// <typeparam name="frameWidth">Frame buffer width.</typeparam>
+	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="threshold">Grayscale threshold for color.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
@@ -36,8 +36,8 @@ namespace Egfx
 	/// <summary>
 	/// 8 bit color framebuffer.
 	/// </summary>
-	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+	/// <typeparam name="frameWidth">Frame buffer width.</typeparam>
+	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
@@ -56,8 +56,8 @@ namespace Egfx
 	/// <summary>
 	/// 8 bit grayscale framebuffer.
 	/// </summary>
-	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+	/// <typeparam name="frameWidth">Frame buffer width.</typeparam>
+	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
 	template<const pixel_t frameWidth, const pixel_t frameHeight
@@ -76,8 +76,8 @@ namespace Egfx
 	/// <summary>
 	/// 16 bit color frame buffer.
 	/// </summary>
-	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+	/// <typeparam name="frameWidth">Frame buffer width.</typeparam>
+	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
 	template<pixel_t frameWidth, pixel_t frameHeight
@@ -96,8 +96,8 @@ namespace Egfx
 	/// <summary>
 	/// 32 bit color frame buffer.
 	/// </summary>
-	/// <typeparam name="frameWidth">Frame buffer width [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
-	/// <typeparam name="frameHeight">Frame buffer height [0;Egfx::MAX_PIXEL_SIZE].</typeparam>
+	/// <typeparam name="frameWidth">Frame buffer width.</typeparam>
+	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter32.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>

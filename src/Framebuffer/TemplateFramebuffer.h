@@ -72,14 +72,10 @@ namespace Egfx
 		}
 
 	public:
-		virtual void Flip()
+		virtual bool Flip()
 		{
 			// No double-buffering support by default.
-		}
-
-		virtual bool MustWaitForPush()
-		{
-			return true;
+			return false;
 		}
 
 		uint8_t* GetFrameBuffer() const

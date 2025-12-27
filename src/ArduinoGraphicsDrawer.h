@@ -1,37 +1,34 @@
 #ifndef _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
 #define _ARDUINO_GRAPHICS_DRAWER_INCLUDE_h
 
-#include "Platform/Platform.h"
+// Core framework.
+#include "ArduinoGraphicsCore.h"
 
-#include "Model/RgbColor.h"
-
-#include "Model/GraphicsBuffer.h"
-
+// Drawer interface.
 #include "Model/IFrameDraw.h"
-#include "Model/ISprite.h"
-#include "Model/FontStyle.h"
 
+// Convenience drawers and wrappers.
 #include "Drawer/ElementDrawer.h"
 #include "Drawer/LayoutElement.h"
 #include "Drawer/MultiDrawerWrapper.h"
 
-#include "GraphicsRender/FontRenderer.h"
-#include "GraphicsRender/NumberRenderer.h"
-#include "GraphicsRender/TextRenderer.h"
+// Sprite models and renderers.
+#include "Model/ISprite.h"
 #include "GraphicsRender/SpriteRenderer.h"
-#include "GraphicsRender/SpriteFontRenderer.h"
-
 #include "Sprite/BitmapSprite.h"
 #include "Sprite/BitMaskSprite.h"
 
+// Sprite shaders.
 #include "Sprite/Shader/SpriteShader.h"
 #include "Sprite/Shader/SpriteShaderEffect.h"
 
+// Sprite transforms.
 #include "Sprite/Transform/InvertTransform.h"
 #include "Sprite/Transform/RotateTransform.h"
 #include "Sprite/Transform/SkewTransform.h"
 #include "Sprite/Transform/ScaleTransform.h"
 
+// Equation-based sprites.
 #include "Sprite/Equation/CircleSprite.h"
 #include "Sprite/Equation/RingSprite.h"
 #include "Sprite/Equation/RectangleSprite.h"

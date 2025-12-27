@@ -14,7 +14,7 @@ namespace Egfx
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
-			return Egfx::GetFrameBufferMonochromeSize(width, height);
+			return GetFrameBufferMonochromeSize(width, height);
 		}
 	};
 
@@ -26,7 +26,7 @@ namespace Egfx
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
-			return Egfx::GetFrameBufferLowColorSize<4>(width, height);
+			return GetFrameBufferLowColorSize<4>(width, height);
 		}
 	};
 
@@ -39,7 +39,7 @@ namespace Egfx
 		static constexpr bool Monochrome = monochrome;
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
-			return Egfx::GetFrameBufferSize<color_t>(width, height);
+			return GetFrameBufferSize<color_t>(width, height);
 		}
 	};
 
@@ -51,7 +51,7 @@ namespace Egfx
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
-			return Egfx::GetFrameBufferSize<color_t>(width, height);
+			return GetFrameBufferSize<color_t>(width, height);
 		}
 	};
 
@@ -63,7 +63,7 @@ namespace Egfx
 
 		static constexpr size_t BufferSize(const uint16_t width, const uint16_t height)
 		{
-			return Egfx::GetFrameBufferSize<color_t>(width, height);
+			return GetFrameBufferSize<color_t>(width, height);
 		}
 	};
 

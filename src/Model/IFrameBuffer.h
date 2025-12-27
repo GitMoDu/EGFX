@@ -56,7 +56,7 @@ namespace Egfx
 		/// <summary>
 		/// Flips the underlying buffer. No-op for single framesbuffers.
 		/// </summary>
-		virtual void Flip() = 0;
+		virtual bool Flip() = 0;
 
 		/// <summary>
 		/// Clear the frame buffer.

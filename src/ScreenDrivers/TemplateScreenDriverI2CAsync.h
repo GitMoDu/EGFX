@@ -32,14 +32,14 @@ namespace Egfx
 	public:
 		TemplateScreenDriverI2CAsync(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
 
-		virtual const bool Start()
+		virtual bool Start()
 		{
 			return CHUNK_SIZE <= BufferSize
 				&& CHUNK_SIZE <= I2C_BUFFER_SIZE
 				&& InlineI2cScreenDriver::Start();
 		}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer)
+		virtual uint32_t PushBuffer(const uint8_t* frameBuffer)
 		{
 			PushIndex = 0;
 
@@ -52,7 +52,7 @@ namespace Egfx
 			return 0;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		virtual bool PushingBuffer(const uint8_t* frameBuffer) final
 		{
 			if (PushIndex < WHOLE_SIZE)
 			{

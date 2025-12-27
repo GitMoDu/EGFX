@@ -19,6 +19,10 @@ namespace Egfx
 	protected:
 		using InlineSpiScreenDriver::SpiInstance;
 
+	private:
+		// Async completion flag (engine polls this)
+		volatile bool _pushInProgress = false;
+
 #if defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
 	private: // Some DMA controllers are limited in the transaction size, async style implementation to work around.
 		static constexpr size_t CHUNK_SIZE = BufferSize / pushChunckMaxSize;
@@ -30,10 +34,18 @@ namespace Egfx
 #endif
 
 	public:
-		TemplateScreenDriverSpiDma(Egfx::SpiType& spi) : InlineSpiScreenDriver(spi) {}
+		TemplateScreenDriverSpiDma(Egfx::SpiType& spi)
+			: InlineSpiScreenDriver(spi)
+		{
+		}
+
+		// Optional: expose a query for engine polling
+		bool IsPushInProgress() const { return _pushInProgress; }
 
 		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
+			_pushInProgress = true;
+
 #if defined(ARDUINO_ARCH_STM32F1)
 			SpiInstance.dmaSendAsync((void*)frameBuffer, (size_t)BufferSize, true);
 #elif defined(ARDUINO_ARCH_STM32F4)
@@ -43,19 +55,20 @@ namespace Egfx
 				SpiInstance.dmaSend((void*)frameBuffer, (uint16_t)CHUNK_SIZE, true);
 				PushIndex += CHUNK_SIZE;
 			}
+			// will continue in PushingBuffer()
 			return 0;
 #elif defined(ARDUINO_ARCH_RP2040)
 			SpiInstance.transferAsync((const void*)frameBuffer, (void*)nullptr, BufferSize);
 #endif
-
 			return pushSleepDuration;
 		}
 
 		bool PushingBuffer(const uint8_t* frameBuffer) final
 		{
 #if defined(ARDUINO_ARCH_STM32F1)
-			return !spi_is_tx_empty(SpiInstance.dev())
-				|| spi_is_busy(SpiInstance.dev());
+			const bool busy = (!spi_is_tx_empty(SpiInstance.dev()) || spi_is_busy(SpiInstance.dev()));
+			if (!busy) _pushInProgress = false;
+			return busy;
 #elif defined(ARDUINO_ARCH_STM32F4)
 			if (SpiInstance.dmaSendReady())
 			{
@@ -71,6 +84,7 @@ namespace Egfx
 					{
 						SpiInstance.dmaSend((void*)&frameBuffer[REMAINDER_START], REMAINDER_SIZE, true);
 					}
+					_pushInProgress = false;
 					return false;
 				}
 			}
@@ -79,7 +93,13 @@ namespace Egfx
 				return true;
 			}
 #elif defined(ARDUINO_ARCH_RP2040)
-			return !SpiInstance.finishedAsync();
+			const bool busy = !SpiInstance.finishedAsync();
+			if (!busy) _pushInProgress = false;
+			return busy;
+#else
+			// No DMA support; push completed synchronously.
+			_pushInProgress = false;
+			return false;
 #endif
 		}
 	};

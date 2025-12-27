@@ -23,11 +23,13 @@ namespace Egfx
 #else
 		DisplayTimingsStruct DisplayTimings{};
 #endif
+		Print& SerialInstance;
 
 	public:
-		PerformanceLogTask(TS::Scheduler& scheduler, IFrameEngine& engine)
+		PerformanceLogTask(TS::Scheduler& scheduler, IFrameEngine& engine, Print& serial = Serial)
 			: TS::Task(LogPeriodMillis, TASK_FOREVER, &scheduler, false)
 			, Engine(engine)
+			, SerialInstance(serial)
 		{
 		}
 
@@ -60,87 +62,95 @@ namespace Egfx
 					const uint16_t fps = fpMs / 1000;
 					const uint8_t fpsRemainder = (fpMs % 1000) / 10;
 
-					Serial.print(F("EGFX Display "));
-					Serial.print(fps);
-					Serial.print('.');
+					SerialInstance.println();
+					SerialInstance.print(F("EGFX "));
+					SerialInstance.print(fps);
+					SerialInstance.print('.');
 					if (fpsRemainder < 10)
 					{
-						Serial.print(0);
+						SerialInstance.print(0);
 					}
-					Serial.print(fpsRemainder);
-					Serial.println(F(" FPS"));
+					SerialInstance.print(fpsRemainder);
+					SerialInstance.print(F(" FPS"));
 				}
 #if defined(EGFX_PERFORMANCE_LOG)
 				{
 					const uint8_t frameLoadPercent = ((uint16_t)DisplayTimings.GetFrameLoad() * 100) / UINT8_MAX;
-					Serial.print('\t');
-					Serial.print(F("Frame "));
-					Serial.print(DisplayTimings.GetBusyDuration());
-					Serial.print(F(" us ("));
-					Serial.print(frameLoadPercent);
-					Serial.println(F("% load)"));
+					SerialInstance.println();
+					SerialInstance.print('\t');
+					SerialInstance.print(F("Frame "));
+					SerialInstance.print(DisplayTimings.GetBusyDuration());
+					SerialInstance.print(F(" us ("));
+					SerialInstance.print(frameLoadPercent);
+					SerialInstance.print(F("% load)"));
 				}
 
 				{
 					const uint8_t clearPercent = ((uint16_t)DisplayTimings.GetClearWeight() * 100) / UINT8_MAX;
-					Serial.print('\t');
-					Serial.print(F("Clear "));
-					Serial.print(DisplayTimings.ClearDuration);
-					Serial.print(F(" us ("));
-					Serial.print(clearPercent);
-					Serial.println(F("%)"));
+					SerialInstance.println();
+					SerialInstance.print('\t');
+					SerialInstance.print(F("Clear "));
+					SerialInstance.print(DisplayTimings.ClearDuration);
+					SerialInstance.print(F(" us ("));
+					SerialInstance.print(clearPercent);
+					SerialInstance.print(F("%)"));
 				}
 
 #if defined(EGFX_PERFORMANCE_LOG_DETAIL)
-				Serial.print('\t');
-				Serial.print(F(" - Max Step "));
-				Serial.print(DisplayTimings.ClearStepMaxDuration);
-				Serial.println(F(" us"));
+				SerialInstance.println();
+				SerialInstance.print('\t');
+				SerialInstance.print(F(" - Max Step "));
+				SerialInstance.print(DisplayTimings.ClearStepMaxDuration);
+				SerialInstance.print(F(" us"));
 #endif
 				{
 					const uint8_t renderPercent = ((uint16_t)DisplayTimings.GetRenderWeight() * 100) / UINT8_MAX;
-					Serial.print('\t');
-					Serial.print(F("Render "));
-					Serial.print(DisplayTimings.RenderDuration);
-					Serial.print(F(" us ("));
-					Serial.print(renderPercent);
-					Serial.println(F("%)"));
+					SerialInstance.println();
+					SerialInstance.print('\t');
+					SerialInstance.print(F("Render "));
+					SerialInstance.print(DisplayTimings.RenderDuration);
+					SerialInstance.print(F(" us ("));
+					SerialInstance.print(renderPercent);
+					SerialInstance.print(F("%)"));
 				}
 
 #if defined(EGFX_PERFORMANCE_LOG_DETAIL)
-				Serial.print('\t');
-				Serial.print(F(" - Max Step "));
-				Serial.print(DisplayTimings.RenderCallMaxDuration);
-				Serial.println(F(" us"));
+				SerialInstance.println();
+				SerialInstance.print('\t');
+				SerialInstance.print(F(" - Max Step "));
+				SerialInstance.print(DisplayTimings.RenderCallMaxDuration);
+				SerialInstance.print(F(" us"));
 #endif
 				{
 					const uint8_t idlePercent = ((uint16_t)DisplayTimings.GetIdleWeight() * 100) / UINT8_MAX;
-					Serial.print('\t');
-					Serial.print(F("Idle "));
-					Serial.print(DisplayTimings.GetIdleDuration());
-					Serial.print(F(" us ("));
-					Serial.print(idlePercent);
-					Serial.println(F("%)"));
+					SerialInstance.println();
+					SerialInstance.print('\t');
+					SerialInstance.print(F("Idle "));
+					SerialInstance.print(DisplayTimings.GetIdleDuration());
+					SerialInstance.print(F(" us ("));
+					SerialInstance.print(idlePercent);
+					SerialInstance.print(F("%)"));
 				}
 
 				{
 					const uint8_t pushPercent = ((uint16_t)DisplayTimings.GetPushWeight() * 100) / UINT8_MAX;
-					Serial.print('\t');
-					Serial.print(F("Push "));
-					Serial.print(DisplayTimings.PushDuration);
-					Serial.print(F(" us ("));
-					Serial.print(pushPercent);
-					Serial.println(F("%)"));
+					SerialInstance.println();
+					SerialInstance.print('\t');
+					SerialInstance.print(F("Push "));
+					SerialInstance.print(DisplayTimings.PushDuration);
+					SerialInstance.print(F(" us ("));
+					SerialInstance.print(pushPercent);
+					SerialInstance.print(F("%)"));
 				}
 
 #if defined(EGFX_PERFORMANCE_LOG_DETAIL)
-				Serial.print('\t');
-				Serial.print(F(" - Max Step "));
-				Serial.print(DisplayTimings.PushStepMaxDuration);
-				Serial.println(F(" us"));
+				SerialInstance.println();
+				SerialInstance.print('\t');
+				SerialInstance.print(F(" - Max Step "));
+				SerialInstance.print(DisplayTimings.PushStepMaxDuration);
+				SerialInstance.print(F(" us"));
 #endif
 #endif
-				Serial.println();
 			}
 
 			return true;

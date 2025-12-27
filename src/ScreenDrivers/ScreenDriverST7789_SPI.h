@@ -10,14 +10,18 @@
 namespace Egfx
 {
 	template<typename pixel_color_t,
+		const pixel_t width,
+		const pixel_t height,
+		const uint16_t offsetX,
+		const uint16_t offsetY,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7789::Width, ST7789::Height), ST7789::Width, ST7789::Height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>;
 
 	public:
 		using BaseClass::ScreenWidth;
@@ -66,18 +70,18 @@ namespace Egfx
 
 				SpiInstance.transfer((uint8_t)ST7789::CommandEnum::SetColumnAddress);
 				digitalWrite(pinDC, HIGH);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer((uint8_t)((ST7789::Width) >> 8));
-				SpiInstance.transfer((uint8_t)ST7789::Width);
+				SpiInstance.transfer((uint8_t)((offsetX) >> 8));
+				SpiInstance.transfer((uint8_t)(offsetX & UINT8_MAX));
+				SpiInstance.transfer((uint8_t)((((uint16_t)offsetX + (uint16_t)width - 1)) >> 8));
+				SpiInstance.transfer((uint8_t)(((uint16_t)offsetX + (uint16_t)width - 1) & UINT8_MAX));
 				digitalWrite(pinDC, LOW);
 
 				SpiInstance.transfer((uint8_t)ST7789::CommandEnum::SetRowAddress);
 				digitalWrite(pinDC, HIGH);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer((uint8_t)((ST7789::Height) >> 8));
-				SpiInstance.transfer((uint8_t)ST7789::Height);
+				SpiInstance.transfer((uint8_t)((offsetY) >> 8));
+				SpiInstance.transfer((uint8_t)(offsetY & UINT8_MAX));
+				SpiInstance.transfer((uint8_t)((((uint16_t)offsetY + (uint16_t)height - 1)) >> 8));
+				SpiInstance.transfer((uint8_t)(((uint16_t)offsetY + (uint16_t)height - 1) & UINT8_MAX));
 				digitalWrite(pinDC, LOW);
 
 				SpiInstance.transfer((uint8_t)ST7789::CommandEnum::SetInversionOn);
@@ -109,7 +113,13 @@ namespace Egfx
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = 4000000>
-	using ScreenDriverST7789_240x240x16_SPI = AbstractScreenDriverST7789_SPI<uint16_t, pinCS, pinDC, pinRST, spiSpeed>;
+	using ScreenDriverST7789_240x240x16_SPI = AbstractScreenDriverST7789_SPI<uint16_t, 240, 240, 0, 0, pinCS, pinDC, pinRST, spiSpeed>;
+
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = 4000000>
+	using ScreenDriverST7789_172x320x16_SPI = AbstractScreenDriverST7789_SPI<uint16_t, 172, 320, 34, 0, pinCS, pinDC, pinRST, spiSpeed>;
 
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
@@ -118,6 +128,13 @@ namespace Egfx
 		const uint8_t spiChunkDivisor = 2>
 	using ScreenDriverST7789_240x240x16_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = 4000000,
+		const uint8_t spiChunkDivisor = 2>
+	using ScreenDriverST7789_172x320x16_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
+
 #if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
@@ -125,6 +142,13 @@ namespace Egfx
 		const uint32_t spiSpeed = 4000000,
 		const uint32_t pushSleepDuration = 0>
 	using ScreenDriverST7789_240x240x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, ST7789::SpiMaxChunkSize>;
+
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = 4000000,
+		const uint32_t pushSleepDuration = 0>
+	using ScreenDriverST7789_172x320x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, ST7789::SpiMaxChunkSize>;
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
@@ -135,6 +159,14 @@ namespace Egfx
 		uint32_t stackHeight = 1500,
 		portBASE_TYPE priority = 1>
 	using ScreenDriverST7789_240x240x16_SPI_Rtos = TemplateScreenDriverRtos<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, void, stackHeight, priority>;
+
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = 4000000,
+		uint32_t stackHeight = 1500,
+		portBASE_TYPE priority = 1>
+	using ScreenDriverST7789_172x320x16_SPI_Rtos = TemplateScreenDriverRtos<ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, void, stackHeight, priority>;
 #endif
 }
 #endif

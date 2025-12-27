@@ -5,9 +5,6 @@
 
 namespace ST7789
 {
-	static constexpr uint8_t Width = 240;
-	static constexpr uint8_t Height = 240;
-
 	static constexpr uint32_t RESET_DELAY_MICROS = 1000;
 	static constexpr uint8_t RESET_WAIT_MICROS = 10;
 

@@ -31,7 +31,7 @@ namespace Egfx
 		using BaseClass::CommandEnd;
 		using BaseClass::PinReset;
 
-	private:
+	protected:
 		SPISettings Settings;
 
 	public:

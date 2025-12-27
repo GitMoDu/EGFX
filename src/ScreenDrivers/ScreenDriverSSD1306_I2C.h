@@ -103,7 +103,7 @@ namespace Egfx
 			return 0;
 		}
 
-		virtual bool PushingBuffer(const uint8_t* frameBuffer)
+		virtual bool PushingBuffer(const uint8_t* /*frameBuffer*/)
 		{
 			return false;
 		}

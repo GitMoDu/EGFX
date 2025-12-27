@@ -220,7 +220,7 @@ namespace Egfx
 
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			for (pixel_t y = y1; y < y2; y++)
+			for (pixel_t y = y1; y <= y2; y++)
 			{
 				LineHorizontalRaw(rawColor, x1, y, x2);
 			}

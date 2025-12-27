@@ -102,7 +102,7 @@ namespace Egfx
 
 		template<typename BitmaskFontType,
 			typename FontColorSourceType,
-			uint8_t ScaleX,
+			uint8_t ScaleX = 1,
 			uint8_t ScaleY = ScaleX>
 		class TemplateColorScaledFontDrawer : public AbstractScaledFontDrawer<BitmaskFontType, ScaleX, ScaleY>
 		{

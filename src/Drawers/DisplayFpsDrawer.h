@@ -1,12 +1,16 @@
-// FpsDrawer.h
+#ifndef _EGFX_SURFACE_FPS_DRAWER_h
+#define _EGFX_SURFACE_FPS_DRAWER_h
 
-#ifndef _FPS_DRAWER_h
-#define _FPS_DRAWER_h
+#include "../Model/IFrameDraw.h"
 
-#include <ArduinoGraphicsDrawer.h>
+#include "../BitmaskFont/ColorFontDrawer.h"
+#include "../BitmaskFont/Fonts/Plastic/Plastic.h"
 
 namespace Egfx
 {
+	/// <summary>
+	/// Specifies the corner position for the FPS overlay on the display.
+	/// </summary>
 	enum class FpsDrawerPosition
 	{
 		TopLeft,
@@ -15,120 +19,137 @@ namespace Egfx
 		BottomRight
 	};
 
-	template<typename ScreenLayout,
-		typename FontRendererType,
-		FpsDrawerPosition fpsDrawerPosition = FpsDrawerPosition::TopRight>
-	class DisplayFpsDrawer : public ElementDrawer
+	/// <summary>
+	/// Draws a frame-per-second overlay using a templated layout and font writer.
+	/// Keeps a rolling average fps counter at the specified position on the layout.
+	/// </summary>
+	/// <typeparam name="Layout">Layout providing origin (X, Y) and size (Width, Height) for text placement.</typeparam>
+	/// <typeparam name="fpsDrawerPosition">Corner of the layout where the FPS overlay is rendered.</typeparam>
+	/// <typeparam name="FontDrawerType">Font drawer used to render the numeric FPS value and label. Defaults to Bitmask Font with Plastic FontType3x5.</typeparam>
+	/// <typeparam name="AveragingSampleCount">Number of recent frames used to compute the displayed FPS average.</typeparam>
+	template<typename Layout
+		, FpsDrawerPosition fpsDrawerPosition = FpsDrawerPosition::TopRight
+		, typename FontDrawerType = BitmaskFont::TemplateColorFontDrawer<BitmaskFonts::Plastic::FontType3x5, FontText::FullColorSource>
+		, uint8_t AveragingSampleCount = 5>
+	class DisplayFpsDrawer : public IFrameDraw
 	{
 	private:
-		enum class DrawElementsEnum : uint8_t
+		enum class StateEnum : uint8_t
 		{
-			CalculateFrameRate,
-			Number,
-			Label,
-			DrawElementsCount
+			Disabled,
+			WaitingFirstFrame,
+			AccumulatingFirstFrames,
+			AveragingFrames,
 		};
 
 	private:
-		static constexpr uint8_t NonNumberCount = 4;
-
-	private:
-		FontRendererType TextDrawer{};
-
-		uint32_t FramePeriodAverage = 0;
-		uint16_t FrameRate = 0;
-
-	private:
-		IFrameEngine* FrameEngine;
+		static constexpr char LabelText[] PROGMEM = "FPS";
+		static constexpr uint32_t MaxSampleDuration = UINT32_MAX / AveragingSampleCount;
 
 	public:
-		DisplayFpsDrawer(IFrameEngine* frameEngine)
-			: ElementDrawer((uint8_t)DrawElementsEnum::DrawElementsCount)
-			, FrameEngine(frameEngine)
+		FontText::TemplateTextWriter<FontDrawerType, Layout> TextDrawer{};
+
+	private:
+		uint32_t LastFrametime = 0;
+		uint32_t Accumulator = 0;
+
+		pixel_t LabelWidth;
+		pixel_t SpaceWidth;
+
+		uint16_t LastFrameRate = 0;
+		uint8_t SampleCount = 0;
+		StateEnum CurrentState = StateEnum::WaitingFirstFrame;
+
+	public:
+		DisplayFpsDrawer() : IFrameDraw()
+			, LabelWidth(TextDrawer.GetTextWidth(LabelText))
+			, SpaceWidth(TextDrawer.GetSpaceWidth() + TextDrawer.GetKerningWidth())
 		{
 		}
 
-		FontRendererType& GetFontRenderer()
+		bool IsEnabled() const
 		{
-			return TextDrawer;
+			return CurrentState != StateEnum::Disabled;
 		}
 
-	protected:
-		void DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter, const uint8_t elementIndex) final
+		void SetEnabled(const bool enabled)
 		{
-			switch (elementIndex)
+			if (enabled)
 			{
-			case (uint8_t)DrawElementsEnum::CalculateFrameRate:
-				FramePeriodAverage = (FramePeriodAverage + FrameEngine->GetFrameDuration()) / 2;
-				if (FramePeriodAverage > 1)
+				if (CurrentState == StateEnum::Disabled)
 				{
-					FrameRate = (uint32_t)1000000 / FramePeriodAverage;
+					CurrentState = StateEnum::WaitingFirstFrame;
 				}
-				else
+			}
+			else
+			{
+				CurrentState = StateEnum::Disabled;
+			}
+		}
+
+		bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
+		{
+			const uint32_t frameDuration = frameTime - LastFrametime;
+			LastFrametime = frameTime;
+
+			switch (CurrentState)
+			{
+			case StateEnum::Disabled:
+				return true;
+			case StateEnum::WaitingFirstFrame:
+				CurrentState = StateEnum::AccumulatingFirstFrames;
+				Accumulator = 0;
+				SampleCount = 0;
+				LastFrameRate = 0;
+				return true;
+			case StateEnum::AccumulatingFirstFrames:
+				Accumulator += MinValue(frameDuration, MaxSampleDuration);
+				SampleCount++;
+				LastFrameRate = Accumulator > 0 ? (uint32_t)1000000 * SampleCount / Accumulator : 0;
+				if (SampleCount >= AveragingSampleCount)
 				{
-					FrameRate = 0;
+					CurrentState = StateEnum::AveragingFrames;
 				}
 				break;
-			case (uint8_t)DrawElementsEnum::Number:
-				if (FrameRate > 999)
+			case StateEnum::AveragingFrames:
+				Accumulator += MinValue(frameDuration, MaxSampleDuration);
+				SampleCount++;
+				if (SampleCount >= AveragingSampleCount)
 				{
-					TextDrawer.TextTopLeft(frame, GetX(), GetY(), F("999+"));
-				}
-				else
-				{
-					if (FrameRate > 9)
-					{
-						if (FrameRate > 99)
-						{
-							TextDrawer.WriteDigit(frame, GetX(), GetY(), (FrameRate / 100) % 10);
-						}
-						TextDrawer.WriteDigit(frame, GetX() + TextWidth(1), GetY(), ((FrameRate / 10) % 10));
-					}
-					TextDrawer.WriteDigit(frame, GetX() + TextWidth(2), GetY(), (FrameRate % 10));
+					LastFrameRate = Accumulator > 0 ? (uint32_t)1000000 * AveragingSampleCount / Accumulator : 0;
+					Accumulator = 0;
+					SampleCount = 0;
 				}
 				break;
-			case (uint8_t)DrawElementsEnum::Label:
-				TextDrawer.TextTopLeft(frame, GetX() + TextWidth(4), GetY(), F("FPS"));
+			default:
+				break;
+			};
+
+			const pixel_t valueWidth = TextDrawer.GetNumberWidth(LastFrameRate);
+
+			switch (fpsDrawerPosition)
+			{
+			case FpsDrawerPosition::TopLeft:
+				TextDrawer.Write(frame, Layout::X(), Layout::Y(), LastFrameRate);
+				TextDrawer.Write(frame, Layout::X() + valueWidth + SpaceWidth, Layout::Y(), reinterpret_cast<const char*>(LabelText));
+				break;
+			case FpsDrawerPosition::TopRight:
+				TextDrawer.Write(frame, Layout::X() + Layout::Width() - LabelWidth, Layout::Y(), reinterpret_cast<const char*>(LabelText));
+				TextDrawer.Write(frame, Layout::X() + Layout::Width() - LabelWidth - valueWidth - SpaceWidth, Layout::Y(), LastFrameRate);
+				break;
+			case FpsDrawerPosition::BottomLeft:
+				TextDrawer.Write(frame, Layout::X(), Layout::Y() + Layout::Height() - TextDrawer.GetFontHeight(), LastFrameRate);
+				TextDrawer.Write(frame, Layout::X() + valueWidth + SpaceWidth, Layout::Y() + Layout::Height() - TextDrawer.GetFontHeight(), reinterpret_cast<const char*>(LabelText));
+				break;
+			case FpsDrawerPosition::BottomRight:
+				TextDrawer.Write(frame, Layout::X() + Layout::Width() - LabelWidth, Layout::Y() + Layout::Height() - TextDrawer.GetFontHeight(), reinterpret_cast<const char*>(LabelText));
+				TextDrawer.Write(frame, Layout::X() + Layout::Width() - LabelWidth - valueWidth - SpaceWidth, Layout::Y() + Layout::Height() - TextDrawer.GetFontHeight(), LastFrameRate);
 				break;
 			default:
 				break;
 			}
-		}
 
-	private:
-		static constexpr pixel_t TextWidth(const uint8_t characterCount)
-		{
-			return (FontRendererType::FontWidth() * characterCount)
-				+ (FontRendererType::FontKerning() * characterCount);
-		}
-
-		static constexpr pixel_t TextMaxWidth()
-		{
-			return TextWidth(7); //"999 fps"
-		}
-
-		static constexpr bool IsLeft()
-		{
-			return fpsDrawerPosition == FpsDrawerPosition::TopLeft || fpsDrawerPosition == FpsDrawerPosition::BottomLeft;
-		}
-
-		static constexpr bool IsTop()
-		{
-			return fpsDrawerPosition == FpsDrawerPosition::TopLeft || fpsDrawerPosition == FpsDrawerPosition::TopRight;
-		}
-
-		static constexpr FpsDrawerPosition DrawerPosition() { return fpsDrawerPosition; }
-
-		static constexpr pixel_t GetX()
-		{
-			return ScreenLayout::X() +
-				(IsLeft() ? 1 : (ScreenLayout::Width() - 1 - TextMaxWidth()));
-		}
-
-		static constexpr pixel_t GetY()
-		{
-			return ScreenLayout::Y() +
-				(IsTop() ? 1 : (ScreenLayout::Height() - 1 - FontRendererType::Height));
+			return true;
 		}
 	};
 }

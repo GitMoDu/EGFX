@@ -1,7 +1,7 @@
-#ifndef _MULTI_DRAWER_WRAPPER_h
-#define _MULTI_DRAWER_WRAPPER_h
+#ifndef _EGFX_MULTI_DRAWER_WRAPPER_h
+#define _EGFX_MULTI_DRAWER_WRAPPER_h
 
-#include "ElementDrawer.h"
+#include "../Model/IFrameDraw.h"
 
 namespace Egfx
 {

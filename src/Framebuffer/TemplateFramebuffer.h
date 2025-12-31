@@ -296,30 +296,36 @@ namespace Egfx
 
 			const color_t rawColor = GetRawColor(color);
 
+			// Transform all four corners to find actual bounding box after rotation
 			pixel_point_t tl = TransformCoordinates(topLeft);
+			pixel_point_t tr = TransformCoordinates({ bottomRight.x, topLeft.y });
+			pixel_point_t bl = TransformCoordinates({ topLeft.x, bottomRight.y });
 			pixel_point_t br = TransformCoordinates(bottomRight);
 
-			if (tl.x > br.x) std::swap(tl.x, br.x);
-			if (tl.y > br.y) std::swap(tl.y, br.y);
+			// Find min/max across all four corners
+			pixel_t minX = MinValue(MinValue(tl.x, tr.x), MinValue(bl.x, br.x));
+			pixel_t maxX = MaxValue(MaxValue(tl.x, tr.x), MaxValue(bl.x, br.x));
+			pixel_t minY = MinValue(MinValue(tl.y, tr.y), MinValue(bl.y, br.y));
+			pixel_t maxY = MaxValue(MaxValue(tl.y, tr.y), MaxValue(bl.y, br.y));
 
-			if (tl.x == br.x)
+			if (minX == maxX)
 			{
-				if (tl.y == br.y)
+				if (minY == maxY)
 				{
-					FramePainter::PixelRaw(rawColor, tl.x, tl.y);
+					FramePainter::PixelRaw(rawColor, minX, minY);
 				}
 				else
 				{
-					FramePainter::LineVerticalRaw(rawColor, tl.x, tl.y, br.y);
+					FramePainter::LineVerticalRaw(rawColor, minX, minY, maxY);
 				}
 			}
-			else if (tl.y == br.y)
+			else if (minY == maxY)
 			{
-				FramePainter::LineHorizontalRaw(rawColor, tl.x, tl.y, br.x);
+				FramePainter::LineHorizontalRaw(rawColor, minX, minY, maxX);
 			}
 			else
 			{
-				FramePainter::RectangleFillRaw(rawColor, tl.x, tl.y, br.x, br.y);
+				FramePainter::RectangleFillRaw(rawColor, minX, minY, maxX, maxY);
 			}
 		}
 
@@ -350,11 +356,11 @@ namespace Egfx
 			if (tl.x > br.x) std::swap(tl.x, br.x);
 			if (tl.y > br.y) std::swap(tl.y, br.y);
 
-			const pixel_point_t tlLimited = { LimitValue<pixel_t>(tl.x, 0, FrameWidth - 1), LimitValue<pixel_t>(tl.y, 0, FrameHeight - 1) };
-			const pixel_point_t brLimited = { LimitValue<pixel_t>(br.x, 0, FrameWidth - 1), LimitValue<pixel_t>(br.y, 0, FrameHeight - 1) };
+			const pixel_point_t tlLimited = { LimitValue<pixel_t>(tl.x, 0, FramePainter::PhysicalWidth - 1), LimitValue<pixel_t>(tl.y, 0, FramePainter::PhysicalHeight - 1) };
+			const pixel_point_t brLimited = { LimitValue<pixel_t>(br.x, 0, FramePainter::PhysicalWidth - 1), LimitValue<pixel_t>(br.y, 0, FramePainter::PhysicalHeight - 1) };
 
-			if (((tl.x >= 0 && tl.x < FrameWidth) ||
-				(br.x >= 0 && br.x < FrameWidth))
+			if (((tl.x >= 0 && tl.x < FramePainter::PhysicalWidth) ||
+				(br.x >= 0 && br.x < FramePainter::PhysicalWidth))
 				&& brLimited.x >= tlLimited.x)
 			{
 				// Draw top horizontal line.
@@ -670,8 +676,8 @@ namespace Egfx
 					switch (displayOptions::AntiAliasing)
 					{
 					case DisplayOptions::AntiAliasingEnum::EdgeBlend:
-						if (x >= 0 && x < FrameWidth &&
-							y >= 0 && y < FrameHeight)
+						if (x >= 0 && x < FramePainter::PhysicalWidth &&
+							y >= 0 && y < FramePainter::PhysicalHeight)
 						{
 							FramePainter::PixelRawBlend(rawColor, x, y);
 						}
@@ -709,8 +715,8 @@ namespace Egfx
 					switch (displayOptions::AntiAliasing)
 					{
 					case DisplayOptions::AntiAliasingEnum::EdgeBlend:
-						if (x >= 0 && x < FrameWidth &&
-							y >= 0 && y < FrameHeight)
+						if (x >= 0 && x < FramePainter::PhysicalWidth &&
+							y >= 0 && y < FramePainter::PhysicalHeight)
 						{
 							FramePainter::PixelRawBlend(rawColor, x, y);
 						}
@@ -735,9 +741,9 @@ namespace Egfx
 			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
 
 			// Blend the edge pixels.
-			if (aax1 >= 0 && aax1 < FrameWidth)
+			if (aax1 >= 0 && aax1 < FramePainter::PhysicalWidth)
 				FramePainter::PixelRawBlend(rawColor, aax1, y);
-			if (aax2 >= 0 && aax2 < FrameWidth)
+			if (aax2 >= 0 && aax2 < FramePainter::PhysicalWidth)
 				FramePainter::PixelRawBlend(rawColor, aax2, y);
 		}
 
@@ -756,7 +762,7 @@ namespace Egfx
 			// For left-to-right scanning:
 			// - Left edge: high alpha when x1 fraction is LOW (just entered the shape)
 			// - Right edge: high alpha when x2 fraction is HIGH (about to exit the shape)
-			if (aax1 >= 0 && aax1 < FrameWidth)
+			if (aax1 >= 0 && aax1 < FramePainter::PhysicalWidth)
 			{
 				if (leftToRight)
 				{
@@ -772,7 +778,7 @@ namespace Egfx
 				}
 			}
 
-			if (aax2 >= 0 && aax2 < FrameWidth)
+			if (aax2 >= 0 && aax2 < FramePainter::PhysicalWidth)
 			{
 				if (leftToRight) {
 					// Right edge: normal sub-pixel position for correct coverage

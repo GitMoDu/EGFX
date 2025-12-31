@@ -163,10 +163,8 @@ namespace Egfx
 				point.x >= 0 && point.x < FrameWidth &&
 				point.y >= 0 && point.y < FrameHeight)
 			{
-				const color_t uninvertedColor = FramePainter::GetRawColor(color);
-				const color_t rawColor = displayOptions::Inverted
-					? (uninvertedColor & 0xFF000000) | (~uninvertedColor & 0x00FFFFFF)
-					: uninvertedColor;
+				// Use the same GetRawColor (which applies inversion correctly for the configured color depth)
+				const color_t rawColor = GetRawColor(color);
 
 				const pixel_point_t transformed = TransformCoordinates(point);
 				FramePainter::PixelRawBlendAlpha(rawColor, transformed.x, transformed.y, alpha);
@@ -758,9 +756,14 @@ namespace Egfx
 		}
 
 	private:
+		static constexpr color_t ColorMask = static_cast<color_t>((uint64_t(1) << FramePainter::ColorDepth) - 1);
+
 		inline constexpr color_t GetRawColor(const rgb_color_t color)
 		{
-			return displayOptions::Inverted ? ~FramePainter::GetRawColor(color) : FramePainter::GetRawColor(color);
+			// Get the inversion aware, native raw color from the underlying frame painter.
+			return displayOptions::Inverted ?
+				static_cast<color_t>(FramePainter::GetRawColor(rgb_color_t(~color | 0xFF000000))) : // Mask to the number of valid bits for the color depth and invert only those bits.
+				FramePainter::GetRawColor(color); 	// If inversion is not enabled at compile-time, return raw unchanged.
 		}
 
 		pixel_point_t TransformCoordinates(const pixel_point_t coordinates) const

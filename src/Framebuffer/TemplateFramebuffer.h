@@ -337,61 +337,24 @@ namespace Egfx
 
 		void Rectangle(const rgb_color_t color, const pixel_rectangle_t& rectangle) final
 		{
-			pixel_point_t topLeft = rectangle.topLeft;
-			pixel_point_t bottomRight = rectangle.bottomRight;
+			const pixel_t minX = (rectangle.topLeft.x <= rectangle.bottomRight.x) ? rectangle.topLeft.x : rectangle.bottomRight.x;
+			const pixel_t maxX = (rectangle.topLeft.x <= rectangle.bottomRight.x) ? rectangle.bottomRight.x : rectangle.topLeft.x;
+			const pixel_t minY = (rectangle.topLeft.y <= rectangle.bottomRight.y) ? rectangle.topLeft.y : rectangle.bottomRight.y;
+			const pixel_t maxY = (rectangle.topLeft.y <= rectangle.bottomRight.y) ? rectangle.bottomRight.y : rectangle.topLeft.y;
 
-			if (topLeft.x > bottomRight.x) std::swap(topLeft.x, bottomRight.x);
-			if (topLeft.y > bottomRight.y) std::swap(topLeft.y, bottomRight.y);
+			pixel_point_t topLeft{ minX, minY };
+			pixel_point_t bottomRight{ maxX, maxY };
 
 			if (!ClipRectangle(topLeft, bottomRight))
 			{
 				return;
 			}
 
-			const color_t rawColor = GetRawColor(color);
-
-			pixel_point_t tl = TransformCoordinates(topLeft);
-			pixel_point_t br = TransformCoordinates(bottomRight);
-
-			if (tl.x > br.x) std::swap(tl.x, br.x);
-			if (tl.y > br.y) std::swap(tl.y, br.y);
-
-			const pixel_point_t tlLimited = { LimitValue<pixel_t>(tl.x, 0, FramePainter::PhysicalWidth - 1), LimitValue<pixel_t>(tl.y, 0, FramePainter::PhysicalHeight - 1) };
-			const pixel_point_t brLimited = { LimitValue<pixel_t>(br.x, 0, FramePainter::PhysicalWidth - 1), LimitValue<pixel_t>(br.y, 0, FramePainter::PhysicalHeight - 1) };
-
-			if (((tl.x >= 0 && tl.x < FramePainter::PhysicalWidth) ||
-				(br.x >= 0 && br.x < FramePainter::PhysicalWidth))
-				&& brLimited.x >= tlLimited.x)
-			{
-				// Draw top horizontal line.
-				if (tl.y >= 0 && tl.y < FrameHeight)
-				{
-					FramePainter::LineHorizontalRaw(rawColor, tlLimited.x, tl.y, brLimited.x);
-				}
-
-				// Draw bottom horizontal line.
-				if (br.y >= 0 && br.y < FrameHeight)
-				{
-					FramePainter::LineHorizontalRaw(rawColor, tlLimited.x, br.y, brLimited.x);
-				}
-			}
-
-			if (((tl.y >= 0 && tl.y < FrameHeight) ||
-				(br.y >= 0 && br.y < FrameHeight))
-				&& brLimited.y >= tlLimited.y)
-			{
-				// Draw left vertical line.
-				if (tl.x >= 0 && tl.x < FrameWidth)
-				{
-					FramePainter::LineVerticalRaw(rawColor, tl.x, tlLimited.y + 1, brLimited.y - 1);
-				}
-
-				// Draw right vertical line.
-				if (br.x >= 0 && br.x < FrameWidth)
-				{
-					FramePainter::LineVerticalRaw(rawColor, br.x, tlLimited.y + 1, brLimited.y - 1);
-				}
-			}
+			// Use logical corners to draw all four edges; Line will handle transform/clipping per edge.
+			Line(color, pixel_line_t{ topLeft, { bottomRight.x, topLeft.y } });
+			Line(color, pixel_line_t{ { bottomRight.x, topLeft.y }, bottomRight });
+			Line(color, pixel_line_t{ bottomRight, { topLeft.x, bottomRight.y } });
+			Line(color, pixel_line_t{ { topLeft.x, bottomRight.y }, topLeft });
 		}
 
 		void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
@@ -514,8 +477,8 @@ namespace Egfx
 			// Loop from a.y to b.y (inclusive)
 			for (pixel_t y = a.y; y <= b.y; y++)
 			{
-				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FrameWidth - 1);
-				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FrameWidth - 1);
+				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FramePainter::PhysicalWidth - 1);
+				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FramePainter::PhysicalWidth - 1);
 
 				if (xSide1 == xSide2)
 				{
@@ -564,8 +527,8 @@ namespace Egfx
 			// Loop from c.y down to a.y (inclusive)
 			for (pixel_t y = c.y; y >= a.y; y--)
 			{
-				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FrameWidth - 1);
-				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FrameWidth - 1);
+				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FramePainter::PhysicalWidth - 1);
+				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FramePainter::PhysicalWidth - 1);
 
 				if (xSide1 == xSide2)
 				{
@@ -852,51 +815,26 @@ namespace Egfx
 
 		static constexpr TransformCase GetTransformCase()
 		{
-			// Explicitly map each rotation+mirror combination to a named case
-			if constexpr (displayOptions::Rotation == DisplayOptions::RotationEnum::None)
-			{
-				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None)
-					return TransformCase::Identity;
-				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
-					return TransformCase::MirrorX;
-				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY)
-					return TransformCase::MirrorY;
-				else // MirrorXY
-					return TransformCase::MirrorXY;
-			}
-			else if constexpr (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate90)
-			{
-				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None)
-					return TransformCase::Rotate90;
-				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
-					return TransformCase::Rotate90MirrorX;
-				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY)
-					return TransformCase::Rotate90MirrorY;
-				else // MirrorXY
-					return TransformCase::Rotate90MirrorXY;
-			}
-			else if constexpr (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate180)
-			{
-				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None ||
-					displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorXY)
-					return TransformCase::Rotate180; // Double inversion cancels
-				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
-					return TransformCase::Rotate180MirrorX;
-				else // MirrorY
-					return TransformCase::Rotate180MirrorY;
-			}
-			else // Rotate270
-			{
-				// Map to equivalent Rotate90 cases
-				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None)
-					return TransformCase::Rotate90MirrorXY;
-				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
-					return TransformCase::Rotate90MirrorY;
-				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY)
-					return TransformCase::Rotate90MirrorX;
-				else // MirrorXY
-					return TransformCase::Rotate90;
-			}
+			return // Explicitly map each rotation+mirror combination to a named case. C++11 compatible implementation.
+				(displayOptions::Rotation == DisplayOptions::RotationEnum::None) ?
+				((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCase::Identity :
+					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::MirrorX :
+					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCase::MirrorY :
+					TransformCase::MirrorXY)
+				: (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate90) ?
+				((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCase::Rotate90 :
+					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::Rotate90MirrorX :
+					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCase::Rotate90MirrorY :
+					TransformCase::Rotate90MirrorXY)
+				: (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate180) ?
+				((displayOptions::Mirror == DisplayOptions::MirrorEnum::None ||
+					displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorXY) ? TransformCase::Rotate180 :
+					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::Rotate180MirrorX :
+					TransformCase::Rotate180MirrorY)
+				: ((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCase::Rotate90MirrorXY :
+					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::Rotate90MirrorY :
+					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCase::Rotate90MirrorX :
+					TransformCase::Rotate90);
 		}
 
 #if defined(ARDUINO_ARCH_RP2040)

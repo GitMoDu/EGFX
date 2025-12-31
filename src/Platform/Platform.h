@@ -26,6 +26,19 @@
 #define EGFX_PLATFORM_HDR
 #endif
 
+/// <summary>
+/// Platform-specific constant data storage.
+/// AVR: Use const + PROGMEM to ensure single copy in flash.
+/// ARM/Others: Use constexpr for compile-time optimization.
+/// </summary>
+#if defined(ARDUINO_ARCH_AVR)
+	// AVR: Use const + PROGMEM to ensure single copy in flash
+	#define EGFX_PLATFORM_CONST_DATA const
+#else
+	// ARM/Others: Use constexpr for compile-time optimization
+	#define EGFX_PLATFORM_CONST_DATA constexpr
+#endif
+
 namespace Egfx
 {
 	using namespace IntegerSignal;

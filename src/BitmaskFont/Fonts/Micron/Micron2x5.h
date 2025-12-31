@@ -47,7 +47,7 @@ namespace Egfx
 					III = (uint8_t)SubPixels::Red | (uint8_t)SubPixels::Green | (uint8_t)SubPixels::Blue
 				};
 
-				static constexpr uint8_t LetterA[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterA[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -56,7 +56,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterB[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterB[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -65,7 +65,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterC[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterC[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -74,7 +74,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterD[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterD[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -83,7 +83,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterE[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterE[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
@@ -92,7 +92,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO
 				};
 
-				static constexpr uint8_t LetterF[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterF[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
@@ -101,7 +101,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t LetterG[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterG[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
@@ -110,7 +110,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterH[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterH[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -119,7 +119,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterI[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterI[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,
@@ -128,7 +128,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterJ[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterJ[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO,
@@ -137,7 +137,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterK[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterK[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::IOO,
@@ -146,7 +146,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterL[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterL[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
@@ -155,7 +155,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO
 				};
 
-				static constexpr uint8_t LetterM[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterM[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IIO, (uint8_t)OrderRgb::IIO,
@@ -164,7 +164,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterN[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterN[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IIO, (uint8_t)OrderRgb::OIO,
@@ -173,7 +173,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterO[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterO[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -182,7 +182,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterP[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterP[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -191,7 +191,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t LetterQ[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterQ[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -200,7 +200,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterR[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterR[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -209,7 +209,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterS[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterS[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
@@ -218,7 +218,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterT[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterT[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO,
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,
@@ -227,7 +227,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t LetterU[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterU[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -236,7 +236,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IIO
 				};
 
-				static constexpr uint8_t LetterV[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterV[] PROGMEM
 				{
 
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -246,7 +246,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t LetterW[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterW[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -255,7 +255,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t LetterX[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterX[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::IOO,
@@ -264,7 +264,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t LetterY[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterY[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::IOO,
@@ -273,7 +273,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t LetterZ[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t LetterZ[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::IOO,
@@ -282,7 +282,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO
 				};
 
-				static constexpr uint8_t Number0[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number0[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::IIO,
@@ -291,7 +291,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t Number1[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number1[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::OOO,
@@ -300,7 +300,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t Number2[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number2[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO,
@@ -309,7 +309,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO
 				};
 
-				static constexpr uint8_t Number3[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number3[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO,
@@ -318,7 +318,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO,
 				};
 
-				static constexpr uint8_t Number4[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number4[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -327,7 +327,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t Number5[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number5[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
@@ -336,7 +336,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t Number6[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number6[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
@@ -345,7 +345,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t Number7[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number7[] PROGMEM
 				{
 					(uint8_t)OrderRgb::III, (uint8_t)OrderRgb::IIO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO,
@@ -354,7 +354,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t Number8[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number8[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -363,7 +363,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t Number9[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t Number9[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -372,7 +372,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t SymbolExclamation[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolExclamation[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,
@@ -381,7 +381,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t SymbolQuestion[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolQuestion[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OIO,
@@ -390,7 +390,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t SymbolDecimalPoint[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolDecimalPoint[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
@@ -399,7 +399,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t SymbolDecimalComma[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolDecimalComma[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
@@ -408,7 +408,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::OOO,
 				};
 
-				static constexpr uint8_t SymbolPercent[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolPercent[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IIO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::IIO, (uint8_t)OrderRgb::IOO,
@@ -417,7 +417,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::IIO
 				};
 
-				static constexpr uint8_t SymbolParenthesisOpen[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolParenthesisOpen[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::IOO,
@@ -426,7 +426,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OIO
 				};
 
-				static constexpr uint8_t SymbolParenthesisClose[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolParenthesisClose[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::OOO,
@@ -435,7 +435,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IOO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t SymbolBracketsOpen[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolBracketsOpen[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::IIO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::IOO,
@@ -444,7 +444,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::IIO
 				};
 
-				static constexpr uint8_t SymbolBracketsClose[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolBracketsClose[] PROGMEM
 				{
 					(uint8_t)OrderRgb::IIO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::OOO,
@@ -453,7 +453,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::IIO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t SymbolEquals[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolEquals[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OII, (uint8_t)OrderRgb::IOO,
@@ -462,7 +462,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t SymbolPlus[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolPlus[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,
@@ -471,7 +471,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t SymbolMinus[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolMinus[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO,
@@ -480,7 +480,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::OOO
 				};
 
-				static constexpr uint8_t SymbolSmaller[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolSmaller[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::IOO,
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,
@@ -489,7 +489,7 @@ namespace Egfx
 					(uint8_t)OrderRgb::OOO, (uint8_t)OrderRgb::IOO
 				};
 
-				static constexpr uint8_t SymbolBigger[] PROGMEM
+				static EGFX_PLATFORM_CONST_DATA uint8_t SymbolBigger[] PROGMEM
 				{
 					(uint8_t)OrderRgb::OIO, (uint8_t)OrderRgb::OOO,
 					(uint8_t)OrderRgb::OOI, (uint8_t)OrderRgb::OOO,

@@ -12,11 +12,12 @@ namespace Egfx
 	/// <typeparam name="frameWidth">The width of the frame in pixels.</typeparam>
 	/// <typeparam name="frameHeight">The height of the frame in pixels.</typeparam>
 	/// <typeparam name="colorThreshold">The threshold value used by the binary color converter to determine pixel on/off state.</typeparam>
-	template<pixel_t frameWidth, pixel_t frameHeight, const uint8_t colorThreshold>
-	class BinaryFramePainter : public AbstractFramePainter<BinaryColorConverter1<colorThreshold>, frameWidth, frameHeight>
+	/// <typeparam name="rotated">Whether the frame is rotated (width and height swapped).</typeparam>
+	template<pixel_t frameWidth, pixel_t frameHeight, uint8_t colorThreshold, bool rotated>
+	class BinaryFramePainter : public AbstractFramePainter<BinaryColorConverter1<colorThreshold>, frameWidth, frameHeight, rotated>
 	{
 	private:
-		using Base = AbstractFramePainter<BinaryColorConverter1<colorThreshold>, frameWidth, frameHeight>;
+		using Base = AbstractFramePainter<BinaryColorConverter1<colorThreshold>, frameWidth, frameHeight, rotated>;
 
 	protected:
 		using Base::Buffer;

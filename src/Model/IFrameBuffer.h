@@ -87,6 +87,8 @@ namespace Egfx
 		/// <param name="color">The color to blend with the pixel.</param>
 		virtual void PixelBlend(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
 
+		virtual void PixelBlend(const rgb_color_t color, const pixel_point_t point) = 0;
+
 		/// <summary>
 		/// Blend a pixel color with given alpha split.
 		/// </summary>
@@ -94,23 +96,28 @@ namespace Egfx
 		/// <param name="alpha">The alpha value (opacity) to use for blending, typically in the range 0 (fully transparent) to 255 (fully opaque).</param>
 		virtual void PixelBlendAlpha(const rgb_color_t color, const pixel_t x, const pixel_t y, const uint8_t alpha) = 0;
 
+		virtual void PixelBlendAlpha(const rgb_color_t color, const pixel_point_t point, const uint8_t alpha) = 0;
+
 		/// <summary>
 		/// Blend a pixel color using color add.
 		/// </summary>
 		/// <param name="color">The color to add into the pixel.</param>
 		virtual void PixelBlendAdd(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendAdd(const rgb_color_t color, const pixel_point_t point) = 0;
 
 		/// <summary>
 		/// Blend a pixel color using color subtract.
 		/// </summary>
 		/// <param name="color">The color to subtract from the pixel.</param>
 		virtual void PixelBlendSubtract(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendSubtract(const rgb_color_t color, const pixel_point_t point) = 0;
 
 		/// <summary>
 		/// Blend a pixel color using color multiply.
 		/// </summary>
 		/// <param name="color">The color to multiply with the pixel.</param>
 		virtual void PixelBlendMultiply(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendMultiply(const rgb_color_t color, const pixel_point_t point) = 0;
 
 		/// <summary>
 		/// Blend a pixel color using color screen.
@@ -118,6 +125,7 @@ namespace Egfx
 		/// </summary>
 		/// <param name="color">The color to screen with the pixel.</param>
 		virtual void PixelBlendScreen(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendScreen(const rgb_color_t color, const pixel_point_t point) = 0;
 
 		/// <summary>
 		/// Draw a line. 

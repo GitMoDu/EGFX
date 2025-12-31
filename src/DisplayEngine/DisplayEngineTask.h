@@ -111,8 +111,8 @@ namespace Egfx
 
 		bool Start() final
 		{
-			if (FramebufferType::FrameWidth == ScreenDriver.GetScreenWidth()
-				&& FramebufferType::FrameHeight == ScreenDriver.GetScreenHeight()
+			if (FramebufferType::PhysicalWidth == ScreenDriver.GetScreenWidth()
+				&& FramebufferType::PhysicalHeight == ScreenDriver.GetScreenHeight()
 				&& ScreenDriver.GetScreenWidth() > 0
 				&& ScreenDriver.GetScreenHeight() > 0)
 			{

@@ -10,11 +10,12 @@ namespace Egfx
 	/// </summary>
 	/// <typeparam name="frameWidth">The width of the frame in pixels.</typeparam>
 	/// <typeparam name="frameHeight">The height of the frame in pixels.</typeparam>
-	template<pixel_t frameWidth, pixel_t frameHeight>
-	class Grayscale8FramePainter : public AbstractFramePainter<GrayScaleConverter8, frameWidth, frameHeight>
+	/// <typeparam name="rotated">Whether the frame is rotated (width and height swapped).</typeparam>
+	template<pixel_t frameWidth, pixel_t frameHeight, bool rotated>
+	class Grayscale8FramePainter : public AbstractFramePainter<GrayScaleConverter8, frameWidth, frameHeight, rotated>
 	{
 	private:
-		using Base = AbstractFramePainter<GrayScaleConverter8, frameWidth, frameHeight>;
+		using Base = AbstractFramePainter<GrayScaleConverter8, frameWidth, frameHeight, rotated>;
 
 	protected:
 		using Base::Buffer;

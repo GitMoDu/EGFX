@@ -10,11 +10,12 @@ namespace Egfx
 	/// </summary>
 	/// <typeparam name="frameWidth">The width of the frame in pixels.</typeparam>
 	/// <typeparam name="frameHeight">The height of the frame in pixels.</typeparam>
-	template<const pixel_t frameWidth, const pixel_t frameHeight>
-	class Color32FramePainter : public AbstractFramePainter<ColorConverter32, frameWidth, frameHeight>
+	/// <typeparam name="rotated">Whether the frame is rotated (width and height swapped).</typeparam>
+	template<pixel_t frameWidth, pixel_t frameHeight, bool rotated>
+	class Color32FramePainter : public AbstractFramePainter<ColorConverter32, frameWidth, frameHeight, rotated>
 	{
 	private:
-		using Base = AbstractFramePainter<ColorConverter32, frameWidth, frameHeight>;
+		using Base = AbstractFramePainter<ColorConverter32, frameWidth, frameHeight, rotated>;
 
 	protected:
 		using Base::Buffer;

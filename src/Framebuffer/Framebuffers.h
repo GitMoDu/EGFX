@@ -24,10 +24,10 @@ namespace Egfx
 		, const uint8_t threshold = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class BinaryFramebuffer
-		: public TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold>, clearDivisorPower, displayOptions>
+		: public TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
 	{
 	private:
-		using Base = TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold>, clearDivisorPower, displayOptions>;
+		using Base = TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>;
 
 	public:
 		BinaryFramebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
@@ -44,10 +44,10 @@ namespace Egfx
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Color8Framebuffer
-		: public TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+		: public TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
 	{
 	private:
-		using Base = TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+		using Base = TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>;
 
 	public:
 		Color8Framebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
@@ -64,10 +64,10 @@ namespace Egfx
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Grayscale8Framebuffer
-		: public TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+		: public TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
 	{
 	private:
-		using Base = TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+		using Base = TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>;
 
 	public:
 		Grayscale8Framebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
@@ -84,10 +84,10 @@ namespace Egfx
 		, uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Color16Framebuffer
-		: public TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+		: public TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
 	{
 	private:
-		using Base = TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+		using Base = TemplateFramebuffer<Color16FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>;
 
 	public:
 		Color16Framebuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}
@@ -105,10 +105,10 @@ namespace Egfx
 		, const uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Color32FrameBuffer
-		: public TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>
+		: public TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
 	{
 	private:
-		using Base = TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight>, clearDivisorPower, displayOptions>;
+		using Base = TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>;
 
 	public:
 		Color32FrameBuffer(uint8_t buffer[Base::BufferSize] = nullptr) : Base(buffer) {}

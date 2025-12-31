@@ -21,8 +21,9 @@ namespace Egfx
 		enum class RotationEnum
 		{
 			None,
-			Plus90,
-			Minus90
+			Rotate90,
+			Rotate180,
+			Rotate270
 		};
 
 		/// <summary>
@@ -76,7 +77,8 @@ namespace Egfx
 
 			static constexpr bool HasRotation()
 			{
-				return rotation != RotationEnum::None;
+				return rotation == RotationEnum::Rotate90
+					|| rotation == RotationEnum::Rotate270;
 			}
 
 			static constexpr bool HasMirroring()
@@ -95,6 +97,5 @@ namespace Egfx
 		/// </summary>
 		using Default = TemplateOptions<MirrorEnum::None, RotationEnum::None, false, AntiAliasingEnum::None>;
 	}
-
 }
 #endif

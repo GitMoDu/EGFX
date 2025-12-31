@@ -23,6 +23,22 @@ namespace Egfx
 		, typename displayOptions = DisplayOptions::Default>
 	class TemplateFramebuffer : public FramePainter
 	{
+	private:
+		enum class TransformCase : uint8_t
+		{
+			Identity,
+			MirrorX,
+			MirrorY,
+			MirrorXY,
+			Rotate90,
+			Rotate90MirrorX,
+			Rotate90MirrorY,
+			Rotate90MirrorXY,
+			Rotate180,
+			Rotate180MirrorX,
+			Rotate180MirrorY,
+		};
+
 	public:
 		using FramePainter::BufferSize;
 		using FramePainter::FrameWidth;
@@ -35,17 +51,8 @@ namespace Egfx
 	protected:
 		using FramePainter::IntToFixed;
 		using FramePainter::FixedRoundToInt;
-
-	private:
-		enum class OutcodeEnum : uint8_t
-		{
-			OUT_LEFT = 1,
-			OUT_RIGHT = 2,
-			OUT_BOTTOM = 4,
-			OUT_TOP = 8
-		};
-
-		static constexpr uint8_t BRESENHAM_SCALE = 8;
+		using FramePainter::ClipRectangle;
+		using FramePainter::ClipLine;
 
 #if defined(ARDUINO_ARCH_RP2040)
 		// Static fill constant lives for the lifetime of the program; safe as DMA source.
@@ -113,198 +120,122 @@ namespace Egfx
 
 		void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
-			{
-				const color_t rawColor = GetRawColor(color);
-
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					FramePainter::PixelRaw(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					FramePainter::PixelRaw(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					FramePainter::PixelRaw(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					FramePainter::PixelRaw(rawColor, x, y);
-					break;
-				}
-			}
+			Pixel(color, pixel_point_t{ x, y });
 		}
 
 		void Pixel(const rgb_color_t color, const pixel_point_t point) final
 		{
-			Pixel(color, point.x, point.y);
+			if (point.x >= 0 && point.x < FrameWidth &&
+				point.y >= 0 && point.y < FrameHeight)
+			{
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRaw(GetRawColor(color), transformed.x, transformed.y);
+			}
 		}
 
 		void PixelBlend(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
+			PixelBlend(color, pixel_point_t{ x, y });
+		}
+
+		void PixelBlend(const rgb_color_t color, const pixel_point_t point) final
+		{
+			if (point.x >= 0 && point.x < FrameWidth &&
+				point.y >= 0 && point.y < FrameHeight)
 			{
-				const color_t rawColor = GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					FramePainter::PixelRawBlend(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					FramePainter::PixelRawBlend(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					FramePainter::PixelRawBlend(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					FramePainter::PixelRawBlend(rawColor, x, y);
-					break;
-				}
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRawBlend(GetRawColor(color), transformed.x, transformed.y);
 			}
 		}
 
 		void PixelBlendAlpha(const rgb_color_t color, const pixel_t x, const pixel_t y, const uint8_t alpha) final
 		{
+			PixelBlendAlpha(color, pixel_point_t{ x, y }, alpha);
+		}
+
+		void PixelBlendAlpha(const rgb_color_t color, const pixel_point_t point, const uint8_t alpha) final
+		{
 			if (alpha == UINT8_MAX / 2)
 			{
-				PixelBlend(color, x, y);
+				PixelBlend(color, point);
 			}
 			else if (alpha > 0 &&
-				x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
+				point.x >= 0 && point.x < FrameWidth &&
+				point.y >= 0 && point.y < FrameHeight)
 			{
 				const color_t uninvertedColor = FramePainter::GetRawColor(color);
 				const color_t rawColor = displayOptions::Inverted
 					? (uninvertedColor & 0xFF000000) | (~uninvertedColor & 0x00FFFFFF)
 					: uninvertedColor;
 
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					FramePainter::PixelRawBlendAlpha(rawColor, MirrorX(x), y, alpha);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					FramePainter::PixelRawBlendAlpha(rawColor, x, MirrorY(y), alpha);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					FramePainter::PixelRawBlendAlpha(rawColor, MirrorX(x), MirrorY(y), alpha);
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					FramePainter::PixelRawBlendAlpha(rawColor, x, y, alpha);
-					break;
-				}
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRawBlendAlpha(rawColor, transformed.x, transformed.y, alpha);
 			}
 		}
 
 		void PixelBlendAdd(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
+			PixelBlendAdd(color, pixel_point_t{ x, y });
+		}
+
+		void PixelBlendAdd(const rgb_color_t color, const pixel_point_t point) final
+		{
+			if (point.x >= 0 && point.x < FrameWidth &&
+				point.y >= 0 && point.y < FrameHeight)
 			{
-				const color_t rawColor = GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					FramePainter::PixelRawBlendAdd(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					FramePainter::PixelRawBlendAdd(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					FramePainter::PixelRawBlendAdd(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					FramePainter::PixelRawBlendAdd(rawColor, x, y);
-					break;
-				}
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRawBlendAdd(GetRawColor(color), transformed.x, transformed.y);
 			}
 		}
 
 		void PixelBlendSubtract(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
+			PixelBlendSubtract(color, pixel_point_t{ x, y });
+		}
+
+		void PixelBlendSubtract(const rgb_color_t color, const pixel_point_t point) final
+		{
+			if (point.x >= 0 && point.x < FrameWidth &&
+				point.y >= 0 && point.y < FrameHeight)
 			{
-				const color_t rawColor = GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					FramePainter::PixelRawBlendSubtract(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					FramePainter::PixelRawBlendSubtract(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					FramePainter::PixelRawBlendSubtract(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					FramePainter::PixelRawBlendSubtract(rawColor, x, y);
-					break;
-				}
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRawBlendSubtract(GetRawColor(color), transformed.x, transformed.y);
 			}
 		}
 
 		void PixelBlendMultiply(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
+			PixelBlendMultiply(color, pixel_point_t{ x, y });
+		}
+
+		void PixelBlendMultiply(const rgb_color_t color, const pixel_point_t point) final
+		{
+			if (point.x >= 0 && point.x < FrameWidth &&
+				point.y >= 0 && point.y < FrameHeight)
 			{
-				const color_t rawColor = GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					FramePainter::PixelRawBlendMultiply(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					FramePainter::PixelRawBlendMultiply(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					FramePainter::PixelRawBlendMultiply(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					FramePainter::PixelRawBlendMultiply(rawColor, x, y);
-					break;
-				}
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRawBlendMultiply(GetRawColor(color), transformed.x, transformed.y);
 			}
 		}
 
 		void PixelBlendScreen(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
-			if (x >= 0 && x < FrameWidth &&
-				y >= 0 && y < FrameHeight)
+			PixelBlendScreen(color, pixel_point_t{ x, y });
+		}
+
+		void PixelBlendScreen(const rgb_color_t color, const pixel_point_t point) final
+		{
+			if (point.x >= 0 && point.x < FrameWidth &&
+				point.y >= 0 && point.y < FrameHeight)
 			{
-				const color_t rawColor = GetRawColor(color);
-				switch (displayOptions::Mirror)
-				{
-				case DisplayOptions::MirrorEnum::MirrorX:
-					FramePainter::PixelRawBlendScreen(rawColor, MirrorX(x), y);
-					break;
-				case DisplayOptions::MirrorEnum::MirrorY:
-					FramePainter::PixelRawBlendScreen(rawColor, x, MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::MirrorXY:
-					FramePainter::PixelRawBlendScreen(rawColor, MirrorX(x), MirrorY(y));
-					break;
-				case DisplayOptions::MirrorEnum::None:
-				default:
-					FramePainter::PixelRawBlendScreen(rawColor, x, y);
-					break;
-				}
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRawBlendScreen(GetRawColor(color), transformed.x, transformed.y);
 			}
 		}
 
 		void Line(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
 		{
 			const pixel_line_t line{ {x1, y1}, {x2, y2} };
-
 			Line(color, line);
 		}
 
@@ -320,25 +251,8 @@ namespace Egfx
 
 			const color_t rawColor = GetRawColor(color);
 
-			// Apply mirroring.
-			switch (displayOptions::Mirror)
-			{
-			case DisplayOptions::MirrorEnum::MirrorX:
-				start = { MirrorX(start.x), start.y };
-				end = { MirrorX(end.x), end.y };
-				break;
-			case DisplayOptions::MirrorEnum::MirrorY:
-				start = { start.x, MirrorY(start.y) };
-				end = { end.x, MirrorY(end.y) };
-				break;
-			case DisplayOptions::MirrorEnum::MirrorXY:
-				start = { MirrorX(start.x), MirrorY(start.y) };
-				end = { MirrorX(end.x), MirrorY(end.y) };
-				break;
-			case DisplayOptions::MirrorEnum::None:
-			default:
-				break;
-			}
+			start = TransformCoordinates(start);
+			end = TransformCoordinates(end);
 
 			if (start.x == end.x)
 			{
@@ -365,10 +279,15 @@ namespace Egfx
 			const pixel_t topLeftX, const pixel_t topLeftY,
 			const pixel_t bottomRightX, const pixel_t bottomRightY) final
 		{
-			pixel_point_t topLeft = { (topLeftX <= bottomRightX) ? topLeftX : bottomRightX,
-					(topLeftY <= bottomRightY) ? topLeftY : bottomRightY };
-			pixel_point_t bottomRight = { (topLeftX <= bottomRightX) ? bottomRightX : topLeftX,
-				(topLeftY <= bottomRightY) ? bottomRightY : topLeftY };
+			RectangleFill(color, pixel_rectangle_t{ {topLeftX, topLeftY}, {bottomRightX, bottomRightY} });
+		}
+
+		void RectangleFill(const rgb_color_t color, const pixel_rectangle_t& rectangle) final
+		{
+			pixel_point_t topLeft = { (rectangle.topLeft.x <= rectangle.bottomRight.x) ? rectangle.topLeft.x : rectangle.bottomRight.x,
+				(rectangle.topLeft.y <= rectangle.bottomRight.y) ? rectangle.topLeft.y : rectangle.bottomRight.y };
+			pixel_point_t bottomRight = { (rectangle.topLeft.x <= rectangle.bottomRight.x) ? rectangle.bottomRight.x : rectangle.topLeft.x,
+				(rectangle.topLeft.y <= rectangle.bottomRight.y) ? rectangle.bottomRight.y : rectangle.topLeft.y };
 
 			if (!ClipRectangle(topLeft, bottomRight))
 			{
@@ -377,120 +296,101 @@ namespace Egfx
 
 			const color_t rawColor = GetRawColor(color);
 
-			// Apply mirroring.
-			switch (displayOptions::Mirror)
-			{
-			case DisplayOptions::MirrorEnum::MirrorX:
-				topLeft = { MirrorX(topLeft.x), topLeft.y };
-				bottomRight = { MirrorX(bottomRight.x), bottomRight.y };
-				break;
-			case DisplayOptions::MirrorEnum::MirrorY:
-				topLeft = { topLeft.x, MirrorY(topLeft.y) };
-				bottomRight = { bottomRight.x, MirrorY(bottomRight.y) };
-				break;
-			case DisplayOptions::MirrorEnum::MirrorXY:
-				topLeft = { MirrorX(topLeft.x), MirrorY(topLeft.y) };
-				bottomRight = { MirrorX(bottomRight.x), MirrorY(bottomRight.y) };
-				break;
-			case DisplayOptions::MirrorEnum::None:
-			default:
-				break;
-			}
+			pixel_point_t tl = TransformCoordinates(topLeft);
+			pixel_point_t br = TransformCoordinates(bottomRight);
 
-			if (topLeft.x == bottomRight.x)
+			if (tl.x > br.x) std::swap(tl.x, br.x);
+			if (tl.y > br.y) std::swap(tl.y, br.y);
+
+			if (tl.x == br.x)
 			{
-				if (topLeft.y == bottomRight.y)
+				if (tl.y == br.y)
 				{
-					FramePainter::PixelRaw(rawColor, topLeft.x, topLeft.y);
+					FramePainter::PixelRaw(rawColor, tl.x, tl.y);
 				}
 				else
 				{
-					FramePainter::LineVerticalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.y);
+					FramePainter::LineVerticalRaw(rawColor, tl.x, tl.y, br.y);
 				}
 			}
-			else if (topLeft.y == bottomRight.y)
+			else if (tl.y == br.y)
 			{
-				FramePainter::LineHorizontalRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x);
+				FramePainter::LineHorizontalRaw(rawColor, tl.x, tl.y, br.x);
 			}
 			else
 			{
-				FramePainter::RectangleFillRaw(rawColor, topLeft.x, topLeft.y, bottomRight.x, bottomRight.y);
+				FramePainter::RectangleFillRaw(rawColor, tl.x, tl.y, br.x, br.y);
 			}
-		}
-
-		void RectangleFill(const rgb_color_t color, const pixel_rectangle_t& rectangle) final
-		{
-			RectangleFill(color, rectangle.topLeft.x, rectangle.topLeft.y, rectangle.bottomRight.x, rectangle.bottomRight.y);
 		}
 
 		void Rectangle(const rgb_color_t color, const pixel_t topLeftX, const pixel_t topLeftY,
 			const pixel_t bottomRightX, const pixel_t bottomRightY) final
 		{
-			pixel_point_t topLeft = { topLeftX, topLeftY };
-			pixel_point_t bottomRight = { bottomRightX , bottomRightY };
-
-			// Apply mirroring.
-			switch (displayOptions::Mirror)
-			{
-			case DisplayOptions::MirrorEnum::MirrorX:
-				topLeft = { MirrorX(topLeft.x), topLeft.y };
-				bottomRight = { MirrorX(bottomRight.x), bottomRight.y };
-				break;
-			case DisplayOptions::MirrorEnum::MirrorY:
-				topLeft = { topLeft.x, MirrorY(topLeft.y) };
-				bottomRight = { bottomRight.x, MirrorY(bottomRight.y) };
-				break;
-			case DisplayOptions::MirrorEnum::MirrorXY:
-				topLeft = { MirrorX(topLeft.x), MirrorY(topLeft.y) };
-				bottomRight = { MirrorX(bottomRight.x), MirrorY(bottomRight.y) };
-				break;
-			case DisplayOptions::MirrorEnum::None:
-			default:
-				break;
-			}
-
-			const color_t rawColor = GetRawColor(color);
-			const pixel_point_t topLeftLimited = { LimitValue<pixel_t>(topLeft.x, 0, FrameWidth - 1), LimitValue<pixel_t>(topLeft.y, 0, FrameHeight - 1) };
-			const pixel_point_t bottomRightLimited = { LimitValue<pixel_t>(bottomRight.x, 0, FrameWidth - 1), LimitValue<pixel_t>(bottomRight.y, 0, FrameHeight - 1) };
-
-			if (((topLeft.x >= 0 && topLeft.x < FrameWidth) ||
-				(bottomRight.x >= 0 && bottomRight.x < FrameWidth))
-				&& bottomRightLimited.x >= topLeftLimited.x)
-			{
-				// Draw top horizontal line.
-				if (topLeft.y >= 0 && topLeft.y < FrameHeight)
-				{
-					FramePainter::LineHorizontalRaw(rawColor, topLeftLimited.x, topLeft.y, bottomRightLimited.x);
-				}
-
-				// Draw bottom horizontal line.
-				if (bottomRight.y >= 0 && bottomRight.y < FrameHeight)
-				{
-					FramePainter::LineHorizontalRaw(rawColor, topLeftLimited.x, bottomRight.y, bottomRightLimited.x);
-				}
-			}
-
-			if (((topLeft.y >= 0 && topLeft.y < FrameHeight) ||
-				(bottomRight.y >= 0 && bottomRight.y < FrameHeight))
-				&& bottomRightLimited.y >= topLeftLimited.y)
-			{
-				// Draw left vertical line.
-				if (topLeft.x >= 0 && topLeft.x < FrameWidth)
-				{
-					FramePainter::LineVerticalRaw(rawColor, topLeft.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
-				}
-
-				// Draw right vertical line.
-				if (bottomRight.x >= 0 && bottomRight.x < FrameWidth)
-				{
-					FramePainter::LineVerticalRaw(rawColor, bottomRight.x, topLeftLimited.y + 1, bottomRightLimited.y - 1);
-				}
-			}
+			Rectangle(color, pixel_rectangle_t{ {topLeftX, topLeftY}, {bottomRightX, bottomRightY} });
 		}
 
 		void Rectangle(const rgb_color_t color, const pixel_rectangle_t& rectangle) final
 		{
-			Rectangle(color, rectangle.topLeft.x, rectangle.topLeft.y, rectangle.bottomRight.x, rectangle.bottomRight.y);
+			pixel_point_t topLeft = rectangle.topLeft;
+			pixel_point_t bottomRight = rectangle.bottomRight;
+
+			if (topLeft.x > bottomRight.x) std::swap(topLeft.x, bottomRight.x);
+			if (topLeft.y > bottomRight.y) std::swap(topLeft.y, bottomRight.y);
+
+			if (!ClipRectangle(topLeft, bottomRight))
+			{
+				return;
+			}
+
+			const color_t rawColor = GetRawColor(color);
+
+			pixel_point_t tl = TransformCoordinates(topLeft);
+			pixel_point_t br = TransformCoordinates(bottomRight);
+
+			if (tl.x > br.x) std::swap(tl.x, br.x);
+			if (tl.y > br.y) std::swap(tl.y, br.y);
+
+			const pixel_point_t tlLimited = { LimitValue<pixel_t>(tl.x, 0, FrameWidth - 1), LimitValue<pixel_t>(tl.y, 0, FrameHeight - 1) };
+			const pixel_point_t brLimited = { LimitValue<pixel_t>(br.x, 0, FrameWidth - 1), LimitValue<pixel_t>(br.y, 0, FrameHeight - 1) };
+
+			if (((tl.x >= 0 && tl.x < FrameWidth) ||
+				(br.x >= 0 && br.x < FrameWidth))
+				&& brLimited.x >= tlLimited.x)
+			{
+				// Draw top horizontal line.
+				if (tl.y >= 0 && tl.y < FrameHeight)
+				{
+					FramePainter::LineHorizontalRaw(rawColor, tlLimited.x, tl.y, brLimited.x);
+				}
+
+				// Draw bottom horizontal line.
+				if (br.y >= 0 && br.y < FrameHeight)
+				{
+					FramePainter::LineHorizontalRaw(rawColor, tlLimited.x, br.y, brLimited.x);
+				}
+			}
+
+			if (((tl.y >= 0 && tl.y < FrameHeight) ||
+				(br.y >= 0 && br.y < FrameHeight))
+				&& brLimited.y >= tlLimited.y)
+			{
+				// Draw left vertical line.
+				if (tl.x >= 0 && tl.x < FrameWidth)
+				{
+					FramePainter::LineVerticalRaw(rawColor, tl.x, tlLimited.y + 1, brLimited.y - 1);
+				}
+
+				// Draw right vertical line.
+				if (br.x >= 0 && br.x < FrameWidth)
+				{
+					FramePainter::LineVerticalRaw(rawColor, br.x, tlLimited.y + 1, brLimited.y - 1);
+				}
+			}
+		}
+
+		void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
+		{
+			Triangle(color, pixel_triangle_t{ {x1, y1}, {x2, y2}, {x3, y3} });
 		}
 
 		void Triangle(const rgb_color_t color, const pixel_triangle_t& triangle) final
@@ -500,103 +400,50 @@ namespace Egfx
 			Line(color, triangle.a.x, triangle.a.y, triangle.c.x, triangle.c.y);
 		}
 
-		void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
-		{
-			const pixel_triangle_t triangle{ {x1,y1},{x2,y2},{x3,y3} };
-
-			Triangle(color, triangle);
-		}
-
 		void TriangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
 		{
-			const pixel_triangle_t triangle{ {x1,y1},{x2,y2},{x3,y3} };
-
-			TriangleFill(color, triangle);
+			TriangleFill(color, pixel_triangle_t{ {x1, y1}, {x2, y2}, {x3, y3} });
 		}
 
 		void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) final
 		{
-			pixel_t ax;
-			pixel_t ay;
-			pixel_t bx;
-			pixel_t by;
-			pixel_t cx;
-			pixel_t cy;
-
-			// Apply mirroring
-			switch (displayOptions::Mirror)
-			{
-			case DisplayOptions::MirrorEnum::MirrorX:
-				ax = MirrorX(triangle.a.x);
-				ay = triangle.a.y;
-				bx = MirrorX(triangle.b.x);
-				by = triangle.b.y;
-				cx = MirrorX(triangle.c.x);
-				cy = triangle.c.y;
-				break;
-			case DisplayOptions::MirrorEnum::MirrorY:
-				ax = triangle.a.x;
-				ay = MirrorY(triangle.a.y);
-				bx = triangle.b.x;
-				by = MirrorY(triangle.b.y);
-				cx = triangle.c.x;
-				cy = MirrorY(triangle.c.y);
-				break;
-			case DisplayOptions::MirrorEnum::MirrorXY:
-				ax = MirrorX(triangle.a.x);
-				ay = MirrorY(triangle.a.y);
-				bx = MirrorX(triangle.b.x);
-				by = MirrorY(triangle.b.y);
-				cx = MirrorX(triangle.c.x);
-				cy = MirrorY(triangle.c.y);
-				break;
-			case DisplayOptions::MirrorEnum::None:
-			default:
-				ax = triangle.a.x;
-				ay = triangle.a.y;
-				bx = triangle.b.x;
-				by = triangle.b.y;
-				cx = triangle.c.x;
-				cy = triangle.c.y;
-				break;
-			}
+			pixel_point_t a = TransformCoordinates(triangle.a);
+			pixel_point_t b = TransformCoordinates(triangle.b);
+			pixel_point_t c = TransformCoordinates(triangle.c);
 
 			const color_t rawColor = GetRawColor(color);
 
-			if (ay <= by && ay <= cy)
+			if (a.y <= b.y && a.y <= c.y)
 			{
-				// Vertex A is at the top.
-				if (by <= cy)
+				if (b.y <= c.y)
 				{
-					TriangleYOrderedFill(rawColor, { ax, ay }, { bx, by }, { cx, cy });
+					TriangleYOrderedFill(rawColor, a, b, c);
 				}
 				else
 				{
-					TriangleYOrderedFill(rawColor, { ax, ay }, { cx, cy }, { bx, by });
+					TriangleYOrderedFill(rawColor, a, c, b);
 				}
 			}
-			else if (by <= ay && by <= cy)
+			else if (b.y <= a.y && b.y <= c.y)
 			{
-				// Vertex B is at the top.
-				if (ay <= cy)
+				if (a.y <= c.y)
 				{
-					TriangleYOrderedFill(rawColor, { bx, by }, { ax, ay }, { cx, cy });
+					TriangleYOrderedFill(rawColor, b, a, c);
 				}
 				else
 				{
-					TriangleYOrderedFill(rawColor, { bx, by }, { cx, cy }, { ax, ay });
+					TriangleYOrderedFill(rawColor, b, c, a);
 				}
 			}
 			else
 			{
-				// Vertex C is at the top.
-				if (ay <= by)
+				if (a.y <= b.y)
 				{
-					TriangleYOrderedFill(rawColor, { cx, cy }, { ax, ay }, { bx, by });
+					TriangleYOrderedFill(rawColor, c, a, b);
 				}
 				else
 				{
-					TriangleYOrderedFill(rawColor, { cx, cy }, { bx, by }, { ax, ay });
+					TriangleYOrderedFill(rawColor, c, b, a);
 				}
 			}
 		}
@@ -605,6 +452,7 @@ namespace Egfx
 		{
 			FramePainter::FillRaw(GetRawColor(color));
 		}
+
 	private:
 		void TriangleYOrderedFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
 		{
@@ -619,9 +467,9 @@ namespace Egfx
 			else // General triangle: split it.
 			{
 				// Calculate splitting vertex Vi.
-				const pixel_t dxTotal = (pixel_t)c.x - (pixel_t)a.x;
-				const pixel_t dyTotal = (pixel_t)c.y - (pixel_t)a.y;
-				const pixel_t dySegment = (pixel_t)b.y - (pixel_t)a.y;
+				const pixel_t dxTotal = static_cast<pixel_t>(c.x - a.x);
+				const pixel_t dyTotal = static_cast<pixel_t>(c.y - a.y);
+				const pixel_t dySegment = static_cast<pixel_t>(b.y - a.y);
 
 				if (dyTotal == 0)
 					return; // Degenerate triangle
@@ -903,8 +751,7 @@ namespace Egfx
 			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
 			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
 
-			static constexpr int32_t MASK = (int32_t(1) << (BRESENHAM_SCALE - 1)) - 1;
-			//static constexpr uint8_t MASK = 127;
+			static constexpr int32_t MASK = (int32_t(1) << (FramePainter::BRESENHAM_SCALE - 1)) - 1;
 
 			// For left-to-right scanning:
 			// - Left edge: high alpha when x1 fraction is LOW (just entered the shape)
@@ -940,129 +787,110 @@ namespace Egfx
 				}
 			}
 		}
-	private:
-		pixel_t MirrorX(const pixel_t x) const { return FrameWidth - 1 - x; }
-		pixel_t MirrorY(const pixel_t y) const { return FrameHeight - 1 - y; }
 
+	private:
 		inline constexpr color_t GetRawColor(const rgb_color_t color)
 		{
 			return displayOptions::Inverted ? ~FramePainter::GetRawColor(color) : FramePainter::GetRawColor(color);
 		}
 
-		/// <summary>
-		/// Clips a rectangle defined by its top-left and bottom-right points to fit within the frame boundaries.
-		/// </summary>
-		/// <param name="topLeft">Reference to the top-left corner of the rectangle. May be modified to fit within the frame.</param>
-		/// <param name="bottomRight">Reference to the bottom-right corner of the rectangle. May be modified to fit within the frame.</param>
-		/// <returns>True if the rectangle is valid and was clipped; false if the rectangle is invalid or completely outside the frame.</returns>
-		bool ClipRectangle(pixel_point_t& topLeft, pixel_point_t& bottomRight)
+		pixel_point_t TransformCoordinates(const pixel_point_t coordinates) const
 		{
-			if ((topLeft.x < 0 && bottomRight.x < 0)
-				|| (topLeft.y < 0 && bottomRight.y < 0)
-				|| (topLeft.x >= FrameWidth && bottomRight.x >= FrameWidth)
-				|| (topLeft.y >= FrameHeight && bottomRight.y >= FrameHeight)
-				|| (topLeft.x > bottomRight.x || topLeft.y > bottomRight.y))
+			switch (GetTransformCase())
 			{
-				return false; // Invalid rectangle
-			}
+			case TransformCase::Identity:
+			default:
+				return coordinates;
 
-			topLeft.x = LimitValue<pixel_t>(topLeft.x, 0, FrameWidth - 1);
-			topLeft.y = LimitValue<pixel_t>(topLeft.y, 0, FrameHeight - 1);
-			bottomRight.x = LimitValue<pixel_t>(bottomRight.x, 0, FrameWidth - 1);
-			bottomRight.y = LimitValue<pixel_t>(bottomRight.y, 0, FrameHeight - 1);
+			case TransformCase::MirrorX:
+				return { static_cast<pixel_t>(FrameWidth - 1 - coordinates.x),
+						 coordinates.y };
 
-			return true;
-		}
+			case TransformCase::MirrorY:
+				return { coordinates.x,
+						 static_cast<pixel_t>(FrameHeight - 1 - coordinates.y) };
 
-		/// <summary>
-		/// Clips a line segment to the screen boundaries using the Cohen-Sutherland algorithm.
-		/// </summary>
-		/// <param name="p0">Reference to the first endpoint of the line segment. On return, may be modified to the clipped position.</param>
-		/// <param name="p1">Reference to the second endpoint of the line segment. On return, may be modified to the clipped position.</param>
-		/// <returns>true if the line segment is at least partially within the screen and has been clipped (if necessary); false if the line segment lies entirely outside the screen.</returns>
-		bool ClipLine(pixel_point_t& p0, pixel_point_t& p1)
-		{
-			pixel_t x0 = p0.x, y0 = p0.y, x1 = p1.x, y1 = p1.y;
-			uint8_t outcode0 = ComputeOutCode(x0, y0);
-			uint8_t outcode1 = ComputeOutCode(x1, y1);
-			pixel_t x = 0;
-			pixel_t y = 0;
-			while (true)
-			{
-				if (!(outcode0 | outcode1))
-				{
-					// Both endpoints inside
-					p0 = { x0 , y0 };
-					p1 = { x1 , y1 };
-					return true;
+			case TransformCase::MirrorXY:
+				return { static_cast<pixel_t>(FrameWidth - 1 - coordinates.x),
+						 static_cast<pixel_t>(FrameHeight - 1 - coordinates.y) };
 
-				}
-				else if (outcode0 & outcode1)
-				{
-					// Both endpoints share an outside zone
-					return false;
-				}
-				else
-				{
-					// At least one endpoint is outside
-					uint8_t outcodeOut = outcode0 ? outcode0 : outcode1;
-					x = 0;
-					y = 0;
+			case TransformCase::Rotate90:
+				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.y),
+						 coordinates.x };
 
-					if (outcodeOut & (uint8_t)OutcodeEnum::OUT_TOP)
-					{
-						if (y1 == y0) return false; // Parallel to top
-						x = x0 + int32_t(x1 - x0) * (0 - y0) / (y1 - y0);
-						y = 0;
-					}
-					else if (outcodeOut & (uint8_t)OutcodeEnum::OUT_BOTTOM)
-					{
-						if (y1 == y0) return false; // Parallel to bottom
-						x = x0 + int32_t(x1 - x0) * (FrameHeight - 1 - y0) / (y1 - y0);
-						y = FrameHeight - 1;
-					}
-					else if (outcodeOut & (uint8_t)OutcodeEnum::OUT_RIGHT)
-					{
-						if (x1 == x0) return false; // Parallel to right
-						y = y0 + int32_t(y1 - y0) * (FrameWidth - 1 - x0) / (x1 - x0);
-						x = FrameWidth - 1;
-					}
-					else // OUT_LEFT
-					{
-						if (x1 == x0) return false; // Parallel to left
-						y = y0 + int32_t(y1 - y0) * (0 - x0) / (x1 - x0);
-						x = 0;
-					}
+			case TransformCase::Rotate90MirrorX:
+				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.y),
+						 static_cast<pixel_t>(FrameWidth - 1 - coordinates.x) };
 
-					if (outcodeOut == outcode0)
-					{
-						x0 = x; y0 = y;
-						outcode0 = ComputeOutCode(x0, y0);
-					}
-					else
-					{
-						x1 = x; y1 = y;
-						outcode1 = ComputeOutCode(x1, y1);
-					}
-				}
+			case TransformCase::Rotate90MirrorY:
+				return { coordinates.y,
+						 coordinates.x };
+
+			case TransformCase::Rotate90MirrorXY:
+				return { coordinates.y,
+						 static_cast<pixel_t>(FramePainter::PhysicalHeight - 1 - coordinates.x) };
+
+			case TransformCase::Rotate180:
+				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.x),
+						 static_cast<pixel_t>(FramePainter::PhysicalHeight - 1 - coordinates.y) };
+
+			case TransformCase::Rotate180MirrorX:
+				return { coordinates.x,
+						 static_cast<pixel_t>(FramePainter::PhysicalHeight - 1 - coordinates.y) };
+
+			case TransformCase::Rotate180MirrorY:
+				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.x),
+						 coordinates.y };
 			}
 		}
 
-		/// <summary>
-		/// Computes the outcode for a point based on its position relative to the frame boundaries.
-		/// </summary>
-		/// <param name="x">The x-coordinate of the point.</param>
-		/// <param name="y">The y-coordinate of the point.</param>
-		/// <returns>A uint8_t value representing the outcode, indicating which sides of the frame (left, right, top, bottom) the point is outside of.</returns>
-		inline uint8_t ComputeOutCode(const pixel_t x, const pixel_t y)
+		static constexpr TransformCase GetTransformCase()
 		{
-			uint8_t code = 0;
-			if (x < 0) code |= (uint8_t)OutcodeEnum::OUT_LEFT;
-			else if (x >= FrameWidth) code |= (uint8_t)OutcodeEnum::OUT_RIGHT;
-			if (y < 0) code |= (uint8_t)OutcodeEnum::OUT_TOP;
-			else if (y >= FrameHeight) code |= (uint8_t)OutcodeEnum::OUT_BOTTOM;
-
-			return code;
+			// Explicitly map each rotation+mirror combination to a named case
+			if constexpr (displayOptions::Rotation == DisplayOptions::RotationEnum::None)
+			{
+				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None)
+					return TransformCase::Identity;
+				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
+					return TransformCase::MirrorX;
+				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY)
+					return TransformCase::MirrorY;
+				else // MirrorXY
+					return TransformCase::MirrorXY;
+			}
+			else if constexpr (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate90)
+			{
+				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None)
+					return TransformCase::Rotate90;
+				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
+					return TransformCase::Rotate90MirrorX;
+				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY)
+					return TransformCase::Rotate90MirrorY;
+				else // MirrorXY
+					return TransformCase::Rotate90MirrorXY;
+			}
+			else if constexpr (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate180)
+			{
+				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None ||
+					displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorXY)
+					return TransformCase::Rotate180; // Double inversion cancels
+				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
+					return TransformCase::Rotate180MirrorX;
+				else // MirrorY
+					return TransformCase::Rotate180MirrorY;
+			}
+			else // Rotate270
+			{
+				// Map to equivalent Rotate90 cases
+				if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::None)
+					return TransformCase::Rotate90MirrorXY;
+				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX)
+					return TransformCase::Rotate90MirrorY;
+				else if constexpr (displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY)
+					return TransformCase::Rotate90MirrorX;
+				else // MirrorXY
+					return TransformCase::Rotate90;
+			}
 		}
 
 #if defined(ARDUINO_ARCH_RP2040)

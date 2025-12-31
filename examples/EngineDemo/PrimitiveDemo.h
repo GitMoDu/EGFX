@@ -152,7 +152,7 @@ public:
 	}
 
 private:
-	void DrawLines(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
+	void DrawLines(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t /*frameCounter*/)
 	{
 		const rgb_color_t lineColor = BinaryDisplay ? RGB_COLOR_WHITE : Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, (uint16_t(UINT8_MAX) * 9) / 10);
 

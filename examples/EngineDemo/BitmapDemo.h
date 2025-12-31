@@ -83,7 +83,7 @@ public:
 	}
 #endif
 
-	virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
+	virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t /*frameCounter*/) final
 	{
 		// Update bitmap effects on first call.
 		if (CallIndex == 0)

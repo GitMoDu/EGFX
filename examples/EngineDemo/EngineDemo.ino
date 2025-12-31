@@ -33,12 +33,7 @@
 #include "VectorTextDemo.h"
 #include "BitmaskTextDemo.h"
 #include "PrimitiveDemo.h"
-
-// Bitmap demo is excluded on Arduino AVR due to memory constraints.
-#if !defined(ARDUINO_ARCH_AVR) 
 #include "BitmapDemo.h"
-#endif
-
 
 
 // Process scheduler.
@@ -83,10 +78,12 @@ DynamicDemoCyclerTask<10000
 	, VectorTextDemo<FullLayout, BinaryDisplay>
 	, BitmaskTextDemo<FullLayout, BinaryDisplay>
 	, SpriteTransformDemo<FullLayout, BinaryDisplay>
-#if !defined(ARDUINO_ARCH_AVR) // Arduino AVR can only handle so much.
+#if !defined(ARDUINO_ARCH_AVR) // Excluded on Arduino AVR due to memory constraints.
 	, BitmapDemo<FullLayout, BinaryDisplay>
 #endif
 > DemoCycler(&SchedulerBase, &DisplayEngine);
+
+static constexpr auto cyclerSize = sizeof(DemoCycler);
 
 #if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task.
 Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine);
@@ -148,7 +145,7 @@ void setup()
 	// Initialize comms hardware.
 	DisplayConfiguration::DisplayCommsInstance.begin();
 #if defined(ARDUINO_ARCH_AVR)
-	DisplayConfiguration::DisplayCommsInstance.setClock(800000);
+	Wire.setClock(800000);
 #endif
 	// Optional callback for RTOS driver variants.
 	DisplayEngine.SetBufferTaskCallback(BufferTaskCallback);

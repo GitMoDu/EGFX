@@ -1,7 +1,7 @@
 #ifndef _BITMAP_DEMO_h
 #define _BITMAP_DEMO_h
 
-#include <ArduinoGraphicsDrawer.h>
+#include <EgfxDrawer.h>
 #include "Assets.h"
 
 using namespace Assets;

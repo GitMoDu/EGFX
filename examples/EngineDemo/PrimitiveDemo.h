@@ -94,7 +94,7 @@ public:
 
 			// Draw rectangle around triangle.
 			if (!BinaryDisplay || frameCounter & 0b1)
-				frame->Rectangle(RGB_COLOR_WHITE,
+				frame->RectangleFill(RGB_COLOR_WHITE,
 					LayerLayout::Rectangle::CenterX() + GetTriangleXMin() - 1 + xShift,
 					LayerLayout::Rectangle::CenterY() + GetTriangleYMin() - 1 + yShift,
 					LayerLayout::Rectangle::CenterX() + GetTriangleXMax() + 1 + xShift,

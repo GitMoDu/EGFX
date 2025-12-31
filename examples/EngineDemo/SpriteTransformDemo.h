@@ -45,11 +45,11 @@ private:
 		{
 			static constexpr pixel_t Height() { return Assets::DogeBitSprite::Height; }
 			static constexpr pixel_t Width() { return Assets::DogeBitSprite::Width; }
-			static constexpr pixel_t RangeX() { return Layout::Width() - Width() - 0 - Rectangle::Width() - 0 - Heart::Width() - 0; }
-			static constexpr pixel_t RangeY() { return Layout::Height() - Height(); }
 
-			static constexpr pixel_t X() { return Layout::X() + Heart::Width() + 1; }
+			static constexpr pixel_t X() { return Layout::X(); }
 			static constexpr pixel_t Y() { return Layout::Y(); }
+			static constexpr pixel_t RangeX() { return Layout::Width() - Width(); }
+			static constexpr pixel_t RangeY() { return Layout::Height() - Height(); }
 		};
 	};
 

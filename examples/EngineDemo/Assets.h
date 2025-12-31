@@ -47,13 +47,6 @@ namespace Assets
 	struct HeartSelect;
 	template<> struct HeartSelect<true> { using type = HeartBigSprite; };
 	template<> struct HeartSelect<false> { using type = HeartSprite; };
-
-	//template<bool use5x5>
-	//struct SpriteFontSelect;
-	//template<> struct SpriteFontSelect<true> { using type = SpriteFont5x5Renderer; };
-	//template<> struct SpriteFontSelect<false> { using type = SpriteFont3x5Renderer; };
-
-
 	
 }
 

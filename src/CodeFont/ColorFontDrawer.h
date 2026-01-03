@@ -31,14 +31,12 @@ namespace Egfx
 			{
 			}
 
-		protected:
-			// Protected API.
 			pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
 			{
 				return CodeDrawer.Draw(framebuffer, FontColor.GetColor(), x, y, printableChar);
 			}
 
-			//// Protected API, get only character advance.
+			// Get only character advance.
 			pixel_t Advance(const char printableChar) const
 			{
 				return CodeDrawer.Advance(printableChar);

@@ -29,8 +29,8 @@ namespace Egfx
 				{
 				}
 
-				// Protected API, get only character advance.
-				dimension_t Advance(const char printableChar) const
+				// Get only character advance.
+				dimension_t Advance(const char /*printableChar*/) const
 				{
 					// Monospaced font.
 					return EndX + 1;

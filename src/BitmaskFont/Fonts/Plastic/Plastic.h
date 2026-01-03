@@ -21,7 +21,7 @@ namespace Egfx
 				static constexpr dimension_t Width = Source3x5::Width;
 				static constexpr dimension_t Height = Source3x5::Height;
 
-				const uint8_t* GetBitmask(const char printableChar) const
+				static const uint8_t* GetBitmask(const char printableChar)
 				{
 					switch (static_cast<uint8_t>(printableChar))
 					{
@@ -163,7 +163,7 @@ namespace Egfx
 				static constexpr dimension_t Width = Source5x5::Width;
 				static constexpr dimension_t Height = Source5x5::Height;
 
-				const uint8_t* GetBitmask(const char printableChar) const
+				static const uint8_t* GetBitmask(const char printableChar)
 				{
 					switch (static_cast<uint8_t>(printableChar))
 					{

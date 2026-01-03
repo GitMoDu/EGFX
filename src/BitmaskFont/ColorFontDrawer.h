@@ -25,7 +25,6 @@ namespace Egfx
 			static constexpr intermediate_t BitScale = (intermediate_t)BitmaskFontType::Width / 8 + (((intermediate_t)BitmaskFontType::Width % 8) != 0 ? 1 : 0);
 
 		protected:
-			using Base::BitmaskFont;
 			using Base::IsPixelSet;
 
 		public:
@@ -37,11 +36,9 @@ namespace Egfx
 			{
 			}
 
-		protected:
-			// Protected API.
 			pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
 			{
-				const uint8_t* bitmask = BitmaskFont.GetBitmask(printableChar);
+				const uint8_t* bitmask = BitmaskFontType::GetBitmask(printableChar);
 				if (bitmask != nullptr)
 				{
 					const rgb_color_t color = FontColor.GetColor();
@@ -65,10 +62,10 @@ namespace Egfx
 				}
 			}
 
-			// Protected API, get only character advance.
+			// Get only character advance.
 			pixel_t Advance(const char printableChar) const
 			{
-				const uint8_t* bitmask = BitmaskFont.GetBitmask(printableChar);
+				const uint8_t* bitmask = BitmaskFontType::GetBitmask(printableChar);
 				if (bitmask != nullptr)
 				{
 					return Base::GetFontWidth();
@@ -98,7 +95,6 @@ namespace Egfx
 			static constexpr intermediate_t BitScale = (intermediate_t)BitmaskFontType::Width / 8 + (((intermediate_t)BitmaskFontType::Width % 8) != 0 ? 1 : 0);
 
 		protected:
-			using Base::BitmaskFont;
 			using Base::IsPixelSet;
 
 		public:
@@ -110,11 +106,9 @@ namespace Egfx
 			{
 			}
 
-		protected:
-			// Protected API.
 			pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
 			{
-				const uint8_t* bitmask = BitmaskFont.GetBitmask(printableChar);
+				const uint8_t* bitmask = BitmaskFontType::GetBitmask(printableChar);
 				if (bitmask != nullptr)
 				{
 					const rgb_color_t color = FontColor.GetColor();
@@ -143,10 +137,10 @@ namespace Egfx
 				}
 			}
 
-			// Protected API, get only character advance.
+			// Get only character advance.
 			pixel_t Advance(const char printableChar) const
 			{
-				const uint8_t* bitmask = BitmaskFont.GetBitmask(printableChar);
+				const uint8_t* bitmask = BitmaskFontType::GetBitmask(printableChar);
 				if (bitmask != nullptr)
 				{
 					return Base::GetFontWidth();

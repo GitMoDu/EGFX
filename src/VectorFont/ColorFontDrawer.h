@@ -43,8 +43,6 @@ namespace Egfx
 			{
 			}
 
-		protected:
-			// Protected API.
 			pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
 			{
 				const auto set = VectorFontType::GetCharacterSet(printableChar);
@@ -53,7 +51,7 @@ namespace Egfx
 				return VectorModel::GetScaled(VectorDrawer.Width, set.Width) + 1;
 			}
 
-			// Protected API, get only character advance.
+			// Get only character advance.
 			pixel_t Advance(const char printableChar) const
 			{
 				const auto set = VectorFontType::GetCharacterSet(printableChar);

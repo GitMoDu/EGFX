@@ -19,9 +19,6 @@ namespace Egfx
 			static constexpr intermediate_t BitScale = (intermediate_t)BitmaskFontType::Width / 8 + (((intermediate_t)BitmaskFontType::Width % 8) != 0 ? 1 : 0);
 
 		protected:
-			BitmaskFontType BitmaskFont{};
-
-		protected:
 			dimension_t TabWidth;
 			dimension_t SpaceWidth;
 			dimension_t KerningWidth;
@@ -94,7 +91,6 @@ namespace Egfx
 			using typename Base::dimension_t;
 
 		protected:
-			using Base::BitmaskFont;
 			using Base::SpaceWidth;
 			using Base::TabWidth;
 			using Base::KerningWidth;
@@ -152,7 +148,6 @@ namespace Egfx
 			using typename Base::dimension_t;
 
 		protected:
-			using Base::BitmaskFont;
 			using Base::SpaceWidth;
 			using Base::TabWidth;
 			using Base::KerningWidth;

@@ -21,8 +21,6 @@
 
 // Configure display in this header.
 #include "DisplayConfiguration.h"
-
-#include <EgfxCore.h>
 #include <EgfxDisplayEngine.h>
 
 // Automatic demo cycler task.
@@ -34,7 +32,7 @@
 #include "BitmaskTextDemo.h"
 #include "PrimitiveDemo.h"
 #include "BitmapDemo.h"
-
+#include "LogoSplashDemo.h"
 
 // Process scheduler.
 TS::Scheduler SchedulerBase{};
@@ -67,23 +65,30 @@ Egfx::DisplayEngineTask<DisplayConfiguration::FramebufferType,
 	DisplayConfiguration::ScreenDriverType> DisplayEngine(
 		SchedulerBase, Framebuffer, ScreenDriver);
 
-// The layout of drawers can be set independently of screen dimensions.
-static constexpr uint8_t Margin = 0;
-using FullLayout = Egfx::LayoutElement<Margin, Margin, DisplayConfiguration::FramebufferType::FrameWidth - (Margin * 2), DisplayConfiguration::FramebufferType::FrameHeight - (Margin * 2)>;
-static constexpr bool BinaryDisplay = DisplayConfiguration::FramebufferType::ColorDepth == 1;
+// The layout of the demos within the screen area.
+struct Layout
+{
+	static constexpr uint8_t Margin = 0;
+
+	static constexpr pixel_t X() { return Margin; }
+	static constexpr pixel_t Y() { return Margin; }
+	static constexpr pixel_t Width() { return DisplayConfiguration::FramebufferType::FrameWidth - (Margin * 2); }
+	static constexpr pixel_t Height() { return DisplayConfiguration::FramebufferType::FrameHeight - (Margin * 2); }
+};
+static constexpr bool Monochrome = DisplayConfiguration::FramebufferType::ColorDepth == 1;
 
 // Demo Cycler task. Auto-magic vararg template listing all demo tasks to cycle through.
-DynamicDemoCyclerTask<10000
-	, PrimitiveDemo<FullLayout, BinaryDisplay>
-	, VectorTextDemo<FullLayout, BinaryDisplay>
-	, BitmaskTextDemo<FullLayout, BinaryDisplay>
-	, SpriteTransformDemo<FullLayout, BinaryDisplay>
+static constexpr uint32_t CycleDurationMicros = 10000000; // 10 seconds per demo.
+DynamicDemoCyclerTask<CycleDurationMicros
+	, LogoSplashDemo::Frame<Layout, Monochrome, CycleDurationMicros>
+	, SpriteTransformDemo::Frame<Layout, Monochrome>
+	, VectorTextDemo::Frame<Layout, Monochrome>
+	, PrimitiveDemo::Frame<Layout, Monochrome>
 #if !defined(ARDUINO_ARCH_AVR) // Excluded on Arduino AVR due to memory constraints.
-	, BitmapDemo<FullLayout, BinaryDisplay>
+	, BitmaskTextDemo::Frame<Layout, Monochrome>
+	, BitmapDemo::Frame<Layout, Monochrome>
 #endif
 > DemoCycler(&SchedulerBase, &DisplayEngine);
-
-static constexpr auto cyclerSize = sizeof(DemoCycler);
 
 #if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task.
 Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine);
@@ -115,7 +120,6 @@ void setup()
 	Serial.println(F("DemoCycler setup..."));
 #endif
 
-
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
 	// Allocate memory and set frame buffer.
 	Buffer = new uint8_t[DisplayConfiguration::FramebufferType::BufferSize]{};
@@ -124,6 +128,8 @@ void setup()
 	Buffer2 = new uint8_t[DisplayConfiguration::FramebufferType::BufferSize]{};
 	Framebuffer.SetAltBuffer(Buffer2);
 #endif
+#else
+	// Static buffer - nothing to do.
 #endif
 
 	// Setup demos.

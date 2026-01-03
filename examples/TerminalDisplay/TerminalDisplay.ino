@@ -5,14 +5,15 @@
 * Available options for serial logging, dynamic/double frame buffers, and performance logging.
 */
 
-#define SERIAL_LOG // Enable serial logging.
+//#define SERIAL_LOG // Enable serial logging.
+//#define DEBUG // Extra serial logging for debug builds.
 #define SERIAL_BAUD_RATE 115200
 
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation of framebuffer.
 //#define USE_DOUBLE_FRAME_BUFFER // Enable double framebuffer.
 //#define USE_PERFORMANCE_LOG_TASK // Enable performance logging task.
 
-#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
+//#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
 //#define EGFX_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for EGFX engine.
 
 
@@ -21,8 +22,6 @@
 
 // Configure display in this header.
 #include "DisplayConfiguration.h"
-
-#include <EgfxCore.h>
 #include <EgfxDisplayEngine.h>
 
 #include "DisplayPrint.h"
@@ -59,15 +58,26 @@ Egfx::DisplayEngineTask<DisplayConfiguration::FramebufferType,
 	DisplayConfiguration::ScreenDriverType> DisplayEngine(
 		SchedulerBase, Framebuffer, ScreenDriver);
 
-// Use full screen layout for terminal display.
-using FullLayout = Egfx::LayoutElement<0, 0, DisplayConfiguration::FramebufferType::FrameWidth,
-	DisplayConfiguration::FramebufferType::FrameHeight>;
+// Screen layout for terminal display.
+struct Layout
+{
+	static constexpr uint8_t Margin = 0;
 
-// Display terminal print. Can be used as serial output replacement.
-Assets::TextDisplayAutoType<FullLayout> TerminalDisplayPrinter{};
+	static constexpr Egfx::pixel_t X() { return Margin; }
+	static constexpr Egfx::pixel_t Y() { return Margin; }
+	static constexpr Egfx::pixel_t Width() { return DisplayConfiguration::FramebufferType::FrameWidth - (Margin * 2); }
+	static constexpr Egfx::pixel_t Height() { return DisplayConfiguration::FramebufferType::FrameHeight - (Margin * 2); }
+};
+
+// Compile-time auto-magic selection of best fit text display type.
+// The base Framework::Widgets::SerialText::Views::SerialText<> is always an option.
+Assets::SerialTextFrameType<Layout> TerminalDisplayPrinter{};
+
+// Reference to terminal display print instance. Can be used as serial output replacement.
+Print& TerminalDisplay = TerminalDisplayPrinter.ViewInstance.Serial();
 
 #if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task. Will output to display serial.
-Egfx::PerformanceLogTask<4000> EngineLog(SchedulerBase, DisplayEngine, TerminalDisplayPrinter);
+Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine, TerminalDisplay);
 #endif
 
 void halt()
@@ -109,12 +119,6 @@ void setup()
 #endif
 #endif
 
-	// Setup display printer.
-	if (!TerminalDisplayPrinter.Setup(DisplayEngine))
-	{
-		halt();
-	}
-
 	// Initialize backlight pin, if defined.
 	if (DisplayConfiguration::DisplayPins::BACKLIGHT != UINT8_MAX)
 	{
@@ -127,8 +131,12 @@ void setup()
 #if defined(ARDUINO_ARCH_AVR)
 	DisplayConfiguration::DisplayCommsInstance.setClock(800000);
 #endif
+
 	// Optional callback for RTOS driver variants.
 	DisplayEngine.SetBufferTaskCallback(BufferTaskCallback);
+
+	// Set the terminal display drawer.
+	DisplayEngine.SetDrawer(&TerminalDisplayPrinter);
 
 	// Start EGFX display engine.
 	if (!DisplayEngine.Start())
@@ -155,28 +163,31 @@ void setup()
 		Serial.println(F(" bit color screen."));
 	}
 #endif
-	TerminalDisplayPrinter.println(F("Terminal Display Start."));
-	TerminalDisplayPrinter.print(F("\tLines: "));
-	TerminalDisplayPrinter.println(TerminalDisplayPrinter.LineCount);
-	TerminalDisplayPrinter.print(F("\tCharacters: "));
-	TerminalDisplayPrinter.println(TerminalDisplayPrinter.CharacterCount);
-	TerminalDisplayPrinter.print(DisplayConfiguration::FramebufferType::ColorDepth);
+	TerminalDisplay.println(F("Terminal Display Start."));
+	TerminalDisplay.print(F("\tLines: "));
+	TerminalDisplay.println(TerminalDisplayPrinter.ViewInstance.Lines);
+	TerminalDisplay.print(F("\tCharacters: "));
+	TerminalDisplay.println(TerminalDisplayPrinter.ViewInstance.CharactersPerLine);
+	TerminalDisplay.print(DisplayConfiguration::FramebufferType::ColorDepth);
 	if (DisplayConfiguration::FramebufferType::Monochrome)
 	{
-		TerminalDisplayPrinter.println(F(" bit monochrome screen."));
+		TerminalDisplay.println(F(" bit monochrome screen."));
 	}
 	else
 	{
-		TerminalDisplayPrinter.println(F(" bit color screen."));
+		TerminalDisplay.println(F(" bit color screen."));
 	}
 }
 
 void loop()
 {
 	// Serial loopback to display.
-	while (Serial.available() > 0)
+	if (Serial.available() > 0)
 	{
-		TerminalDisplayPrinter.print(static_cast<char>(Serial.read()));
+		while (TerminalDisplay.availableForWrite() && Serial.available() > 0)
+		{
+			TerminalDisplay.print(static_cast<char>(Serial.read()));
+		}
 	}
 
 	SchedulerBase.execute();

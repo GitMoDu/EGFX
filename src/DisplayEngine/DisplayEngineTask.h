@@ -104,7 +104,7 @@ namespace Egfx
 			}
 		}
 
-		void SetBrightness(const uint8_t brightness) final
+		void SetBrightness(const uint8_t /*brightness*/) final
 		{
 			//TODO: integrate with ScreenDriver brightness control.
 		}

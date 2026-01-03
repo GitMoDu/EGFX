@@ -3,164 +3,216 @@
 
 #include <EgfxDrawer.h>
 
-using namespace Egfx;
-
-template<typename Layout, bool BinaryDisplay>
-class VectorTextDemo final : public IFrameDraw
+// Demo of vector font text drawing with dynamic scaling.
+namespace VectorTextDemo
 {
-private:
-	enum class DrawCallEnum : uint8_t
-	{
-		Numbers,
-		LongText,
-		HighText,
-		EnumCount
-	};
+	using namespace Egfx;
 
-	struct LayerLayout
+	namespace Definitions
+	{
+		using FontColorType = FontText::SingleColorSource;
+
+		template<typename Layout>
+		struct VectorFontDefinitions
+		{
+			using VectorFontType = VectorFonts::Epoxy::FullFontType;
+			using VectorFontDrawerType = VectorFont::TemplateColorFontDrawer<VectorFontType, FontColorType>;
+			using VectorTextDrawerType = FontText::TemplateTextWriter<VectorFontDrawerType, Layout>;
+		};
+
+		template<typename Layout>
+		struct CodeFontDefinitions
+		{
+			using CodeFontType = CodeFont::CodeFonts::RawBot;
+			using CodeFontDrawerType = CodeFont::TemplateColorFontDrawer<CodeFontType, FontColorType>;
+			using CodeTextDrawerType = FontText::TemplateTextWriter<CodeFontDrawerType, Layout>;
+		};
+
+		template<typename Layout>
+		using VectorTextDrawerType = typename VectorFontDefinitions<Layout>::VectorTextDrawerType;
+
+		template<typename Layout>
+		using CodeTextDrawerType = typename CodeFontDefinitions<Layout>::CodeTextDrawerType;
+	}
+
+	template<typename ParentLayout>
+	struct Layout
 	{
 		struct Numbers
 		{
 			static constexpr pixel_t Height() { return MinFontHeight; }
-
-			static constexpr pixel_t X() { return Layout::X() + Layout::Width() / 2; }
-			static constexpr pixel_t Y() { return Layout::Y(); }
+			static constexpr pixel_t X() { return ParentLayout::X() + ParentLayout::Width() / 2; }
+			static constexpr pixel_t Y() { return ParentLayout::Y(); }
 		};
 
 		struct ScalingText
 		{
-			static constexpr pixel_t X() { return Layout::X(); }
+			static constexpr pixel_t X() { return ParentLayout::X(); }
 			static constexpr pixel_t Y() { return Numbers::Y() + Numbers::Height() + 1; }
 		};
 
 		static constexpr uint8_t Kerning = 4;
-
-		// Minimum font height in pixels.
 		static constexpr uint8_t MinFontHeight = 8;
-
-		// Determine maximum font height based on frame size.
-		static constexpr pixel_t MaxFontHeight = MinValue(Layout::Width(), Layout::Height()) - MinFontHeight - 1;
+		static constexpr pixel_t MaxFontHeight = MinValue(ParentLayout::Width(), ParentLayout::Height()) - MinFontHeight - 1;
 	};
 
-private:
-	// Single color font shading.
-	// Share implementation with binary displays and font drawers.
-	using FontColorType = Egfx::FontText::SingleColorSource;
-
-	struct VectorFontDefinitions
+	namespace Drawables
 	{
-		// Vector fonts are set with a template parameter type.
-		using VectorFontType = Egfx::VectorFonts::Epoxy::FullFontType;
-
-		// Single color vector font drawer type.
-		using VectorFontDrawerType = Egfx::VectorFont::TemplateColorFontDrawer<VectorFontType, FontColorType>;
-
-		// Vector text drawer type with all the template parameters set.
-		using VectorTextDrawerType = Egfx::FontText::TemplateTextWriter<VectorFontDrawerType, Layout>;
-	};
-
-	struct CodeFontDefinitions
-	{
-		// Code fonts are set with a template parameter type.
-		// RawBot is a simple vector font suitable for small displays.
-		using CodeFontType = Egfx::CodeFont::CodeFonts::RawBot;
-
-		// Single color code font drawer type.
-		using CodeFontDrawerType = Egfx::CodeFont::TemplateColorFontDrawer<CodeFontType, FontColorType>;
-
-		// Code text drawer type with all the template parameters set.
-		using CodeTextDrawerType = Egfx::FontText::TemplateTextWriter<CodeFontDrawerType, Layout>;
-	};
-
-private:
-	typename VectorFontDefinitions::VectorTextDrawerType VectorTextDrawer{};
-	typename CodeFontDefinitions::CodeTextDrawerType CodeTextDrawer{};
-
-	uint8_t CallIndex = 0;
-
-public:
-	VectorTextDemo() : IFrameDraw()
-	{
-		CodeTextDrawer.SetFontDimensions(LayerLayout::MinFontHeight, LayerLayout::MinFontHeight, LayerLayout::Kerning);
-	}
-
-	~VectorTextDemo() = default;
-
-	// Always enabled.
-	virtual bool IsEnabled() const final { return true; }
-	virtual void SetEnabled(const bool /*enabled*/) final {}
-
-#if defined(SERIAL_LOG)
-	void PrintDescription() const
-	{
-		Serial.println(F("Vector Font Text\n\tdraw vector-based text with configurable font width/height and color."));
-	}
-#endif
-
-	virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) final
-	{
-		switch (DrawCallEnum(CallIndex))
+		template<typename Layout, typename TextDrawerType>
+		struct Numbers
 		{
-		case DrawCallEnum::Numbers:
-		{
-			if (!BinaryDisplay)
+			TextDrawerType* TextDrawer = nullptr;
+			uint16_t Value = 0;
+
+			void Draw(IFrameBuffer* frame)
 			{
-				// Update color based on time.
+				if (TextDrawer != nullptr)
+				{
+					TextDrawer->Write(frame,
+						Layout::X(),
+						Layout::Y(),
+						Value,
+						FontText::TextAlignmentEnum::Center);
+				}
+			}
+		};
+
+		template<typename Layout, typename TextDrawerType>
+		struct LongText
+		{
+			TextDrawerType* TextDrawer = nullptr;
+
+			void Draw(IFrameBuffer* frame)
+			{
+				if (TextDrawer == nullptr)
+				{
+					return;
+				}
+
+				pixel_t cursor = Layout::X();
+				const pixel_t baselineY = Layout::Y();
+
+				cursor = TextDrawer->Write(frame, cursor, baselineY,
+					reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox1));
+				cursor += TextDrawer->GetKerningWidth();
+				cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
+				cursor += TextDrawer->GetKerningWidth();
+				cursor = TextDrawer->Write(frame, cursor, baselineY,
+					reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox2));
+				cursor += TextDrawer->GetKerningWidth();
+				cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
+				cursor += TextDrawer->GetKerningWidth();
+				TextDrawer->Write(frame, cursor, baselineY,
+					reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox3));
+			}
+		};
+
+		template<typename Layout, typename TextDrawerType, uint8_t LineIndex>
+		struct HighTextLine
+		{
+			TextDrawerType* TextDrawer = nullptr;
+			const __FlashStringHelper* Text = nullptr;
+
+			void Draw(IFrameBuffer* frame)
+			{
+				if (TextDrawer == nullptr || Text == nullptr)
+				{
+					return;
+				}
+
+				const pixel_t lineHeight = static_cast<pixel_t>(TextDrawer->GetFontHeight());
+				const pixel_t y = Layout::Y() + (lineHeight + 1) * static_cast<pixel_t>(LineIndex);
+
+				TextDrawer->Write(frame, Layout::X(), y, Text);
+			}
+		};
+	}
+
+	template<typename ParentLayout, bool Monochrome>
+	class View : public Framework::View::DrawablesView<
+		Drawables::Numbers<typename Layout<ParentLayout>::Numbers, Definitions::CodeTextDrawerType<ParentLayout>>,
+		Drawables::LongText<typename Layout<ParentLayout>::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>>,
+		Drawables::HighTextLine<typename Layout<ParentLayout>::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>, 1>,
+		Drawables::HighTextLine<typename Layout<ParentLayout>::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>, 2>>
+	{
+	private:
+		using LayoutDefinition = Layout<ParentLayout>;
+		using Base = Framework::View::DrawablesView<
+			Drawables::Numbers<typename LayoutDefinition::Numbers, Definitions::CodeTextDrawerType<ParentLayout>>,
+			Drawables::LongText<typename LayoutDefinition::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>>,
+			Drawables::HighTextLine<typename LayoutDefinition::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>, 1>,
+			Drawables::HighTextLine<typename LayoutDefinition::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>, 2>>;
+
+		static constexpr uint32_t FontScalePeriodUs = 9000000U;
+
+	private:
+		Definitions::VectorTextDrawerType<ParentLayout> VectorTextDrawer{};
+		Definitions::CodeTextDrawerType<ParentLayout> CodeTextDrawer{};
+
+	public:
+		View()
+			: Base()
+		{
+			CodeTextDrawer.SetFontDimensions(LayoutDefinition::MinFontHeight, LayoutDefinition::MinFontHeight, LayoutDefinition::Kerning);
+			VectorTextDrawer.SetFontDimensions(LayoutDefinition::MinFontHeight, LayoutDefinition::MinFontHeight, LayoutDefinition::Kerning);
+
+			auto& numbers = Base::template drawable<0>();
+			numbers.TextDrawer = &CodeTextDrawer;
+
+			auto& longText = Base::template drawable<1>();
+			longText.TextDrawer = &VectorTextDrawer;
+
+			auto& highTextLine1 = Base::template drawable<2>();
+			highTextLine1.TextDrawer = &VectorTextDrawer;
+			highTextLine1.Text = reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox2);
+
+			auto& highTextLine2 = Base::template drawable<3>();
+			highTextLine2.TextDrawer = &VectorTextDrawer;
+			highTextLine2.Text = reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox3);
+		}
+
+	protected:
+		void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+		{
+			auto& numbers = Base::template drawable<0>();
+			numbers.Value = frameCounter;
+
+			const uint16_t scaleProgress = ProgressScaler::TriangleResponse(
+				ProgressScaler::GetProgress<FontScalePeriodUs>(frameTime));
+
+			const auto animatedWidth = static_cast<uint8_t>(
+				ProgressScaler::ScaleProgress(scaleProgress, LayoutDefinition::MinFontHeight))
+				+ static_cast<uint8_t>(LayoutDefinition::MinFontHeight / 2);
+			CodeTextDrawer.SetFontWidth(animatedWidth);
+
+			const auto maxDelta = static_cast<uint8_t>(LayoutDefinition::MaxFontHeight - LayoutDefinition::MinFontHeight);
+			const auto fontDimension = static_cast<uint8_t>(
+				ProgressScaler::ScaleProgress(scaleProgress, maxDelta)) + LayoutDefinition::MinFontHeight;
+			VectorTextDrawer.SetFontDimensions(fontDimension, fontDimension, LayoutDefinition::Kerning);
+
+			if (!Monochrome)
+			{
 				CodeTextDrawer.FontColor.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
 				VectorTextDrawer.FontColor.Color = Rgb::Color(uint32_t(~CodeTextDrawer.FontColor.Color));
 			}
-
-			// Update font size based on time.
-			const uint16_t scaleProgress = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<9000000>(frameTime));
-
-			// Animate width.
-			CodeTextDrawer.SetFontWidth(ProgressScaler::ScaleProgress(scaleProgress, LayerLayout::MinFontHeight) + LayerLayout::MinFontHeight / 2);
-			CodeTextDrawer.Write(frame,
-				LayerLayout::Numbers::X(), LayerLayout::Numbers::Y(),
-				frameCounter,
-				Egfx::FontText::TextAlignmentEnum::Center);
-
-			// Set font size for next draw calls.
-			const auto fontDimension = ProgressScaler::ScaleProgress(scaleProgress, static_cast<uint8_t>(LayerLayout::MaxFontHeight - LayerLayout::MinFontHeight)) + LayerLayout::MinFontHeight;
-			VectorTextDrawer.SetFontDimensions(fontDimension, fontDimension, LayerLayout::Kerning);
 		}
-		break;
-		case DrawCallEnum::LongText:
+	};
+
+	template<typename ParentLayout, bool Monochrome>
+	struct Frame : public Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>
+	{
+		using Base = Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>;
+
+		Frame() : Base() {}
+		virtual ~Frame() = default;
+
+#if defined(SERIAL_LOG)
+		void PrintDescription() const
 		{
-			pixel_t cursor = VectorTextDrawer.Write(frame, LayerLayout::ScalingText::X(), LayerLayout::ScalingText::Y(),
-				reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox1));
-			cursor += VectorTextDrawer.GetKerningWidth();
-			cursor += VectorTextDrawer.GetCharacterWidth(char(AsciiDefinition::Printable::Space));
-			cursor += VectorTextDrawer.GetKerningWidth();
-			cursor = VectorTextDrawer.Write(frame, cursor, LayerLayout::ScalingText::Y(),
-				reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox2));
-			cursor += VectorTextDrawer.GetKerningWidth();
-			cursor += VectorTextDrawer.GetCharacterWidth(char(AsciiDefinition::Printable::Space));
-			cursor += VectorTextDrawer.GetKerningWidth();
-			VectorTextDrawer.Write(frame, cursor, LayerLayout::ScalingText::Y(),
-				reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox3));
+			Serial.println(F("Vector Font Text\n\tdraw vector-based text with configurable font width/height and color."));
 		}
-		break;
-		case DrawCallEnum::HighText:
-			VectorTextDrawer.Write(frame, LayerLayout::ScalingText::X(), LayerLayout::ScalingText::Y() + VectorTextDrawer.GetFontHeight() + 1,
-				reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox2));
-			VectorTextDrawer.Write(frame, LayerLayout::ScalingText::X(), LayerLayout::ScalingText::Y() + (VectorTextDrawer.GetFontHeight() + 1) * 2,
-				reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox3));
-			break;
-		default:
-			break;
-		}
-
-		CallIndex++; // Advance call index and determine if cycle is complete.
-		if (CallIndex >= uint8_t(DrawCallEnum::EnumCount))
-		{
-			CallIndex = 0;
-			return true;
-		}
-
-		return false;
-	}
-};
+#endif
+	};
+}
 
 #endif
-

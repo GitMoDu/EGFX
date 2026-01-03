@@ -125,7 +125,7 @@ public:
 
 		if (TypeCount > 1)
 		{
-			TS::Task::delay(StepDurationMicros);
+			TS::Task::delay(StepDurationMicros / 1000);
 		}
 		else
 		{

@@ -4,123 +4,134 @@
 #include <EgfxDrawer.h>
 #include "Assets.h"
 
-using namespace Assets;
-using namespace SpriteShader;
-using namespace SpriteShaderEffect;
-using namespace SpriteTransform;
-
-using namespace IntegerSignal::FixedPoint;
-
-/// <summary>
-/// Bitmap with translation, rotation and brightness animation.
-/// Draws the bitmap line by line on each draw call.
-/// </summary>
-template<typename Layout, bool Monochrome>
-class BitmapDemo : public IFrameDraw
+// Demo of bitmap sprite with translation, rotation, and brightness animation.
+namespace BitmapDemo
 {
-private:
-	static constexpr uint32_t TranslationXDuration = 7000000;
-	static constexpr uint32_t TranslationYDuration = 13000000;
-	static constexpr uint32_t BrightnessPeriod = 3876543;
-	static constexpr uint16_t RotationFrequency = 50;
+	using namespace Egfx;
+	using namespace Assets;
+	using namespace SpriteShader;
+	using namespace SpriteShaderEffect;
+	using namespace SpriteTransform;
+	using namespace IntegerSignal::FixedPoint;
 
-	struct BitmapLayout
+	template<typename ParentLayout>
+	struct Layout
 	{
-		static constexpr pixel_t UsableX()
-		{
-			return Layout::Width() - DogeSprite::Width;
-		}
+		using SpriteType = Assets::DogeSprite;
 
-		static constexpr pixel_t UsableY()
-		{
-			return Layout::Height() - DogeSprite::Height;
-		}
+		// Anchor sprite inside the parent layout.
+		static constexpr pixel_t X() { return ParentLayout::X(); }
+		static constexpr pixel_t Y() { return ParentLayout::Y(); }
+		static constexpr pixel_t Width() { return SpriteType::Width; }
+		static constexpr pixel_t Height() { return SpriteType::Height; }
 
-		static constexpr uint8_t BitmapDrawSteps()
-		{
-			return DogeSprite::Height / 2;
-		}
+		static constexpr pixel_t RangeX() { return ParentLayout::Width() - Width(); }
+		static constexpr pixel_t RangeY() { return ParentLayout::Height() - Height(); }
 
+		// Partial drawing keeps big sprites responsive.
+		static constexpr uint8_t DrawSteps() { return SpriteType::Height / 2; }
 		static constexpr pixel_t SectionHeight()
 		{
-			return DogeSprite::Height / BitmapDrawSteps();
+			return SpriteType::Height / DrawSteps();
 		}
-
-		static constexpr pixel_t X() { return Layout::X(); }
-		static constexpr pixel_t Y() { return Layout::Y(); }
-		static constexpr pixel_t Width() { return DogeSprite::Width; }
-		static constexpr pixel_t Height() { return DogeSprite::Height; }
-
-		static constexpr pixel_t RangeX() { return Layout::Width() - Width(); }
-		static constexpr pixel_t RangeY() { return Layout::Height() - Height(); }
 	};
 
-private:
-	BrightnessEffect<TransparentColorEffect<DogeSprite>> Doge{};
-	RotateTransform<DogeSprite::Width, DogeSprite::Height> DogeRotator{};
-
-	pixel_t x = 0;
-	pixel_t y = 0;
-
-	uint8_t CallIndex = 0;
-
-public:
-	BitmapDemo() : IFrameDraw()
+	template<typename ParentLayout, bool Monochrome>
+	class View : public Framework::View::AbstractView
 	{
-		Doge.SetTransparentColor(0);
-	}
+	private:
+		static constexpr uint32_t TranslationXDuration = 7000000U;
+		static constexpr uint32_t TranslationYDuration = 13000000U;
+		static constexpr uint32_t BrightnessPeriod = 3876543U;
+		static constexpr uint16_t RotationFrequency = 50U;
 
-	~BitmapDemo() = default;
+		using LayoutDefinition = Layout<ParentLayout>;
+		using SpriteType = typename LayoutDefinition::SpriteType;
 
-	// Always enabled.
-	virtual bool IsEnabled() const final { return true; }
-	virtual void SetEnabled(const bool /*enabled*/) final {}
+		BrightnessEffect<TransparentColorEffect<SpriteType>> Doge{};
+		RotateTransform<SpriteType::Width, SpriteType::Height> DogeRotator{};
+		pixel_point_t Position{};
+		uint8_t SectionIndex = 0;
 
-#if defined(SERIAL_LOG)
-	void PrintDescription() const
-	{
-		Serial.println(F("Bitmap\n\twith translation, rotation and brightness animation."));
-	}
-#endif
-
-	virtual bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t /*frameCounter*/) final
-	{
-		// Update bitmap effects on first call.
-		if (CallIndex == 0)
+	public:
+		View() : Framework::View::AbstractView()
 		{
-			const uint16_t progressX = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationXDuration>(frameTime));
-			const uint16_t progressY = ProgressScaler::TriangleResponse(ProgressScaler::GetProgress<TranslationYDuration>(frameTime));
+			Doge.SetTransparentColor(0);
+		}
 
-			x = BitmapLayout::X() + ProgressScaler::ScaleProgress(progressX, (uint16_t)BitmapLayout::RangeX());
-			y = BitmapLayout::Y() + ProgressScaler::ScaleProgress(progressY, (uint16_t)BitmapLayout::RangeY());
+	protected:
+		void ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
+		{
+			// Ping-pong translation across the layout.
+			const uint16_t progressX = ProgressScaler::TriangleResponse(
+				ProgressScaler::GetProgress<TranslationXDuration>(frameTime));
+			const uint16_t progressY = ProgressScaler::TriangleResponse(
+				ProgressScaler::GetProgress<TranslationYDuration>(frameTime));
 
+			Position.x = static_cast<pixel_t>(
+				LayoutDefinition::X() +
+				ProgressScaler::ScaleProgress(progressX, static_cast<uint16_t>(LayoutDefinition::RangeX())));
+			Position.y = static_cast<pixel_t>(
+				LayoutDefinition::Y() +
+				ProgressScaler::ScaleProgress(progressY, static_cast<uint16_t>(LayoutDefinition::RangeY())));
+
+			// Color displays breathe brightness; mono stays steady.
 			if (Monochrome)
 			{
 				Doge.SetBrightness(0);
 			}
 			else
 			{
-				const fraction16_t brightnessFraction = Fraction16::GetScalar((uint32_t)(frameTime % (BrightnessPeriod + 0)), BrightnessPeriod);
+				const fraction16_t brightnessFraction =
+					Fraction16::GetScalar(frameTime % BrightnessPeriod, BrightnessPeriod);
 				const angle_t brightnessAngle = Fraction(brightnessFraction, ANGLE_RANGE);
 				Doge.SetBrightness(Sine16(brightnessAngle));
 			}
 
+			// Rotate slowly and restart the partial draw cycle.
 			DogeRotator.SetRotation(frameTime / RotationFrequency);
+			SectionIndex = 0;
 		}
 
-		// Draw a section of the bitmap.
-		SpriteRenderer::TransformDrawPartial(frame, &Doge, &DogeRotator,
-			x, y, 0, CallIndex * BitmapLayout::SectionHeight(),
-			DogeSprite::Width, BitmapLayout::SectionHeight());
-
-		CallIndex++; // Advance call index and determine if cycle is complete.
-		if (CallIndex >= BitmapLayout::BitmapDrawSteps())
+		bool Draw(IFrameBuffer* frame) override
 		{
-			CallIndex = 0;
-			return true;
-		}
+			// Render a narrow strip per call to stay within frame budgets.
+			SpriteRenderer::TransformDrawPartial(
+				frame,
+				&Doge,
+				&DogeRotator,
+				Position.x,
+				Position.y,
+				0,
+				SectionIndex * LayoutDefinition::SectionHeight(),
+				SpriteType::Width,
+				LayoutDefinition::SectionHeight());
 
-		return false;
-	}
-};
+			SectionIndex++;
+			if (SectionIndex >= LayoutDefinition::DrawSteps())
+			{
+				SectionIndex = 0;
+				return true;
+			}
+
+			return false;
+		}
+	};
+
+	template<typename ParentLayout, bool Monochrome>
+	struct Frame : public Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>
+	{
+		using Base = Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>;
+
+		Frame() : Base() {}
+		virtual ~Frame() = default;
+
+#if defined(SERIAL_LOG)
+		void PrintDescription() const
+		{
+			Serial.println(F("Bitmap\n\twith translation, rotation and brightness animation."));
+		}
+#endif
+	};
+}
 #endif

@@ -89,7 +89,7 @@ namespace Egfx
 		public:
 			void Push(const uint8_t character)
 			{
-				if (CursorX < CharactersPerLine)
+				if (CursorX < static_cast<pixel_t>(CharactersPerLine))
 				{
 					// Write character to current line buffer.
 					TextBuffer[Lines - 1][CursorX++] = character;

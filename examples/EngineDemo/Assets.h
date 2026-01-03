@@ -3,10 +3,10 @@
 
 #include "Sprites.h"
 
+using namespace Egfx;
+
 namespace Assets
 {
-	using namespace Egfx;
-
 	namespace Strings
 	{
 		static constexpr char ShortFox1[] PROGMEM = "The quick brown";
@@ -47,7 +47,7 @@ namespace Assets
 	struct HeartSelect;
 	template<> struct HeartSelect<true> { using type = HeartBigSprite; };
 	template<> struct HeartSelect<false> { using type = HeartSprite; };
-	
+
 }
 
 #endif

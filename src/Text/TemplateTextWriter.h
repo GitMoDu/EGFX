@@ -18,9 +18,9 @@ namespace Egfx
 				pixel_t GetTabWidth() const { return 0; }
 				pixel_t GetSpaceWidth() const { return 0; }
 				pixel_t GetKerningWidth() const { return 0; }
-				pixel_t Advance(const char printableChar) const { return 0; }
+				pixel_t Advance(const char /*printableChar*/) const { return 0; }
 
-				pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
+				pixel_t Draw(IFrameBuffer* /*framebuffer*/, const pixel_t /*x*/, const pixel_t /*y*/, const char /*printableChar*/)
 				{
 					return 0;
 				}

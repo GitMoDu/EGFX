@@ -23,16 +23,5 @@ namespace Egfx
 			return MaxValue(width, height);
 		}
 	};
-
-	template<const pixel_t x, const pixel_t y,
-		const pixel_t width, const pixel_t height,
-		const pixel_t fontWidth, const pixel_t fontHeight,
-		const uint8_t fontKerning>
-	struct FontLayoutElement : public LayoutElement<x, y, width, height>
-	{
-		static constexpr pixel_t FontWidth() { return fontWidth; }
-		static constexpr pixel_t FontHeight() { return fontHeight; }
-		static constexpr uint8_t FontKerning() { return fontKerning; }
-	};
 }
 #endif

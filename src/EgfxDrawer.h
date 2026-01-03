@@ -67,4 +67,14 @@
 #include "Text/FontText.h"
 #include "Text/TemplateTextWriter.h"
 
+// Drawable framework.
+#include "Framework/Drawable.h"
+#include "Framework/View/Model.h"
+#include "Framework/View/AbstractView.h"
+#include "Framework/View/DrawablesView.h"
+#include "Framework/View/CompositeView.h"
+
+#include "Framework/Assets/EgfxLogo.h"
+#include "Framework/Widgets/SerialText.h"
+
 #endif

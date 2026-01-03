@@ -19,13 +19,14 @@ namespace Egfx
 		private:
 			dimension_t TabWidth = 5;
 			dimension_t SpaceWidth = 3;
-			dimension_t KerningWidth = 1;
+			dimension_t KerningWidth;
 
 		public:
 			AbstractFontDrawer(const dimension_t width = 8,
 				const dimension_t height = 8,
 				const dimension_t kerning = 1)
 				: CodeDrawer(width, height)
+				, KerningWidth(kerning)
 			{
 			}
 

@@ -28,130 +28,130 @@ namespace Egfx
 					{
 					case uint8_t(AsciiDefinition::Printable::a):
 					case uint8_t(AsciiDefinition::Printable::A):
-						return static_cast<const uint8_t*>(Source1x5::LetterA);
+						return Source1x5::LetterA;
 					case uint8_t(AsciiDefinition::Printable::b):
 					case uint8_t(AsciiDefinition::Printable::B):
-						return static_cast<const uint8_t*>(Source1x5::LetterB);
+						return Source1x5::LetterB;
 					case uint8_t(AsciiDefinition::Printable::c):
 					case uint8_t(AsciiDefinition::Printable::C):
-						return static_cast<const uint8_t*>(Source1x5::LetterC);
+						return Source1x5::LetterC;
 					case uint8_t(AsciiDefinition::Printable::d):
 					case uint8_t(AsciiDefinition::Printable::D):
-						return static_cast<const uint8_t*>(Source1x5::LetterD);
+						return Source1x5::LetterD;
 					case uint8_t(AsciiDefinition::Printable::e):
 					case uint8_t(AsciiDefinition::Printable::E):
-						return static_cast<const uint8_t*>(Source1x5::LetterE);
+						return Source1x5::LetterE;
 					case uint8_t(AsciiDefinition::Printable::f):
 					case uint8_t(AsciiDefinition::Printable::F):
-						return static_cast<const uint8_t*>(Source1x5::LetterF);
+						return Source1x5::LetterF;
 					case uint8_t(AsciiDefinition::Printable::g):
 					case uint8_t(AsciiDefinition::Printable::G):
-						return static_cast<const uint8_t*>(Source1x5::LetterG);
+						return Source1x5::LetterG;
 					case uint8_t(AsciiDefinition::Printable::h):
 					case uint8_t(AsciiDefinition::Printable::H):
-						return static_cast<const uint8_t*>(Source1x5::LetterH);
+						return Source1x5::LetterH;
 					case uint8_t(AsciiDefinition::Printable::i):
 					case uint8_t(AsciiDefinition::Printable::I):
-						return static_cast<const uint8_t*>(Source1x5::LetterI);
+						return Source1x5::LetterI;
 					case uint8_t(AsciiDefinition::Printable::j):
 					case uint8_t(AsciiDefinition::Printable::J):
-						return static_cast<const uint8_t*>(Source1x5::LetterJ);
+						return Source1x5::LetterJ;
 					case uint8_t(AsciiDefinition::Printable::k):
 					case uint8_t(AsciiDefinition::Printable::K):
-						return static_cast<const uint8_t*>(Source1x5::LetterK);
+						return Source1x5::LetterK;
 					case uint8_t(AsciiDefinition::Printable::l):
 					case uint8_t(AsciiDefinition::Printable::L):
-						return static_cast<const uint8_t*>(Source1x5::LetterL);
+						return Source1x5::LetterL;
 					case uint8_t(AsciiDefinition::Printable::m):
 					case uint8_t(AsciiDefinition::Printable::M):
-						return static_cast<const uint8_t*>(Source1x5::LetterM);
+						return Source1x5::LetterM;
 					case uint8_t(AsciiDefinition::Printable::n):
 					case uint8_t(AsciiDefinition::Printable::N):
-						return static_cast<const uint8_t*>(Source1x5::LetterN);
+						return Source1x5::LetterN;
 					case uint8_t(AsciiDefinition::Printable::o):
 					case uint8_t(AsciiDefinition::Printable::O):
-						return static_cast<const uint8_t*>(Source1x5::LetterO);
+						return Source1x5::LetterO;
 					case uint8_t(AsciiDefinition::Printable::p):
 					case uint8_t(AsciiDefinition::Printable::P):
-						return static_cast<const uint8_t*>(Source1x5::LetterP);
+						return Source1x5::LetterP;
 					case uint8_t(AsciiDefinition::Printable::q):
 					case uint8_t(AsciiDefinition::Printable::Q):
-						return static_cast<const uint8_t*>(Source1x5::LetterQ);
+						return Source1x5::LetterQ;
 					case uint8_t(AsciiDefinition::Printable::r):
 					case uint8_t(AsciiDefinition::Printable::R):
-						return static_cast<const uint8_t*>(Source1x5::LetterR);
+						return Source1x5::LetterR;
 					case uint8_t(AsciiDefinition::Printable::s):
 					case uint8_t(AsciiDefinition::Printable::S):
-						return static_cast<const uint8_t*>(Source1x5::LetterS);
+						return Source1x5::LetterS;
 					case uint8_t(AsciiDefinition::Printable::t):
 					case uint8_t(AsciiDefinition::Printable::T):
-						return static_cast<const uint8_t*>(Source1x5::LetterT);
+						return Source1x5::LetterT;
 					case uint8_t(AsciiDefinition::Printable::u):
 					case uint8_t(AsciiDefinition::Printable::U):
-						return static_cast<const uint8_t*>(Source1x5::LetterU);
+						return Source1x5::LetterU;
 					case uint8_t(AsciiDefinition::Printable::v):
 					case uint8_t(AsciiDefinition::Printable::V):
-						return static_cast<const uint8_t*>(Source1x5::LetterV);
+						return Source1x5::LetterV;
 					case uint8_t(AsciiDefinition::Printable::w):
 					case uint8_t(AsciiDefinition::Printable::W):
-						return static_cast<const uint8_t*>(Source1x5::LetterW);
+						return Source1x5::LetterW;
 					case uint8_t(AsciiDefinition::Printable::x):
 					case uint8_t(AsciiDefinition::Printable::X):
-						return static_cast<const uint8_t*>(Source1x5::LetterX);
+						return Source1x5::LetterX;
 					case uint8_t(AsciiDefinition::Printable::y):
 					case uint8_t(AsciiDefinition::Printable::Y):
-						return static_cast<const uint8_t*>(Source1x5::LetterY);
+						return Source1x5::LetterY;
 					case uint8_t(AsciiDefinition::Printable::z):
 					case uint8_t(AsciiDefinition::Printable::Z):
-						return static_cast<const uint8_t*>(Source1x5::LetterZ);
+						return Source1x5::LetterZ;
 					case uint8_t(AsciiDefinition::Printable::Digit0):
-						return static_cast<const uint8_t*>(Source1x5::Number0);
+						return Source1x5::Number0;
 					case uint8_t(AsciiDefinition::Printable::Digit1):
-						return static_cast<const uint8_t*>(Source1x5::Number1);
+						return Source1x5::Number1;
 					case uint8_t(AsciiDefinition::Printable::Digit2):
-						return static_cast<const uint8_t*>(Source1x5::Number2);
+						return Source1x5::Number2;
 					case uint8_t(AsciiDefinition::Printable::Digit3):
-						return static_cast<const uint8_t*>(Source1x5::Number3);
+						return Source1x5::Number3;
 					case uint8_t(AsciiDefinition::Printable::Digit4):
-						return static_cast<const uint8_t*>(Source1x5::Number4);
+						return Source1x5::Number4;
 					case uint8_t(AsciiDefinition::Printable::Digit5):
-						return static_cast<const uint8_t*>(Source1x5::Number5);
+						return Source1x5::Number5;
 					case uint8_t(AsciiDefinition::Printable::Digit6):
-						return static_cast<const uint8_t*>(Source1x5::Number6);
+						return Source1x5::Number6;
 					case uint8_t(AsciiDefinition::Printable::Digit7):
-						return static_cast<const uint8_t*>(Source1x5::Number7);
+						return Source1x5::Number7;
 					case uint8_t(AsciiDefinition::Printable::Digit8):
-						return static_cast<const uint8_t*>(Source1x5::Number8);
+						return Source1x5::Number8;
 					case uint8_t(AsciiDefinition::Printable::Digit9):
-						return static_cast<const uint8_t*>(Source1x5::Number9);
+						return Source1x5::Number9;
 					case uint8_t(AsciiDefinition::Printable::Period):
-						return static_cast<const uint8_t*>(Source1x5::SymbolDecimalPoint);
+						return Source1x5::SymbolDecimalPoint;
 					case uint8_t(AsciiDefinition::Printable::Comma):
-						return static_cast<const uint8_t*>(Source1x5::SymbolDecimalComma);
+						return Source1x5::SymbolDecimalComma;
 					case uint8_t(AsciiDefinition::Printable::Plus):
-						return static_cast<const uint8_t*>(Source1x5::SymbolPlus);
+						return Source1x5::SymbolPlus;
 					case uint8_t(AsciiDefinition::Printable::Minus):
-						return static_cast<const uint8_t*>(Source1x5::SymbolMinus);
+						return Source1x5::SymbolMinus;
 					case uint8_t(AsciiDefinition::Printable::Equals):
-						return static_cast<const uint8_t*>(Source1x5::SymbolEquals);
+						return Source1x5::SymbolEquals;
 					case uint8_t(AsciiDefinition::Printable::Exclamation):
-						return static_cast<const uint8_t*>(Source1x5::SymbolExclamation);
+						return Source1x5::SymbolExclamation;
 					case uint8_t(AsciiDefinition::Printable::Question):
-						return static_cast<const uint8_t*>(Source1x5::SymbolQuestion);
+						return Source1x5::SymbolQuestion;
 					case uint8_t(AsciiDefinition::Printable::Percent):
-						return static_cast<const uint8_t*>(Source1x5::SymbolPercent);
+						return Source1x5::SymbolPercent;
 					case uint8_t(AsciiDefinition::Printable::ParenthesisOpen):
-						return static_cast<const uint8_t*>(Source1x5::SymbolParenthesisOpen);
+						return Source1x5::SymbolParenthesisOpen;
 					case uint8_t(AsciiDefinition::Printable::ParenthesisClose):
-						return static_cast<const uint8_t*>(Source1x5::SymbolParenthesisClose);
+						return Source1x5::SymbolParenthesisClose;
 					case uint8_t(AsciiDefinition::Printable::BracketOpen):
-						return static_cast<const uint8_t*>(Source1x5::SymbolBracketsOpen);
+						return Source1x5::SymbolBracketsOpen;
 					case uint8_t(AsciiDefinition::Printable::BracketClose):
-						return static_cast<const uint8_t*>(Source1x5::SymbolBracketsClose);
+						return Source1x5::SymbolBracketsClose;
 					case uint8_t(AsciiDefinition::Printable::LessThan):
-						return static_cast<const uint8_t*>(Source1x5::SymbolSmaller);
+						return Source1x5::SymbolSmaller;
 					case uint8_t(AsciiDefinition::Printable::GreaterThan):
-						return static_cast<const uint8_t*>(Source1x5::SymbolBigger);
+						return Source1x5::SymbolBigger;
 					default:
 						return nullptr;
 					}
@@ -170,130 +170,130 @@ namespace Egfx
 					{
 					case uint8_t(AsciiDefinition::Printable::a):
 					case uint8_t(AsciiDefinition::Printable::A):
-						return static_cast<const uint8_t*>(Source2x5::LetterA);
+						return Source2x5::LetterA;
 					case uint8_t(AsciiDefinition::Printable::b):
 					case uint8_t(AsciiDefinition::Printable::B):
-						return static_cast<const uint8_t*>(Source2x5::LetterB);
+						return Source2x5::LetterB;
 					case uint8_t(AsciiDefinition::Printable::c):
 					case uint8_t(AsciiDefinition::Printable::C):
-						return static_cast<const uint8_t*>(Source2x5::LetterC);
+						return Source2x5::LetterC;
 					case uint8_t(AsciiDefinition::Printable::d):
 					case uint8_t(AsciiDefinition::Printable::D):
-						return static_cast<const uint8_t*>(Source2x5::LetterD);
+						return Source2x5::LetterD;
 					case uint8_t(AsciiDefinition::Printable::e):
 					case uint8_t(AsciiDefinition::Printable::E):
-						return static_cast<const uint8_t*>(Source2x5::LetterE);
+						return Source2x5::LetterE;
 					case uint8_t(AsciiDefinition::Printable::f):
 					case uint8_t(AsciiDefinition::Printable::F):
-						return static_cast<const uint8_t*>(Source2x5::LetterF);
+						return Source2x5::LetterF;
 					case uint8_t(AsciiDefinition::Printable::g):
 					case uint8_t(AsciiDefinition::Printable::G):
-						return static_cast<const uint8_t*>(Source2x5::LetterG);
+						return Source2x5::LetterG;
 					case uint8_t(AsciiDefinition::Printable::h):
 					case uint8_t(AsciiDefinition::Printable::H):
-						return static_cast<const uint8_t*>(Source2x5::LetterH);
+						return Source2x5::LetterH;
 					case uint8_t(AsciiDefinition::Printable::i):
 					case uint8_t(AsciiDefinition::Printable::I):
-						return static_cast<const uint8_t*>(Source2x5::LetterI);
+						return Source2x5::LetterI;
 					case uint8_t(AsciiDefinition::Printable::j):
 					case uint8_t(AsciiDefinition::Printable::J):
-						return static_cast<const uint8_t*>(Source2x5::LetterJ);
+						return Source2x5::LetterJ;
 					case uint8_t(AsciiDefinition::Printable::k):
 					case uint8_t(AsciiDefinition::Printable::K):
-						return static_cast<const uint8_t*>(Source2x5::LetterK);
+						return Source2x5::LetterK;
 					case uint8_t(AsciiDefinition::Printable::l):
 					case uint8_t(AsciiDefinition::Printable::L):
-						return static_cast<const uint8_t*>(Source2x5::LetterL);
+						return Source2x5::LetterL;
 					case uint8_t(AsciiDefinition::Printable::m):
 					case uint8_t(AsciiDefinition::Printable::M):
-						return static_cast<const uint8_t*>(Source2x5::LetterM);
+						return Source2x5::LetterM;
 					case uint8_t(AsciiDefinition::Printable::n):
 					case uint8_t(AsciiDefinition::Printable::N):
-						return static_cast<const uint8_t*>(Source2x5::LetterN);
+						return Source2x5::LetterN;
 					case uint8_t(AsciiDefinition::Printable::o):
 					case uint8_t(AsciiDefinition::Printable::O):
-						return static_cast<const uint8_t*>(Source2x5::LetterO);
+						return Source2x5::LetterO;
 					case uint8_t(AsciiDefinition::Printable::p):
 					case uint8_t(AsciiDefinition::Printable::P):
-						return static_cast<const uint8_t*>(Source2x5::LetterP);
+						return Source2x5::LetterP;
 					case uint8_t(AsciiDefinition::Printable::q):
 					case uint8_t(AsciiDefinition::Printable::Q):
-						return static_cast<const uint8_t*>(Source2x5::LetterQ);
+						return Source2x5::LetterQ;
 					case uint8_t(AsciiDefinition::Printable::r):
 					case uint8_t(AsciiDefinition::Printable::R):
-						return static_cast<const uint8_t*>(Source2x5::LetterR);
+						return Source2x5::LetterR;
 					case uint8_t(AsciiDefinition::Printable::s):
 					case uint8_t(AsciiDefinition::Printable::S):
-						return static_cast<const uint8_t*>(Source2x5::LetterS);
+						return Source2x5::LetterS;
 					case uint8_t(AsciiDefinition::Printable::t):
 					case uint8_t(AsciiDefinition::Printable::T):
-						return static_cast<const uint8_t*>(Source2x5::LetterT);
+						return Source2x5::LetterT;
 					case uint8_t(AsciiDefinition::Printable::u):
 					case uint8_t(AsciiDefinition::Printable::U):
-						return static_cast<const uint8_t*>(Source2x5::LetterU);
+						return Source2x5::LetterU;
 					case uint8_t(AsciiDefinition::Printable::v):
 					case uint8_t(AsciiDefinition::Printable::V):
-						return static_cast<const uint8_t*>(Source2x5::LetterV);
+						return Source2x5::LetterV;
 					case uint8_t(AsciiDefinition::Printable::w):
 					case uint8_t(AsciiDefinition::Printable::W):
-						return static_cast<const uint8_t*>(Source2x5::LetterW);
+						return Source2x5::LetterW;
 					case uint8_t(AsciiDefinition::Printable::x):
 					case uint8_t(AsciiDefinition::Printable::X):
-						return static_cast<const uint8_t*>(Source2x5::LetterX);
+						return Source2x5::LetterX;
 					case uint8_t(AsciiDefinition::Printable::y):
 					case uint8_t(AsciiDefinition::Printable::Y):
-						return static_cast<const uint8_t*>(Source2x5::LetterY);
+						return Source2x5::LetterY;
 					case uint8_t(AsciiDefinition::Printable::z):
 					case uint8_t(AsciiDefinition::Printable::Z):
-						return static_cast<const uint8_t*>(Source2x5::LetterZ);
+						return Source2x5::LetterZ;
 					case uint8_t(AsciiDefinition::Printable::Digit0):
-						return static_cast<const uint8_t*>(Source2x5::Number0);
+						return Source2x5::Number0;
 					case uint8_t(AsciiDefinition::Printable::Digit1):
-						return static_cast<const uint8_t*>(Source2x5::Number1);
+						return Source2x5::Number1;
 					case uint8_t(AsciiDefinition::Printable::Digit2):
-						return static_cast<const uint8_t*>(Source2x5::Number2);
+						return Source2x5::Number2;
 					case uint8_t(AsciiDefinition::Printable::Digit3):
-						return static_cast<const uint8_t*>(Source2x5::Number3);
+						return Source2x5::Number3;
 					case uint8_t(AsciiDefinition::Printable::Digit4):
-						return static_cast<const uint8_t*>(Source2x5::Number4);
+						return Source2x5::Number4;
 					case uint8_t(AsciiDefinition::Printable::Digit5):
-						return static_cast<const uint8_t*>(Source2x5::Number5);
+						return Source2x5::Number5;
 					case uint8_t(AsciiDefinition::Printable::Digit6):
-						return static_cast<const uint8_t*>(Source2x5::Number6);
+						return Source2x5::Number6;
 					case uint8_t(AsciiDefinition::Printable::Digit7):
-						return static_cast<const uint8_t*>(Source2x5::Number7);
+						return Source2x5::Number7;
 					case uint8_t(AsciiDefinition::Printable::Digit8):
-						return static_cast<const uint8_t*>(Source2x5::Number8);
+						return Source2x5::Number8;
 					case uint8_t(AsciiDefinition::Printable::Digit9):
-						return static_cast<const uint8_t*>(Source2x5::Number9);
+						return Source2x5::Number9;
 					case uint8_t(AsciiDefinition::Printable::Period):
-						return static_cast<const uint8_t*>(Source2x5::SymbolDecimalPoint);
+						return Source2x5::SymbolDecimalPoint;
 					case uint8_t(AsciiDefinition::Printable::Comma):
-						return static_cast<const uint8_t*>(Source2x5::SymbolDecimalComma);
+						return Source2x5::SymbolDecimalComma;
 					case uint8_t(AsciiDefinition::Printable::Plus):
-						return static_cast<const uint8_t*>(Source2x5::SymbolPlus);
+						return Source2x5::SymbolPlus;
 					case uint8_t(AsciiDefinition::Printable::Minus):
-						return static_cast<const uint8_t*>(Source2x5::SymbolMinus);
+						return Source2x5::SymbolMinus;
 					case uint8_t(AsciiDefinition::Printable::Equals):
-						return static_cast<const uint8_t*>(Source2x5::SymbolEquals);
+						return Source2x5::SymbolEquals;
 					case uint8_t(AsciiDefinition::Printable::Exclamation):
-						return static_cast<const uint8_t*>(Source2x5::SymbolExclamation);
+						return Source2x5::SymbolExclamation;
 					case uint8_t(AsciiDefinition::Printable::Question):
-						return static_cast<const uint8_t*>(Source2x5::SymbolQuestion);
+						return Source2x5::SymbolQuestion;
 					case uint8_t(AsciiDefinition::Printable::Percent):
-						return static_cast<const uint8_t*>(Source2x5::SymbolPercent);
+						return Source2x5::SymbolPercent;
 					case uint8_t(AsciiDefinition::Printable::ParenthesisOpen):
-						return static_cast<const uint8_t*>(Source2x5::SymbolParenthesisOpen);
+						return Source2x5::SymbolParenthesisOpen;
 					case uint8_t(AsciiDefinition::Printable::ParenthesisClose):
-						return static_cast<const uint8_t*>(Source2x5::SymbolParenthesisClose);
+						return Source2x5::SymbolParenthesisClose;
 					case uint8_t(AsciiDefinition::Printable::BracketOpen):
-						return static_cast<const uint8_t*>(Source2x5::SymbolBracketsOpen);
+						return Source2x5::SymbolBracketsOpen;
 					case uint8_t(AsciiDefinition::Printable::BracketClose):
-						return static_cast<const uint8_t*>(Source2x5::SymbolBracketsClose);
+						return Source2x5::SymbolBracketsClose;
 					case uint8_t(AsciiDefinition::Printable::LessThan):
-						return static_cast<const uint8_t*>(Source2x5::SymbolSmaller);
+						return Source2x5::SymbolSmaller;
 					case uint8_t(AsciiDefinition::Printable::GreaterThan):
-						return static_cast<const uint8_t*>(Source2x5::SymbolBigger);
+						return Source2x5::SymbolBigger;
 					default:
 						return nullptr;
 					}

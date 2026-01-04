@@ -11,5 +11,6 @@
 #include "ScreenDrivers/ScreenDriverSSD1351_SPI.h"
 #include "ScreenDrivers/ScreenDriverST7735_SPI.h"
 #include "ScreenDrivers/ScreenDriverST7789_SPI.h"
+#include "ScreenDrivers/ScreenDriverST7789T3_SPI.h"
 
 #endif

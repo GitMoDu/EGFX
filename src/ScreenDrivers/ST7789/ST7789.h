@@ -8,7 +8,11 @@ namespace ST7789
 	static constexpr uint32_t RESET_DELAY_MICROS = 1000;
 	static constexpr uint8_t RESET_WAIT_MICROS = 10;
 
-	static constexpr uint32_t SpiMaxSpeed = 62500000; // Serial write clock cycle = 16 ns.
+	static constexpr uint16_t Width = 240;
+	static constexpr uint16_t Height = 320;
+
+	static constexpr uint32_t SpiMaxSpeed = 80000000;
+	static constexpr uint32_t SpiDefaultSpeed = 62500000; // Serial write clock cycle = 16 ns.
 
 	static constexpr uint32_t LimitedSpiSpeed(const uint32_t speed)
 	{

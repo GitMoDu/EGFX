@@ -19,11 +19,6 @@ namespace Egfx
 		private:
 			using Base = AbstractFontDrawer<BitmaskFontType>;
 
-		private:
-			using intermediate_t = typename TypeTraits::TypeNext::next_uint_type<dimension_t>::type;
-
-			static constexpr intermediate_t BitScale = (intermediate_t)BitmaskFontType::Width / 8 + (((intermediate_t)BitmaskFontType::Width % 8) != 0 ? 1 : 0);
-
 		protected:
 			using Base::IsPixelSet;
 
@@ -88,11 +83,6 @@ namespace Egfx
 
 		private:
 			using Base = AbstractScaledFontDrawer<BitmaskFontType, ScaleX, ScaleY>;
-
-		private:
-			using intermediate_t = typename TypeTraits::TypeNext::next_uint_type<dimension_t>::type;
-
-			static constexpr intermediate_t BitScale = (intermediate_t)BitmaskFontType::Width / 8 + (((intermediate_t)BitmaskFontType::Width % 8) != 0 ? 1 : 0);
 
 		protected:
 			using Base::IsPixelSet;

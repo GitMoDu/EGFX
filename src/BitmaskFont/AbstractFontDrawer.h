@@ -76,8 +76,6 @@ namespace Egfx
 				{
 					return false;
 				}
-
-				return true;
 			}
 		};
 

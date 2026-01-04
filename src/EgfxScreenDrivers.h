@@ -13,4 +13,6 @@
 #include "ScreenDrivers/ScreenDriverST7789_SPI.h"
 #include "ScreenDrivers/ScreenDriverST7789T3_SPI.h"
 
+#include "ScreenDrivers/ScreenDriverGC9107_SPI.h"
+
 #endif

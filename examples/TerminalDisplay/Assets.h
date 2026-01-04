@@ -26,7 +26,7 @@ namespace Assets
 		{
 			static constexpr uint8_t GetScale()
 			{
-				return 1 + (GetDimension() / (128));
+				return 1 + (GetDimension() / 128);
 			}
 
 			static constexpr pixel_t GetDimension()
@@ -38,7 +38,7 @@ namespace Assets
 		template<typename Layout>
 		struct ScaledFontConfig
 		{
-			using Font = BitmaskFonts::Plastic::FontType3x5;
+			using Font = BitmaskFonts::Plastic::FontType5x5;
 			static constexpr uint8_t ScaleX = FontScale<Layout>::GetScale();
 			static constexpr uint8_t ScaleY = FontScale<Layout>::GetScale();
 			using Drawer = BitmaskFont::TemplateColorScaledFontDrawer<Font, FontText::FullColorSource, ScaleX, ScaleY>;

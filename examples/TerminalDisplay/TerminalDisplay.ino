@@ -30,8 +30,11 @@
 // Process scheduler.
 TS::Scheduler SchedulerBase{};
 
+// Display communication instance.
+auto& DisplayInterface(DisplayConfig::Interface());
+
 // Screen driver using specified communications hardware.
-DisplayConfiguration::ScreenDriverType ScreenDriver(DisplayConfiguration::DisplayCommsInstance);
+ScreenDriverType ScreenDriver(DisplayInterface);
 
 // In-memory frame-buffer. Optionally allocated dynamically. Double-buffering is also optional.
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
@@ -39,23 +42,23 @@ uint8_t* Buffer = nullptr;
 // Frame buffer instance.
 #if defined(USE_DOUBLE_FRAME_BUFFER)
 uint8_t* Buffer2 = nullptr;
-Egfx::TemplateDoubleBufferedFramebuffer<DisplayConfiguration::FramebufferType> Framebuffer;
+Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer;
 #else
-DisplayConfiguration::FramebufferType Framebuffer;
+FramebufferType Framebuffer;
 #endif
 #else
-uint8_t Buffer[DisplayConfiguration::FramebufferType::BufferSize]{};
+uint8_t Buffer[FramebufferType::BufferSize]{};
 #if defined(USE_DOUBLE_FRAME_BUFFER)
-uint8_t AltBuffer[DisplayConfiguration::FramebufferType::BufferSize]{};
-Egfx::TemplateDoubleBufferedFramebuffer<DisplayConfiguration::FramebufferType> Framebuffer(Buffer, AltBuffer);
+uint8_t AltBuffer[FramebufferType::BufferSize]{};
+Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer(Buffer, AltBuffer);
 #else
-DisplayConfiguration::FramebufferType Framebuffer(Buffer);
+FramebufferType Framebuffer(Buffer);
 #endif
 #endif
 
 // EGFX display engine task.
-Egfx::DisplayEngineTask<DisplayConfiguration::FramebufferType,
-	DisplayConfiguration::ScreenDriverType> DisplayEngine(
+Egfx::DisplayEngineTask<FramebufferType,
+	ScreenDriverType> DisplayEngine(
 		SchedulerBase, Framebuffer, ScreenDriver);
 
 // Screen layout for terminal display.
@@ -65,8 +68,8 @@ struct Layout
 
 	static constexpr Egfx::pixel_t X() { return Margin; }
 	static constexpr Egfx::pixel_t Y() { return Margin; }
-	static constexpr Egfx::pixel_t Width() { return DisplayConfiguration::FramebufferType::FrameWidth - (Margin * 2); }
-	static constexpr Egfx::pixel_t Height() { return DisplayConfiguration::FramebufferType::FrameHeight - (Margin * 2); }
+	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth - (Margin * 2); }
+	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight - (Margin * 2); }
 };
 
 // Compile-time auto-magic selection of best fit text display type.
@@ -111,25 +114,27 @@ void setup()
 
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
 	// Allocate memory and set frame buffer.
-	Buffer = new uint8_t[DisplayConfiguration::FramebufferType::BufferSize]{};
+	Buffer = new uint8_t[FramebufferType::BufferSize]{};
 	Framebuffer.SetBuffer(Buffer);
 #if defined(USE_DOUBLE_FRAME_BUFFER)
-	Buffer2 = new uint8_t[DisplayConfiguration::FramebufferType::BufferSize]{};
+	Buffer2 = new uint8_t[FramebufferType::BufferSize]{};
 	Framebuffer.SetAltBuffer(Buffer2);
 #endif
 #endif
 
 	// Initialize backlight pin, if defined.
-	if (DisplayConfiguration::DisplayPins::BACKLIGHT != UINT8_MAX)
+	if (DisplayConfig::BACKLIGHT != UINT8_MAX)
 	{
-		pinMode(DisplayConfiguration::DisplayPins::BACKLIGHT, OUTPUT);
-		digitalWrite(DisplayConfiguration::DisplayPins::BACKLIGHT, HIGH);
+		pinMode(DisplayConfig::BACKLIGHT, OUTPUT);
+		digitalWrite(DisplayConfig::BACKLIGHT, HIGH);
 	}
 
 	// Initialize comms hardware.
-	DisplayConfiguration::DisplayCommsInstance.begin();
+	DisplayInterface.begin();
+
+	// Set I2C max clock speed for AVR platforms.
 #if defined(ARDUINO_ARCH_AVR)
-	DisplayConfiguration::DisplayCommsInstance.setClock(800000);
+	Wire.setClock(F_CPU >= 16000000L ? 800000L : 400000L);
 #endif
 
 	// Optional callback for RTOS driver variants.
@@ -153,8 +158,8 @@ void setup()
 
 #if defined(SERIAL_LOG)
 	Serial.println(F("Terminal Display Start."));
-	Serial.print(DisplayConfiguration::FramebufferType::ColorDepth);
-	if (DisplayConfiguration::FramebufferType::Monochrome)
+	Serial.print(FramebufferType::ColorDepth);
+	if (FramebufferType::Monochrome)
 	{
 		Serial.println(F(" bit monochrome screen."));
 	}
@@ -168,8 +173,8 @@ void setup()
 	TerminalDisplay.println(TerminalDisplayPrinter.ViewInstance.Lines);
 	TerminalDisplay.print(F("\tCharacters: "));
 	TerminalDisplay.println(TerminalDisplayPrinter.ViewInstance.CharactersPerLine);
-	TerminalDisplay.print(DisplayConfiguration::FramebufferType::ColorDepth);
-	if (DisplayConfiguration::FramebufferType::Monochrome)
+	TerminalDisplay.print(FramebufferType::ColorDepth);
+	if (FramebufferType::Monochrome)
 	{
 		TerminalDisplay.println(F(" bit monochrome screen."));
 	}

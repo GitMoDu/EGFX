@@ -37,8 +37,11 @@
 // Process scheduler.
 TS::Scheduler SchedulerBase{};
 
-// Screen driver using specified communications hardware.
-DisplayConfiguration::ScreenDriverType ScreenDriver(DisplayConfiguration::DisplayCommsInstance);
+// Display communication instance.
+auto& DisplayInterface(DisplayConfig::Interface());
+
+// Screen driver instance.
+ScreenDriverType ScreenDriver(DisplayInterface);
 
 // In-memory frame-buffer. Optionally allocated dynamically. Double-buffering is also optional.
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
@@ -46,36 +49,35 @@ uint8_t* Buffer = nullptr;
 // Frame buffer instance.
 #if defined(USE_DOUBLE_FRAME_BUFFER)
 uint8_t* Buffer2 = nullptr;
-Egfx::TemplateDoubleBufferedFramebuffer<DisplayConfiguration::FramebufferType> Framebuffer;
+Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer;
 #else
-DisplayConfiguration::FramebufferType Framebuffer;
+FramebufferType Framebuffer;
 #endif
 #else
-uint8_t Buffer[DisplayConfiguration::FramebufferType::BufferSize]{};
+uint8_t Buffer[FramebufferType::BufferSize]{};
 #if defined(USE_DOUBLE_FRAME_BUFFER)
-uint8_t AltBuffer[DisplayConfiguration::FramebufferType::BufferSize]{};
-Egfx::TemplateDoubleBufferedFramebuffer<DisplayConfiguration::FramebufferType> Framebuffer(Buffer, AltBuffer);
+uint8_t AltBuffer[FramebufferType::BufferSize]{};
+Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer(Buffer, AltBuffer);
 #else
-DisplayConfiguration::FramebufferType Framebuffer(Buffer);
+FramebufferType Framebuffer(Buffer);
 #endif
 #endif
 
 // EGFX display engine task.
-Egfx::DisplayEngineTask<DisplayConfiguration::FramebufferType,
-	DisplayConfiguration::ScreenDriverType> DisplayEngine(
+Egfx::DisplayEngineTask<FramebufferType,
+	ScreenDriverType> DisplayEngine(
 		SchedulerBase, Framebuffer, ScreenDriver);
 
 // The layout of the demos within the screen area.
 struct Layout
 {
 	static constexpr uint8_t Margin = 0;
-
 	static constexpr pixel_t X() { return Margin; }
 	static constexpr pixel_t Y() { return Margin; }
-	static constexpr pixel_t Width() { return DisplayConfiguration::FramebufferType::FrameWidth - (Margin * 2); }
-	static constexpr pixel_t Height() { return DisplayConfiguration::FramebufferType::FrameHeight - (Margin * 2); }
+	static constexpr pixel_t Width() { return FramebufferType::FrameWidth - (Margin * 2); }
+	static constexpr pixel_t Height() { return FramebufferType::FrameHeight - (Margin * 2); }
 };
-static constexpr bool Monochrome = DisplayConfiguration::FramebufferType::ColorDepth == 1;
+static constexpr bool Monochrome = FramebufferType::ColorDepth == 1;
 
 // Demo Cycler task. Auto-magic vararg template listing all demo tasks to cycle through.
 static constexpr uint32_t CycleDurationMicros = 10000000; // 10 seconds per demo.
@@ -120,12 +122,13 @@ void setup()
 	Serial.println(F("DemoCycler setup..."));
 #endif
 
+
 #if defined(USE_DYNAMIC_FRAME_BUFFER)
 	// Allocate memory and set frame buffer.
-	Buffer = new uint8_t[DisplayConfiguration::FramebufferType::BufferSize]{};
+	Buffer = new uint8_t[FramebufferType::BufferSize]{};
 	Framebuffer.SetBuffer(Buffer);
 #if defined(USE_DOUBLE_FRAME_BUFFER)
-	Buffer2 = new uint8_t[DisplayConfiguration::FramebufferType::BufferSize]{};
+	Buffer2 = new uint8_t[FramebufferType::BufferSize]{};
 	Framebuffer.SetAltBuffer(Buffer2);
 #endif
 #else
@@ -142,17 +145,20 @@ void setup()
 	}
 
 	// Initialize backlight pin, if defined.
-	if (DisplayConfiguration::DisplayPins::BACKLIGHT != UINT8_MAX)
+	if (DisplayConfig::BACKLIGHT != UINT8_MAX)
 	{
-		pinMode(DisplayConfiguration::DisplayPins::BACKLIGHT, OUTPUT);
-		digitalWrite(DisplayConfiguration::DisplayPins::BACKLIGHT, HIGH);
+		pinMode(DisplayConfig::BACKLIGHT, OUTPUT);
+		digitalWrite(DisplayConfig::BACKLIGHT, HIGH);
 	}
 
-	// Initialize comms hardware.
-	DisplayConfiguration::DisplayCommsInstance.begin();
+	// Initialize display communications.
+	DisplayInterface.begin();
+
+	// Set I2C max clock speed for AVR platforms.
 #if defined(ARDUINO_ARCH_AVR)
-	Wire.setClock(800000);
+	Wire.setClock(F_CPU >= 16000000L ? 800000L : 400000L);
 #endif
+
 	// Optional callback for RTOS driver variants.
 	DisplayEngine.SetBufferTaskCallback(BufferTaskCallback);
 
@@ -171,8 +177,12 @@ void setup()
 #endif
 
 	Serial.println(F("Graphics Engine Demo Start."));
-	Serial.print(DisplayConfiguration::FramebufferType::ColorDepth);
-	if (DisplayConfiguration::FramebufferType::Monochrome)
+	Serial.print(FramebufferType::FrameWidth);
+	Serial.print(F("x"));
+	Serial.println(FramebufferType::FrameHeight);
+
+	Serial.print(FramebufferType::ColorDepth);
+	if (FramebufferType::Monochrome)
 	{
 		Serial.println(F(" bit monochrome screen."));
 	}

@@ -8,9 +8,9 @@ namespace Egfx
 	namespace ST7789T3
 	{
 		static constexpr uint32_t RESET_DELAY_MICROS = 100000;
-		static constexpr uint8_t RESET_WAIT_MICROS = 5000;
+		static constexpr uint16_t RESET_WAIT_MICROS = 5000;
 		static constexpr uint32_t SLEEP_EXIT_DELAY_MICROS = 120000 / 100;
-		static constexpr uint32_t DISPLAY_ON_DELAY_MICROS = 1000;
+		static constexpr uint16_t DISPLAY_ON_DELAY_MICROS = 1000;
 
 		static constexpr uint32_t SpiMaxSpeed = 80000000;
 		static constexpr uint32_t SpiDefaultSpeed = 40000000;

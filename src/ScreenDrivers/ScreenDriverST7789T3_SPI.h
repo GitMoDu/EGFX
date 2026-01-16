@@ -163,25 +163,6 @@ namespace Egfx
 			return true;
 		}
 
-		void FillRed()
-		{
-			ConfigureAddressWindow();
-			BaseClass::CommandStart(Settings);
-			BaseClass::SpiInstance.transfer((uint8_t)ST7789T3::CommandEnum::MemoryWrite);
-			digitalWrite(pinDC, HIGH);
-			const uint16_t red = 0xF800;
-			const uint16_t blue = 0x001F;
-			const uint16_t green = 0x07E0;
-			const uint16_t black = 0x0000;
-			const uint16_t white = 0xFFFF;
-			for (uint32_t i = 0; i < width * height; ++i)
-			{
-				BaseClass::SpiInstance.transfer((uint8_t)(white >> 8));
-				BaseClass::SpiInstance.transfer((uint8_t)(white & 0xFF));
-			}
-			BaseClass::EndBuffer();
-		}
-
 		void ConfigureAddressWindow()
 		{
 			// Full 240×320 window, no offsets.
@@ -269,17 +250,22 @@ namespace Egfx
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
-	template<const uint8_t pinCS = UINT8_MAX,
-		const uint8_t pinDC = UINT8_MAX,
-		const uint8_t pinRST = UINT8_MAX,
-		const uint32_t spiSpeed = ST7789T3::SpiDefaultSpeed,
+	template<const uint8_t pinCS,
+		const uint8_t pinDC,
+		const uint8_t pinRST,
+		const uint32_t spiSpeed = 4000000,
+		const uint32_t pushSleepDuration = 0,
 		uint32_t stackHeight = 1500,
-		portBASE_TYPE priority = 1>
-	using ScreenDriverST7789T3_240x320x16_SPI_Rtos =
-		TemplateScreenDriverRtos<ScreenDriverST7789T3_240x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
-		void,
-		stackHeight,
-		priority>;
+		portBASE_TYPE priority = 1
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		, const uint32_t coreAffinity = tskNO_AFFINITY
+#endif
+	>
+	using ScreenDriverST7789T3_240x320x16_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverST7789T3_240x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		, coreAffinity
+#endif
+	>;
 #endif
 }
 

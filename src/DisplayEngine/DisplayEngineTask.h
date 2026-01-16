@@ -268,7 +268,7 @@ namespace Egfx
 		{
 			const uint32_t syncElapsed = timestamp - SyncReference;
 
-			bool synced;
+			bool synced = false;
 			switch (SyncType)
 			{
 			case DisplaySyncType::NoSync:
@@ -293,7 +293,6 @@ namespace Egfx
 				}
 				break;
 			default:
-				synced = false;
 				break;
 			}
 

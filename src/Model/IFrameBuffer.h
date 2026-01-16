@@ -1,49 +1,12 @@
 #ifndef _EGFX_I_FRAME_BUFFER_h
 #define _EGFX_I_FRAME_BUFFER_h
 
-#include <stdint.h>
+#include "../Platform/Platform.h"
 #include "RgbColor.h"
 #include "DisplayOptions.h"
 
 namespace Egfx
 {
-	/// <summary>
-	/// Point defined by two pixel coordinates.
-	/// </summary>
-	struct pixel_point_t
-	{
-		pixel_t x;
-		pixel_t y;
-	};
-
-	/// <summary>
-	/// Line segment defined by start and end points.
-	/// </summary>
-	struct pixel_line_t
-	{
-		pixel_point_t start;
-		pixel_point_t end;
-	};
-
-	/// <summary>
-	/// Triangle defined by three points.
-	/// </summary>
-	struct pixel_triangle_t
-	{
-		pixel_point_t a;
-		pixel_point_t b;
-		pixel_point_t c;
-	};
-
-	/// <summary>
-	/// Rectangle defined by top-left and bottom-right points.
-	/// </summary>
-	struct pixel_rectangle_t
-	{
-		pixel_point_t topLeft;
-		pixel_point_t bottomRight;
-	};
-
 	class IFrameBuffer
 	{
 	public:

@@ -1,7 +1,7 @@
 #ifndef _EGFX_BITMASK_FONT_MICRON_1X5_h
 #define _EGFX_BITMASK_FONT_MICRON_1X5_h
 
-#include <stdint.h>
+#include "../../../Platform/Platform.h"
 
 #if defined(ARDUINO_ARCH_AVR)
 #include <avr/pgmspace.h>

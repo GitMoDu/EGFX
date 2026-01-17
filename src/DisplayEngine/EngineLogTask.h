@@ -63,7 +63,7 @@ namespace Egfx
 					const uint8_t fpsRemainder = (fpMs % 1000) / 10;
 
 					SerialInstance.println();
-					SerialInstance.print(F("EGFX "));
+					SerialInstance.print(F("\nEGFX "));
 					SerialInstance.print(fps);
 					SerialInstance.print('.');
 					if (fpsRemainder < 10)

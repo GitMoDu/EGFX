@@ -27,12 +27,12 @@
 #include "DemoCyclerTask.h"
 
 // Include demos.
+#include "LogoSplashDemo.h"
 #include "SpriteTransformDemo.h"
+#include "PrimitiveDemo.h"
 #include "VectorTextDemo.h"
 #include "BitmaskTextDemo.h"
-#include "PrimitiveDemo.h"
 #include "BitmapDemo.h"
-#include "LogoSplashDemo.h"
 
 // Process scheduler.
 TS::Scheduler SchedulerBase{};
@@ -64,11 +64,11 @@ FramebufferType Framebuffer(Buffer);
 #endif
 
 // EGFX display engine task.
-Egfx::DisplayEngineTask<FramebufferType,
-	ScreenDriverType> DisplayEngine(
-		SchedulerBase, Framebuffer, ScreenDriver);
+Egfx::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
+	SchedulerBase, Framebuffer, ScreenDriver);
 
 // The layout of the demos within the screen area.
+using namespace Egfx;
 struct Layout
 {
 	static constexpr uint8_t Margin = 0;
@@ -77,15 +77,17 @@ struct Layout
 	static constexpr pixel_t Width() { return FramebufferType::FrameWidth - (Margin * 2); }
 	static constexpr pixel_t Height() { return FramebufferType::FrameHeight - (Margin * 2); }
 };
+
+// Is the framebuffer monochrome? Will affect demo rendering.
 static constexpr bool Monochrome = FramebufferType::ColorDepth == 1;
 
 // Demo Cycler task. Auto-magic vararg template listing all demo tasks to cycle through.
 static constexpr uint32_t CycleDurationMicros = 10000000; // 10 seconds per demo.
 DynamicDemoCyclerTask<CycleDurationMicros
 	, LogoSplashDemo::Frame<Layout, Monochrome, CycleDurationMicros>
+	, PrimitiveDemo::Frame<Layout, Monochrome>
 	, SpriteTransformDemo::Frame<Layout, Monochrome>
 	, VectorTextDemo::Frame<Layout, Monochrome>
-	, PrimitiveDemo::Frame<Layout, Monochrome>
 #if !defined(ARDUINO_ARCH_AVR) // Excluded on Arduino AVR due to memory constraints.
 	, BitmaskTextDemo::Frame<Layout, Monochrome>
 	, BitmapDemo::Frame<Layout, Monochrome>

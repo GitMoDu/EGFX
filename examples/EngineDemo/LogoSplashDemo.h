@@ -1,7 +1,7 @@
 #ifndef _LOGO_SPLASH_DEMO_h
 #define _LOGO_SPLASH_DEMO_h
 
-#include <EgfxDrawer.h>
+#include <EgfxDrawers.h>
 
 // Logo splash screen demo with custom renderer and auto-layout.
 namespace LogoSplashDemo
@@ -17,7 +17,7 @@ namespace LogoSplashDemo
 #if defined(SERIAL_LOG)
 		void PrintDescription() const
 		{
-			Serial.print(F("Logo Splash\n\tCustom renderer with auto-layout."));
+			Serial.print(F("Logo Splash\n\tCodeFont with auto-layout and custom shaders"));
 		}
 #endif
 	};

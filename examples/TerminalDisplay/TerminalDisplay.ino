@@ -11,11 +11,11 @@
 
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation of framebuffer.
 //#define USE_DOUBLE_FRAME_BUFFER // Enable double framebuffer.
+//#define USE_DISPLAY_FPS // Enable FPS display counter.
 //#define USE_PERFORMANCE_LOG_TASK // Enable performance logging task.
 
 //#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
 //#define EGFX_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for EGFX engine.
-
 
 #define _TASK_OO_CALLBACKS
 #include <TScheduler.hpp>
@@ -73,14 +73,27 @@ struct Layout
 };
 
 // Compile-time auto-magic selection of best fit text display type.
-// The base Framework::Widgets::SerialText::Views::SerialText<> is always an option.
-Assets::SerialTextFrameType<Layout> TerminalDisplayPrinter{};
+// The base Framework::Assets::TerminalWindow::Views::SerialText<> is always an option.
+using TerminalWindowViewType = Assets::SerialTextViewType<Layout>;
+
+// Optional FPS drawer compositing.
+#if defined(USE_DISPLAY_FPS)
+// Composite view with terminal display and FPS display.
+using ViewLayersType = Egfx::Framework::Assets::FpsDisplay::Views::CompositeWithFps<Layout, TerminalWindowViewType>;
+Egfx::Framework::View::FrameAdapter<ViewLayersType> ViewsFrame{};
+static TerminalWindowViewType& TerminalView() { return ViewsFrame.ViewInstance.view<0>(); }
+#else
+// Single terminal display view.
+Egfx::Framework::View::FrameAdapter<TerminalWindowViewType> ViewsFrame{};
+TerminalWindowViewType& TerminalView() { return ViewsFrame.ViewInstance; }
+#endif
 
 // Reference to terminal display print instance. Can be used as serial output replacement.
-Print& TerminalDisplay = TerminalDisplayPrinter.ViewInstance.Serial();
+Print& SerialDisplay = TerminalView().Serial();
 
-#if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task. Will output to display serial.
-Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine, TerminalDisplay);
+// Optional performance logging task.
+#if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task. Will output to serial display.
+Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine, SerialDisplay);
 #endif
 
 void halt()
@@ -140,8 +153,9 @@ void setup()
 	// Optional callback for RTOS driver variants.
 	DisplayEngine.SetBufferTaskCallback(BufferTaskCallback);
 
-	// Set the terminal display drawer.
-	DisplayEngine.SetDrawer(&TerminalDisplayPrinter);
+	//// Set the terminal display drawer.
+	//DisplayEngine.SetDrawer(&TerminalDisplayPrinter);
+	DisplayEngine.SetDrawer(&ViewsFrame);
 
 	// Start EGFX display engine.
 	if (!DisplayEngine.Start())
@@ -168,19 +182,19 @@ void setup()
 		Serial.println(F(" bit color screen."));
 	}
 #endif
-	TerminalDisplay.println(F("Terminal Display Start."));
-	TerminalDisplay.print(F("\tLines: "));
-	TerminalDisplay.println(TerminalDisplayPrinter.ViewInstance.Lines);
-	TerminalDisplay.print(F("\tCharacters: "));
-	TerminalDisplay.println(TerminalDisplayPrinter.ViewInstance.CharactersPerLine);
-	TerminalDisplay.print(FramebufferType::ColorDepth);
+	SerialDisplay.println(F("Terminal Display Start."));
+	SerialDisplay.print(F("\tLines: "));
+	SerialDisplay.println(TerminalView().Lines);
+	SerialDisplay.print(F("\tCharacters: "));
+	SerialDisplay.println(TerminalView().CharactersPerLine);
+	SerialDisplay.print(FramebufferType::ColorDepth);
 	if (FramebufferType::Monochrome)
 	{
-		TerminalDisplay.println(F(" bit monochrome screen."));
+		SerialDisplay.println(F(" bit monochrome screen."));
 	}
 	else
 	{
-		TerminalDisplay.println(F(" bit color screen."));
+		SerialDisplay.println(F(" bit color screen."));
 	}
 }
 
@@ -189,9 +203,9 @@ void loop()
 	// Serial loopback to display.
 	if (Serial.available() > 0)
 	{
-		while (TerminalDisplay.availableForWrite() && Serial.available() > 0)
+		while (SerialDisplay.availableForWrite() && Serial.available() > 0)
 		{
-			TerminalDisplay.print(static_cast<char>(Serial.read()));
+			SerialDisplay.print(static_cast<char>(Serial.read()));
 		}
 	}
 

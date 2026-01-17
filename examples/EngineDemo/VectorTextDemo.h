@@ -23,7 +23,7 @@ namespace VectorTextDemo
 		template<typename Layout>
 		struct CodeFontDefinitions
 		{
-			using CodeFontType = CodeFont::CodeFonts::RawBot;
+			using CodeFontType = CodeFont::CodeFonts::RawBot<>;
 			using CodeFontDrawerType = CodeFont::TemplateColorFontDrawer<CodeFontType, FontColorType>;
 			using CodeTextDrawerType = FontText::TemplateTextWriter<CodeFontDrawerType, Layout>;
 		};

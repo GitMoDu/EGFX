@@ -25,7 +25,7 @@ using DisplayConfig = Egfx::PlatformPresets::Configs::RP2350_SPI_GENERIC;
 using DisplayConfig = Egfx::PlatformPresets::Configs::NRF52_SPI_GENERIC;
 #endif
 
-// Display options definition. Adjust as needed.
+// Display options definition. Adjust as needed and add to Framebuffer type definition below.
 using EgfxOptions = Egfx::DisplayOptions::TemplateOptions<
 	Egfx::DisplayOptions::MirrorEnum::None,
 	Egfx::DisplayOptions::RotationEnum::None,
@@ -54,8 +54,8 @@ using FramebufferType = Egfx::BinaryFramebuffer<ScreenDriverType::ScreenWidth, S
 //using ScreenDriverType = Egfx::ScreenDriverST7735S_80x160x16_SPI<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
 //using ScreenDriverType = Egfx::ScreenDriverSSD1331_96x64x16_SPI<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
 //using ScreenDriverType = Egfx::ScreenDriverST7789_172x320x16_SPI<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
-//using ScreenDriverType = Egfx::ScreenDriverST7789T3_240x320x16_SPI<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
-//using ScreenDriverType = Egfx::ScreenDriverGC9107_128x128x16_SPI_Dma<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
+//using ScreenDriverType = Egfx::ScreenDriverST7789T3_240x320x16_SPI_Dma<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET, F_CPU / 2>;
+//using ScreenDriverType = Egfx::ScreenDriverGC9107_128x128x16_SPI<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
 //using FramebufferType = Egfx::Color16Framebuffer<ScreenDriverType::ScreenWidth, ScreenDriverType::ScreenHeight, 0, EgfxOptions>;
 
 #endif

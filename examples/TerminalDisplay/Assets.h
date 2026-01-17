@@ -1,7 +1,7 @@
 #ifndef _ASSETS_h
 #define _ASSETS_h
 
-#include <EgfxDrawer.h>
+#include <EgfxDrawers.h>
 
 namespace Assets
 {
@@ -26,7 +26,7 @@ namespace Assets
 		{
 			static constexpr uint8_t GetScale()
 			{
-				return 1 + (GetDimension() / 128);
+				return 1 + (GetDimension() / (128 + 64));
 			}
 
 			static constexpr pixel_t GetDimension()
@@ -39,7 +39,7 @@ namespace Assets
 		struct ScaledFontConfig
 		{
 			using Font = BitmaskFonts::Plastic::FontType5x5;
-			static constexpr uint8_t ScaleX = FontScale<Layout>::GetScale();
+			static constexpr uint8_t ScaleX = FontScale<Layout>::GetScale() / 2;
 			static constexpr uint8_t ScaleY = FontScale<Layout>::GetScale();
 			using Drawer = BitmaskFont::TemplateColorScaledFontDrawer<Font, FontText::FullColorSource, ScaleX, ScaleY>;
 			static constexpr pixel_t FontWidth = Font::Width * ScaleX;
@@ -60,7 +60,7 @@ namespace Assets
 	}
 
 	template<typename Layout>
-	using SerialTextDrawableType = Framework::Widgets::SerialText::Drawables::SerialText<
+	using SerialTextDrawableType = Framework::Assets::TerminalWindow::Drawables::SerialText<
 		Layout,
 		typename SerialTextAssets::FontConfig<Layout>::Drawer,
 		SerialTextAssets::FontConfig<Layout>::FontWidth,
@@ -69,7 +69,7 @@ namespace Assets
 		SerialTextAssets::LineSpacing>;
 
 	template<typename Layout>
-	using SerialTextViewType = Framework::Widgets::SerialText::Views::SerialText<
+	using SerialTextViewType = Framework::Assets::TerminalWindow::Views::SerialText<
 		Layout,
 		typename SerialTextAssets::FontConfig<Layout>::Drawer,
 		SerialTextAssets::FontConfig<Layout>::FontWidth,
@@ -78,7 +78,16 @@ namespace Assets
 		SerialTextAssets::LineSpacing>;
 
 	template<typename Layout>
-	using SerialTextFrameType = Framework::Widgets::SerialText::Frame<
+	using SerialTextViewType = Framework::Assets::TerminalWindow::Views::SerialText<
+		Layout,
+		typename SerialTextAssets::FontConfig<Layout>::Drawer,
+		SerialTextAssets::FontConfig<Layout>::FontWidth,
+		SerialTextAssets::FontConfig<Layout>::FontHeight,
+		SerialTextAssets::Kerning,
+		SerialTextAssets::LineSpacing>;
+
+	template<typename Layout>
+	using SerialTextFrameType = Framework::Assets::TerminalWindow::Frames::Frame<
 		Layout,
 		typename SerialTextAssets::FontConfig<Layout>::Drawer,
 		SerialTextAssets::FontConfig<Layout>::FontWidth,

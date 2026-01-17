@@ -564,7 +564,7 @@ namespace Egfx
 				}
 				else
 				{
-					pixel_t cursor = x + Base::Draw(framebuffer, x, y,
+					const pixel_t cursor = x + Base::Draw(framebuffer, x, y,
 						static_cast<const char>(AsciiDefinition::Printable::Minus))
 						+ Base::GetKerningWidth();
 					return Write(framebuffer, cursor, y, static_cast<const uint16_t>(-number));
@@ -579,7 +579,7 @@ namespace Egfx
 				}
 				else
 				{
-					pixel_t cursor = x + Base::Draw(framebuffer, x, y,
+					const pixel_t cursor = x + Base::Draw(framebuffer, x, y,
 						static_cast<const char>(AsciiDefinition::Printable::Minus))
 						+ Base::GetKerningWidth();
 					return Write(framebuffer, cursor, y, static_cast<const uint32_t>(-number));

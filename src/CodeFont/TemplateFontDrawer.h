@@ -1,5 +1,5 @@
-#ifndef _EGFX_CODE_FONT_ABSTRACT_FONT_DRAWER_h
-#define _EGFX_CODE_FONT_ABSTRACT_FONT_DRAWER_h
+#ifndef _EGFX_CODE_FONT_TEMPLATE_FONT_DRAWER_h
+#define _EGFX_CODE_FONT_TEMPLATE_FONT_DRAWER_h
 
 #include "Model.h"
 
@@ -8,13 +8,10 @@ namespace Egfx
 	namespace CodeFont
 	{
 		template<typename CodeFontType>
-		class AbstractFontDrawer
+		class TemplateFontDrawer : public CodeFontType
 		{
 		public:
 			using dimension_t = typename CodeFontType::dimension_t;
-
-		protected:
-			CodeFontType CodeDrawer;
 
 		private:
 			dimension_t TabWidth = 5;
@@ -22,18 +19,18 @@ namespace Egfx
 			dimension_t KerningWidth;
 
 		public:
-			AbstractFontDrawer(const dimension_t width = 8,
+			TemplateFontDrawer(const dimension_t width = 8,
 				const dimension_t height = 8,
 				const dimension_t kerning = 1)
-				: CodeDrawer(width, height)
+				: CodeFontType(width, height)
 				, KerningWidth(kerning)
 			{
 			}
 
 			void SetFontDimensions(const dimension_t width, const dimension_t height)
 			{
-				CodeDrawer.SetFontWidth(width);
-				CodeDrawer.SetFontHeight(height);
+				CodeFontType::SetFontWidth(width);
+				CodeFontType::SetFontHeight(height);
 			}
 
 			void SetFontDimensions(const dimension_t width, const dimension_t height, const dimension_t kerning)
@@ -44,12 +41,12 @@ namespace Egfx
 
 			void SetFontWidth(const dimension_t width)
 			{
-				CodeDrawer.SetFontWidth(width);
+				CodeFontType::SetFontWidth(width);
 			}
 
 			void SetFontHeight(const dimension_t height)
 			{
-				CodeDrawer.SetFontHeight(height);
+				CodeFontType::SetFontHeight(height);
 			}
 
 			void SetKerningWidth(const dimension_t kerning)
@@ -89,22 +86,6 @@ namespace Egfx
 			dimension_t GetKerningWidth() const
 			{
 				return KerningWidth;
-			}
-
-			/// <summary>
-			/// Gets the pixel width of the font.
-			/// </summary>
-			dimension_t GetFontWidth() const
-			{
-				return CodeDrawer.GetFontWidth();
-			}
-
-			/// <summary>
-			/// Gets the pixel height of the font.
-			/// </summary>
-			dimension_t GetFontHeight() const
-			{
-				return CodeDrawer.GetFontHeight();
 			}
 		};
 	}

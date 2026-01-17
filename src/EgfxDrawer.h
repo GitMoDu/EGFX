@@ -31,22 +31,19 @@
 // Vector graphics.
 #include "VectorGraphics/Model.h"
 #include "VectorGraphics/Shaders.h"
-#include "VectorGraphics/TemplateShadeDecoder.h"
-#include "VectorGraphics/SingleColorVectorDrawer.h"
+#include "VectorGraphics/TemplateVectorDrawer.h"
 
 // Vector font, derives from vector graphics.
 #include "VectorFont/Model.h"
-#include "VectorFont/AbstractFontDrawer.h"
-#include "VectorFont/ColorFontDrawer.h"
+#include "VectorFont/TemplateFontDrawer.h"
 
 // Code font.
 #include "CodeFont/Model.h"
-#include "CodeFont/AbstractFontDrawer.h"
-#include "CodeFont/ColorFontDrawer.h"
+#include "CodeFont/TemplateFontDrawer.h"
 
 // Bitmask font.
-#include "BitmaskFont/AbstractFontDrawer.h"
-#include "BitmaskFont/ColorFontDrawer.h"
+#include "BitmaskFont/Model.h"
+#include "BitmaskFont/TemplateFontDrawer.h"
 
 // Text rendering.
 #include "Text/FontText.h"

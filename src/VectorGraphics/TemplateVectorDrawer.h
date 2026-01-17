@@ -1,5 +1,5 @@
-#ifndef _EGFX_VECTOR_GRAPHICS_TEMPLATE_SHADE_DECODER_h
-#define _EGFX_VECTOR_GRAPHICS_TEMPLATE_SHADE_DECODER_h
+#ifndef _EGFX_VECTOR_GRAPHICS_TEMPLATE_TEMPLATE_VECTOR_DRAWER_h
+#define _EGFX_VECTOR_GRAPHICS_TEMPLATE_TEMPLATE_VECTOR_DRAWER_h
 
 #include "Model.h"
 
@@ -7,44 +7,13 @@ namespace Egfx
 {
 	namespace VectorGraphics
 	{
-		namespace Contract
-		{
-			template<typename dimension_t>
-			class VectorShader
-			{
-			public:
-				VectorShader() {}
-
-			protected:
-				void PrimitivePoint(const dimension_t x, const dimension_t y) {}
-
-				void PrimitiveLine(const dimension_t x1, const dimension_t y1,
-					const dimension_t x2, const dimension_t y2)
-				{
-				}
-
-				void PrimitiveRectangleFill(const dimension_t x1, const dimension_t y1,
-					const dimension_t x2, const dimension_t y2)
-				{
-				}
-
-				void PrimitiveTriangleFill(const dimension_t x1, const dimension_t y1,
-					const dimension_t x2, const dimension_t y2,
-					const dimension_t x3, const dimension_t y3)
-				{
-				}
-
-				void PrepareDraw(IFrameBuffer* framebuffer, const rgb_color_t color, const pixel_t originX, const pixel_t originY)
-				{
-				}
-			};
-		}
-
-		template<typename VectorShaderType,
+		template<
 			typename ModelType,
 			typename dimension_t,
-			typename vector_count_t = uint_fast8_t>
-		class TemplateShadeDecoder : public VectorShaderType
+			typename vector_count_t = uint_fast8_t,
+			typename PrimitiveShaderType = VectorGraphics::Shaders::Primitive::SingleColor<dimension_t>
+		>
+		class TemplateVectorDrawer : public PrimitiveShaderType
 		{
 		protected:
 			using axis_t = typename ModelType::axis_t;
@@ -61,24 +30,25 @@ namespace Egfx
 			dimension_t Height;
 
 		public:
-			TemplateShadeDecoder(const dimension_t width = 16, const dimension_t height = 16)
-				: VectorShaderType()
-				, Width(width), Height(height)
+			TemplateVectorDrawer(const dimension_t width = 16, const dimension_t height = 16)
+				: Width(width), Height(height)
 			{
 			}
 
-		protected:
 			/// <summary>
-			/// Decode a vector stream and emit primitives to the provided output shader.
-			/// Matches the FramebufferDraw behavior:
+			/// Decode a vector stream and draw primitives to the provided output shader.
 			/// - Start: continue polyline; terminates any active strip without emitting a triangle.
 			/// - End: emits final line/pixel or final strip triangle, then resets segment state.
 			/// - TriangleFill: sliding window strip; needs two prior points; Start/End stop the strip.
 			/// - RectangleFill: uses previous and current as opposite corners (corner ordering handled downstream).
 			/// Coordinates are scaled to [0..Width]/[0..Height] for the active ModelType.
 			/// </summary>
-			void DecodeVectors(const node_t* vectors, const uint16_t vectorCount)
+			void DrawVectors(IFrameBuffer* framebuffer, const node_t* vectors, const uint16_t vectorCount, const pixel_t x, const pixel_t y)
 			{
+				// Setup shader for this draw call.
+				PrimitiveShaderType::PrimitivePrepare(x, y);
+
+				// State for decoding.
 				coordinates_t lastPoints[3]{}; // [prev2, prev1, current]
 				uint8_t pointIndex = 0;        // 0: none, 1: prev1 valid, 2: prev2+prev1 valid (strip-ready).
 				bool polygonActive = false;    // True while emitting TriangleFill strip.
@@ -106,12 +76,12 @@ namespace Egfx
 						{
 							if (lastPoints[1].x != lastPoints[2].x || lastPoints[1].y != lastPoints[2].y)
 							{
-								VectorShaderType::PrimitiveLine(lastPoints[1].x, lastPoints[1].y,
+								PrimitiveShaderType::PrimitiveLine(framebuffer, lastPoints[1].x, lastPoints[1].y,
 									lastPoints[2].x, lastPoints[2].y);
 							}
 							else
 							{
-								VectorShaderType::PrimitivePoint(lastPoints[2].x, lastPoints[2].y);
+								PrimitiveShaderType::PrimitivePixel(framebuffer, lastPoints[2].x, lastPoints[2].y);
 							}
 						}
 						// Arm for next point.
@@ -124,7 +94,7 @@ namespace Egfx
 							polygonActive = false;
 							if (pointIndex >= 2)
 							{
-								VectorShaderType::PrimitiveTriangleFill(
+								PrimitiveShaderType::PrimitiveTriangleFill(framebuffer,
 									lastPoints[0].x, lastPoints[0].y,
 									lastPoints[1].x, lastPoints[1].y,
 									lastPoints[2].x, lastPoints[2].y);
@@ -134,12 +104,12 @@ namespace Egfx
 						{
 							if (lastPoints[1].x != lastPoints[2].x || lastPoints[1].y != lastPoints[2].y)
 							{
-								VectorShaderType::PrimitiveLine(lastPoints[1].x, lastPoints[1].y,
+								PrimitiveShaderType::PrimitiveLine(framebuffer, lastPoints[1].x, lastPoints[1].y,
 									lastPoints[2].x, lastPoints[2].y);
 							}
 							else
 							{
-								VectorShaderType::PrimitivePoint(lastPoints[2].x, lastPoints[2].y);
+								PrimitiveShaderType::PrimitivePixel(framebuffer, lastPoints[2].x, lastPoints[2].y);
 							}
 						}
 						pointIndex = 0; // Reset segment state.
@@ -156,7 +126,7 @@ namespace Egfx
 						}
 						if (polygonActive && pointIndex >= 2)
 						{
-							VectorShaderType::PrimitiveTriangleFill(
+							PrimitiveShaderType::PrimitiveTriangleFill(framebuffer,
 								lastPoints[0].x, lastPoints[0].y,
 								lastPoints[1].x, lastPoints[1].y,
 								lastPoints[2].x, lastPoints[2].y);
@@ -172,7 +142,7 @@ namespace Egfx
 						// Emit rectangle using previous and current as opposite corners.
 						if (pointIndex >= 1)
 						{
-							VectorShaderType::PrimitiveRectangleFill(
+							PrimitiveShaderType::PrimitiveRectangleFill(framebuffer,
 								lastPoints[1].x, lastPoints[1].y,
 								lastPoints[2].x, lastPoints[2].y);
 						}

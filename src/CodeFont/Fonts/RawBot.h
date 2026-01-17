@@ -9,14 +9,23 @@ namespace Egfx
 	{
 		namespace CodeFonts
 		{
-			template<uint8_t DefaultFontWidth = 5, uint8_t DefaultFontHeight = 7, uint8_t DefaultKerningWidth = 2>
-			class RawBot : public AbstractCodeFont<uint8_t>
+			template<uint8_t DefaultFontWidth = 5,
+				uint8_t DefaultFontHeight = 7,
+				uint8_t DefaultKerningWidth = 2,
+				typename PrimitiveShaderType = VectorGraphics::Shaders::Primitive::SingleColor<pixel_t>
+			>
+			class RawBot : public AbstractCodeFont<pixel_t, PrimitiveShaderType>
 			{
 			private:
-				using Base = AbstractCodeFont<uint8_t>;
+				using Base = AbstractCodeFont<pixel_t, PrimitiveShaderType>;
 
 			public:
-				using dimension_t = uint8_t;
+				using dimension_t = pixel_t;
+
+			public:
+				using Base::PrimitivePrepare;
+				using Base::PrimitivePixel;
+				using Base::PrimitiveLine;
 
 			protected:
 				using Base::Width;
@@ -55,302 +64,304 @@ namespace Egfx
 					MiddleY = Height / 2;
 				}
 
-				pixel_t Draw(IFrameBuffer* framebuffer, const rgb_color_t color, const pixel_t x, const pixel_t y, const char printableChar)
+				pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
 				{
+					PrimitivePrepare(x, y);
+
 					switch (static_cast<uint8_t>(printableChar))
 					{
 					case uint8_t(AsciiDefinition::Printable::Digit0):
-						framebuffer->Line(color, x + 1, y, x + Width - 1, y);
-						framebuffer->Line(color, x + 1, y + Height - 1, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x, y + 1, x, y + Height - 1);
-						framebuffer->Line(color, x + Width - 1, y + 1, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x + 2, y + Height - 1, x + Width - 1, y + 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1, 0);
+						PrimitiveLine(framebuffer, 1, Height - 1, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, 0, 1, 0, Height - 1);
+						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, 2, Height - 1, Width - 1, 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit1):
 						if (Width - 1 > 2)
 						{
-							framebuffer->Line(color, x, y + 1, x + MiddleX, y);
-							framebuffer->Line(color, x + MiddleX, y, x + MiddleX, y + Height - 1 - 1);
-							framebuffer->Line(color, x + 1, y + Height - 1, x + Width - 1, y + Height - 1);
+							PrimitiveLine(framebuffer, 0, 1, MiddleX, 0);
+							PrimitiveLine(framebuffer, MiddleX, 0, MiddleX, Height - 1 - 1);
+							PrimitiveLine(framebuffer, 1, Height - 1, Width - 1, Height - 1);
 						}
 						else
 						{
-							framebuffer->Line(color, x + MiddleX, y, x + MiddleX, y + Height - 1 - 1);
-							framebuffer->Line(color, x, y + Height - 1, x + Width - 1, y + Height - 1);
+							PrimitiveLine(framebuffer, MiddleX, 0, MiddleX, Height - 1 - 1);
+							PrimitiveLine(framebuffer, 0, Height - 1, Width - 1, Height - 1);
 						}
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit2):
-						framebuffer->Line(color, x, y, x + Width - 1 - 1, y);
-						framebuffer->Line(color, x + Width - 1, y + 1, x + Width - 1, y + MiddleY - 2);
-						framebuffer->Line(color, x, y + Height - 1 - 1, x + Width - 1, y + MiddleY - 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1 - 1, 0);
+						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, MiddleY - 2);
+						PrimitiveLine(framebuffer, 0, Height - 1 - 1, Width - 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit3):
-						framebuffer->Line(color, x + Width - 1, y + 1, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x, y, x + Width - 1 - 1, y);
-						framebuffer->Line(color, x + MiddleX, y + MiddleY - 1, x + Width - 1 - 1, y + MiddleY - 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1 - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1 - 1, 0);
+						PrimitiveLine(framebuffer, MiddleX, MiddleY - 1, Width - 1 - 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1 - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit4):
-						framebuffer->Line(color, x + Width - 1, y, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x, y + MiddleY + 1, x + Width - 1 - 1, y + MiddleY + 1);
+						PrimitiveLine(framebuffer, Width - 1, 0, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, 0, MiddleY + 1, Width - 1 - 1, MiddleY + 1);
 						if (Width - 1 > 7)
 						{
 							const pixel_t referenceX = x - 1 + (MiddleX / 2);
-							framebuffer->Line(color, referenceX, y, x, y + MiddleY + 1);
+							PrimitiveLine(framebuffer, referenceX - x, 0, 0, MiddleY + 1);
 						}
 						else
 						{
-							framebuffer->Line(color, x + 1, y, x, y + MiddleY + 1);
+							PrimitiveLine(framebuffer, 1, 0, 0, MiddleY + 1);
 						}
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit5):
-						framebuffer->Line(color, x, y, x + Width - 1, y);
-						framebuffer->Line(color, x, y + 1, x, y + MiddleY - 1);
-						framebuffer->Line(color, x + 1, y + MiddleY - 1, x + Width - 1 - 1, y + MiddleY - 1);
-						framebuffer->Line(color, x + Width - 1, y + MiddleY, x + Width - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1 - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1, 0);
+						PrimitiveLine(framebuffer, 0, 1, 0, MiddleY - 1);
+						PrimitiveLine(framebuffer, 1, MiddleY - 1, Width - 1 - 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, Width - 1, MiddleY, Width - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1 - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit6):
-						framebuffer->Line(color, x + Width - 1 - 1, y, x, y);
-						framebuffer->Line(color, x, y + 1, x, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 1, y + MiddleY - 1, x + Width - 1 - 1, y + MiddleY - 1);
-						framebuffer->Line(color, x + Width - 1, y + MiddleY, x + Width - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1 - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, Width - 1 - 1, 0, 0, 0);
+						PrimitiveLine(framebuffer, 0, 1, 0, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 1, MiddleY - 1, Width - 1 - 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, Width - 1, MiddleY, Width - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1 - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit7):
-						framebuffer->Line(color, x, y, x + Width - 1 - 1, y);
-						framebuffer->Line(color, x + Width - 1 - 1, y + 1, x + Width - 1 - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1 - 1, 0);
+						PrimitiveLine(framebuffer, Width - 1 - 1, 1, Width - 1 - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit8):
-						framebuffer->Line(color, x + 1, y, x + Width - 1 - 1, y);
-						framebuffer->Line(color, x + 1, y + Height - 1, x + Width - 1 - 1, y + Height - 1);
-						framebuffer->Line(color, x, y + 1, x, y + Height - 1 - 1);
-						framebuffer->Line(color, x + Width - 1, y + 1, x + Width - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 1, y + MiddleY - 1, x + Width - 1 - 1, y + MiddleY - 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1 - 1, 0);
+						PrimitiveLine(framebuffer, 1, Height - 1, Width - 1 - 1, Height - 1);
+						PrimitiveLine(framebuffer, 0, 1, 0, Height - 1 - 1);
+						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 1, MiddleY - 1, Width - 1 - 1, MiddleY - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit9):
-						framebuffer->Line(color, x + 1, y, x + Width - 1 - 1, y);
-						framebuffer->Line(color, x + Width - 1, y + 1, x + Width - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 1, y + MiddleY - 1, x + Width - 1 - 1, y + MiddleY - 1);
-						framebuffer->Line(color, x + Width - 1 - 1, y + MiddleY, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1 - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1 - 1, 0);
+						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 1, MiddleY - 1, Width - 1 - 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, Width - 1 - 1, MiddleY, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1 - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Minus):
-						framebuffer->Line(color, x, y + MiddleY, x + Width - 1, y + MiddleY);
+						PrimitiveLine(framebuffer, 0, MiddleY, Width - 1, MiddleY);
 						break;
 					case uint8_t(AsciiDefinition::Printable::a):
 					case uint8_t(AsciiDefinition::Printable::A):
 					{
 						const pixel_t margin = MiddleX / 2;
-						framebuffer->Line(color, x + MiddleX - 1, y, x, y + Height - 1);
-						framebuffer->Pixel(color, x + MiddleX, y);
-						framebuffer->Line(color, x + MiddleX + 1, y, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x + margin, y + 1, x + Width - 1 - margin, y + 1);
+						PrimitiveLine(framebuffer, MiddleX - 1, 0, 0, Height - 1);
+						PrimitivePixel(framebuffer, MiddleX, 0);
+						PrimitiveLine(framebuffer, MiddleX + 1, 0, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, margin, 1, Width - 1 - margin, 1);
 						break;
 					}
 					case uint8_t(AsciiDefinition::Printable::b):
 					case uint8_t(AsciiDefinition::Printable::B):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x, y, x + Width - 1 - 2, y);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + 1);
-						framebuffer->Line(color, x + Width - 1, y + 2, x + Width - 1, y + MiddleY - 2);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + MiddleY - 1);
-						framebuffer->Line(color, x + 1, y + MiddleY, x + Width - 1 - 2, y + MiddleY);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + MiddleY + 1);
-						framebuffer->Line(color, x + Width - 1, y + MiddleY + 2, x + Width - 1, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 1, y + Height - 1, x + Width - 1 - 2, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1 - 2, 0);
+						PrimitivePixel(framebuffer, Width - 1 - 1, 1);
+						PrimitiveLine(framebuffer, Width - 1, 2, Width - 1, MiddleY - 2);
+						PrimitivePixel(framebuffer, Width - 1 - 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, 1, MiddleY, Width - 1 - 2, MiddleY);
+						PrimitivePixel(framebuffer, Width - 1 - 1, MiddleY + 1);
+						PrimitiveLine(framebuffer, Width - 1, MiddleY + 2, Width - 1, Height - 1 - 2);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 1, Height - 1, Width - 1 - 2, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::c):
 					case uint8_t(AsciiDefinition::Printable::C):
-						framebuffer->Line(color, x + 2, y, x + Width - 1, y);
-						framebuffer->Pixel(color, x + 1, y + 1);
-						framebuffer->Line(color, x, y + 2, x, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 2, y + Height - 1, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 2, 0, Width - 1, 0);
+						PrimitivePixel(framebuffer, 1, 1);
+						PrimitiveLine(framebuffer, 0, 2, 0, Height - 1 - 2);
+						PrimitivePixel(framebuffer, 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 2, Height - 1, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::d):
 					case uint8_t(AsciiDefinition::Printable::D):
-						framebuffer->Line(color, x + 1, y, x + Width - 1 - 2, y);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + 1);
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x + Width - 1, y + 2, x + Width - 1, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 1, y + Height - 1, x + Width - 1 - 2, y + Height - 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1 - 2, 0);
+						PrimitivePixel(framebuffer, Width - 1 - 1, 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, Width - 1, 2, Width - 1, Height - 1 - 2);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 1, Height - 1, Width - 1 - 2, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::e):
 					case uint8_t(AsciiDefinition::Printable::E):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x + 1, y, x + Width - 1, y);
-						framebuffer->Line(color, x, y + MiddleY, x + Width - 1 - 2, y + MiddleY);
-						framebuffer->Line(color, x + 1, y + Height - 1, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1, 0);
+						PrimitiveLine(framebuffer, 0, MiddleY, Width - 1 - 2, MiddleY);
+						PrimitiveLine(framebuffer, 1, Height - 1, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::f):
 					case uint8_t(AsciiDefinition::Printable::F):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x, y, x + Width - 1, y);
-						framebuffer->Line(color, x, y + MiddleY, x + Width - 1 - 3, y + MiddleY);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1, 0);
+						PrimitiveLine(framebuffer, 0, MiddleY, Width - 1 - 3, MiddleY);
 						break;
 					case uint8_t(AsciiDefinition::Printable::g):
 					case uint8_t(AsciiDefinition::Printable::G):
-						framebuffer->Line(color, x + 2, y, x + Width - 1 - 1, y);
-						framebuffer->Pixel(color, x + Width - 1, y + 1);
-						framebuffer->Pixel(color, x + 1, y + 1);
-						framebuffer->Line(color, x, y + 2, x, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 2, y + Height - 1, x + Width - 1 - 2, y + Height - 1);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + Width - 1, y + MiddleY, x + Width - 1, y + Height - 1 - 2);
-						framebuffer->Line(color, x + MiddleX + 1, y + MiddleY, x + Width - 1 - 1, y + MiddleY);
+						PrimitiveLine(framebuffer, 2, 0, Width - 1 - 1, 0);
+						PrimitivePixel(framebuffer, Width - 1, 1);
+						PrimitivePixel(framebuffer, 1, 1);
+						PrimitiveLine(framebuffer, 0, 2, 0, Height - 1 - 2);
+						PrimitivePixel(framebuffer, 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 2, Height - 1, Width - 1 - 2, Height - 1);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, Width - 1, MiddleY, Width - 1, Height - 1 - 2);
+						PrimitiveLine(framebuffer, MiddleX + 1, MiddleY, Width - 1 - 1, MiddleY);
 						break;
 					case uint8_t(AsciiDefinition::Printable::h):
 					case uint8_t(AsciiDefinition::Printable::H):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x + 1, y + MiddleY, x + Width - 1 - 1, y + MiddleY);
-						framebuffer->Line(color, x + Width - 1, y, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, 1, MiddleY, Width - 1 - 1, MiddleY);
+						PrimitiveLine(framebuffer, Width - 1, 0, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::i):
 					case uint8_t(AsciiDefinition::Printable::I):
-						framebuffer->Line(color, x + 1, y, x + Width - 1 - 1, y);
-						framebuffer->Line(color, x + MiddleX, y + 1, x + MiddleX, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 1, y + Height - 1, x + Width - 1 - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1 - 1, 0);
+						PrimitiveLine(framebuffer, MiddleX, 1, MiddleX, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 1, Height - 1, Width - 1 - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::j):
 					case uint8_t(AsciiDefinition::Printable::J):
-						framebuffer->Line(color, x + Width - 1, y, x + Width - 1, y + Height - 1 - 2);
-						framebuffer->Line(color, x, y + MiddleY, x, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + 1, y + Height - 1 - 1);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 2, y + Height - 1, x + Width - 1 - 2, y + Height - 1);
+						PrimitiveLine(framebuffer, Width - 1, 0, Width - 1, Height - 1 - 2);
+						PrimitiveLine(framebuffer, 0, MiddleY, 0, Height - 1 - 2);
+						PrimitivePixel(framebuffer, 1, Height - 1 - 1);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 2, Height - 1, Width - 1 - 2, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::k):
 					case uint8_t(AsciiDefinition::Printable::K):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x, y + MiddleY, x + Width - 1, y);
-						framebuffer->Line(color, x + 1, y + MiddleY, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, 0, MiddleY, Width - 1, 0);
+						PrimitiveLine(framebuffer, 1, MiddleY, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::l):
 					case uint8_t(AsciiDefinition::Printable::L):
-						framebuffer->Line(color, x, y, x, y + Height - 1 - 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::m):
 					case uint8_t(AsciiDefinition::Printable::M):
-						framebuffer->Line(color, x, y + 1, x, y + Height - 1);
-						framebuffer->Line(color, x + Width - 1, y + 1, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x, y, x + MiddleX, y + Height - 1);
-						framebuffer->Line(color, x + MiddleX + 1, y + Height - 1, x + Width - 1, y);
+						PrimitiveLine(framebuffer, 0, 1, 0, Height - 1);
+						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, MiddleX, Height - 1);
+						PrimitiveLine(framebuffer, MiddleX + 1, Height - 1, Width - 1, 0);
 						break;
 					case uint8_t(AsciiDefinition::Printable::n):
 					case uint8_t(AsciiDefinition::Printable::N):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x + Width - 1, y, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x + 1, y + 1, x + Width - 1 - 1, y + Height - 1 - 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, Width - 1, 0, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, 1, 1, Width - 1 - 1, Height - 1 - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::o):
 					case uint8_t(AsciiDefinition::Printable::O):
-						framebuffer->Pixel(color, x + 1, y + 1);
-						framebuffer->Line(color, x + 2, y, x + Width - 1 - 2, y);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + 1);
-						framebuffer->Line(color, x, y + 2, x, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + Width - 1, y + 2, x + Width - 1, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 2, y + Height - 1, x + Width - 1 - 2, y + Height - 1);
+						PrimitivePixel(framebuffer, 1, 1);
+						PrimitiveLine(framebuffer, 2, 0, Width - 1 - 2, 0);
+						PrimitivePixel(framebuffer, Width - 1 - 1, 1);
+						PrimitiveLine(framebuffer, 0, 2, 0, Height - 1 - 2);
+						PrimitivePixel(framebuffer, 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, Width - 1, 2, Width - 1, Height - 1 - 2);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 2, Height - 1, Width - 1 - 2, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::p):
 					case uint8_t(AsciiDefinition::Printable::P):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x + 1, y, x + Width - 1 - 2, y);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + 1);
-						framebuffer->Line(color, x + 2, y, x + Width - 1 - 2, y);
-						framebuffer->Line(color, x + Width - 1, y + 2, x + Width - 1, y + MiddleY - 1);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + MiddleY);
-						framebuffer->Line(color, x + 1, y + MiddleY + 1, x + Width - 1 - 2, y + MiddleY + 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1 - 2, 0);
+						PrimitivePixel(framebuffer, Width - 1 - 1, 1);
+						PrimitiveLine(framebuffer, 2, 0, Width - 1 - 2, 0);
+						PrimitiveLine(framebuffer, Width - 1, 2, Width - 1, MiddleY - 1);
+						PrimitivePixel(framebuffer, Width - 1 - 1, MiddleY);
+						PrimitiveLine(framebuffer, 1, MiddleY + 1, Width - 1 - 2, MiddleY + 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::q):
 					case uint8_t(AsciiDefinition::Printable::Q):
-						framebuffer->Pixel(color, x + 1, y + 1);
-						framebuffer->Line(color, x + 2, y, x + Width - 1 - 2, y);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + 1);
-						framebuffer->Line(color, x, y + 2, x, y + Height - 1 - 3);
-						framebuffer->Pixel(color, x + 1, y + Height - 1 - 2);
-						framebuffer->Line(color, x + Width - 1, y + 2, x + Width - 1, y + Height - 1 - 3);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 2);
-						framebuffer->Line(color, x + 2, y + Height - 1 - 1, x + Width - 1 - 2, y + Height - 1 - 1);
-						framebuffer->Line(color, x + MiddleX, y + Height - 1 - 3, x + Width - 1, y + Height - 1);
+						PrimitivePixel(framebuffer, 1, 1);
+						PrimitiveLine(framebuffer, 2, 0, Width - 1 - 2, 0);
+						PrimitivePixel(framebuffer, Width - 1 - 1, 1);
+						PrimitiveLine(framebuffer, 0, 2, 0, Height - 1 - 3);
+						PrimitivePixel(framebuffer, 1, Height - 1 - 2);
+						PrimitiveLine(framebuffer, Width - 1, 2, Width - 1, Height - 1 - 3);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 2);
+						PrimitiveLine(framebuffer, 2, Height - 1 - 1, Width - 1 - 2, Height - 1 - 1);
+						PrimitiveLine(framebuffer, MiddleX, Height - 1 - 3, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::r):
 					case uint8_t(AsciiDefinition::Printable::R):
-						framebuffer->Line(color, x, y, x, y + Height - 1);
-						framebuffer->Line(color, x + 1, y, x + Width - 1 - 2, y);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + 1);
-						framebuffer->Line(color, x + 2, y, x + Width - 1 - 2, y);
-						framebuffer->Line(color, x + Width - 1, y + 2, x + Width - 1, y + MiddleY - 1);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + MiddleY);
-						framebuffer->Line(color, x + 1, y + MiddleY + 1, x + Width - 1 - 2, y + MiddleY + 1);
-						framebuffer->Line(color, x + MiddleX - 1, y + MiddleY + 1, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1);
+						PrimitiveLine(framebuffer, 1, 0, Width - 1 - 2, 0);
+						PrimitivePixel(framebuffer, Width - 1 - 1, 1);
+						PrimitiveLine(framebuffer, 2, 0, Width - 1 - 2, 0);
+						PrimitiveLine(framebuffer, Width - 1, 2, Width - 1, MiddleY - 1);
+						PrimitivePixel(framebuffer, Width - 1 - 1, MiddleY);
+						PrimitiveLine(framebuffer, 1, MiddleY + 1, Width - 1 - 2, MiddleY + 1);
+						PrimitiveLine(framebuffer, MiddleX - 1, MiddleY + 1, Width - 1, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::s):
 					case uint8_t(AsciiDefinition::Printable::S):
-						framebuffer->Line(color, x + 2, y, x + Width - 1 - 2, y);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + 1);
-						framebuffer->Pixel(color, x + 1, y + 1);
-						framebuffer->Line(color, x, y + 2, x, y + MiddleY - 2);
-						framebuffer->Pixel(color, x + 1, y + MiddleY - 1);
-						framebuffer->Line(color, x + 2, y + MiddleY, x + Width - 1 - 2, y + MiddleY);
-						framebuffer->Line(color, x + Width - 1, y + MiddleY + 2, x + Width - 1, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + MiddleY + 1);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 2, y + Height - 1, x + Width - 1 - 2, y + Height - 1);
-						framebuffer->Pixel(color, x + 1, y + Height - 1 - 1);
+						PrimitiveLine(framebuffer, 2, 0, Width - 1 - 2, 0);
+						PrimitivePixel(framebuffer, Width - 1 - 1, 1);
+						PrimitivePixel(framebuffer, 1, 1);
+						PrimitiveLine(framebuffer, 0, 2, 0, MiddleY - 2);
+						PrimitivePixel(framebuffer, 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, 2, MiddleY, Width - 1 - 2, MiddleY);
+						PrimitiveLine(framebuffer, Width - 1, MiddleY + 2, Width - 1, Height - 1 - 2);
+						PrimitivePixel(framebuffer, Width - 1 - 1, MiddleY + 1);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 2, Height - 1, Width - 1 - 2, Height - 1);
+						PrimitivePixel(framebuffer, 1, Height - 1 - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::t):
 					case uint8_t(AsciiDefinition::Printable::T):
-						framebuffer->Line(color, x, y, x + Width - 1, y);
-						framebuffer->Line(color, x + MiddleX, y, x + MiddleX, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1, 0);
+						PrimitiveLine(framebuffer, MiddleX, 0, MiddleX, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::u):
 					case uint8_t(AsciiDefinition::Printable::U):
-						framebuffer->Line(color, x, y, x, y + Height - 1 - 2);
-						framebuffer->Pixel(color, x + 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + 2, y + Height - 1, x + Width - 1 - 2, y + Height - 1);
-						framebuffer->Pixel(color, x + Width - 1 - 1, y + Height - 1 - 1);
-						framebuffer->Line(color, x + Width - 1, y, x + Width - 1, y + Height - 1 - 2);
+						PrimitiveLine(framebuffer, 0, 0, 0, Height - 1 - 2);
+						PrimitivePixel(framebuffer, 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 2, Height - 1, Width - 1 - 2, Height - 1);
+						PrimitivePixel(framebuffer, Width - 1 - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, Width - 1, 0, Width - 1, Height - 1 - 2);
 						break;
 					case uint8_t(AsciiDefinition::Printable::v):
 					case uint8_t(AsciiDefinition::Printable::V):
-						framebuffer->Line(color, x, y, x + MiddleX - 1, y + Height - 1);
-						framebuffer->Pixel(color, x + MiddleX, y + Height - 1);
-						framebuffer->Line(color, x + MiddleX + 1, y + Height - 1, x + Width - 1, y);
+						PrimitiveLine(framebuffer, 0, 0, MiddleX - 1, Height - 1);
+						PrimitivePixel(framebuffer, MiddleX, Height - 1);
+						PrimitiveLine(framebuffer, MiddleX + 1, Height - 1, Width - 1, 0);
 						break;
 					case uint8_t(AsciiDefinition::Printable::w):
 					case uint8_t(AsciiDefinition::Printable::W):
 					{
 						const pixel_t margin = Width - 1 / 3;
-						framebuffer->Line(color, x, y, x + MiddleX - margin, y + Height - 1);
-						framebuffer->Line(color, x + MiddleX - margin, y + Height - 1, x + MiddleX, y + 1);
-						framebuffer->Line(color, x + MiddleX + margin, y + Height - 1, x + MiddleX, y + 1);
-						framebuffer->Line(color, x + Width - 1 - 1, y, x + MiddleX + margin, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, MiddleX - margin, Height - 1);
+						PrimitiveLine(framebuffer, MiddleX - margin, Height - 1, MiddleX, 1);
+						PrimitiveLine(framebuffer, MiddleX + margin, Height - 1, MiddleX, 1);
+						PrimitiveLine(framebuffer, Width - 1 - 1, 0, MiddleX + margin, Height - 1);
 						break;
 					}
 					case uint8_t(AsciiDefinition::Printable::x):
 					case uint8_t(AsciiDefinition::Printable::X):
-						framebuffer->Line(color, x, y, x + Width - 1, y + Height - 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1, y);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1, Height - 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1, 0);
 						break;
 					case uint8_t(AsciiDefinition::Printable::y):
 					case uint8_t(AsciiDefinition::Printable::Y):
-						framebuffer->Line(color, x, y, x + MiddleX - 1, y + MiddleY - 1);
-						framebuffer->Line(color, x + Width - 1, y, x + MiddleX + 1, y + MiddleY - 1);
-						framebuffer->Line(color, x + MiddleX, y + MiddleY, x + MiddleX, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, MiddleX - 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, Width - 1, 0, MiddleX + 1, MiddleY - 1);
+						PrimitiveLine(framebuffer, MiddleX, MiddleY, MiddleX, Height - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::z):
 					case uint8_t(AsciiDefinition::Printable::Z):
-						framebuffer->Line(color, x, y, x + Width - 1, y);
-						framebuffer->Line(color, x + 1, y + Height - 1 - 1, x + Width - 1, y + 1);
-						framebuffer->Line(color, x, y + Height - 1, x + Width - 1, y + Height - 1);
+						PrimitiveLine(framebuffer, 0, 0, Width - 1, 0);
+						PrimitiveLine(framebuffer, 1, Height - 1 - 1, Width - 1, 1);
+						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1, Height - 1);
 						break;
 					default:
 						return 0; // No advance on no-draw.
@@ -358,11 +369,6 @@ namespace Egfx
 
 					// Monospaced font.
 					return Width;
-				}
-
-				pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
-				{
-					return Draw(framebuffer, RGB_COLOR_WHITE, x, y, printableChar);
 				}
 			};
 		}

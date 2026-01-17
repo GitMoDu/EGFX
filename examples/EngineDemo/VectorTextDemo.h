@@ -10,13 +10,11 @@ namespace VectorTextDemo
 
 	namespace Definitions
 	{
-		using FontColorType = FontText::SingleColorSource;
-
 		template<typename Layout>
 		struct VectorFontDefinitions
 		{
 			using VectorFontType = VectorFonts::Epoxy::FullFontType;
-			using VectorFontDrawerType = VectorFont::TemplateColorFontDrawer<VectorFontType, FontColorType>;
+			using VectorFontDrawerType = VectorFont::TemplateFontDrawer<VectorFontType>;
 			using VectorTextDrawerType = FontText::TemplateTextWriter<VectorFontDrawerType, Layout>;
 		};
 
@@ -24,7 +22,7 @@ namespace VectorTextDemo
 		struct CodeFontDefinitions
 		{
 			using CodeFontType = CodeFont::CodeFonts::RawBot<>;
-			using CodeFontDrawerType = CodeFont::TemplateColorFontDrawer<CodeFontType, FontColorType>;
+			using CodeFontDrawerType = CodeFont::TemplateFontDrawer<CodeFontType>;
 			using CodeTextDrawerType = FontText::TemplateTextWriter<CodeFontDrawerType, Layout>;
 		};
 
@@ -153,7 +151,7 @@ namespace VectorTextDemo
 		View()
 			: Base()
 		{
-			CodeTextDrawer.SetFontDimensions(LayoutDefinition::MinFontHeight, LayoutDefinition::MinFontHeight, LayoutDefinition::Kerning);
+			CodeTextDrawer.SetFontDimensions(LayoutDefinition::MinFontHeight, LayoutDefinition::MinFontHeight, 1);
 			VectorTextDrawer.SetFontDimensions(LayoutDefinition::MinFontHeight, LayoutDefinition::MinFontHeight, LayoutDefinition::Kerning);
 
 			auto& numbers = Base::template drawable<0>();
@@ -192,8 +190,9 @@ namespace VectorTextDemo
 
 			if (!Monochrome)
 			{
-				CodeTextDrawer.FontColor.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
-				VectorTextDrawer.FontColor.Color = Rgb::Color(uint32_t(~CodeTextDrawer.FontColor.Color));
+				
+				//CodeTextDrawer.ColorShader.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
+				//VectorTextDrawer.ColorShader.Color = Rgb::Color(uint32_t(~CodeTextDrawer.FontColor.Color));
 			}
 		}
 	};

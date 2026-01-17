@@ -14,7 +14,6 @@ namespace Assets
 		static constexpr char ShortFox3[] PROGMEM = "the lazy Doge";
 	}
 
-
 	struct HeartSprite : public FlashBitMaskSprite<Heart::Width, Heart::Height>
 	{
 		HeartSprite() : FlashBitMaskSprite<Heart::Width, Heart::Height>(Heart::Mask)

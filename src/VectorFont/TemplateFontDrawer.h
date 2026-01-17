@@ -1,36 +1,36 @@
-#ifndef _EGFX_VECTOR_FONT_ABSTRACT_FONT_DRAWER_h
-#define _EGFX_VECTOR_FONT_ABSTRACT_FONT_DRAWER_h
+#ifndef _EGFX_VECTOR_FONT_TEMPLATE_FONT_DRAWER_h
+#define _EGFX_VECTOR_FONT_TEMPLATE_FONT_DRAWER_h
 
 #include "Model.h"
 #include "../Model/IFrameBuffer.h"
 
 #include "../VectorGraphics/Shaders.h"
-#include "../VectorGraphics/TemplateShadeDecoder.h"
-#include "../VectorGraphics/SingleColorVectorDrawer.h"
-
+#include "../VectorGraphics/TemplateVectorDrawer.h"
 
 namespace Egfx
 {
-	/// <summary>
-	/// Vector font utilities.
-	/// - Glyphs are defined on an 8×8 local grid (VectorGraphics Model8) using compact vector nodes.
-	/// - Rendering scales local coordinates to the configured font Width/Height.
-	/// - KerningWidth is applied between glyphs (or space/tab), not after the last glyph.
-	/// </summary>
 	namespace VectorFont
 	{
 		template<typename VectorFontType,
-			typename dimension_t = uint8_t,
+			typename font_dimension_t = uint8_t,
 			typename vector_count_t = uint_fast8_t,
-			typename VectorShaderType = typename VectorGraphics::VectorShaders::SingleColorShader<dimension_t>>
-			class AbstractFontDrawer
+			typename VectorShaderType = typename VectorGraphics::Shaders::Primitive::SingleColor<font_dimension_t>
+		>
+		class TemplateFontDrawer : public VectorGraphics::TemplateVectorDrawer<
+			typename VectorFontType::CharacterSetType::VectorModel,
+			font_dimension_t,
+			vector_count_t,
+			VectorShaderType>
 		{
+		public:
+			using dimension_t = font_dimension_t;
+
 		private:
 			using VectorModel = typename VectorFontType::CharacterSetType::VectorModel;
-			using axis_t = typename VectorModel::axis_t;
 
-		protected:
-			VectorGraphics::SingleColorVectorDrawer<VectorModel, dimension_t, vector_count_t, VectorShaderType> VectorDrawer;
+			using Base = VectorGraphics::TemplateVectorDrawer<VectorModel, dimension_t, vector_count_t, VectorShaderType>;
+
+			using axis_t = typename VectorModel::axis_t;
 
 		private:
 			// Pre-scaled space and tab widths.
@@ -44,15 +44,31 @@ namespace Egfx
 			axis_t Kerning;
 
 		public:
-			AbstractFontDrawer(const dimension_t width = VectorModel::AxisMax,
+			TemplateFontDrawer(const dimension_t width = VectorModel::AxisMax,
 				const dimension_t height = VectorModel::AxisMax,
 				const axis_t kerning = 1)
-				: VectorDrawer(width, height)
-				, TabWidth(VectorModel::GetScaled(VectorDrawer.Width, VectorFontType::TabWidth))
-				, SpaceWidth(VectorModel::GetScaled(VectorDrawer.Width, VectorFontType::SpaceWidth))
+				: Base(width, height)
+				, TabWidth(VectorModel::GetScaled(width, VectorFontType::TabWidth))
+				, SpaceWidth(VectorModel::GetScaled(width, VectorFontType::SpaceWidth))
 				, KerningWidth(GetScaledKerning(kerning))
 				, Kerning(kerning)
 			{
+			}
+
+			pixel_t Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const char printableChar)
+			{
+				const auto set = VectorFontType::GetCharacterSet(printableChar);
+				Base::DrawVectors(framebuffer, set.Nodes, set.Count, x, y);
+
+				return VectorModel::GetScaled(Base::Width, set.Width) + 1;
+			}
+
+			// Get only character advance.
+			pixel_t Advance(const char printableChar) const
+			{
+				const auto set = VectorFontType::GetCharacterSet(printableChar);
+
+				return VectorModel::GetScaled(Base::Width, set.Width) + 1;
 			}
 
 			/// <summary>
@@ -60,10 +76,10 @@ namespace Egfx
 			/// </summary>
 			void SetFontDimensions(const dimension_t width, const dimension_t height)
 			{
-				VectorDrawer.Width = width;
-				VectorDrawer.Height = height;
-				TabWidth = VectorModel::GetScaled(VectorDrawer.Width, VectorFontType::TabWidth);
-				SpaceWidth = VectorModel::GetScaled(VectorDrawer.Width, VectorFontType::SpaceWidth);
+				Base::Width = width;
+				Base::Height = height;
+				TabWidth = VectorModel::GetScaled(Base::Width, VectorFontType::TabWidth);
+				SpaceWidth = VectorModel::GetScaled(Base::Width, VectorFontType::SpaceWidth);
 				KerningWidth = GetScaledKerning(Kerning);
 			}
 
@@ -78,9 +94,9 @@ namespace Egfx
 			/// </summary>
 			void SetFontWidth(const dimension_t width)
 			{
-				VectorDrawer.Width = width;
-				TabWidth = VectorModel::GetScaled(VectorDrawer.Width, VectorFontType::TabWidth);
-				SpaceWidth = VectorModel::GetScaled(VectorDrawer.Width, VectorFontType::SpaceWidth);
+				Base::Width = width;
+				TabWidth = VectorModel::GetScaled(Base::Width, VectorFontType::TabWidth);
+				SpaceWidth = VectorModel::GetScaled(Base::Width, VectorFontType::SpaceWidth);
 				KerningWidth = GetScaledKerning(Kerning);
 			}
 
@@ -89,7 +105,7 @@ namespace Egfx
 			/// </summary>
 			void SetFontHeight(const dimension_t height)
 			{
-				VectorDrawer.Height = height;
+				Base::Height = height;
 			}
 
 			/// <summary>
@@ -138,7 +154,7 @@ namespace Egfx
 			/// </summary>
 			dimension_t GetFontWidth() const
 			{
-				return VectorDrawer.Width;
+				return Base::Width;
 			}
 
 			/// <summary>
@@ -146,7 +162,7 @@ namespace Egfx
 			/// </summary>
 			dimension_t GetFontHeight() const
 			{
-				return VectorDrawer.Height;
+				return Base::Height;
 			}
 
 		private:
@@ -155,7 +171,7 @@ namespace Egfx
 				Kerning = kerning;
 
 				// Scale kerning to font width.
-				return Kerning <= 0 ? 0 : (1 + ((uint16_t(VectorDrawer.Width) * Kerning) >> 2) / (uint16_t(VectorModel::AxisMax)));
+				return Kerning <= 0 ? 0 : (1 + ((uint16_t(Base::Width) * Kerning) >> 2) / (uint16_t(VectorModel::AxisMax)));
 			}
 		};
 	}

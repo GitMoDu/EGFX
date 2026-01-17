@@ -10,10 +10,6 @@ namespace BitmaskTextDemo
 
 	namespace Definitions
 	{
-		// Single color font shading.
-		// Share implementation with binary displays and font drawers.
-		using FontColorType = FontText::SingleColorSource;
-
 		// Bitmask fonts are set with a template parameter type.
 		// Share font for regular and upscaled font drawers.
 		using BitmaskFontType = BitmaskFonts::Plastic::FontType5x5;
@@ -27,7 +23,7 @@ namespace BitmaskTextDemo
 			static constexpr uint8_t ScaleY = 1 + (ScaleDimension / 32);
 
 			// Single color, bitmask scaled font drawer type.
-			using BitmaskFontDrawerType = BitmaskFont::TemplateColorScaledFontDrawer<BitmaskFontType, FontColorType, ScaleX, ScaleY>;
+			using BitmaskFontDrawerType = BitmaskFont::TemplateScaledFontDrawer<BitmaskFontType, ScaleX, ScaleY>;
 
 			// Bitmask text drawer type with all the template parameters set.
 			using BitmaskTextDrawerType = FontText::TemplateTextWriter<BitmaskFontDrawerType, Layout>;
@@ -37,7 +33,7 @@ namespace BitmaskTextDemo
 		struct SmallFontDefinitions
 		{
 			// Single color bitmask font drawer type.
-			using BitmaskFontDrawerType = BitmaskFont::TemplateColorFontDrawer<BitmaskFontType, FontColorType>;
+			using BitmaskFontDrawerType = BitmaskFont::TemplateFontDrawer<BitmaskFontType>;
 
 			// Bitmask text drawer type with all the template parameters set.
 			using BitmaskTextDrawerType = FontText::TemplateTextWriter<BitmaskFontDrawerType, Layout>;
@@ -283,8 +279,8 @@ namespace BitmaskTextDemo
 			if (!Monochrome)
 			{
 				const auto primaryColor = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
-				BigTextDrawer.FontColor.Color = primaryColor;
-				SmallTextDrawer.FontColor.Color = Rgb::Color(uint32_t(~primaryColor));
+				BigTextDrawer.ColorShader.Color = primaryColor;
+				SmallTextDrawer.ColorShader.Color = Rgb::Color(uint32_t(~primaryColor));
 			}
 
 			bigText.Translation.x = Animators::TextScroller::GetOffset(frameTime, 15000U, LongTextWidth, ParentLayout::Width());

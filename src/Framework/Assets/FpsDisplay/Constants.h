@@ -15,8 +15,7 @@ namespace Egfx
 				{
 					using DefaultFont = BitmaskFonts::Plastic::FontType3x5;
 					using LargeFont = BitmaskFonts::Plastic::FontType5x5;
-					using DefaultColorShader = FontText::FullColorSource;
-					using DefaultFontDrawer = BitmaskFont::TemplateColorFontDrawer<DefaultFont, DefaultColorShader>;
+					using DefaultFontDrawer = BitmaskFont::TemplateFontDrawer<DefaultFont>;
 
 					namespace Detail
 					{
@@ -44,8 +43,8 @@ namespace Egfx
 					public:
 						static constexpr uint8_t FontScaleX = Scale / 2;
 						static constexpr uint8_t FontScaleY = Scale;
-						using BaseDrawer = BitmaskFont::TemplateColorFontDrawer<DefaultFont, DefaultColorShader>;
-						using ScaledDrawer = BitmaskFont::TemplateColorScaledFontDrawer<LargeFont, DefaultColorShader, FontScaleX, FontScaleY>;
+						using BaseDrawer = BitmaskFont::TemplateFontDrawer<DefaultFont>;
+						using ScaledDrawer = BitmaskFont::TemplateScaledFontDrawer<LargeFont, FontScaleX, FontScaleY>;
 						using Drawer = typename Detail::SelectFontType<UseScaled, ScaledDrawer, BaseDrawer>::type;
 						static constexpr pixel_t FontWidth = DefaultFont::Width * (UseScaled ? FontScaleX : 1);
 						static constexpr pixel_t FontHeight = DefaultFont::Height * (UseScaled ? FontScaleY : 1);

@@ -48,7 +48,7 @@ namespace Egfx
 				/// </summary>
 				/// <typeparam name="dimension_t">The vector's intrinsic dimension type.</typeparam>
 				template<typename dimension_t>
-				struct SingleColorShader
+				struct Single
 				{
 					rgb_color_t Color = RGB_COLOR_WHITE;
 
@@ -64,7 +64,7 @@ namespace Egfx
 				/// </summary>
 				/// <typeparam name="dimension_t">The vector's intrinsic dimension type.</typeparam>
 				template<typename dimension_t>
-				struct FullShader
+				struct Full
 				{
 					static constexpr rgb_color_t ShadeColor(const dimension_t /*x*/, const dimension_t /*y*/)
 					{
@@ -81,8 +81,8 @@ namespace Egfx
 				/// </summary>
 				/// <typeparam name="dimension_t">The vector's intrinsic dimension type.</typeparam>
 				/// <typeparam name="ColorShaderType">ColorShader type, should follow VectorGraphics::Shaders::Contract::ColorShader contract.</typeparam>
-				template<typename dimension_t, typename ColorShaderType = Color::FullShader<dimension_t>>
-				struct SingleColorShader
+				template<typename dimension_t, typename ColorShaderType = Color::Single<dimension_t>>
+				struct SingleColor
 				{
 					ColorShaderType ColorShader{};
 

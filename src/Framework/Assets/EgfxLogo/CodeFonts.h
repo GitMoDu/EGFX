@@ -42,7 +42,7 @@ namespace Egfx
 				{
 					template<typename dimension_t,
 						dimension_t FontWidth, dimension_t FontHeight,
-						typename ColorShaderType = VectorGraphics::Shaders::Color::SingleColorShader<dimension_t>
+						typename ColorShaderType = VectorGraphics::Shaders::Color::Single<dimension_t>
 					>
 					struct PrimitiveShaderType
 					{
@@ -132,7 +132,7 @@ namespace Egfx
 				{
 					template<typename dimension_t,
 						dimension_t FontWidth, dimension_t FontHeight,
-						typename ColorShaderType = VectorGraphics::Shaders::Color::SingleColorShader<dimension_t>
+						typename ColorShaderType = VectorGraphics::Shaders::Color::Single<dimension_t>
 					>
 					struct PrimitiveShaderType
 					{
@@ -223,7 +223,7 @@ namespace Egfx
 			}
 
 			template<const pixel_t FontWidth, const pixel_t FontHeight,
-				typename PrimitiveShaderType = VectorGraphics::Shaders::Primitive::SingleColorShader<Dimensions::font_dimension_t>>
+				typename PrimitiveShaderType = VectorGraphics::Shaders::Primitive::SingleColor<Dimensions::font_dimension_t>>
 				struct TemplateFont
 			{
 			public:

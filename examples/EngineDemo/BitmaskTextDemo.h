@@ -26,7 +26,7 @@ namespace BitmaskTextDemo
 			using BitmaskFontDrawerType = BitmaskFont::TemplateScaledFontDrawer<BitmaskFontType, ScaleX, ScaleY>;
 
 			// Bitmask text drawer type with all the template parameters set.
-			using BitmaskTextDrawerType = FontText::TemplateTextWriter<BitmaskFontDrawerType, Layout>;
+			using BitmaskTextDrawerType = FontText::TemplateTextWriter<Layout, BitmaskFontDrawerType>;
 		};
 
 		template<typename Layout>
@@ -36,7 +36,7 @@ namespace BitmaskTextDemo
 			using BitmaskFontDrawerType = BitmaskFont::TemplateFontDrawer<BitmaskFontType>;
 
 			// Bitmask text drawer type with all the template parameters set.
-			using BitmaskTextDrawerType = FontText::TemplateTextWriter<BitmaskFontDrawerType, Layout>;
+			using BitmaskTextDrawerType = FontText::TemplateTextWriter<Layout, BitmaskFontDrawerType>;
 		};
 
 		template<typename Layout>

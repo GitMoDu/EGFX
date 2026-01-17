@@ -21,7 +21,7 @@ namespace Egfx
 					class FpsText
 					{
 					private:
-						FontText::TemplateTextWriter<FontDrawerType, Layout> TextDrawer{};
+						FontText::TemplateTextWriter<Layout, FontDrawerType> TextDrawer{};
 
 					public:
 						uint16_t FrameRate = 0;

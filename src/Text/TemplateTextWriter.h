@@ -25,24 +25,17 @@ namespace Egfx
 					return 0;
 				}
 			};
-
-			struct DefaultLayout
-			{
-				static constexpr pixel_t X() { return 0; }
-				static constexpr pixel_t Y() { return 0; }
-				static constexpr pixel_t Width() { return 1; }
-				static constexpr pixel_t Height() { return 1; }
-			};
 		}
 
 		/// <summary>
 		/// Template-based text writer that renders text strings and numbers to a framebuffer with support for kerning, special characters, and alignment.
 		/// Turns a font drawer into a text writer capable of rendering strings and numbers with kerning.
 		/// </summary>
+		/// <typeparam name="Layout">The layout configuration that defines positioning and spacing parameters.</typeparam>
 		/// <typeparam name="FontDrawerType">The underlying font drawer implementation that handles individual character rendering. Must follow the FontDrawerContract interface.</typeparam>
-		/// <typeparam name="Layout">The layout configuration that defines positioning and spacing parameters. Defaults to DefaultLayout.</typeparam>
-		template<typename FontDrawerType = Contract::FontDrawer,
-			typename Layout = DefaultLayout>
+		template<typename Layout,
+			typename FontDrawerType = Contract::FontDrawer
+		>
 		class TemplateTextWriter : public FontDrawerType
 		{
 		private:

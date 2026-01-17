@@ -15,7 +15,7 @@ namespace VectorTextDemo
 		{
 			using VectorFontType = VectorFonts::Epoxy::FullFontType;
 			using VectorFontDrawerType = VectorFont::TemplateFontDrawer<VectorFontType>;
-			using VectorTextDrawerType = FontText::TemplateTextWriter<VectorFontDrawerType, Layout>;
+			using VectorTextDrawerType = FontText::TemplateTextWriter<Layout, VectorFontDrawerType>;
 		};
 
 		template<typename Layout>
@@ -23,7 +23,7 @@ namespace VectorTextDemo
 		{
 			using CodeFontType = CodeFont::CodeFonts::RawBot<>;
 			using CodeFontDrawerType = CodeFont::TemplateFontDrawer<CodeFontType>;
-			using CodeTextDrawerType = FontText::TemplateTextWriter<CodeFontDrawerType, Layout>;
+			using CodeTextDrawerType = FontText::TemplateTextWriter<Layout, CodeFontDrawerType>;
 		};
 
 		template<typename Layout>

@@ -40,7 +40,7 @@ namespace Egfx
 						uint8_t TextBuffer[Lines + 1][CharactersPerLine + 1]{};
 
 					public:
-						FontText::TemplateTextWriter<FontDrawerType, Layout> TextWriter{};
+						FontText::TemplateTextWriter<Layout, FontDrawerType> TextWriter{};
 
 					private:
 						uint32_t LastNewLineTime = 0;

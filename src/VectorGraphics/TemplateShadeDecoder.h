@@ -77,7 +77,6 @@ namespace Egfx
 			/// - RectangleFill: uses previous and current as opposite corners (corner ordering handled downstream).
 			/// Coordinates are scaled to [0..Width]/[0..Height] for the active ModelType.
 			/// </summary>
-			/// <param name="vector_shader_t"> The output shader type; must implement Point, Line, TriangleFill, and RectangleFill methods.</param>
 			void DecodeVectors(const node_t* vectors, const uint16_t vectorCount)
 			{
 				coordinates_t lastPoints[3]{}; // [prev2, prev1, current]
@@ -209,7 +208,7 @@ namespace Egfx
 				return base[i];
 #endif
 			}
-		};		
+		};
 	}
 }
 #endif

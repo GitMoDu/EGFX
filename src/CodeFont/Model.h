@@ -17,37 +17,51 @@ namespace Egfx
 		class AbstractCodeFont
 		{
 		protected:
-			// Code fonts uses pre-calculated end and middle points for drawing.
-			dimension_t EndX;
-			dimension_t EndY;
-			dimension_t MiddleX;
-			dimension_t MiddleY;
+			dimension_t Width;
+			dimension_t Height;
+			dimension_t KerningWidth = 1;
 
 		public:
-			AbstractCodeFont(const dimension_t fontWidth, const dimension_t fontHeight)
-				: EndX(fontWidth > 1 ? fontWidth - 1 : 1)
-				, EndY(fontHeight > 1 ? fontHeight - 1 : 1)
-				, MiddleX((EndX + 1) / 2)
-				, MiddleY((EndY + 1) / 2)
+			AbstractCodeFont(const dimension_t width, const dimension_t height, const dimension_t kerningWidth)
+				: Width(width)
+				, Height(height)
+				, KerningWidth(kerningWidth)
 			{
+			}
+
+			// Get only character advance.
+			virtual dimension_t Advance(const char /*printableChar*/) const
+			{
+				// Default to monospaced font.
+				return Width;
+			}
+
+			// Default implementation.
+			virtual dimension_t GetSpaceWidth() const
+			{
+				return Width;
+			}
+
+			// Default implementation.
+			virtual dimension_t GetTabWidth() const
+			{
+				return Width * 3; // 3 spaces per tab.
 			}
 
 			/// <summary>
 			/// Sets the font width and updates the internal horizontal bounds and midpoint.
 			/// </summary>
-			void SetFontWidth(const dimension_t width)
+			virtual void SetFontWidth(const dimension_t width)
 			{
-				EndX = width > 1 ? width - 1 : 1;
-				MiddleX = (EndX + 1) / 2;
+				Width = width;
 			}
 
 			/// <summary>
 			/// Sets the font height and recalculates internal vertical positioning values.
 			/// </summary>
-			void SetFontHeight(const dimension_t height)
+			virtual void SetFontHeight(const dimension_t height)
 			{
-				EndY = height > 1 ? height - 1 : 1;
-				MiddleY = (EndY + 1) / 2;
+				Height = height;
 			}
 
 			/// <summary>
@@ -55,7 +69,7 @@ namespace Egfx
 			/// </summary>
 			dimension_t GetFontWidth() const
 			{
-				return EndX + 1;
+				return Width;
 			}
 
 			/// <summary>
@@ -63,8 +77,14 @@ namespace Egfx
 			/// </summary>
 			dimension_t GetFontHeight() const
 			{
-				return EndY + 1;
+				return Height;
 			}
+
+			dimension_t GetKerningWidth() const
+			{
+				return KerningWidth;
+			}
+
 		};
 	}
 }

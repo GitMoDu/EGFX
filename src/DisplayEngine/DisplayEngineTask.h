@@ -138,18 +138,18 @@ namespace Egfx
 
 		virtual void GetDisplayTimings(DisplayTimingsStruct& timings) const
 		{
-			memcpy(&timings, &FrameTimingCopy, sizeof(DisplayTimingsStruct));
+			timings = FrameTimingCopy;
 		}
 
 #if defined(EGFX_PERFORMANCE_LOG)
 		virtual void GetDisplayPerformance(DisplayPerformanceStruct& timings) const
 		{
-			memcpy(&timings, &FrameTimingCopy, sizeof(DisplayPerformanceStruct));
+			timings = FrameTimingCopy;
 		}
 #if defined(EGFX_PERFORMANCE_LOG_DETAIL)
 		virtual void GetDisplayPerformanceDetail(DisplayPerformanceDetailStruct& timings) const
 		{
-			memcpy(&timings, &FrameTimingCopy, sizeof(DisplayPerformanceDetailStruct));
+			timings = FrameTimingCopy;
 		}
 #endif
 #endif

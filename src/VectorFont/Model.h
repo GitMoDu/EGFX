@@ -2,7 +2,6 @@
 #define _EGFX_VECTOR_FONT_h
 
 #include "../VectorGraphics/Model.h"
-#include "../VectorGraphics/TemplateShadeDecoder.h"
 #include "../Model/AsciiDefinition.h"
 
 namespace Egfx

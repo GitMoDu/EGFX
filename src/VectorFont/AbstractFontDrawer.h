@@ -4,6 +4,10 @@
 #include "Model.h"
 #include "../Model/IFrameBuffer.h"
 
+#include "../VectorGraphics/Shaders.h"
+#include "../VectorGraphics/TemplateShadeDecoder.h"
+#include "../VectorGraphics/SingleColorVectorDrawer.h"
+
 
 namespace Egfx
 {

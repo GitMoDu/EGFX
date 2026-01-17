@@ -203,7 +203,7 @@ namespace Egfx
 
 						if (i != 0)
 						{
-							width += Base::GetSpaceWidth();
+							width += Base::GetKerningWidth();
 						}
 					}
 				}
@@ -226,7 +226,7 @@ namespace Egfx
 						started = true;
 						if (i != 0)
 						{
-							width += Base::GetSpaceWidth();
+							width += Base::GetKerningWidth();
 						}
 					}
 				}
@@ -249,7 +249,7 @@ namespace Egfx
 						started = true;
 						if (i != 0)
 						{
-							width += Base::GetSpaceWidth();
+							width += Base::GetKerningWidth();
 						}
 					}
 				}

@@ -213,7 +213,7 @@ namespace Egfx
 			/// </summary>
 			dimension_t GetSpaceWidth() const
 			{
-				return SpaceWidth;
+				return SpaceWidth * ScaleX;
 			}
 
 			/// <summary>
@@ -221,7 +221,7 @@ namespace Egfx
 			/// </summary>
 			dimension_t GetTabWidth() const
 			{
-				return TabWidth;
+				return TabWidth * ScaleX;
 			}
 
 			/// <summary>
@@ -229,7 +229,7 @@ namespace Egfx
 			/// </summary>
 			dimension_t GetKerningWidth() const
 			{
-				return KerningWidth;
+				return KerningWidth * ScaleX;
 			}
 
 			void SetKerningWidth(const dimension_t kerning)

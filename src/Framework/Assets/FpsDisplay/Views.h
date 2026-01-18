@@ -134,13 +134,6 @@ namespace Egfx
 						{
 						}
 
-						/*	template<uint8_t Index>
-							auto& Layer()
-							{
-								static_assert(Index < sizeof...(ViewTypes), "Layer index out of bounds.");
-								return this->template view<Index>();
-							}*/
-
 						FpsViewType& FpsView()
 						{
 							return this->template view<sizeof...(ViewTypes)>();

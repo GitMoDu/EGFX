@@ -156,17 +156,55 @@ namespace Egfx
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = 4000000,
-		uint32_t stackHeight = 1500,
-		portBASE_TYPE priority = 1>
-	using ScreenDriverST7789_240x240x16_SPI_Rtos = TemplateScreenDriverRtos<ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, void, stackHeight, priority>;
+		const uint32_t pushSleepDuration = 0,
+		const uint32_t stackHeight = 1500,
+		const UBaseType_t priority = 1
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		, const uint32_t coreAffinity = tskNO_AFFINITY
+#endif
+	>
+	using ScreenDriverST7789_240x240x16_SPI_Rtos =
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority,
+		coreAffinity>;
+#else
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority>;
+#endif
 
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = 4000000,
-		uint32_t stackHeight = 1500,
-		portBASE_TYPE priority = 1>
-	using ScreenDriverST7789_172x320x16_SPI_Rtos = TemplateScreenDriverRtos<ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, void, stackHeight, priority>;
+		const uint32_t pushSleepDuration = 0,
+		const uint32_t stackHeight = 1500,
+		const UBaseType_t priority = 1
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		, const uint32_t coreAffinity = tskNO_AFFINITY
+#endif
+	>
+	using ScreenDriverST7789_172x320x16_SPI_Rtos =
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority,
+		coreAffinity>;
+#else
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority>;
+#endif
 #endif
 }
 #endif

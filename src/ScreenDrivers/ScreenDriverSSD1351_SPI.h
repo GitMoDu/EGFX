@@ -141,13 +141,13 @@ namespace Egfx
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed>
+		const uint32_t spiSpeed = SSD1351::SpiMaxSpeed>
 	using ScreenDriverSSD1351_128x128x16_SPI = AbstractScreenDriverSSD1351_SPI<uint16_t, pinCS, pinDC, pinRST, spiSpeed>;
 
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed,
+		const uint32_t spiSpeed = SSD1351::SpiMaxSpeed,
 		const uint8_t spiChunkDivisor = 2>
 	using ScreenDriverSSD1351_128x128x16_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverSSD1351_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
@@ -155,7 +155,7 @@ namespace Egfx
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed,
+		const uint32_t spiSpeed = SSD1351::SpiMaxSpeed,
 		const uint32_t pushSleepDuration = 0>
 	using ScreenDriverSSD1351_128x128x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverSSD1351_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
 #endif
@@ -164,7 +164,7 @@ namespace Egfx
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = SSD1351::SpiMaxSpeed,
 		const uint32_t pushSleepDuration = 0,
 		uint32_t stackHeight = 1500,
 		portBASE_TYPE priority = 1

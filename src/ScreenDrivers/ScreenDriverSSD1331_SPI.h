@@ -145,7 +145,21 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverSSD1331_96x64x8_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSSD1331_96x64x8_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority>;
+	using ScreenDriverSSD1331_96x64x8_SPI_Rtos =
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverSSD1331_96x64x8_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority,
+		coreAffinity>;
+#else
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverSSD1331_96x64x8_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority>;
+#endif
 
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
@@ -158,11 +172,22 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverSSD1331_96x64x16_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSSD1331_96x64x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+	using ScreenDriverSSD1331_96x64x16_SPI_Rtos =
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
-		, coreAffinity
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverSSD1331_96x64x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority,
+		coreAffinity>;
+#else
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverSSD1331_96x64x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority>;
 #endif
-	>;
+
 #endif
 }
 #endif

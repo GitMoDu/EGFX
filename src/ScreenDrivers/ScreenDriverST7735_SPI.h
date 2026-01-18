@@ -272,13 +272,13 @@ namespace Egfx
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
-		const uint32_t spiSpeed = 4000000>
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed>
 	using ScreenDriverST7735S_80x160x16_SPI = AbstractScreenDriverST7735S_SPI<uint16_t, pinCS, pinDC, pinRST, spiSpeed>;
 
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
 		const uint8_t spiChunkDivisor = 2>
 	using ScreenDriverST7735S_80x160x16_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
@@ -286,7 +286,7 @@ namespace Egfx
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
 		const uint32_t pushSleepDuration = 0>
 	using ScreenDriverST7735S_80x160x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
 #endif
@@ -295,7 +295,7 @@ namespace Egfx
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
 		uint32_t stackHeight = 1500,
 		portBASE_TYPE priority = 1
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)

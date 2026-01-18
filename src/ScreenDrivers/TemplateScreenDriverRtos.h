@@ -18,21 +18,19 @@
 #include <Arduino.h>
 #endif
 
+#if defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_NRF52)
 #include <FreeRTOS.h>
 #include <task.h>
 #include <semphr.h>
+#else
+#endif
 
 namespace Egfx
 {
 	/// <summary>
 	/// Wraps an Inline ScreenDriver with threaded buffer push.
-	/// Non - blocking push and wait until push is done.
+	/// Non-blocking push and wait until push is done.
 	/// </summary>
-	/// <typeparam name="InlineScreenDriver"></typeparam>
-	/// <typeparam name="pushSleepDuration">Allows the main task scheduller to skip after a push start (in microseconds).</typeparam>
-	/// <typeparam name="stackHeight"></typeparam>
-	/// <typeparam name="priority"></typeparam>
-	/// <typeparam name="coreAffinity"></typeparam>
 	template<typename ConstructorParameterType,
 		typename InlineScreenDriver,
 		const uint32_t pushSleepDuration = 0,
@@ -78,10 +76,7 @@ namespace Egfx
 #else // ESP8266, NRF52, others with FreeRTOS
 				xTaskCreate(TaskCallback, "BufferTask", stackHeight, this, priority, &BufferTaskHandle);
 #endif
-				if (BufferTaskHandle != NULL)
-				{
-					return true;
-				}
+				return BufferTaskHandle != NULL;
 			}
 
 			return false;
@@ -91,6 +86,9 @@ namespace Egfx
 		{
 			if (BufferTaskHandle != NULL)
 			{
+				// Wake task so it can observe TaskReady=false (in case it is blocked).
+				xTaskNotifyGive(BufferTaskHandle);
+
 				if (xSemaphoreTake(Mutex, portMAX_DELAY) == pdTRUE)
 				{
 					TaskReady = false;
@@ -98,10 +96,10 @@ namespace Egfx
 					TaskFrameBuffer = nullptr;
 					xSemaphoreGive(Mutex);
 				}
+
 				vTaskDelete(BufferTaskHandle);
 				BufferTaskHandle = NULL;
 			}
-
 
 			BaseClass::Stop();
 		}
@@ -134,10 +132,10 @@ namespace Egfx
 				xSemaphoreGive(Mutex);
 			}
 
-			// Wake worker task to process buffer.
+			// Signal worker task (notification counts; no lost wakeups).
 			if (BufferTaskHandle != NULL)
 			{
-				vTaskResume(BufferTaskHandle);
+				xTaskNotifyGive(BufferTaskHandle);
 			}
 
 			return pushSleepDuration;
@@ -169,17 +167,19 @@ namespace Egfx
 		{
 			TemplateScreenDriverRtos* self = static_cast<TemplateScreenDriverRtos*>(parameter);
 
+			// Prime TaskReady once at task start (before first wait).
+			if (!self->TaskReady)
+			{
+				if (xSemaphoreTake(self->Mutex, portMAX_DELAY) == pdTRUE)
+				{
+					self->TaskReady = true;
+					xSemaphoreGive(self->Mutex);
+				}
+			}
+
 			for (;;)
 			{
-				// Prime TaskReady once.
-				if (!self->TaskReady)
-				{
-					if (xSemaphoreTake(self->Mutex, portMAX_DELAY) == pdTRUE)
-					{
-						self->TaskReady = true;
-						xSemaphoreGive(self->Mutex);
-					}
-				}
+				ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
 				// Snapshot buffer pointer.
 				if (xSemaphoreTake(self->Mutex, portMAX_DELAY) == pdTRUE)
@@ -188,41 +188,34 @@ namespace Egfx
 					xSemaphoreGive(self->Mutex);
 				}
 
-				if (self->TaskFrameBuffer != nullptr)
+				if (self->TaskFrameBuffer == nullptr)
 				{
-					self->BaseClass::StartBuffer();
-
-					const uint32_t pushSleepMicro = self->BaseClass::PushBuffer(self->TaskFrameBuffer);
-
-					// Convert microseconds to ticks safely.
-					if (pushSleepMicro > 0)
-					{
-						const TickType_t delayTicks = pdMS_TO_TICKS(pushSleepMicro / 1000);
-						if (delayTicks > 0)
-							vTaskDelay(delayTicks);
-					}
-
-					while (self->BaseClass::PushingBuffer(self->TaskFrameBuffer))
-					{
-						vTaskDelay(1);
-					}
-
-					self->BaseClass::EndBuffer();
-					self->TaskFrameBuffer = nullptr;
-
-					// Clear FrameBuffer and suspend until next resume.
-					if (xSemaphoreTake(self->Mutex, portMAX_DELAY) == pdTRUE)
-					{
-						self->FrameBuffer = nullptr;
-						xSemaphoreGive(self->Mutex);
-					}
-
-					vTaskSuspend(self->BufferTaskHandle);
+					continue;
 				}
-				else
+
+				self->BaseClass::StartBuffer();
+
+				const uint32_t pushSleepMicro = self->BaseClass::PushBuffer(self->TaskFrameBuffer);
+
+				if (pushSleepMicro > 0)
 				{
-					// No work: suspend until resumed on next PushBuffer.
-					vTaskSuspend(self->BufferTaskHandle);
+					const TickType_t delayTicks = pdMS_TO_TICKS(pushSleepMicro / 1000);
+					if (delayTicks > 0)
+						vTaskDelay(delayTicks);
+				}
+
+				while (self->BaseClass::PushingBuffer(self->TaskFrameBuffer))
+				{
+					vTaskDelay(1);
+				}
+
+				self->BaseClass::EndBuffer();
+				self->TaskFrameBuffer = nullptr;
+
+				if (xSemaphoreTake(self->Mutex, portMAX_DELAY) == pdTRUE)
+				{
+					self->FrameBuffer = nullptr;
+					xSemaphoreGive(self->Mutex);
 				}
 			}
 		}

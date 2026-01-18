@@ -212,9 +212,28 @@ namespace Egfx
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = GC9107::SpiDefaultSpeed,
+		const uint32_t pushSleepDuration = 0,
 		uint32_t stackHeight = 1500,
-		portBASE_TYPE priority = 1>
-	using ScreenDriverGC9107_128x128x16_SPI_Rtos = TemplateScreenDriverRtos<ScreenDriverGC9107_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, void, stackHeight, priority>;
+		portBASE_TYPE priority = 1
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		, const uint32_t coreAffinity = tskNO_AFFINITY
+#endif
+	>
+	using ScreenDriverGC9107_128x128x16_SPI_Rtos =
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverGC9107_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority,
+		coreAffinity>;
+#else
+		TemplateScreenDriverRtos<Egfx::SpiType,
+		ScreenDriverGC9107_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
+		pushSleepDuration,
+		stackHeight,
+		priority>;
+#endif
 #endif
 }
 #endif

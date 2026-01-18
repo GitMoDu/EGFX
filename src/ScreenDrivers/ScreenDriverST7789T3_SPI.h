@@ -253,7 +253,7 @@ namespace Egfx
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = ST7789T3::SpiDefaultSpeed,
 		const uint32_t pushSleepDuration = 0,
 		uint32_t stackHeight = 1500,
 		portBASE_TYPE priority = 1

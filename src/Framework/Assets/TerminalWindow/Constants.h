@@ -14,7 +14,6 @@ namespace Egfx
 				namespace Definitions
 				{
 					using DefaultFont = BitmaskFonts::Plastic::FontType3x5;
-					using DefaultColorShader = FontText::FullColorSource;
 					using DefaultFontDrawer = BitmaskFont::TemplateFontDrawer<DefaultFont>;
 				}
 			}

@@ -36,24 +36,6 @@ namespace Egfx
 			static constexpr pixel_t Width() { return 1; }
 			static constexpr pixel_t Height() { return 1; }
 		};
-
-		struct FullColorSource
-		{
-			static constexpr rgb_color_t GetColor()
-			{
-				return RGB_COLOR_WHITE;
-			}
-		};
-
-		struct SingleColorSource
-		{
-			rgb_color_t Color = RGB_COLOR_WHITE;
-
-			rgb_color_t GetColor() const
-			{
-				return Color;
-			}
-		};
 	}
 }
 #endif

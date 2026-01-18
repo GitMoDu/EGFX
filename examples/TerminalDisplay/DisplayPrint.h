@@ -180,7 +180,7 @@ namespace Egfx
 
 	template<typename Layout>
 	using BitmaskTextDisplaySerial = TextDisplaySerial<Layout
-		, typename Egfx::BitmaskFont::TemplateColorFontDrawer<Egfx::BitmaskFonts::Plastic::FontType3x5, Egfx::FontText::FullColorSource>
+		, typename Egfx::BitmaskFont::TemplateFontDrawer<Egfx::BitmaskFonts::Plastic::FontType3x5>
 		, Egfx::BitmaskFonts::Plastic::FontType3x5::Width
 		, Egfx::BitmaskFonts::Plastic::FontType3x5::Height>;
 }

@@ -16,7 +16,7 @@ namespace Assets
 		struct DefaultFontConfig
 		{
 			using Font = BitmaskFonts::Plastic::FontType3x5;
-			using Drawer = BitmaskFont::TemplateColorFontDrawer<Font, FontText::FullColorSource>;
+			using Drawer = BitmaskFont::TemplateFontDrawer<Font>;
 			static constexpr pixel_t FontWidth = Font::Width;
 			static constexpr pixel_t FontHeight = Font::Height;
 		};
@@ -41,7 +41,7 @@ namespace Assets
 			using Font = BitmaskFonts::Plastic::FontType5x5;
 			static constexpr uint8_t ScaleX = FontScale<Layout>::GetScale() / 2;
 			static constexpr uint8_t ScaleY = FontScale<Layout>::GetScale();
-			using Drawer = BitmaskFont::TemplateColorScaledFontDrawer<Font, FontText::FullColorSource, ScaleX, ScaleY>;
+			using Drawer = BitmaskFont::TemplateScaledFontDrawer<Font, ScaleX, ScaleY>;
 			static constexpr pixel_t FontWidth = Font::Width * ScaleX;
 			static constexpr pixel_t FontHeight = Font::Height * ScaleY;
 		};

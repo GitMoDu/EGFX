@@ -97,7 +97,7 @@ namespace Egfx
 				}
 			};
 
-			struct RP2350_WAVESHARE_SPI_LCD_0_85_INCH_GC9107
+			struct RP2350_SPOTPEAR_SPI_LCD_0_85_INCH_GC9107
 			{
 				static constexpr uint8_t CS = 13;
 				static constexpr uint8_t DC = 12;
@@ -141,7 +141,42 @@ namespace Egfx
 				using InterfaceType = Egfx::SpiType;
 				static InterfaceType& Interface()
 				{
-					return SPI;
+					static InterfaceType spi(VSPI);
+
+					// Configure default pins once. 18 and 19 are VSPI default SCK and MOSI.
+					spi.ConfigurePins((int8_t)18, (int8_t)(UINT8_MAX), (int8_t)19, (int8_t)CS);
+
+
+					return spi;
+				}
+			};
+
+			struct ESP32_LILYGO_SPI_TDISPLAY
+			{
+				static constexpr uint8_t CS = 5;
+				static constexpr uint8_t DC = 16;
+				static constexpr uint8_t SCK = 18;
+				static constexpr uint8_t MOSI = 19;
+				static constexpr uint8_t MISO = UINT8_MAX; // not used
+				static constexpr uint8_t RESET = 23;
+				static constexpr uint8_t BACKLIGHT = 4;
+
+				using InterfaceType = Egfx::SpiType;
+
+				static InterfaceType& Interface()
+				{
+					static InterfaceType spi(VSPI);
+
+					spi.end();
+
+					// Configure pins once (Esp32Spi stores them; BeginConfigured() can use them later)
+					spi.ConfigurePins(SCK, -1, MOSI, CS);
+
+					// Optional: tune max DMA transaction size (IDF limit is typically 4092 bytes)
+					spi.ConfigureMaxTransferBytes(16384);
+					spi.BeginConfigured();
+
+					return spi;
 				}
 			};
 #endif

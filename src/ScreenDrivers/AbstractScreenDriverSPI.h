@@ -4,6 +4,9 @@
 #include "../Model/IScreenDriver.h"
 
 #include <SPI.h>
+#if defined(ARDUINO_ARCH_ESP32)
+#include "Esp32Spi.h"
+#endif
 
 namespace Egfx
 {
@@ -12,6 +15,11 @@ namespace Egfx
 	/// Platform SPI type. Required to access DMA functions.
 	/// </summary>
 	using SpiType = SPIClassRP2040;
+#elif defined(ARDUINO_ARCH_ESP32)
+	/// <summary>
+	/// Platform SPI type. Required to access DMA functions.
+	/// </summary>
+	using SpiType = Esp32Spi;
 #else
 	/// <summary>
 	/// Platform SPI type. Required to access DMA functions.

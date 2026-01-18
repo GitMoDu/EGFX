@@ -189,10 +189,9 @@ namespace VectorTextDemo
 			VectorTextDrawer.SetFontDimensions(fontDimension, fontDimension, LayoutDefinition::Kerning);
 
 			if (!Monochrome)
-			{
-				
-				//CodeTextDrawer.ColorShader.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
-				//VectorTextDrawer.ColorShader.Color = Rgb::Color(uint32_t(~CodeTextDrawer.FontColor.Color));
+			{				
+				CodeTextDrawer.ColorShader.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
+				VectorTextDrawer.ColorShader.Color = Rgb::Color(uint32_t(~CodeTextDrawer.ColorShader.Color));
 			}
 		}
 	};

@@ -183,8 +183,6 @@ namespace BitmaskTextDemo
 			static constexpr pixel_t Height() { return Definitions::SmallTextDrawerType<ParentLayout>::GetFontHeight(); }
 		};
 
-		static constexpr uint8_t Kerning = 1;
-
 		// Minimum font height in pixels.
 		static constexpr uint8_t MinFontHeight = 8;
 

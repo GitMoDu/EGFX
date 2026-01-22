@@ -4,6 +4,8 @@
 
 A high-performance, cooperative-task graphics engine for memory-constrained embedded systems, targeting Arduino-compatible microcontrollers. 
 
+# ![Embedded Graphics Framework](https://github.com/GitMoDu/EGFX/blob/master/media/logo_splash_multi_screen.gif)
+
 ## Overview
 
 EGFX is a frame-buffer-based graphics framework designed for embedded systems with limited resources. It provides a complete graphics pipeline with hardware-accelerated display drivers, efficient rendering primitives, and a task-based architecture that prevents CPU hogging while maintaining smooth frame rates.

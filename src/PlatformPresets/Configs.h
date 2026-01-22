@@ -53,7 +53,7 @@ namespace Egfx
 #if defined(ARDUINO_ARCH_RP2040)
 			struct RP2350_SPI_GENERIC
 			{
-				static constexpr uint8_t CS = 19;
+				static constexpr uint8_t CS = 17;
 				static constexpr uint8_t DC = 20;
 				static constexpr uint8_t RESET = 21;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;

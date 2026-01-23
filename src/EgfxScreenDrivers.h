@@ -6,6 +6,7 @@
 #include "ScreenWrappers/FrameWrapperSSD1306.h"
 
 #include "ScreenDrivers/ScreenDriverSH1106_SPI.h"
+#include "ScreenDrivers/ScreenDriverSH1107_I2C.h"
 
 #include "ScreenDrivers/ScreenDriverSSD1331_SPI.h"
 #include "ScreenDrivers/ScreenDriverSSD1351_SPI.h"

@@ -1,5 +1,3 @@
-// TemplateScreenDriverI2CDma.h
-
 #ifndef _TEMPLATE_SCREEN_DRIVER_I2C_DMA_h
 #define _TEMPLATE_SCREEN_DRIVER_I2C_DMA_h
 
@@ -31,44 +29,61 @@ namespace Egfx
 	public:
 		TemplateScreenDriverI2CDma(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
 
-		virtual const uint32_t PushBuffer(const uint8_t* frameBuffer) final
+		virtual uint32_t PushBuffer(const uint8_t* frameBuffer) override
 		{
 			PushIndex = 0;
+
+			// Kick off first transfer immediately.
+			if (BUFFER_WHOLE > 0)
+			{
+				if (PushChunkDma(&frameBuffer[0], I2C_BUFFER_SIZE))
+				{
+					PushIndex = I2C_BUFFER_SIZE;
+				}
+				return 0;
+			}
+
+			if (BUFFER_REMAINDER > 0)
+			{
+				if (PushChunkDma(&frameBuffer[0], BUFFER_REMAINDER))
+				{
+					PushIndex = BUFFER_REMAINDER;
+				}
+			}
 
 			return 0;
 		}
 
-		virtual const bool PushingBuffer(const uint8_t* frameBuffer) final
+		virtual bool PushingBuffer(const uint8_t* frameBuffer) override
 		{
-#if defined(ARDUINO_ARCH_RP2040)
-			if (WireInstance.finishedAsync())
-#endif
+			// Check if previous async transfer is done.
+			if (!WireInstance.finishedAsync())
 			{
-				if (BUFFER_WHOLE > 0
-					&& PushIndex < (BUFFER_WHOLE * I2C_BUFFER_SIZE))
-				{
-					PushChunkDma(&frameBuffer[PushIndex], I2C_BUFFER_SIZE);
-					PushIndex += I2C_BUFFER_SIZE;
-				}
-				else if (BUFFER_REMAINDER > 0)
-				{
-					if (PushIndex < ((BUFFER_WHOLE * I2C_BUFFER_SIZE) + BUFFER_REMAINDER))
-					{
-						PushChunkDma(&frameBuffer[REMAINDER_START], BUFFER_REMAINDER);
-						PushIndex += I2C_BUFFER_SIZE;
-					}
-					else
-					{
-						return false;
-					}
-				}
-				else
-				{
-					return false;
-				}
+				return true;
 			}
 
-			return true;
+			// Start next transfer if any data remains.
+			if (BUFFER_WHOLE > 0 && PushIndex < REMAINDER_START)
+			{
+				if (PushChunkDma(&frameBuffer[PushIndex], I2C_BUFFER_SIZE))
+				{
+					PushIndex += I2C_BUFFER_SIZE;
+				}
+				return true;
+			}
+
+			// Handle remainder if any.
+			if (BUFFER_REMAINDER > 0 && PushIndex < BufferSize)
+			{
+				if (PushChunkDma(&frameBuffer[REMAINDER_START], BUFFER_REMAINDER))
+				{
+					PushIndex = BufferSize;
+				}
+				return true;
+			}
+
+			// Buffer fully pushed.
+			return false;
 		}
 	};
 }

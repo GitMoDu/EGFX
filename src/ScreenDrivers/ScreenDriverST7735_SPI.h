@@ -10,14 +10,23 @@
 namespace Egfx
 {
 	template<typename pixel_color_t,
+		typename panel_t,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverST7735S_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7735::ST7735S::Width, ST7735::ST7735S::Height), ST7735::ST7735S::Width, ST7735::ST7735S::Height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverST7735S_SPI : public AbstractScreenDriverSPI<
+		Egfx::GetFrameBufferSize<pixel_color_t>(panel_t::Width, panel_t::Height),
+		panel_t::Width,
+		panel_t::Height,
+		pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(ST7735::ST7735S::Width, ST7735::ST7735S::Height), ST7735::ST7735S::Width, ST7735::ST7735S::Height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<
+			Egfx::GetFrameBufferSize<pixel_color_t>(panel_t::Width, panel_t::Height),
+			panel_t::Width,
+			panel_t::Height,
+			pinCS, pinDC, pinRST>;
 
 	public:
 		using BaseClass::ScreenWidth;
@@ -43,23 +52,28 @@ namespace Egfx
 	protected:
 		void SetupDisplayArea(const uint8_t width, const uint8_t height, const uint8_t offsetX, const uint8_t offsetY)
 		{
-			CommandStart(Settings);
-			SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetColumnAddress);
-			digitalWrite(pinDC, HIGH);
-			SpiInstance.transfer(0x00);
-			SpiInstance.transfer(ST7735::ST7735S::XOffset);
-			SpiInstance.transfer(0x00);
-			SpiInstance.transfer(ST7735::ST7735S::Width - 1 + ST7735::ST7735S::XOffset);
-			CommandEnd();
+				const uint16_t x0 = (uint16_t)panel_t::XOffset;
+				const uint16_t y0 = (uint16_t)panel_t::YOffset;
+				const uint16_t x1 = (uint16_t)panel_t::XOffset + (uint16_t)panel_t::Width - 1;
+				const uint16_t y1 = (uint16_t)panel_t::YOffset + (uint16_t)panel_t::Height - 1;
 
-			CommandStart(Settings);
-			SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetRowAddress);
-			digitalWrite(pinDC, HIGH);
-			SpiInstance.transfer(0x00);
-			SpiInstance.transfer(ST7735::ST7735S::YOffset);
-			SpiInstance.transfer(0x00);
-			SpiInstance.transfer(ST7735::ST7735S::Height - 1 + ST7735::ST7735S::YOffset);
-			CommandEnd();
+				CommandStart(Settings);
+				SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetColumnAddress);
+				digitalWrite(pinDC, HIGH);
+				SpiInstance.transfer((uint8_t)(x0 >> 8));
+				SpiInstance.transfer((uint8_t)(x0 & 0xFF));
+				SpiInstance.transfer((uint8_t)(x1 >> 8));
+				SpiInstance.transfer((uint8_t)(x1 & 0xFF));
+				CommandEnd();
+
+				CommandStart(Settings);
+				SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetRowAddress);
+				digitalWrite(pinDC, HIGH);
+				SpiInstance.transfer((uint8_t)(y0 >> 8));
+				SpiInstance.transfer((uint8_t)(y0 & 0xFF));
+				SpiInstance.transfer((uint8_t)(y1 >> 8));
+				SpiInstance.transfer((uint8_t)(y1 & 0xFF));
+				CommandEnd();
 		}
 
 	public:
@@ -179,7 +193,6 @@ namespace Egfx
 				SpiInstance.transfer(0b10000);
 				CommandEnd();
 
-
 				CommandStart(Settings);
 				SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetGamma);
 				digitalWrite(pinDC, HIGH);
@@ -189,7 +202,7 @@ namespace Egfx
 				CommandStart(Settings);
 				SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetMemoryDataAccessControl);
 				digitalWrite(pinDC, HIGH);
-				SpiInstance.transfer(0b01101000);
+				SpiInstance.transfer(panel_t::Madctl);
 				CommandEnd();
 
 				CommandStart(Settings);
@@ -211,26 +224,33 @@ namespace Egfx
 				SpiInstance.transfer((uint8_t*)ST7735::GammaNegativeCorrection, sizeof(ST7735::GammaNegativeCorrection));
 				CommandEnd();
 
+				const uint16_t x0 = (uint16_t)panel_t::XOffset;
+				const uint16_t y0 = (uint16_t)panel_t::YOffset;
+				const uint16_t x1 = (uint16_t)panel_t::XOffset + (uint16_t)panel_t::Width - 1;
+				const uint16_t y1 = (uint16_t)panel_t::YOffset + (uint16_t)panel_t::Height - 1;
+
 				CommandStart(Settings);
 				SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetColumnAddress);
 				digitalWrite(pinDC, HIGH);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer(ST7735::ST7735S::XOffset);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer(ST7735::ST7735S::Width - 1 + ST7735::ST7735S::XOffset);
+				SpiInstance.transfer((uint8_t)(x0 >> 8));
+				SpiInstance.transfer((uint8_t)(x0 & 0xFF));
+				SpiInstance.transfer((uint8_t)(x1 >> 8));
+				SpiInstance.transfer((uint8_t)(x1 & 0xFF));
 				CommandEnd();
 
 				CommandStart(Settings);
 				SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetRowAddress);
 				digitalWrite(pinDC, HIGH);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer(ST7735::ST7735S::YOffset);
-				SpiInstance.transfer(0x00);
-				SpiInstance.transfer(ST7735::ST7735S::Height - 1 + ST7735::ST7735S::YOffset);
+				SpiInstance.transfer((uint8_t)(y0 >> 8));
+				SpiInstance.transfer((uint8_t)(y0 & 0xFF));
+				SpiInstance.transfer((uint8_t)(y1 >> 8));
+				SpiInstance.transfer((uint8_t)(y1 & 0xFF));
 				CommandEnd();
 
 				CommandStart(Settings);
-				SpiInstance.transfer((uint8_t)ST7735::CommandEnum::SetInversionOff);
+				SpiInstance.transfer((uint8_t)(panel_t::InvertColors
+					? ST7735::CommandEnum::SetInversionOn
+					: ST7735::CommandEnum::SetInversionOff));
 				CommandEnd();
 
 				CommandStart(Settings);
@@ -273,22 +293,50 @@ namespace Egfx
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = ST7735::SpiMaxSpeed>
-	using ScreenDriverST7735S_80x160x16_SPI = AbstractScreenDriverST7735S_SPI<uint16_t, pinCS, pinDC, pinRST, spiSpeed>;
+	using ScreenDriverST7735S_80x160x16_SPI =
+		AbstractScreenDriverST7735S_SPI<uint16_t, ST7735::ST7735S, pinCS, pinDC, pinRST, spiSpeed>;
+
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed>
+	using ScreenDriverST7735S_160x128x16_SPI =
+		AbstractScreenDriverST7735S_SPI<uint16_t, ST7735::ST7735S_160x128, pinCS, pinDC, pinRST, spiSpeed>;
+
+	// Async variants
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
+		const uint8_t spiChunkDivisor = 2>
+	using ScreenDriverST7735S_80x160x16_SPI_Async =
+		TemplateScreenDriverSpiAsync<ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
 		const uint8_t spiChunkDivisor = 2>
-	using ScreenDriverST7735S_80x160x16_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
+	using ScreenDriverST7735S_160x128x16_SPI_Async =
+		TemplateScreenDriverSpiAsync<ScreenDriverST7735S_160x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
 #if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
+	// DMA variants
 	template<const uint8_t pinCS = UINT8_MAX,
 		const uint8_t pinDC = UINT8_MAX,
 		const uint8_t pinRST = UINT8_MAX,
 		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
 		const uint32_t pushSleepDuration = 0>
-	using ScreenDriverST7735S_80x160x16_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
+	using ScreenDriverST7735S_80x160x16_SPI_Dma =
+		TemplateScreenDriverSpiDma<ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
+
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
+		const uint32_t pushSleepDuration = 0>
+	using ScreenDriverST7735S_160x128x16_SPI_Dma =
+		TemplateScreenDriverSpiDma<ScreenDriverST7735S_160x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
@@ -302,11 +350,29 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverST7735S_80x160x16_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, stackHeight, priority
+	using ScreenDriverST7735S_80x160x16_SPI_Rtos =
+		TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif
-	>;
+		>;
+
+	template<const uint8_t pinCS = UINT8_MAX,
+		const uint8_t pinDC = UINT8_MAX,
+		const uint8_t pinRST = UINT8_MAX,
+		const uint32_t spiSpeed = ST7735::SpiMaxSpeed,
+		uint32_t stackHeight = 1500,
+		portBASE_TYPE priority = 1
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		, const uint32_t coreAffinity = tskNO_AFFINITY
+#endif
+	>
+	using ScreenDriverST7735S_160x128x16_SPI_Rtos =
+		TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverST7735S_160x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, stackHeight, priority
+#if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
+		, coreAffinity
+#endif
+		>;
 #endif
 }
 #endif

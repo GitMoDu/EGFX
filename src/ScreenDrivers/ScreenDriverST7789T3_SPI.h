@@ -39,6 +39,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverST7789T3_SPI() override = default;
+
 		bool Start() override
 		{
 			if (!BaseClass::Start())

@@ -31,6 +31,8 @@ namespace Egfx
 
 	public:
 		TemplateScreenDriverI2CAsync(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
+		
+		~TemplateScreenDriverI2CAsync() override = default;
 
 		virtual bool Start()
 		{

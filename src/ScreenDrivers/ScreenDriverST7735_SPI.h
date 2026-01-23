@@ -49,6 +49,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverST7735S_SPI() override = default;
+
 	protected:
 		void SetupDisplayArea(const uint8_t width, const uint8_t height, const uint8_t offsetX, const uint8_t offsetY)
 		{

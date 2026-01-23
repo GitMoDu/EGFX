@@ -42,6 +42,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverSH1107_I2C() override = default;
+
 		bool Start() override
 		{
 			return BaseClass::Start();
@@ -161,6 +163,8 @@ namespace Egfx
 			: BaseClass(wire)
 		{
 		}
+
+		~ScreenDriverSH1107_128x128x1_I2C() override = default;
 
 		bool Start() override
 		{

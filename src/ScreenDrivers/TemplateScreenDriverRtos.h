@@ -63,6 +63,15 @@ namespace Egfx
 		{
 		}
 
+		~TemplateScreenDriverRtos() override
+		{
+			if (Mutex != NULL)
+			{
+				Stop();
+				vSemaphoreDelete(Mutex);
+			}
+		}
+
 		bool Start() final
 		{
 			if (TaskCallback != nullptr

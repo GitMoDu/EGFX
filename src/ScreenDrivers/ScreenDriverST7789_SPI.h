@@ -44,6 +44,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverST7789_SPI() override = default;
+
 	public:
 		virtual bool Start()
 		{

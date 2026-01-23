@@ -28,6 +28,8 @@ namespace Egfx
 
 	public:
 		TemplateScreenDriverI2CDma(TwoWire& wire) : InlineI2cScreenDriver(wire) {}
+		
+		~TemplateScreenDriverI2CDma() override = default;
 
 		virtual uint32_t PushBuffer(const uint8_t* frameBuffer) override
 		{

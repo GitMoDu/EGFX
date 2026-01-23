@@ -28,6 +28,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverGC9A01_SPI() override = default;
+
 		bool Start() override
 		{
 			if (!BaseClass::Start())

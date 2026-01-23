@@ -41,6 +41,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverSSD1331_SPI() override = default;
+
 	public:
 		virtual void StartBuffer()
 		{
@@ -78,6 +80,8 @@ namespace Egfx
 
 	public:
 		ScreenDriverSSD1331_96x64x8_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
+		
+		~ScreenDriverSSD1331_96x64x8_SPI() override = default;
 
 		virtual bool Start()
 		{
@@ -96,6 +100,7 @@ namespace Egfx
 
 	public:
 		ScreenDriverSSD1331_96x64x16_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
+		~ScreenDriverSSD1331_96x64x16_SPI() override = default;
 
 		virtual bool Start()
 		{

@@ -50,7 +50,7 @@ namespace Egfx
 		{
 		}
 
-		~AbstractScreenDriverSH1106_SPI() = default;
+		~AbstractScreenDriverSH1106_SPI() override = default;
 
 	public:
 		virtual void StartBuffer()
@@ -118,6 +118,8 @@ namespace Egfx
 	public:
 		ScreenDriverSH1106_128x64x1_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
 
+		~ScreenDriverSH1106_128x64x1_SPI() override = default;
+
 		virtual void StartBuffer()
 		{
 		}
@@ -179,6 +181,8 @@ namespace Egfx
 	public:
 		ScreenDriverSH1106_128x64x1_SPI_Async(Egfx::SpiType& spi) : BaseClass(spi) {}
 
+		~ScreenDriverSH1106_128x64x1_SPI_Async() override = default;
+
 		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
 			PushIndex = 0;
@@ -234,6 +238,8 @@ namespace Egfx
 
 	public:
 		ScreenDriverSH1106_132x64x1_SPI_Async(Egfx::SpiType& spi) : BaseClass(spi) {}
+
+		~ScreenDriverSH1106_132x64x1_SPI_Async() override = default;
 
 		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{

@@ -53,6 +53,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverSSD1306_I2C() override = default;
+
 		void SetConstrast(const int8_t constrast)
 		{
 			CommandStart();
@@ -216,6 +218,8 @@ namespace Egfx
 
 	public:
 		ScreenDriverSSD1306_64x32x1_I2C(TwoWire& wire) : BaseClass(wire) {}
+		
+		~ScreenDriverSSD1306_64x32x1_I2C() override = default;
 
 		virtual bool Start()
 		{
@@ -244,6 +248,8 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1306_64x48x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
+		~ScreenDriverSSD1306_64x48x1_I2C() override = default;
+
 		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize();
@@ -270,6 +276,8 @@ namespace Egfx
 
 	public:
 		ScreenDriverSSD1306_72x40x1_I2C(TwoWire& wire) : BaseClass(wire) {}
+
+		~ScreenDriverSSD1306_72x40x1_I2C() override = default;
 
 		virtual bool Start()
 		{
@@ -298,6 +306,8 @@ namespace Egfx
 	public:
 		ScreenDriverSSD1306_128x32x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
+		~ScreenDriverSSD1306_128x32x1_I2C() override = default;
+
 		virtual bool Start()
 		{
 			return BaseClass::Start() && BaseClass::Initialize();
@@ -324,6 +334,8 @@ namespace Egfx
 
 	public:
 		ScreenDriverSSD1306_128x64x1_I2C(TwoWire& wire) : BaseClass(wire) {}
+
+		~ScreenDriverSSD1306_128x64x1_I2C() override = default;
 
 		virtual bool Start()
 		{

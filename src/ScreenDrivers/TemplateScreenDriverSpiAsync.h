@@ -29,6 +29,8 @@ namespace Egfx
 	public:
 		TemplateScreenDriverSpiAsync(Egfx::SpiType& spi) : InlineSpiScreenDriver(spi) {}
 
+		~TemplateScreenDriverSpiAsync() override = default;
+
 		uint32_t PushBuffer(const uint8_t* frameBuffer) final
 		{
 			PushIndex = 0;

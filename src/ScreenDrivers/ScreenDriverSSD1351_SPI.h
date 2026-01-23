@@ -40,6 +40,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverSSD1351_SPI() override = default;
+
 	public:
 		virtual void EndBuffer()
 		{

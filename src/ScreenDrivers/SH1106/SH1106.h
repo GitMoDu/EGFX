@@ -15,6 +15,9 @@ namespace SH1106
 	static constexpr uint32_t RESET_DELAY_MICROS = 100;
 	static constexpr uint8_t RESET_WAIT_MICROS = 5;
 
+	static constexpr uint32_t SpiMaxSpeed = 8000000;
+
+
 	enum class CommandEnum : uint8_t
 	{
 		CommandStart = 0x00,
@@ -38,6 +41,23 @@ namespace SH1106_128x64
 	{
 		PushPage1 = (uint8_t)SH1106::CommandEnum::PushAddress + ((SH1106_128x64::PageStartOffset) >> 4),
 		PushPage2 = (SH1106_128x64::PageStartOffset) & 0x0F,
+	};
+}
+
+namespace SH1106_132x64
+{
+	static constexpr uint8_t Width = SH1106::Width;
+	static constexpr uint8_t Height = SH1106::Height;
+
+	// Full-width RAM, start at column 0
+	static constexpr uint8_t PageStartOffset = 0;
+	static constexpr uint8_t Pages = (Height + 7) / 8;
+	static constexpr uint8_t PageChunkSize = Width;
+
+	enum class CommandEnum : uint8_t
+	{
+		PushPage1 = (uint8_t)SH1106::CommandEnum::PushAddress + ((SH1106_132x64::PageStartOffset) >> 4),
+		PushPage2 = (SH1106_132x64::PageStartOffset) & 0x0F,
 	};
 }
 #endif

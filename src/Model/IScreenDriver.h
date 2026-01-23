@@ -49,5 +49,9 @@ namespace Egfx
 
 		virtual void BufferTaskCallback(void* parameter) = 0;
 	};
+
+	// Pure virtual to keep interface abstract even if other methods change.
+	// Must be defined (header-only) to satisfy linker.
+	inline IScreenDriver::~IScreenDriver() = default;
 }
 #endif

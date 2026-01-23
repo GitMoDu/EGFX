@@ -59,6 +59,8 @@ namespace Egfx
 		{
 		}
 
+		~AbstractScreenDriverSPI() = default;
+
 		virtual void BufferTaskCallback(void* parameter) {}
 		virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) {}
 

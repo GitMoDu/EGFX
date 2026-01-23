@@ -28,6 +28,8 @@ namespace Egfx
 
 	struct IScreenDriver
 	{
+		virtual ~IScreenDriver() = 0;
+
 		virtual bool CanPushBuffer() = 0;
 		virtual void StartBuffer() = 0;
 		virtual uint32_t PushBuffer(const uint8_t* frameBuffer) = 0;

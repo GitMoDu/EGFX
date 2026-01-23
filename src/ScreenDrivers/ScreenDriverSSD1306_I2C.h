@@ -11,7 +11,9 @@ namespace Egfx
 {
 	template<const uint8_t width,
 		const uint8_t height,
+		const uint8_t horizontalOffset,
 		const int8_t verticalOffset,
+		const uint8_t comPins,
 		const uint8_t i2cAddress>
 	class AbstractScreenDriverSSD1306_I2C : public AbstractScreenDriverI2C<width, height, i2cAddress>
 	{
@@ -30,8 +32,9 @@ namespace Egfx
 		using BaseClass::I2CAddress;
 
 	private:
-		static constexpr uint8_t OffsetX = ((SSD1306::Width - ScreenWidth) / 2);
-		static constexpr uint8_t OffsetY = ((SSD1306::Height / 8) - (ScreenHeight / 8)) + verticalOffset;
+		static constexpr uint8_t OffsetX = horizontalOffset;
+		static constexpr uint8_t OffsetY = (verticalOffset < 0) ? 0 : (uint8_t)verticalOffset;
+		static constexpr uint8_t PageEnd = OffsetY + (ScreenHeight / 8) - 1;
 
 	protected:
 		static constexpr uint8_t I2C_BUFFER_SIZE = 31;
@@ -113,17 +116,24 @@ namespace Egfx
 		}
 
 	protected:
-		bool Initialize(const bool backlightInternal = false)
+		bool Initialize()
 		{
 			CommandReset();
-
 			delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
 
+			// Send the default batch as-is.
 			CommandStart();
 			WireInstance.write(SSD1306::ConfigBatch, sizeof(SSD1306::ConfigBatch));
 			CommandEnd();
 
-			SetBacklightMode(backlightInternal);
+			// Override the height-dependent settings (multiplex ratio and COM pins).
+			CommandStart();
+			WireInstance.write((uint8_t)SSD1306::CommandEnum::CommandStart);
+			WireInstance.write((uint8_t)SSD1306::CommandEnum::SetMultiplexRatio);
+			WireInstance.write(ScreenHeight - 1);
+			WireInstance.write((uint8_t)SSD1306::CommandEnum::SetComPins);
+			WireInstance.write(comPins);
+			CommandEnd();
 
 			return true;
 		}
@@ -147,11 +157,12 @@ namespace Egfx
 		}
 
 #if defined(TEMPLATE_SCREEN_DRIVER_I2C_DMA)
-		void PushChunkDma(const uint8_t* chunk, const size_t chunkSize)
+		// Returns true when the async transfer was accepted.
+		bool PushChunkDma(const uint8_t* chunk, const size_t chunkSize)
 		{
 			DmaBuffer[0] = (uint8_t)SSD1306::CommandEnum::SetLineStart;
 			memcpy(&DmaBuffer[1], chunk, chunkSize);
-			WireInstance.writeAsync(I2CAddress, (const void*)DmaBuffer, chunkSize + 1, true);
+			return WireInstance.writeAsync(I2CAddress, (const void*)DmaBuffer, chunkSize + 1, true);
 		}
 #endif
 
@@ -180,94 +191,143 @@ namespace Egfx
 
 			WireInstance.write((uint8_t)SSD1306::CommandEnum::Page);
 			WireInstance.write(OffsetY);
-			WireInstance.write((SSD1306::Height / 8) - 1);
-			CommandEnd();
-		}
-
-		void SetBacklightMode(const bool backlightInternal)
-		{
-			CommandStart();
-			WireInstance.write((uint8_t)SSD1306::CommandEnum::CommandStart);
-			//WireInstance.write((uint8_t)SSD1306::CommandEnum::Backlight);
-			if (backlightInternal)
-			{
-				WireInstance.write((uint8_t)SSD1306::BacklightEnum::Internal);
-			}
-			else
-			{
-				WireInstance.write((uint8_t)SSD1306::BacklightEnum::External);
-			}
+			WireInstance.write(PageEnd);
 			CommandEnd();
 		}
 	};
 
-	class ScreenDriverSSD1306_64x32x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_64x32::Width, SSD1306_64x32::Height, 0, SSD1306::I2CAddress>
+	class ScreenDriverSSD1306_64x32x1_I2C
+		: public AbstractScreenDriverSSD1306_I2C<
+		SSD1306_64x32::Width,
+		SSD1306_64x32::Height,
+		SSD1306_64x32::HorizontalOffset,
+		SSD1306_64x32::VerticalOffset,
+		SSD1306_64x32::ComPins,
+		SSD1306::I2CAddress>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_64x32::Width, SSD1306_64x32::Height, 0, SSD1306::I2CAddress>;
+		using BaseClass = AbstractScreenDriverSSD1306_I2C<
+			SSD1306_64x32::Width,
+			SSD1306_64x32::Height,
+			SSD1306_64x32::HorizontalOffset,
+			SSD1306_64x32::VerticalOffset,
+			SSD1306_64x32::ComPins,
+			SSD1306::I2CAddress>;
 
 	public:
 		ScreenDriverSSD1306_64x32x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
 		virtual bool Start()
 		{
-			return BaseClass::Start() && BaseClass::Initialize(false);
+			return BaseClass::Start() && BaseClass::Initialize();
 		}
 	};
 
-	class ScreenDriverSSD1306_64x48x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_64x48::Width, SSD1306_64x48::Height, SSD1306_64x48::VerticalOffset, SSD1306::I2CAddress>
+	class ScreenDriverSSD1306_64x48x1_I2C
+		: public AbstractScreenDriverSSD1306_I2C<
+		SSD1306_64x48::Width,
+		SSD1306_64x48::Height,
+		SSD1306_64x48::HorizontalOffset,
+		SSD1306_64x48::VerticalOffset,
+		SSD1306_64x48::ComPins,
+		SSD1306::I2CAddress>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_64x48::Width, SSD1306_64x48::Height, SSD1306_64x48::VerticalOffset, SSD1306::I2CAddress>;
+		using BaseClass = AbstractScreenDriverSSD1306_I2C<
+			SSD1306_64x48::Width,
+			SSD1306_64x48::Height,
+			SSD1306_64x48::HorizontalOffset,
+			SSD1306_64x48::VerticalOffset,
+			SSD1306_64x48::ComPins,
+			SSD1306::I2CAddress>;
 
 	public:
 		ScreenDriverSSD1306_64x48x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
 		virtual bool Start()
 		{
-			return BaseClass::Start() && BaseClass::Initialize(false);
+			return BaseClass::Start() && BaseClass::Initialize();
 		}
 	};
 
-	class ScreenDriverSSD1306_72x40x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_72x40::Width, SSD1306_72x40::Height, 0, SSD1306::I2CAddress>
+	class ScreenDriverSSD1306_72x40x1_I2C
+		: public AbstractScreenDriverSSD1306_I2C<
+		SSD1306_72x40::Width,
+		SSD1306_72x40::Height,
+		SSD1306_72x40::HorizontalOffset,
+		SSD1306_72x40::VerticalOffset,
+		SSD1306_72x40::ComPins,
+		SSD1306::I2CAddress>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_72x40::Width, SSD1306_72x40::Height, 0, SSD1306::I2CAddress>;
+		using BaseClass = AbstractScreenDriverSSD1306_I2C<
+			SSD1306_72x40::Width,
+			SSD1306_72x40::Height,
+			SSD1306_72x40::HorizontalOffset,
+			SSD1306_72x40::VerticalOffset,
+			SSD1306_72x40::ComPins,
+			SSD1306::I2CAddress>;
 
 	public:
 		ScreenDriverSSD1306_72x40x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
 		virtual bool Start()
 		{
-			return BaseClass::Start() && BaseClass::Initialize(true);
+			return BaseClass::Start() && BaseClass::Initialize();
 		}
 	};
 
-	class ScreenDriverSSD1306_128x32x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_128x32::Width, SSD1306_128x32::Height, SSD1306_128x32::VerticalOffset, SSD1306::I2CAddress>
+	class ScreenDriverSSD1306_128x32x1_I2C
+		: public AbstractScreenDriverSSD1306_I2C<
+		SSD1306_128x32::Width,
+		SSD1306_128x32::Height,
+		SSD1306_128x32::HorizontalOffset,
+		SSD1306_128x32::VerticalOffset,
+		SSD1306_128x32::ComPins,
+		SSD1306::I2CAddress>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_128x32::Width, SSD1306_128x32::Height, SSD1306_128x32::VerticalOffset, SSD1306::I2CAddress>;
+		using BaseClass = AbstractScreenDriverSSD1306_I2C<
+			SSD1306_128x32::Width,
+			SSD1306_128x32::Height,
+			SSD1306_128x32::HorizontalOffset,
+			SSD1306_128x32::VerticalOffset,
+			SSD1306_128x32::ComPins,
+			SSD1306::I2CAddress>;
 
 	public:
 		ScreenDriverSSD1306_128x32x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
 		virtual bool Start()
 		{
-			return BaseClass::Start() && BaseClass::Initialize(false);
+			return BaseClass::Start() && BaseClass::Initialize();
 		}
 	};
 
-	class ScreenDriverSSD1306_128x64x1_I2C : public AbstractScreenDriverSSD1306_I2C<SSD1306_128x64::Width, SSD1306_128x64::Height, 0, SSD1306::I2CAddress>
+	class ScreenDriverSSD1306_128x64x1_I2C
+		: public AbstractScreenDriverSSD1306_I2C<
+		SSD1306_128x64::Width,
+		SSD1306_128x64::Height,
+		SSD1306_128x64::HorizontalOffset,
+		SSD1306_128x64::VerticalOffset,
+		SSD1306_128x64::ComPins,
+		SSD1306::I2CAddress>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSSD1306_I2C<SSD1306_128x64::Width, SSD1306_128x64::Height, 0, SSD1306::I2CAddress>;
+		using BaseClass = AbstractScreenDriverSSD1306_I2C<
+			SSD1306_128x64::Width,
+			SSD1306_128x64::Height,
+			SSD1306_128x64::HorizontalOffset,
+			SSD1306_128x64::VerticalOffset,
+			SSD1306_128x64::ComPins,
+			SSD1306::I2CAddress>;
 
 	public:
 		ScreenDriverSSD1306_128x64x1_I2C(TwoWire& wire) : BaseClass(wire) {}
 
 		virtual bool Start()
 		{
-			return BaseClass::Start() && BaseClass::Initialize(false);
+			return BaseClass::Start() && BaseClass::Initialize();
 		}
 	};
 

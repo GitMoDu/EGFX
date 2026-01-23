@@ -14,6 +14,8 @@ namespace SSD1306
 	static constexpr uint32_t RESET_DELAY_MICROS = 250;
 	static constexpr uint8_t RESET_WAIT_MICROS = 10;
 
+	static constexpr uint32_t SpiMaxSpeed = 10000000;
+
 	enum class CommandEnum : uint8_t
 	{
 		/// <summary>
@@ -156,18 +158,17 @@ namespace SSD1306
 		/// </summary>
 		SetVerticalScrollArea = 0xA3,
 	};
-
-	enum class BacklightEnum : uint8_t
-	{
-		External = 0x00,
-		Internal = 0x30
-	};
 }
 
 namespace SSD1306_128x64
 {
 	static constexpr uint8_t Width = 128;
 	static constexpr uint8_t Height = 64;
+
+	static constexpr uint8_t HorizontalOffset = 0;
+	static constexpr int8_t VerticalOffset = 0;
+
+	static constexpr uint8_t ComPins = 0x12;
 }
 
 namespace SSD1306_128x32
@@ -175,7 +176,21 @@ namespace SSD1306_128x32
 	static constexpr uint8_t Width = 128;
 	static constexpr uint8_t Height = 32;
 
-	static constexpr int8_t VerticalOffset = -(int8_t)Height / 8;
+	static constexpr int8_t VerticalOffset = 0;
+	static constexpr uint8_t HorizontalOffset = 0;
+
+	static constexpr uint8_t ComPins = 0x02;
+}
+
+namespace SSD1306_64x32
+{
+	static constexpr uint8_t Width = 64;
+	static constexpr uint8_t Height = 32;
+
+	static constexpr int8_t VerticalOffset = 0;
+	static constexpr uint8_t HorizontalOffset = 32;
+
+	static constexpr uint8_t ComPins = 0x12;
 }
 
 namespace SSD1306_64x48
@@ -183,19 +198,19 @@ namespace SSD1306_64x48
 	static constexpr uint8_t Width = 64;
 	static constexpr uint8_t Height = 48;
 
-	static constexpr int8_t VerticalOffset = -(int8_t)Height / 2;
-}
-
-namespace SSD1306_64x32
-{
-	static constexpr uint8_t Width = 64;
-	static constexpr uint8_t Height = 32;
+	static constexpr int8_t VerticalOffset = 0;
+	static constexpr uint8_t HorizontalOffset = 32;
+	static constexpr uint8_t ComPins = 0x12;
 }
 
 namespace SSD1306_72x40
 {
 	static constexpr uint8_t Width = 72;
 	static constexpr uint8_t Height = 40;
+
+	static constexpr int8_t VerticalOffset = 0;
+	static constexpr uint8_t HorizontalOffset = 28;
+	static constexpr uint8_t ComPins = 0x12;
 }
 
 #endif

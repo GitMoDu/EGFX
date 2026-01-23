@@ -11,6 +11,7 @@ namespace Egfx
 {
 	template<const pixel_t width,
 		const pixel_t height,
+		const uint8_t comPins,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
@@ -54,22 +55,33 @@ namespace Egfx
 
 			SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::Page);
 			SpiInstance.transfer((uint8_t)0);
-			SpiInstance.transfer((uint8_t)((SSD1306::Height / 8) - 1));
+			SpiInstance.transfer((uint8_t)((ScreenHeight / 8) - 1));
 
 			digitalWrite(pinDC, HIGH);
 		}
 
 	protected:
-		bool Initialize(const bool backlightInternal = false)
+		bool Initialize()
 		{
 			PinReset(SSD1306::RESET_WAIT_MICROS);
 			delayMicroseconds(SSD1306::RESET_DELAY_MICROS);
 
+			// Base init batch
 			CommandStart(Settings);
 			SpiTransfer(SSD1306::ConfigBatch, sizeof(SSD1306::ConfigBatch));
 			CommandEnd();
 
-			SetBacklightMode(backlightInternal);
+			// Per-variant overrides to match I2C driver behavior
+			CommandStart(Settings);
+			SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::CommandStart);
+
+			SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::SetMultiplexRatio);
+			SpiInstance.transfer((uint8_t)(ScreenHeight - 1));
+
+			SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::SetComPins);
+			SpiInstance.transfer((uint8_t)comPins);
+
+			CommandEnd();
 
 			return true;
 		}
@@ -82,64 +94,58 @@ namespace Egfx
 			SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::Reset);
 			CommandEnd();
 		}
-
-		void SetBacklightMode(const bool backlightInternal)
-		{
-			CommandStart(Settings);
-			SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::CommandStart);
-			//SpiInstance.transfer((uint8_t)SSD1306::CommandEnum::Backlight);
-			if (backlightInternal)
-			{
-				SpiInstance.transfer((uint8_t)SSD1306::BacklightEnum::Internal);
-			}
-			else
-			{
-				SpiInstance.transfer((uint8_t)SSD1306::BacklightEnum::External);
-			}
-			CommandEnd();
-		}
 	};
 
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed = 4000000>
-	class ScreenDriverSSD1306_128x64x1_SPI : public AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinCS, pinDC, pinRST, spiSpeed>
+		const uint32_t spiSpeed = SSD1306::SpiMaxSpeed>
+	class ScreenDriverSSD1306_128x64x1_SPI
+		: public AbstractScreenDriverSSD1306_SPI<
+		SSD1306_128x64::Width,
+		SSD1306_128x64::Height,
+		SSD1306_128x64::ComPins,
+		pinCS, pinDC, pinRST, spiSpeed>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSSD1306_SPI<SSD1306_128x64::Width, SSD1306_128x64::Height, pinCS, pinDC, pinRST, spiSpeed>;
+		using BaseClass = AbstractScreenDriverSSD1306_SPI<
+			SSD1306_128x64::Width,
+			SSD1306_128x64::Height,
+			SSD1306_128x64::ComPins,
+			pinCS, pinDC, pinRST, spiSpeed>;
 
 	public:
 		ScreenDriverSSD1306_128x64x1_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
 
 		virtual bool Start()
 		{
-			return BaseClass::Start() && BaseClass::Initialize(false);
+			return BaseClass::Start() && BaseClass::Initialize();
 		}
 	};
 
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = SSD1306::SpiMaxSpeed,
 		const uint8_t spiChunkDivisor = 2>
-	using ScreenDriverSSD1306_128x64x1_SPI_Async = TemplateScreenDriverSpiAsync<ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
+	using ScreenDriverSSD1306_128x64x1_SPI_Async =
+		TemplateScreenDriverSpiAsync<ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, spiChunkDivisor>;
 
 #if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = SSD1306::SpiMaxSpeed,
 		const uint32_t pushSleepDuration = 0>
-	using ScreenDriverSSD1306_128x64x1_SPI_Dma = TemplateScreenDriverSpiDma<ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
+	using ScreenDriverSSD1306_128x64x1_SPI_Dma =
+		TemplateScreenDriverSpiDma<ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration>;
 #endif
 
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS)
-
 	template<const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
-		const uint32_t spiSpeed = 4000000,
+		const uint32_t spiSpeed = SSD1306::SpiMaxSpeed,
 		const uint32_t pushSleepDuration = 0,
 		uint32_t stackHeight = 1500,
 		portBASE_TYPE priority = 1
@@ -147,11 +153,12 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverSSD1306_128x64x1_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+	using ScreenDriverSSD1306_128x64x1_SPI_Rtos =
+		TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSSD1306_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif
-	>;
-#endif
+		>;
 #endif
 }
+#endif

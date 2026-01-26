@@ -25,8 +25,11 @@ namespace Egfx
 			private:
 				Support::ParameterPack::ElementPack<DrawableTypes...> drawables_;
 				uint8_t CurrentDrawable = 0;
+
+			public:
 				static constexpr uint8_t DrawableCount = static_cast<uint8_t>(sizeof...(DrawableTypes));
 
+			private:
 				// Compile-time dispatcher: calls Draw(frame) on target drawable.
 				template<uint8_t Index>
 				void DrawAt(IFrameBuffer* frame)

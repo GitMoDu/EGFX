@@ -142,10 +142,9 @@ namespace Egfx
 						break;
 					case uint8_t(AsciiDefinition::Printable::Digit9):
 						PrimitiveLine(framebuffer, 1, 0, Width - 1 - 1, 0);
-						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, Height - 1 - 1);
+						PrimitiveLine(framebuffer, 0, 1, 0, MiddleY - 1);
 						PrimitiveLine(framebuffer, 1, MiddleY - 1, Width - 1 - 1, MiddleY - 1);
-						PrimitiveLine(framebuffer, Width - 1 - 1, MiddleY, Width - 1 - 1, Height - 1 - 1);
-						PrimitiveLine(framebuffer, 0, Height - 1, Width - 1 - 1, Height - 1);
+						PrimitiveLine(framebuffer, Width - 1, 1, Width - 1, Height - 1 - 1);
 						break;
 					case uint8_t(AsciiDefinition::Printable::Minus):
 						PrimitiveLine(framebuffer, 0, MiddleY, Width - 1, MiddleY);

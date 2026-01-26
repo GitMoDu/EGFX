@@ -171,7 +171,7 @@ namespace Egfx
 							static constexpr uint32_t SlideIn = UsableTime - Hold - FadeOut;
 						};
 
-						static constexpr pixel_t VerticalShift = Layout<ParentLayout>::LogoBorder::Height();
+						static constexpr pixel_t VerticalShift = Layout<ParentLayout>::LogoPadding::Height();
 
 						uint32_t AnimationStart = 0;
 						AnimationEnum State = AutoStart ? AnimationEnum::AnimationStart : AnimationEnum::AnimationEnd;

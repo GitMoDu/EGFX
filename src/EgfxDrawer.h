@@ -49,10 +49,20 @@
 #include "Text/FontText.h"
 #include "Text/TemplateTextWriter.h"
 
-// 2D drawable framework.
-#include "Framework/Layout.h"
-#include "Framework/Drawable.h"
+// Animation support.
 #include "Framework/ProgressScaler.h"
+
+// Compile-time layout framework.
+#include "Framework/Layout/Model.h"
+#include "Framework/Layout/ConstrainedDimensions.h"
+#include "Framework/Layout/ConstrainedRatio.h"
+#include "Framework/Layout/Grid.h"
+#include "Framework/Layout/Weighted.h"
+#include "Framework/Layout/Margin.h"
+#include "Framework/Layout/Align.h"
+
+// 2D drawable framework.
+#include "Framework/Drawable.h"
 #include "Framework/View/Model.h"
 #include "Framework/View/AbstractView.h"
 #include "Framework/View/DrawablesView.h"

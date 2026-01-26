@@ -35,25 +35,25 @@ namespace Egfx
 							? MarginRaw() : 0;
 					}
 
-					static constexpr pixel_t Border()
+					static constexpr pixel_t Padding()
 					{
-						return MaxValue<pixel_t>(1, Margin() / 8);
+						return MaxValue<pixel_t>(2, Margin() / 8);
 					}
 
-					using ScreenMargin = ConstrainedRatioLayout<ParentLayout, Dimensions::LogoAspectWidth(), Dimensions::LogoAspectHeight(), Margin()>;
-
-					using LogoBorder = ConstrainedRatioLayout<ScreenMargin, ScreenMargin::Width(), ScreenMargin::Height(), Border()>;
+					using ScreenRatio = Framework::Layout::Align<ParentLayout, Framework::Layout::ConstrainedRatio<ParentLayout, Dimensions::LogoAspectWidth(), Dimensions::LogoAspectHeight()>>;
+					using ScreenMargin = Framework::Layout::Margin<ScreenRatio, Margin(), Margin(), Margin(), Margin()>;
+					using LogoPadding = Framework::Layout::Margin<ScreenMargin, Padding(), Padding(), Padding(), Padding()>;
 
 					struct Logo
 					{
 						static constexpr pixel_t FontWidth()
 						{
-							return ((LogoBorder::Width() - Border() * 2) - (Kerning() * (Dimensions::LetterCount() - 1))) / Dimensions::LetterCount();
+							return ((LogoPadding::Width() - Padding() * 2) - (Kerning() * (Dimensions::LetterCount() - 1))) / Dimensions::LetterCount();
 						}
 
 						static constexpr pixel_t FontHeight()
 						{
-							return LogoBorder::Height();
+							return LogoPadding::Height();
 						}
 
 						static constexpr pixel_t Height()
@@ -69,15 +69,14 @@ namespace Egfx
 
 						static constexpr pixel_t X()
 						{
-							return LogoBorder::X() + ((LogoBorder::Width() - Width()) / 2);
+							return LogoPadding::X() + ((LogoPadding::Width() - Width()) / 2);
 						}
 
 						static constexpr pixel_t Y()
 						{
-							return LogoBorder::Y() + ((LogoBorder::Height() - Height()) / 2);
+							return LogoPadding::Y() + ((LogoPadding::Height() - Height()) / 2);
 						}
 					};
-
 
 					struct LetterE
 					{
@@ -90,7 +89,7 @@ namespace Egfx
 					struct LetterG
 					{
 						static constexpr pixel_t X() { return LetterE::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr pixel_t Y() { return Logo::Y(); };
+						static constexpr pixel_t Y() { return Logo::Y(); }
 						static constexpr pixel_t Width() { return Logo::FontWidth(); }
 						static constexpr pixel_t Height() { return Logo::FontHeight(); }
 					};
@@ -98,7 +97,7 @@ namespace Egfx
 					struct LetterF
 					{
 						static constexpr pixel_t X() { return LetterG::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr pixel_t Y() { return Logo::Y(); };
+						static constexpr pixel_t Y() { return Logo::Y(); }
 						static constexpr pixel_t Width() { return Logo::FontWidth(); }
 						static constexpr pixel_t Height() { return Logo::FontHeight(); }
 
@@ -111,7 +110,7 @@ namespace Egfx
 					struct LetterX
 					{
 						static constexpr pixel_t X() { return LetterF::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr pixel_t Y() { return Logo::Y(); };
+						static constexpr pixel_t Y() { return Logo::Y(); }
 						static constexpr pixel_t Width() { return Logo::FontWidth(); }
 						static constexpr pixel_t Height() { return Logo::FontHeight(); }
 

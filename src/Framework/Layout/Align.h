@@ -35,9 +35,9 @@ namespace Egfx
 			/// - For center alignments, uses a rounded half remainder ((remainder + 1) / 2) to avoid a persistent
 			///   left/up bias when the remainder is odd.
 			///
-			/// Cell-forwarding:
-			/// - If ChildLayout provides Cell<Index> and/or CellIndex<Index>, Align exposes the same nested templates
-			///   and applies the same X/Y offset to the returned cell coordinates.
+			/// Note:
+			/// This type only aligns the child rectangle itself (X/Y/Width/Height). It intentionally does not forward
+			/// any nested cell types from the child layout (e.g. Grid::Cell<...>).
 			/// </summary>
 			/// <typeparam name="ParentLayout">The containing layout to align inside.</typeparam>
 			/// <typeparam name="ChildLayout">The child layout to reposition within the parent.</typeparam>
@@ -92,41 +92,21 @@ namespace Egfx
 				/// Aligned position of the child (top-left corner).
 				/// </summary>
 				static constexpr pixel_t X() { return ParentLayout::X() + XOffset(); }
+
+				/// <summary>
+				/// Aligned position of the child (top-left corner).
+				/// </summary>
 				static constexpr pixel_t Y() { return ParentLayout::Y() + YOffset(); }
 
 				/// <summary>
 				/// Size of the aligned child (unchanged from ChildLayout).
 				/// </summary>
 				static constexpr pixel_t Width() { return ChildWidth(); }
+
+				/// <summary>
+				/// Size of the aligned child (unchanged from ChildLayout).
+				/// </summary>
 				static constexpr pixel_t Height() { return ChildHeight(); }
-
-				/// <summary>
-				/// For child layouts exposing Cell<Index>, forwards the cell with the alignment offset applied to X/Y.
-				/// </summary>
-				template<uint8_t Index>
-				struct Cell
-				{
-					static constexpr pixel_t X() { return ChildLayout::template Cell<Index>::X() + XOffset(); }
-					static constexpr pixel_t Y() { return ChildLayout::template Cell<Index>::Y() + YOffset(); }
-					static constexpr pixel_t Width() { return ChildLayout::template Cell<Index>::Width(); }
-					static constexpr pixel_t Height() { return ChildLayout::template Cell<Index>::Height(); }
-				};
-
-				/// <summary>
-				/// For child layouts exposing CellIndex<Index>, forwards the cell with the alignment offset applied to X/Y.
-				/// Also forwards Row()/Col() if the child provides them.
-				/// </summary>
-				template<uint8_t Index>
-				struct CellIndex
-				{
-					static constexpr uint8_t Row() { return ChildLayout::template CellIndex<Index>::Row(); }
-					static constexpr uint8_t Col() { return ChildLayout::template CellIndex<Index>::Col(); }
-
-					static constexpr pixel_t X() { return ChildLayout::template CellIndex<Index>::X() + XOffset(); }
-					static constexpr pixel_t Y() { return ChildLayout::template CellIndex<Index>::Y() + YOffset(); }
-					static constexpr pixel_t Width() { return ChildLayout::template CellIndex<Index>::Width(); }
-					static constexpr pixel_t Height() { return ChildLayout::template CellIndex<Index>::Height(); }
-				};
 			};
 		}
 	}

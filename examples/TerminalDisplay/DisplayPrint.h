@@ -2,12 +2,14 @@
 #define _DISPLAYPRINT_h
 
 #include <Print.h>
-#include <EgfxDrawer.h>
+#include <EgfxModules.h>
 
 namespace Egfx
 {
 	namespace PrintSurface
 	{
+		namespace AsciiDefinition = Framework::AsciiDefinition;
+
 		template<typename Layout
 			, typename FontDrawerType
 			, uint16_t CharactersPerLine
@@ -35,7 +37,7 @@ namespace Egfx
 			uint8_t TextBuffer[Lines][CharactersPerLine + 1]{};
 
 		private:
-			FontText::TemplateTextWriter<FontDrawerType, PrintLayout> TextWriter{};
+			Framework::Text::TemplateWriter<FontDrawerType, PrintLayout> TextWriter{};
 
 			uint8_t CallIndex = 0;
 
@@ -44,13 +46,8 @@ namespace Egfx
 			pixel_t CursorX = 0;
 
 		public:
-			FontPrintSurface() : IFrameDraw()
-			{
-			}
-
-			~FontPrintSurface()
-			{
-			}
+			FontPrintSurface() : IFrameDraw() {}
+			~FontPrintSurface() = default;
 
 			// Always enabled.
 			bool IsEnabled() const final { return true; }
@@ -163,10 +160,10 @@ namespace Egfx
 		{
 			switch (static_cast<uint8_t>(character))
 			{
-			case uint8_t(AsciiDefinition::Control::NUL):
+			case uint8_t(Framework::AsciiDefinition::Control::NUL):
 				return 0;
-			case uint8_t(AsciiDefinition::Control::CR):
-			case uint8_t(AsciiDefinition::Control::LF):
+			case uint8_t(Framework::AsciiDefinition::Control::CR):
+			case uint8_t(Framework::AsciiDefinition::Control::LF):
 				PrintSurface.NewLine();
 				return 0;
 			default:
@@ -180,9 +177,9 @@ namespace Egfx
 
 	template<typename Layout>
 	using BitmaskTextDisplaySerial = TextDisplaySerial<Layout
-		, typename Egfx::BitmaskFont::TemplateFontDrawer<Egfx::BitmaskFonts::Plastic::FontType3x5>
-		, Egfx::BitmaskFonts::Plastic::FontType3x5::Width
-		, Egfx::BitmaskFonts::Plastic::FontType3x5::Height>;
+		, typename Framework::Bitmask::Font::TemplateDrawer<Framework::Assets::Font::Bitmask::Plastic::FontType3x5>
+		, Framework::Assets::Font::Bitmask::Plastic::FontType3x5::Width
+		, Framework::Assets::Font::Bitmask::Plastic::FontType3x5::Height>;
 }
 
 #endif

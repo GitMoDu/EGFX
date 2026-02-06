@@ -36,7 +36,7 @@
 #include "PrimitiveDemo.h"
 #include "VectorTextDemo.h"
 #include "BitmaskTextDemo.h"
-#include "BitmapDemo.h"
+#include "ImageDemo.h"
 
 // Process scheduler.
 TS::Scheduler SchedulerBase{};

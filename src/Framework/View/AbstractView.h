@@ -19,12 +19,12 @@ namespace Egfx
 			{
 			protected:
 				/// <summary>
-				/// Protected DrawCall for derived classes to implement rendering logic.
+				/// Protected Draw call for derived classes to implement rendering logic.
 				/// Called after ViewStep() has updated animation state.
 				/// Should render the view and return true when complete.
 				/// </summary>
-				/// <param name="frame">Frame buffer to render to.</param>
-				/// <returns>True when rendering is complete.</returns>
+				/// <param name="frame">Target framebuffer to draw into.</param>
+				/// <returns>True when the view has completed its current draw cycle.</returns>
 				virtual bool Draw(IFrameBuffer* /*frame*/) = 0;
 
 				/// <summary>
@@ -32,8 +32,8 @@ namespace Egfx
 				/// Override to update view state (positions, colors, etc.).
 				/// No framebuffer access - pure state update.
 				/// </summary>
-				/// <param name="frameTime">Current frame time in microseconds.</param>
-				/// <param name="frameCounter">Current frame number.</param>
+				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
+				/// <param name="frameCounter">Rolling frame counter.</param>
 				virtual void ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) = 0;
 
 			private:
@@ -43,6 +43,13 @@ namespace Egfx
 				AbstractView() = default;
 				virtual ~AbstractView() = default;
 
+				/// <summary>
+				/// Orchestrates the view's step + draw cycle.
+				/// </summary>
+				/// <param name="frame">Target framebuffer to draw into.</param>
+				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
+				/// <param name="frameCounter">Rolling frame counter.</param>
+				/// <returns>True when the view has completed its current draw cycle.</returns>
 				bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
 				{
 					if (!Stepped)

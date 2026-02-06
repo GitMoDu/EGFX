@@ -1,7 +1,7 @@
 #ifndef _EGFX_FRAMEWORK_SUPPORT_h
 #define _EGFX_FRAMEWORK_SUPPORT_h
 
-#include "../Platform/Platform.h"
+#include "../EgfxCore.h"
 
 namespace Egfx
 {

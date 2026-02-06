@@ -1,7 +1,7 @@
 #ifndef _EGFX_TEMPLATE_DOUBLE_BUFFERED_FRAME_BUFFER_h
 #define _EGFX_TEMPLATE_DOUBLE_BUFFERED_FRAME_BUFFER_h
 
-#include "../Platform/Platform.h"
+#include "TemplateFramebuffer.h"
 
 namespace Egfx
 {

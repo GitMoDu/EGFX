@@ -1,7 +1,7 @@
 #ifndef _EGFX_FRAMEWORK_LAYOUT_MODEL_h
 #define _EGFX_FRAMEWORK_LAYOUT_MODEL_h
 
-#include "../../Platform/Platform.h"
+#include "../../EgfxCore.h"
 #include "../Support.h"
 
 namespace Egfx
@@ -46,10 +46,10 @@ namespace Egfx
 		/// - X()/Y() represent the top-left corner of the rectangle.
 		/// - Width()/Height() represent the rectangle dimensions.
 		/// </summary>
-		/// <typeparam name="x">The x-coordinate (top-left) of the layout.</typeparam>
-		/// <typeparam name="y">The y-coordinate (top-left) of the layout.</typeparam>
-		/// <typeparam name="width">The width of the layout rectangle.</typeparam>
-		/// <typeparam name="height">The height of the layout rectangle.</typeparam>
+		/// <typeparam name="x">Top-left X coordinate (pixels).</typeparam>
+		/// <typeparam name="y">Top-left Y coordinate (pixels).</typeparam>
+		/// <typeparam name="width">Layout width (pixels).</typeparam>
+		/// <typeparam name="height">Layout height (pixels).</typeparam>
 		template<const pixel_t x, const pixel_t y,
 			const pixel_t width, const pixel_t height>
 		struct TemplateLayout

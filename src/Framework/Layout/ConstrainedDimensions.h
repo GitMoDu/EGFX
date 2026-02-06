@@ -20,14 +20,12 @@ namespace Egfx
 			///
 			/// Notes:
 			/// - The min/max bounds are compile-time constants.
-			/// - If max is smaller than the parent, the constrained result is reduced.
-			/// - If min is larger than the parent, the constrained result is expanded to the minimum (up to max).
 			/// </summary>
-			/// <typeparam name="ParentLayout">The layout type of the parent container.</typeparam>
-			/// <typeparam name="minWidth">Minimum width of the constrained rectangle.</typeparam>
-			/// <typeparam name="maxWidth">Maximum width of the constrained rectangle.</typeparam>
-			/// <typeparam name="minHeight">Minimum height of the constrained rectangle.</typeparam>
-			/// <typeparam name="maxHeight">Maximum height of the constrained rectangle.</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+			/// <typeparam name="minWidth">Minimum width (pixels).</typeparam>
+			/// <typeparam name="maxWidth">Maximum width (pixels).</typeparam>
+			/// <typeparam name="minHeight">Minimum height (pixels).</typeparam>
+			/// <typeparam name="maxHeight">Maximum height (pixels).</typeparam>
 			template<typename ParentLayout,
 				pixel_t minWidth,
 				pixel_t maxWidth,

@@ -10,12 +10,13 @@ namespace Egfx
 		namespace View
 		{
 			/// <summary>
-			/// CompositeView orchestrates multiple child views that already implement the DrawCall contract.
+			/// CompositeView orchestrates multiple child views that already implement the Drawable contract.
 			/// Each child view receives the same frame parameters and advances sequentially.
 			/// ViewStep() is invoked once per composite cycle before the first child view executes.
 			/// Access individual child views via view<Index>() to configure shared state or wiring.
 			/// The composite DrawCall completes only after every child view has reported completion.
 			/// </summary>
+			/// <typeparam name="ViewTypes">Child view types implementing DrawCall().</typeparam>
 			template<typename... ViewTypes>
 			class CompositeView
 			{
@@ -59,6 +60,8 @@ namespace Egfx
 				/// Composite-level animation step invoked once per cycle before any child view renders.
 				/// Override to update shared state or coordinate child views.
 				/// </summary>
+				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
+				/// <param name="frameCounter">Rolling frame counter.</param>
 				virtual void ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) {}
 
 			public:
@@ -72,7 +75,8 @@ namespace Egfx
 				virtual ~CompositeView() = default;
 
 				/// <summary>
-				/// Access a child view by index for configuration.
+				/// Access a specific view by index.
+				/// Example: view<0>().Color = rgb_color_t{255, 0, 0};
 				/// </summary>
 				template<uint8_t Index>
 				typename Support::ParameterPack::GetHelper<Index, ViewTypes...>::type& view()
@@ -80,12 +84,23 @@ namespace Egfx
 					return InnerViews.template Get<Index>();
 				}
 
+				/// <summary>
+				/// Access a specific const view by index.
+				/// Example: view<0>().Color = rgb_color_t{255, 0, 0};
+				/// </summary>
 				template<uint8_t Index>
 				const typename Support::ParameterPack::GetHelper<Index, ViewTypes...>::type& view() const
 				{
 					return InnerViews.template Get<Index>();
 				}
 
+				/// <summary>
+				/// Advances the current child view and completes when all child views have completed.
+				/// </summary>
+				/// <param name="frame">Target framebuffer to draw into.</param>
+				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
+				/// <param name="frameCounter">Rolling frame counter.</param>
+				/// <returns>True when the view has completed its current draw cycle.</returns>
 				bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
 				{
 					if (ViewCount == 0u)

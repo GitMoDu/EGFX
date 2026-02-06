@@ -11,7 +11,6 @@ namespace Egfx
 		{
 			/// <summary>
 			/// Alignment position of a child rectangle within its parent rectangle.
-			/// Used by Layout::Align to place a child layout inside a parent layout.
 			/// </summary>
 			enum class AlignmentEnum : uint8_t
 			{
@@ -28,20 +27,10 @@ namespace Egfx
 
 			/// <summary>
 			/// Aligns a child layout within a parent layout.
-			///
-			/// - Keeps the child layout's size (Width/Height) unchanged.
-			/// - Moves the child layout by an X/Y offset so it sits at the requested AlignmentEnum position.
-			/// - Requires ChildLayout::Width() <= ParentLayout::Width() and ChildLayout::Height() <= ParentLayout::Height().
-			/// - For center alignments, uses a rounded half remainder ((remainder + 1) / 2) to avoid a persistent
-			///   left/up bias when the remainder is odd.
-			///
-			/// Note:
-			/// This type only aligns the child rectangle itself (X/Y/Width/Height). It intentionally does not forward
-			/// any nested cell types from the child layout (e.g. Grid::Cell<...>).
 			/// </summary>
-			/// <typeparam name="ParentLayout">The containing layout to align inside.</typeparam>
-			/// <typeparam name="ChildLayout">The child layout to reposition within the parent.</typeparam>
-			/// <typeparam name="alignment">The desired alignment of the child inside the parent.</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+			/// <typeparam name="ChildLayout">Child layout being positioned within the parent.</typeparam>
+			/// <typeparam name="alignment">Child alignment within the parent.</typeparam>
 			template<typename ParentLayout,
 				typename ChildLayout,
 				AlignmentEnum alignment = AlignmentEnum::MiddleCenter

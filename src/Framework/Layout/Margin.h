@@ -20,11 +20,11 @@ namespace Egfx
 			/// - Margins are specified per side. For uniform margins, use the same value for all sides.
 			/// - If the margins fully consume the parent width/height, the resulting width/height becomes 0.
 			/// </summary>
-			/// <typeparam name="ParentLayout">The layout type of the parent container.</typeparam>
-			/// <typeparam name="MarginLeft">Left margin in pixels (>= 0).</typeparam>
-			/// <typeparam name="MarginTop">Top margin in pixels (>= 0).</typeparam>
-			/// <typeparam name="MarginRight">Right margin in pixels (>= 0).</typeparam>
-			/// <typeparam name="MarginBottom">Bottom margin in pixels (>= 0).</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+			/// <typeparam name="MarginLeft">Left margin (pixels).</typeparam>
+			/// <typeparam name="MarginTop">Top margin (pixels).</typeparam>
+			/// <typeparam name="MarginRight">Right margin (pixels).</typeparam>
+			/// <typeparam name="MarginBottom">Bottom margin (pixels).</typeparam>
 			template<typename ParentLayout,
 				pixel_t MarginLeft = 0,
 				pixel_t MarginTop = 0,

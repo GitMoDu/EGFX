@@ -13,24 +13,13 @@ namespace Egfx
 			/// Splits a parent layout into a grid of equally sized cells.
 			///
 			/// Behavior:
-			/// - Cell size is computed using integer division:
-			///   - CellWidth  = ParentWidth / Columns
-			///   - CellHeight = ParentHeight / Rows
-			/// - The grid area size is the product of cell size and counts:
-			///   - GridWidth  = CellWidth  * Columns
-			///   - GridHeight = CellHeight * Rows
-			/// - Any remainder pixels (from division) are not redistributed; the grid area size is
-			/// therefore GridWidth <= ParentWidth and GridHeight <= ParentHeight.
-			///
-			/// Positioning:
+			/// - Cell size is computed using integer division.
+			/// - Any remainder pixels (from division) are not redistributed.
 			/// - The grid area is top-left anchored to the parent (X/Y match the parent).
-			///
-			/// Cell access:
-			/// - Use Cell<ColIndex, RowIndex> for 2D coordinates (zero-based).
 			/// </summary>
-			/// <typeparam name="ParentLayout">The layout type of the parent container.</typeparam>
-			/// <typeparam name="Columns">Number of columns in the grid (must be > 0).</typeparam>
-			/// <typeparam name="Rows">Number of rows in the grid (must be > 0).</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+			/// <typeparam name="Columns">Number of columns (must be > 0).</typeparam>
+			/// <typeparam name="Rows">Number of rows (must be > 0).</typeparam>
 			template<typename ParentLayout,
 				uint8_t Columns,
 				uint8_t Rows
@@ -60,12 +49,9 @@ namespace Egfx
 				static constexpr pixel_t Width() { return GridWidth(); }
 				static constexpr pixel_t Height() { return GridHeight(); }
 
-				/// <summary>
-				/// Grid cell addressed by column/row indices.
-				/// Indices are zero-based.
-				/// </summary>
-				/// <typeparam name="ColIndex">Column index in range [0, Columns).</typeparam>
-				/// <typeparam name="RowIndex">Row index in range [0, Rows).</typeparam>
+				/// <summary>Grid cell addressed by column and row indices.</summary>
+				/// <typeparam name="ColIndex">Zero-based column index.</typeparam>
+				/// <typeparam name="RowIndex">Zero-based row index.</typeparam>
 				template<uint8_t ColIndex, uint8_t RowIndex>
 				struct Cell
 				{

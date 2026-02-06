@@ -19,6 +19,7 @@ namespace Egfx
 			/// 3. Advances to the next drawable.
 			/// When all drawables have been rendered, returns true and resets.
 			/// </summary>
+			/// <typeparam name="DrawableTypes">Drawable types implementing Draw(IFrameBuffer*).</typeparam>
 			template<typename... DrawableTypes>
 			class DrawablesView
 			{
@@ -65,6 +66,8 @@ namespace Egfx
 				/// Override to update drawable state (positions, colors, etc.).
 				/// No framebuffer access - pure state update for passive drawables.
 				/// </summary>
+				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
+				/// <param name="frameCounter">Rolling frame counter.</param>
 				virtual void ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) {}
 
 			public:
@@ -87,8 +90,7 @@ namespace Egfx
 
 				/// <summary>
 				/// Access a specific drawable by index.
-				/// Use this to configure drawable state in ViewStep() or constructor.
-				/// Example: drawable<0>().position = {10, 20};
+				/// Example: drawable<0>().TransformShader.SetRotation(45);
 				/// </summary>
 				template<uint8_t Index>
 				typename Support::ParameterPack::GetHelper<Index, DrawableTypes...>::type& drawable()
@@ -96,6 +98,10 @@ namespace Egfx
 					return drawables_.template Get<Index>();
 				}
 
+				/// <summary>
+				/// Access a specific const drawable by index.
+				/// Example: drawable<0>().TransformShader.SetRotation(45);
+				/// </summary>
 				template<uint8_t Index>
 				const typename Support::ParameterPack::GetHelper<Index, DrawableTypes...>::type& drawable() const
 				{
@@ -105,10 +111,14 @@ namespace Egfx
 				/// <summary>
 				/// DrawCall orchestration implementing View contract:
 				/// 1. Calls ViewStep() once at start of cycle to update animation state.
-				/// 2. Renders current drawable via Draw(framebuffer) - passive rendering.
+				/// 2. Renders current drawable via Draw(framebuffer).
 				/// 3. Advances to the next drawable on the next call.
 				/// 4. Returns true when all drawables rendered (cycle complete).
 				/// </summary>
+				/// <param name="frame">Target framebuffer to draw into.</param>
+				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
+				/// <param name="frameCounter">Rolling frame counter.</param>
+				/// <returns>True when the view has completed its current draw cycle.</returns>
 				bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
 				{
 					if (DrawableCount == 0u) { return true; }

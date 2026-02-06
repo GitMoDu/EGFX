@@ -16,9 +16,9 @@ namespace Egfx
 			/// - Computes the largest rectangle with aspect (AspectWidth:AspectHeight) that fits inside ParentLayout.
 			/// - Result is top-left anchored to the parent.
 			/// </summary>
-			/// <typeparam name="ParentLayout">The layout type of the parent container.</typeparam>
-			/// <typeparam name="AspectWidth">Aspect ratio width component (must be > 0).</typeparam>
-			/// <typeparam name="AspectHeight">Aspect ratio height component (must be > 0).</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+			/// <typeparam name="AspectWidth">Aspect ratio numerator (must be > 0).</typeparam>
+			/// <typeparam name="AspectHeight">Aspect ratio denominator (must be > 0).</typeparam>
 			template<typename ParentLayout,
 				pixel_t AspectWidth,
 				pixel_t AspectHeight

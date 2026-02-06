@@ -11,18 +11,10 @@ namespace Egfx
 		{
 			/// <summary>
 			/// Splits a parent layout into a horizontal sequence of weighted cells.
-			///
-			/// - Each cell i receives: floor(ParentWidth * Weight[i] / TotalWeight) pixels.
-			/// - Any remainder pixels introduced by integer division are NOT redistributed; the total used width
-			///   is therefore <= ParentLayout::Width().
-			/// - The resulting strip is top-left anchored to the parent (X/Y match the parent).
-			///
-			/// Notes:
-			/// - Weights are uint8_t, maximum of 255 weights supported (to guarantee TotalWeight() fits in uint16_t).
-			/// - Height always matches ParentLayout::Height().
+			/// Note: total width may be less than parent width due to integer division truncation.
 			/// </summary>
-			/// <typeparam name="ParentLayout">The layout type of the parent container.</typeparam>
-			/// <typeparam name="...Weights">The weight values for each child cell.</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+			/// <typeparam name="...Weights">Cell weights (uint8_t pack).</typeparam>
 			template<typename ParentLayout, uint8_t... Weights>
 			struct HorizontalWeighted
 			{
@@ -30,23 +22,6 @@ namespace Egfx
 				static_assert(sizeof...(Weights) <= 255, "HorizontalWeightedLayout supports at most 255 weights (uint16_t sum guarantee).");
 
 			private:
-				template<typename WeightedLayout, uint32_t TotalWeightValue, uint8_t Index, uint8_t... InnerWeights>
-				struct PrefixSumScaledWidthU8;
-
-				template<typename WeightedLayout, uint32_t TotalWeightValue, uint8_t Index, uint8_t Head, uint8_t... Tail>
-				struct PrefixSumScaledWidthU8<WeightedLayout, TotalWeightValue, Index, Head, Tail...>
-				{
-					static constexpr uint32_t Value =
-						PrefixSumScaledWidthU8<WeightedLayout, TotalWeightValue, Index - 1, Tail...>::Value
-						+ ((uint32_t(WeightedLayout::Width()) * Head) / TotalWeightValue);
-				};
-
-				template<typename WeightedLayout, uint32_t TotalWeightValue, uint8_t Head, uint8_t... Tail>
-				struct PrefixSumScaledWidthU8<WeightedLayout, TotalWeightValue, 0, Head, Tail...>
-				{
-					static constexpr uint32_t Value = 0;
-				};
-
 				static constexpr uint16_t TotalWeight()
 				{
 					return static_cast<uint16_t>(Support::NumericPack::SumU8<0, Weights...>::Value);
@@ -63,26 +38,39 @@ namespace Egfx
 				static constexpr pixel_t ParentWidth() { return ParentLayout::Width(); }
 
 				template<uint8_t Index>
-				static constexpr pixel_t CalculateX()
-				{
-					return static_cast<pixel_t>(
-						PrefixSumScaledWidthU8<ParentLayout, TotalWeight(), Index, Weights...>::Value);
-				}
-
-				template<uint8_t Index>
 				static constexpr pixel_t CalculateWidth()
 				{
 					return static_cast<pixel_t>((uint32_t(ParentWidth()) * WeightAt<Index>()) / TotalWeight());
 				}
 
-				template<uint8_t Index, uint8_t Count>
-				struct WidthSumImpl
+				// Sum of widths for cells [0, Index). This is used to compute X offsets.
+				template<uint8_t Index, bool IsZero = (Index == 0)>
+				struct XSumImpl;
+
+				template<uint8_t Index>
+				struct XSumImpl<Index, false>
 				{
-					static constexpr pixel_t Value = static_cast<pixel_t>(WidthSumImpl<Index - 1, Count>::Value + CalculateWidth<Index - 1>());
+					static constexpr pixel_t Value = static_cast<pixel_t>(XSumImpl<Index - 1>::Value + CalculateWidth<Index - 1>());
+				};
+
+				template<uint8_t Index>
+				struct XSumImpl<Index, true>
+				{
+					static constexpr pixel_t Value = 0;
+				};
+
+				// Sum of widths for cells [0, Count). This is used to compute total layout Width().
+				template<uint8_t Count, bool IsZero = (Count == 0)>
+				struct WidthSumImpl;
+
+				template<uint8_t Count>
+				struct WidthSumImpl<Count, false>
+				{
+					static constexpr pixel_t Value = static_cast<pixel_t>(WidthSumImpl<Count - 1>::Value + CalculateWidth<Count - 1>());
 				};
 
 				template<uint8_t Count>
-				struct WidthSumImpl<0, Count>
+				struct WidthSumImpl<Count, true>
 				{
 					static constexpr pixel_t Value = 0;
 				};
@@ -91,7 +79,7 @@ namespace Egfx
 				static constexpr pixel_t X() { return ParentLayout::X(); }
 				static constexpr pixel_t Y() { return ParentLayout::Y(); }
 
-				static constexpr pixel_t Width() { return WidthSumImpl<sizeof...(Weights), sizeof...(Weights)>::Value; }
+				static constexpr pixel_t Width() { return WidthSumImpl<sizeof...(Weights)>::Value; }
 				static constexpr pixel_t Height() { return ParentLayout::Height(); }
 
 				template<uint8_t Index>
@@ -99,7 +87,7 @@ namespace Egfx
 				{
 					static_assert(Index < sizeof...(Weights), "HorizontalWeightedLayout Cell Index out of range.");
 
-					static constexpr pixel_t X() { return ParentLayout::X() + CalculateX<Index>(); }
+					static constexpr pixel_t X() { return ParentLayout::X() + XSumImpl<Index>::Value; }
 					static constexpr pixel_t Y() { return ParentLayout::Y(); }
 					static constexpr pixel_t Width() { return CalculateWidth<Index>(); }
 					static constexpr pixel_t Height() { return ParentLayout::Height(); }
@@ -108,18 +96,10 @@ namespace Egfx
 
 			/// <summary>
 			/// Splits a parent layout into a vertical sequence of weighted cells.
-			///
-			/// - Each cell i receives: floor(ParentHeight * Weight[i] / TotalWeight) pixels.
-			/// - Any remainder pixels introduced by integer division are NOT redistributed; the total used height
-			///   is therefore <= ParentLayout::Height().
-			/// - The resulting strip is top-left anchored to the parent (X/Y match the parent).
-			///
-			/// Notes:
-			/// - Weights are uint8_t, maximum of 255 weights supported (to guarantee TotalWeight() fits in uint16_t).
-			/// - Width always matches ParentLayout::Width().
+			/// Note: total width may be less than parent width due to integer division truncation.
 			/// </summary>
-			/// <typeparam name="ParentLayout">The layout type of the parent container.</typeparam>
-			/// <typeparam name="...Weights">The weight values for each child cell.</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+			/// <typeparam name="...Weights">Cell weights (uint8_t pack).</typeparam>
 			template<typename ParentLayout, uint8_t... Weights>
 			struct VerticalWeighted
 			{
@@ -127,23 +107,6 @@ namespace Egfx
 				static_assert(sizeof...(Weights) <= 255, "VerticalWeightedLayout supports at most 255 weights (uint16_t sum guarantee).");
 
 			private:
-				template<typename WeightedLayout, uint32_t TotalWeightValue, uint8_t Index, uint8_t... InnerWeights>
-				struct PrefixSumScaledHeightU8;
-
-				template<typename WeightedLayout, uint32_t TotalWeightValue, uint8_t Index, uint8_t Head, uint8_t... Tail>
-				struct PrefixSumScaledHeightU8<WeightedLayout, TotalWeightValue, Index, Head, Tail...>
-				{
-					static constexpr uint32_t Value =
-						PrefixSumScaledHeightU8<WeightedLayout, TotalWeightValue, Index - 1, Tail...>::Value
-						+ ((uint32_t(WeightedLayout::Height()) * Head) / TotalWeightValue);
-				};
-
-				template<typename WeightedLayout, uint32_t TotalWeightValue, uint8_t Head, uint8_t... Tail>
-				struct PrefixSumScaledHeightU8<WeightedLayout, TotalWeightValue, 0, Head, Tail...>
-				{
-					static constexpr uint32_t Value = 0;
-				};
-
 				static constexpr uint16_t TotalWeight()
 				{
 					return static_cast<uint16_t>(Support::NumericPack::SumU8<0, Weights...>::Value);
@@ -160,26 +123,39 @@ namespace Egfx
 				static constexpr pixel_t ParentHeight() { return ParentLayout::Height(); }
 
 				template<uint8_t Index>
-				static constexpr pixel_t CalculateY()
-				{
-					return static_cast<pixel_t>(
-						PrefixSumScaledHeightU8<ParentLayout, TotalWeight(), Index, Weights...>::Value);
-				}
-
-				template<uint8_t Index>
 				static constexpr pixel_t CalculateHeight()
 				{
 					return static_cast<pixel_t>((uint32_t(ParentHeight()) * WeightAt<Index>()) / TotalWeight());
 				}
 
-				template<uint8_t Index, uint8_t Count>
-				struct HeightSumImpl
+				// Sum of heights for cells [0, Index). Used for Y offsets.
+				template<uint8_t Index, bool IsZero = (Index == 0)>
+				struct YSumImpl;
+
+				template<uint8_t Index>
+				struct YSumImpl<Index, false>
 				{
-					static constexpr pixel_t Value = static_cast<pixel_t>(HeightSumImpl<Index - 1, Count>::Value + CalculateHeight<Index - 1>());
+					static constexpr pixel_t Value = static_cast<pixel_t>(YSumImpl<Index - 1>::Value + CalculateHeight<Index - 1>());
+				};
+
+				template<uint8_t Index>
+				struct YSumImpl<Index, true>
+				{
+					static constexpr pixel_t Value = 0;
+				};
+
+				// Sum of heights for cells [0, Count). Used for total Height().
+				template<uint8_t Count, bool IsZero = (Count == 0)>
+				struct HeightSumImpl;
+
+				template<uint8_t Count>
+				struct HeightSumImpl<Count, false>
+				{
+					static constexpr pixel_t Value = static_cast<pixel_t>(HeightSumImpl<Count - 1>::Value + CalculateHeight<Count - 1>());
 				};
 
 				template<uint8_t Count>
-				struct HeightSumImpl<0, Count>
+				struct HeightSumImpl<Count, true>
 				{
 					static constexpr pixel_t Value = 0;
 				};
@@ -189,7 +165,7 @@ namespace Egfx
 				static constexpr pixel_t Y() { return ParentLayout::Y(); }
 
 				static constexpr pixel_t Width() { return ParentLayout::Width(); }
-				static constexpr pixel_t Height() { return HeightSumImpl<sizeof...(Weights), sizeof...(Weights)>::Value; }
+				static constexpr pixel_t Height() { return HeightSumImpl<sizeof...(Weights)>::Value; }
 
 				template<uint8_t Index>
 				struct Cell
@@ -197,7 +173,7 @@ namespace Egfx
 					static_assert(Index < sizeof...(Weights), "VerticalWeightedLayout Cell Index out of range.");
 
 					static constexpr pixel_t X() { return ParentLayout::X(); }
-					static constexpr pixel_t Y() { return ParentLayout::Y() + CalculateY<Index>(); }
+					static constexpr pixel_t Y() { return ParentLayout::Y() + YSumImpl<Index>::Value; }
 					static constexpr pixel_t Width() { return ParentLayout::Width(); }
 					static constexpr pixel_t Height() { return CalculateHeight<Index>(); }
 				};

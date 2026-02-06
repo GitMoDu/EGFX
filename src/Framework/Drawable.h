@@ -2,6 +2,7 @@
 #define _EGFX_FRAMEWORK_DRAWABLE_h
 
 #include "../Model/IFrameDraw.h"
+#include "Support.h"
 
 namespace Egfx
 {
@@ -17,21 +18,15 @@ namespace Egfx
 			{
 				/// <summary>
 				/// Defines a contract for drawable objects that can render to a frame buffer.
-				/// Drawables perform their rendering in a single Draw() call.
-				/// Pure rendering - no time parameters, no animation state.
+				/// Drawables perform their rendering in a single Draw() call without any parameters, unless where required (eg: fonts).
 				/// </summary>
 				struct Drawable
 				{
+					/// <summary>
+					/// Draw the drawable's current state to the provided framebuffer.
+					/// </summary>
+					/// <param name="frame">Target framebuffer to draw into.</param>
 					void Draw(IFrameBuffer* /*frame*/) {}
-				};
-
-				/// <summary>
-				/// Defines a contract for drawable animators that can update drawable state over time.
-				/// </summary>
-				struct Animator
-				{
-					template<typename DrawableType>
-					void Animate(DrawableType& /*drawable*/, const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) {}
 				};
 			}
 		}

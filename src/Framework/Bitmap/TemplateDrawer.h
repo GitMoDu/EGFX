@@ -113,7 +113,7 @@ namespace Egfx
 							dimension_t ty = row;
 							if (TransformShader.Transform(tx, ty))
 							{
-								framebuffer->Pixel(ColorShader.Shade(bitmapColor),
+								framebuffer->Pixel(ColorShader.Shade(Rgb::Color(bitmapColor)),
 									static_cast<pixel_t>(x + static_cast<pixel_t>(tx)),
 									static_cast<pixel_t>(y + static_cast<pixel_t>(ty)));
 							}
@@ -150,7 +150,7 @@ namespace Egfx
 							dimension_t ty = row;
 							if (TransformShader.Transform(tx, ty))
 							{
-								framebuffer->Pixel(ColorShader.Shade(bitmapColor),
+								framebuffer->Pixel(ColorShader.Shade(Rgb::Color(bitmapColor)),
 									static_cast<pixel_t>(x + static_cast<pixel_t>(tx)),
 									static_cast<pixel_t>(y + static_cast<pixel_t>(ty)));
 							}
@@ -278,7 +278,7 @@ namespace Egfx
 							const pixel_t startX = static_cast<pixel_t>(x + (static_cast<pixel_t>(tx) * static_cast<pixel_t>(ScaleX)));
 							const pixel_t startY = static_cast<pixel_t>(y + (static_cast<pixel_t>(ty) * static_cast<pixel_t>(ScaleY)));
 
-							framebuffer->RectangleFill(ColorShader.Shade(bitmapColor),
+							framebuffer->RectangleFill(ColorShader.Shade(Rgb::Color(bitmapColor)),
 								startX,
 								startY,
 								static_cast<pixel_t>(startX + (ScaleX - 1)),
@@ -322,7 +322,7 @@ namespace Egfx
 							const pixel_t startX = static_cast<pixel_t>(x + (static_cast<pixel_t>(tx) * static_cast<pixel_t>(ScaleX)));
 							const pixel_t startY = static_cast<pixel_t>(y + (static_cast<pixel_t>(ty) * static_cast<pixel_t>(ScaleY)));
 
-							framebuffer->RectangleFill(ColorShader.Shade(bitmapColor),
+							framebuffer->RectangleFill(ColorShader.Shade(Rgb::Color(bitmapColor)),
 								startX,
 								startY,
 								static_cast<pixel_t>(startX + (ScaleX - 1)),

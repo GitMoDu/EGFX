@@ -1,53 +1,57 @@
 #ifndef _BITMASK_TEXT_DEMO_h
 #define _BITMASK_TEXT_DEMO_h
 
-#include <EgfxDrawer.h>
+#include <EgfxFramework.h>
+#include <EgfxAssets.h>
+#include "Assets.h"
 
 // Demo of bitmask font text drawing with fixed scaling.
 namespace BitmaskTextDemo
 {
 	using namespace Egfx;
 
+	namespace AsciiDefinition = Framework::AsciiDefinition;
+
 	namespace Definitions
 	{
 		// Bitmask fonts are set with a template parameter type.
 		// Share font for regular and upscaled font drawers.
-		using BitmaskFontType = BitmaskFonts::Plastic::FontType5x5;
+		using BitmaskFontType = Framework::Assets::Font::Bitmask::Plastic::FontType5x5;
 
-		template<typename Layout>
+		template<typename ParentLayout>
 		struct BigFontDefinitions
 		{
 			// Determine scaling factors based on layout size.
-			static constexpr pixel_t ScaleDimension = MinValue(Layout::Width(), Layout::Height());
+			static constexpr pixel_t ScaleDimension = MinValue(ParentLayout::Width(), ParentLayout::Height());
 			static constexpr uint8_t ScaleX = 1 + (ScaleDimension / 48);
 			static constexpr uint8_t ScaleY = 1 + (ScaleDimension / 32);
 
 			// Single color, bitmask scaled font drawer type.
-			using BitmaskFontDrawerType = BitmaskFont::TemplateScaledFontDrawer<BitmaskFontType, ScaleX, ScaleY>;
+			using BitmaskFontDrawerType = Framework::Bitmask::Font::TemplateDrawer<BitmaskFontType, ScaleX, ScaleY>;
 
 			// Bitmask text drawer type with all the template parameters set.
-			using BitmaskTextDrawerType = FontText::TemplateTextWriter<Layout, BitmaskFontDrawerType>;
+			using BitmaskTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, BitmaskFontDrawerType>;
 		};
 
-		template<typename Layout>
+		template<typename ParentLayout>
 		struct SmallFontDefinitions
 		{
 			// Single color bitmask font drawer type.
-			using BitmaskFontDrawerType = BitmaskFont::TemplateFontDrawer<BitmaskFontType>;
+			using BitmaskFontDrawerType = Framework::Bitmask::Font::TemplateDrawer<BitmaskFontType>;
 
 			// Bitmask text drawer type with all the template parameters set.
-			using BitmaskTextDrawerType = FontText::TemplateTextWriter<Layout, BitmaskFontDrawerType>;
+			using BitmaskTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, BitmaskFontDrawerType>;
 		};
 
-		template<typename Layout>
-		using BigTextDrawerType = typename BigFontDefinitions<Layout>::BitmaskTextDrawerType;
-		template<typename Layout>
-		using SmallTextDrawerType = typename SmallFontDefinitions<Layout>::BitmaskTextDrawerType;
+		template<typename ParentLayout>
+		using BigTextDrawerType = typename BigFontDefinitions<ParentLayout>::BitmaskTextDrawerType;
+		template<typename ParentLayout>
+		using SmallTextDrawerType = typename SmallFontDefinitions<ParentLayout>::BitmaskTextDrawerType;
 	}
 
 	namespace Drawables
 	{
-		template<typename Layout, typename TextDrawerType>
+		template<typename ParentLayout, typename TextDrawerType>
 		struct Numbers
 		{
 			TextDrawerType* TextDrawer = nullptr;
@@ -58,15 +62,17 @@ namespace BitmaskTextDemo
 				if (TextDrawer != nullptr)
 				{
 					TextDrawer->Write(frame,
-						Layout::X(),
-						Layout::Y(),
+						ParentLayout::X(),
+						ParentLayout::Y(),
 						Value,
-						FontText::TextAlignmentEnum::Center);
+						Framework::TextAlignmentEnum::Center);
 				}
 			}
 		};
 
-		template<typename Layout, typename TextDrawerType>
+
+
+		template<typename ParentLayout, typename TextDrawerType>
 		struct SmallText1
 		{
 			TextDrawerType* TextDrawer = nullptr;
@@ -76,24 +82,24 @@ namespace BitmaskTextDemo
 			{
 				if (TextDrawer != nullptr)
 				{
-					pixel_t cursor = Layout::X() + Translation.x;
-					cursor = TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					pixel_t cursor = ParentLayout::X() + Translation.x;
+					cursor = TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox1));
 					cursor += TextDrawer->GetKerningWidth();
 					cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
 					cursor += TextDrawer->GetKerningWidth();
-					cursor = TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					cursor = TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox2));
 					cursor += TextDrawer->GetKerningWidth();
 					cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
 					cursor += TextDrawer->GetKerningWidth();
-					TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox3));
 				}
 			}
 		};
 
-		template<typename Layout, typename TextDrawerType>
+		template<typename ParentLayout, typename TextDrawerType>
 		struct SmallText2
 		{
 			TextDrawerType* TextDrawer = nullptr;
@@ -103,24 +109,24 @@ namespace BitmaskTextDemo
 			{
 				if (TextDrawer != nullptr)
 				{
-					pixel_t cursor = Layout::X() + Translation.x;
-					cursor = TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					pixel_t cursor = ParentLayout::X() + Translation.x;
+					cursor = TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox1));
 					cursor += TextDrawer->GetKerningWidth();
 					cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
 					cursor += TextDrawer->GetKerningWidth();
-					cursor = TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					cursor = TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox2));
 					cursor += TextDrawer->GetKerningWidth();
 					cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
 					cursor += TextDrawer->GetKerningWidth();
-					TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox3));
 				}
 			}
 		};
 
-		template<typename Layout, typename TextDrawerType>
+		template<typename ParentLayout, typename TextDrawerType>
 		struct BigText
 		{
 			TextDrawerType* TextDrawer = nullptr;
@@ -130,18 +136,18 @@ namespace BitmaskTextDemo
 			{
 				if (TextDrawer != nullptr)
 				{
-					pixel_t cursor = Layout::X() + Translation.x;
-					cursor = TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					pixel_t cursor = ParentLayout::X() + Translation.x;
+					cursor = TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox1));
 					cursor += TextDrawer->GetKerningWidth();
 					cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
 					cursor += TextDrawer->GetKerningWidth();
-					cursor = TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					cursor = TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox2));
 					cursor += TextDrawer->GetKerningWidth();
 					cursor += TextDrawer->GetCharacterWidth(char(AsciiDefinition::Printable::Space));
 					cursor += TextDrawer->GetKerningWidth();
-					TextDrawer->Write(frame, cursor, Layout::Y() + Translation.y,
+					TextDrawer->Write(frame, cursor, ParentLayout::Y() + Translation.y,
 						reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox3));
 				}
 			}
@@ -149,7 +155,7 @@ namespace BitmaskTextDemo
 	}
 
 	template<typename ParentLayout>
-	struct Layout
+	struct TextLayout
 	{
 		struct Numbers
 		{
@@ -209,17 +215,17 @@ namespace BitmaskTextDemo
 
 	template<typename ParentLayout, bool Monochrome>
 	class View : public Framework::View::DrawablesView<
-		Drawables::Numbers<typename Layout<ParentLayout>::Numbers, Definitions::SmallTextDrawerType<ParentLayout>>,
-		Drawables::BigText<typename Layout<ParentLayout>::BigText, Definitions::BigTextDrawerType<ParentLayout>>,
-		Drawables::SmallText1<typename Layout<ParentLayout>::SmallText1, Definitions::SmallTextDrawerType<ParentLayout>>,
-		Drawables::SmallText2<typename Layout<ParentLayout>::SmallText2, Definitions::SmallTextDrawerType<ParentLayout>>>
+		Drawables::Numbers<typename TextLayout<ParentLayout>::Numbers, Definitions::SmallTextDrawerType<ParentLayout>>,
+		Drawables::BigText<typename TextLayout<ParentLayout>::BigText, Definitions::BigTextDrawerType<ParentLayout>>,
+		Drawables::SmallText1<typename TextLayout<ParentLayout>::SmallText1, Definitions::SmallTextDrawerType<ParentLayout>>,
+		Drawables::SmallText2<typename TextLayout<ParentLayout>::SmallText2, Definitions::SmallTextDrawerType<ParentLayout>>>
 	{
 	private:
 		using Base = Framework::View::DrawablesView<
-			Drawables::Numbers<typename Layout<ParentLayout>::Numbers, Definitions::SmallTextDrawerType<ParentLayout>>,
-			Drawables::BigText<typename Layout<ParentLayout>::BigText, Definitions::BigTextDrawerType<ParentLayout>>,
-			Drawables::SmallText1<typename Layout<ParentLayout>::SmallText1, Definitions::SmallTextDrawerType<ParentLayout>>,
-			Drawables::SmallText2<typename Layout<ParentLayout>::SmallText2, Definitions::SmallTextDrawerType<ParentLayout>>>;
+			Drawables::Numbers<typename TextLayout<ParentLayout>::Numbers, Definitions::SmallTextDrawerType<ParentLayout>>,
+			Drawables::BigText<typename TextLayout<ParentLayout>::BigText, Definitions::BigTextDrawerType<ParentLayout>>,
+			Drawables::SmallText1<typename TextLayout<ParentLayout>::SmallText1, Definitions::SmallTextDrawerType<ParentLayout>>,
+			Drawables::SmallText2<typename TextLayout<ParentLayout>::SmallText2, Definitions::SmallTextDrawerType<ParentLayout>>>;
 
 	private:
 		Definitions::BigTextDrawerType<ParentLayout> BigTextDrawer{};
@@ -277,8 +283,8 @@ namespace BitmaskTextDemo
 			if (!Monochrome)
 			{
 				const auto primaryColor = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
-				BigTextDrawer.ColorShader.Color = primaryColor;
-				SmallTextDrawer.ColorShader.Color = Rgb::Color(uint32_t(~primaryColor));
+				BigTextDrawer.ColorSource.Color = primaryColor;
+				SmallTextDrawer.ColorSource.Color = Rgb::Color(uint32_t(~primaryColor));
 			}
 
 			bigText.Translation.x = Animators::TextScroller::GetOffset(frameTime, 15000U, LongTextWidth, ParentLayout::Width());
@@ -287,10 +293,10 @@ namespace BitmaskTextDemo
 		}
 	};
 
-	template<typename Layout, bool Monochrome>
-	struct Frame : public Framework::View::FrameAdapter<View<Layout, Monochrome>>
+	template<typename ParentLayout, bool Monochrome>
+	struct Frame : public Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>
 	{
-		using Base = Framework::View::FrameAdapter<View<Layout, Monochrome>>;
+		using Base = Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>;
 		Frame() : Base() {}
 		virtual ~Frame() = default;
 

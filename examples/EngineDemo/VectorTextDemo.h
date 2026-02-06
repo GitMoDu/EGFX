@@ -1,36 +1,40 @@
 #ifndef _VECTOR_TEXT_DEMO_h
 #define _VECTOR_TEXT_DEMO_h
 
-#include <EgfxDrawer.h>
+#include <EgfxFramework.h>
+#include <EgfxAssets.h>
+#include "Assets.h"
 
 // Demo of vector font text drawing with dynamic scaling.
 namespace VectorTextDemo
 {
 	using namespace Egfx;
 
+	namespace AsciiDefinition = Framework::AsciiDefinition;
+
 	namespace Definitions
 	{
-		template<typename Layout>
+		template<typename ParentLayout>
 		struct VectorFontDefinitions
 		{
-			using VectorFontType = VectorFonts::Epoxy::FullFontType;
-			using VectorFontDrawerType = VectorFont::TemplateFontDrawer<VectorFontType>;
-			using VectorTextDrawerType = FontText::TemplateTextWriter<Layout, VectorFontDrawerType>;
+			using VectorFontType = Framework::Assets::Font::Vector::Epoxy::FullFontType;
+
+			using VectorFontDrawerType = Framework::Vector::Font::TemplateDrawer<VectorFontType>;
+			using VectorTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, VectorFontDrawerType>;
 		};
 
-		template<typename Layout>
+		template<typename ParentLayout>
 		struct CodeFontDefinitions
 		{
-			using CodeFontType = CodeFont::CodeFonts::RawBot<>;
-			using CodeFontDrawerType = CodeFont::TemplateFontDrawer<CodeFontType>;
-			using CodeTextDrawerType = FontText::TemplateTextWriter<Layout, CodeFontDrawerType>;
+			using CodeFontDrawerType = Framework::Assets::Font::Code::RawBot<>;
+			using CodeTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, CodeFontDrawerType>;
 		};
 
-		template<typename Layout>
-		using VectorTextDrawerType = typename VectorFontDefinitions<Layout>::VectorTextDrawerType;
+		template<typename ParentLayout>
+		using VectorTextDrawerType = typename VectorFontDefinitions<ParentLayout>::VectorTextDrawerType;
 
-		template<typename Layout>
-		using CodeTextDrawerType = typename CodeFontDefinitions<Layout>::CodeTextDrawerType;
+		template<typename ParentLayout>
+		using CodeTextDrawerType = typename CodeFontDefinitions<ParentLayout>::CodeTextDrawerType;
 	}
 
 	template<typename ParentLayout>
@@ -56,7 +60,7 @@ namespace VectorTextDemo
 
 	namespace Drawables
 	{
-		template<typename Layout, typename TextDrawerType>
+		template<typename ParentLayout, typename TextDrawerType>
 		struct Numbers
 		{
 			TextDrawerType* TextDrawer = nullptr;
@@ -67,17 +71,18 @@ namespace VectorTextDemo
 				if (TextDrawer != nullptr)
 				{
 					TextDrawer->Write(frame,
-						Layout::X(),
-						Layout::Y(),
+						ParentLayout::X(),
+						ParentLayout::Y(),
 						Value,
-						FontText::TextAlignmentEnum::Center);
+						Framework::TextAlignmentEnum::Center);
 				}
 			}
 		};
 
-		template<typename Layout, typename TextDrawerType>
+		template<typename ParentLayout, typename TextDrawerType>
 		struct LongText
 		{
+
 			TextDrawerType* TextDrawer = nullptr;
 
 			void Draw(IFrameBuffer* frame)
@@ -87,8 +92,8 @@ namespace VectorTextDemo
 					return;
 				}
 
-				pixel_t cursor = Layout::X();
-				const pixel_t baselineY = Layout::Y();
+				pixel_t cursor = ParentLayout::X();
+				const pixel_t baselineY = ParentLayout::Y();
 
 				cursor = TextDrawer->Write(frame, cursor, baselineY,
 					reinterpret_cast<const __FlashStringHelper*>(Assets::Strings::ShortFox1));
@@ -105,7 +110,7 @@ namespace VectorTextDemo
 			}
 		};
 
-		template<typename Layout, typename TextDrawerType, uint8_t LineIndex>
+		template<typename ParentLayout, typename TextDrawerType, uint8_t LineIndex>
 		struct HighTextLine
 		{
 			TextDrawerType* TextDrawer = nullptr;
@@ -119,9 +124,9 @@ namespace VectorTextDemo
 				}
 
 				const pixel_t lineHeight = static_cast<pixel_t>(TextDrawer->GetFontHeight());
-				const pixel_t y = Layout::Y() + (lineHeight + 1) * static_cast<pixel_t>(LineIndex);
+				const pixel_t y = ParentLayout::Y() + (lineHeight + 1) * static_cast<pixel_t>(LineIndex);
 
-				TextDrawer->Write(frame, Layout::X(), y, Text);
+				TextDrawer->Write(frame, ParentLayout::X(), y, Text);
 			}
 		};
 	}
@@ -189,9 +194,9 @@ namespace VectorTextDemo
 			VectorTextDrawer.SetFontDimensions(fontDimension, fontDimension, LayoutDefinition::Kerning);
 
 			if (!Monochrome)
-			{				
-				CodeTextDrawer.ColorShader.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
-				VectorTextDrawer.ColorShader.Color = Rgb::Color(uint32_t(~CodeTextDrawer.ColorShader.Color));
+			{
+				CodeTextDrawer.ColorSource.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
+				VectorTextDrawer.ColorSource.Color = Rgb::Color(uint32_t(~CodeTextDrawer.ColorSource.Color));
 			}
 		}
 	};

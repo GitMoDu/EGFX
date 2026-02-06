@@ -19,16 +19,20 @@
 #define _TASK_OO_CALLBACKS
 #include <TScheduler.hpp>
 
-// Configure display in this header.
-#include "DisplayConfiguration.h"
+// EGFX display engine and modules.
 #include <EgfxDisplayEngine.h>
+#include <EgfxAssets.h>
+
+// platform and display configuration.
+#include "DisplayConfiguration.h"
+
 
 // Automatic demo cycler task.
 #include "DemoCyclerTask.h"
 
+
 // Include demos.
 #include "LogoSplashDemo.h"
-#include "SpriteTransformDemo.h"
 #include "PrimitiveDemo.h"
 #include "VectorTextDemo.h"
 #include "BitmaskTextDemo.h"
@@ -68,14 +72,15 @@ Egfx::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
 	SchedulerBase, Framebuffer, ScreenDriver);
 
 // The layout of the demos within the screen area.
-using namespace Egfx;
+
 struct Layout
 {
-	static constexpr uint8_t Margin = 0;
-	static constexpr pixel_t X() { return Margin; }
-	static constexpr pixel_t Y() { return Margin; }
-	static constexpr pixel_t Width() { return FramebufferType::FrameWidth - (Margin * 2); }
-	static constexpr pixel_t Height() { return FramebufferType::FrameHeight - (Margin * 2); }
+	static constexpr uint8_t MarginX = 0;
+	static constexpr uint8_t MarginY = 0;
+	static constexpr Egfx::pixel_t X() { return MarginX; }
+	static constexpr Egfx::pixel_t Y() { return MarginY; }
+	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth - (MarginX * 2); }
+	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight - (MarginY * 2); }
 };
 
 // Is the framebuffer monochrome? Will affect demo rendering.
@@ -83,14 +88,13 @@ static constexpr bool Monochrome = FramebufferType::ColorDepth == 1;
 
 // Demo Cycler task. Auto-magic vararg template listing all demo tasks to cycle through.
 static constexpr uint32_t CycleDurationMicros = 10000000; // 10 seconds per demo.
-DynamicDemoCyclerTask<CycleDurationMicros
-	, LogoSplashDemo::Frame<Layout, Monochrome, CycleDurationMicros>
+EngineDemo::DynamicDemoCyclerTask < CycleDurationMicros,
+	LogoSplashDemo::AnimatedFrame<Layout, Monochrome, CycleDurationMicros>
 	, PrimitiveDemo::Frame<Layout, Monochrome>
-	, SpriteTransformDemo::Frame<Layout, Monochrome>
-	, VectorTextDemo::Frame<Layout, Monochrome>
+	, ImageDemo::Frame<Layout, Monochrome>
 #if !defined(ARDUINO_ARCH_AVR) // Excluded on Arduino AVR due to memory constraints.
 	, BitmaskTextDemo::Frame<Layout, Monochrome>
-	, BitmapDemo::Frame<Layout, Monochrome>
+	, VectorTextDemo::Frame<Layout, Monochrome>
 #endif
 > DemoCycler(&SchedulerBase, &DisplayEngine);
 

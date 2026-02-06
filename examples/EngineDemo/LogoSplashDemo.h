@@ -1,7 +1,8 @@
 #ifndef _LOGO_SPLASH_DEMO_h
 #define _LOGO_SPLASH_DEMO_h
 
-#include <EgfxDrawers.h>
+#include <EgfxFramework.h>
+#include <EgfxModules.h>
 
 // Logo splash screen demo with custom renderer and auto-layout.
 namespace LogoSplashDemo
@@ -11,8 +12,22 @@ namespace LogoSplashDemo
 	template<typename ParentLayout, bool Monochrome,
 		uint32_t AnimationDuration = 4000000,
 		bool AutoStart = true>
-	struct Frame : Framework::View::FrameAdapter
-		<Framework::Assets::EgfxLogo::Views::AnimatedSplash<ParentLayout, Monochrome, AnimationDuration, AutoStart>>
+	struct StaticFrame : Framework::View::FrameAdapter
+		<Modules::EgfxLogo::View::Splash<ParentLayout, Monochrome>>
+	{
+#if defined(SERIAL_LOG)
+		void PrintDescription() const
+		{
+			Serial.print(F("Logo Splash\n\tCodeFont with auto-layout and custom shaders"));
+		}
+#endif
+	};
+
+	template<typename ParentLayout, bool Monochrome,
+		uint32_t AnimationDuration = 4000000,
+		bool AutoStart = true>
+	struct AnimatedFrame : Framework::View::FrameAdapter
+		<Modules::EgfxLogo::View::AnimatedSplash<ParentLayout, Monochrome, AnimationDuration, AutoStart>>
 	{
 #if defined(SERIAL_LOG)
 		void PrintDescription() const

@@ -1,130 +1,285 @@
 #ifndef _BITMAP_DEMO_h
 #define _BITMAP_DEMO_h
 
-#include <EgfxDrawer.h>
+#include <EgfxFramework.h>
+#include <EgfxAssets.h>
 #include "Assets.h"
 
-// Demo of bitmap sprite with translation, rotation, and brightness animation.
-namespace BitmapDemo
+namespace ImageDemo
 {
 	using namespace Egfx;
-	using namespace Assets;
-	using namespace SpriteShader;
-	using namespace SpriteShaderEffect;
-	using namespace SpriteTransform;
-	using namespace IntegerSignal::FixedPoint;
+
+	namespace Constants
+	{
+		static constexpr uint8_t TranslationYPeriod = 205U;
+		static constexpr uint8_t TranslationXPeriod = 143U;
+		static constexpr uint8_t BrightnessPeriod = 177U;
+		static constexpr uint8_t RotationPeriod = 80U;
+
+		static constexpr uint8_t DogeDimension =
+			MaxValue(
+				Assets::Images::DogeBit::Width,
+				MaxValue(
+					Assets::Images::DogeBit::Height,
+					MaxValue(
+						Assets::Images::Doge565::Width,
+						Assets::Images::Doge565::Height
+					)
+				)
+			);
+	}
+	namespace Layouts
+	{
+		template<typename ParentLayout>
+		struct Scale
+		{
+			static constexpr pixel_t Dimension() { return MinValue(ParentLayout::Height(), ParentLayout::Width()); }
+			static constexpr uint8_t Value = MaxValue<uint8_t>(1, Dimension() / Constants::DogeDimension);
+		};
+
+		template<typename ParentLayout,
+			typename DrawableType,
+			uint8_t ScaleUp>
+		struct TranslationRange
+		{
+			static constexpr pixel_t X() { return ParentLayout::X(); }
+			static constexpr pixel_t Y() { return ParentLayout::Y(); }
+			static constexpr pixel_t Width() { return DrawableType::Width; }
+			static constexpr pixel_t Height() { return DrawableType::Height; }
+
+			static constexpr pixel_t RangeX() { return (ParentLayout::Width() - Width()) / ScaleUp; }
+			static constexpr pixel_t RangeY() { return (ParentLayout::Height() - Height()) / ScaleUp; }
+		};
+	}
+
+	namespace Bitmap
+	{
+		using dimension_t = Assets::Images::Doge565::dimension_t;
+
+		using ColorShaderType = Framework::Assets::Shader::Color::Brightness<dimension_t>;
+
+		// Applies rotation, and translation.
+		// Rotation doesn't depend on scaling, as it is applied before scaling in the pipeline.
+		using TransformShaderType = Framework::Assets::Shader::Transform::Translate<dimension_t,
+			Framework::Assets::Shader::Transform::Rotate<dimension_t,
+			static_cast<dimension_t>(Assets::Images::Doge565::Width),
+			static_cast<dimension_t>(Assets::Images::Doge565::Height)>
+		>;
+
+		template<typename ParentLayout>
+		struct DogeDrawable : public Framework::Bitmap::Bitmap565Drawable<
+			ParentLayout,
+			dimension_t,
+			Assets::Images::Doge565::Width,
+			Assets::Images::Doge565::Height,
+			Framework::Bitmap::Reader::Flash,
+			Layouts::Scale<ParentLayout>::Value, Layouts::Scale<ParentLayout>::Value,
+			RGB_COLOR_BLACK,
+			true,
+			ColorShaderType,
+			TransformShaderType
+		>
+		{
+			static constexpr dimension_t Width = Assets::Images::Doge565::Width * Layouts::Scale<ParentLayout>::Value;
+			static constexpr dimension_t Height = Assets::Images::Doge565::Height * Layouts::Scale<ParentLayout>::Value;
+
+			DogeDrawable() : Framework::Bitmap::Bitmap565Drawable<
+				ParentLayout,
+				dimension_t,
+				Assets::Images::Doge565::Width,
+				Assets::Images::Doge565::Height,
+				Framework::Bitmap::Reader::Flash,
+				Layouts::Scale<ParentLayout>::Value, Layouts::Scale<ParentLayout>::Value,
+				RGB_COLOR_BLACK,
+				true,
+				ColorShaderType,
+				TransformShaderType
+			>(Assets::Images::Doge565::Bitmap)
+			{
+			}
+
+			~DogeDrawable() = default;
+		};
+
+		template<typename ParentLayout>
+		class View : public Framework::View::DrawablesView<
+			DogeDrawable<ParentLayout>
+		>
+		{
+		private:
+			using Base = Framework::View::DrawablesView<
+				DogeDrawable<ParentLayout>>;
+
+			using RangeLayout = Layouts::TranslationRange<
+				ParentLayout,
+				DogeDrawable<ParentLayout>,
+				Layouts::Scale<ParentLayout>::Value>;
+
+		public:
+			View() : Base()
+			{
+			}
+
+			~View() = default;
+
+		private:
+			DogeDrawable<ParentLayout>& Doge()
+			{
+				return Base::template drawable<0>();
+			}
+
+		protected:
+			void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+			{
+				// Animate translation bouncing around the screen.
+				const uint16_t progressX = ProgressScaler::TriangleResponse(
+					static_cast<angle_t>(frameTime / Constants::TranslationXPeriod));
+				const uint16_t progressY = ProgressScaler::TriangleResponse(
+					static_cast<angle_t>(frameTime / Constants::TranslationYPeriod));
+				Doge().TransformShader.SetTranslation(
+					ProgressScaler::ScaleProgress(progressX, uint16_t(RangeLayout::RangeX())),
+					ProgressScaler::ScaleProgress(progressY, uint16_t(RangeLayout::RangeY())));
+
+				// Animate continuous rotation.
+				Doge().TransformShader.SetRotation(static_cast<angle_t>(frameTime / Constants::RotationPeriod));
+
+				// Animate brightness with sine wave.
+				const angle_t brightnessAngle = static_cast<angle_t>(frameTime / Constants::BrightnessPeriod);
+				Doge().ColorShader.SetBrightness(Sine16(brightnessAngle));
+			}
+		};
+	}
+
+	namespace Bitmask
+	{
+		using dimension_t = Assets::Images::Doge565::dimension_t;
+
+		using ColorShaderType = Framework::Assets::Shader::Color::NoShader<dimension_t>;
+
+		// Applies rotation, and translation.
+		// Rotation depends on scaling, as it is applied after scaling in the pipeline.
+		template<uint8_t ScaleUp>
+		using TransformShaderType = Framework::Assets::Shader::Transform::Translate < dimension_t,
+			Framework::Assets::Shader::Transform::Rotate<dimension_t,
+			static_cast<dimension_t>(Assets::Images::DogeBit::Width* ScaleUp)
+			, static_cast<dimension_t>(Assets::Images::DogeBit::Height* ScaleUp)
+			>
+		>;
+
+		using ColorSourceType = Framework::Shader::Source::SingleColor<dimension_t>;
+
+		template<uint8_t ScaleUp>
+		using PixelShaderType = Framework::Shader::Pixel::TemplateColorAndTransform<
+			dimension_t,
+			ColorSourceType,
+			ColorShaderType,
+			TransformShaderType<ScaleUp>
+		>;
+
+		template<uint8_t ScaleUp>
+		using PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<
+			dimension_t,
+			PixelShaderType<ScaleUp>
+		>;
+
+		template<typename ParentLayout>
+		struct DogeDrawable : public Framework::Bitmask::BitmaskDrawable <
+			ParentLayout,
+			dimension_t,
+			Assets::Images::DogeBit::Width,
+			Assets::Images::DogeBit::Height,
+			Framework::Bitmask::Reader::Flash,
+			Layouts::Scale<ParentLayout>::Value, Layouts::Scale<ParentLayout>::Value,
+			PrimitiveShaderType<Layouts::Scale<ParentLayout>::Value>
+		>
+		{
+			static constexpr dimension_t Width = Assets::Images::DogeBit::Width * Layouts::Scale<ParentLayout>::Value;
+			static constexpr dimension_t Height = Assets::Images::DogeBit::Height * Layouts::Scale<ParentLayout>::Value;
+
+			DogeDrawable() : Framework::Bitmask::BitmaskDrawable <
+				ParentLayout,
+				dimension_t,
+				Assets::Images::DogeBit::Width,
+				Assets::Images::DogeBit::Height,
+				Framework::Bitmask::Reader::Flash,
+				Layouts::Scale<ParentLayout>::Value, Layouts::Scale<ParentLayout>::Value,
+				PrimitiveShaderType<Layouts::Scale<ParentLayout>::Value>
+			>(Assets::Images::DogeBit::Mask)
+			{
+			}
+
+			~DogeDrawable() = default;
+		};
+
+		template<typename ParentLayout>
+		class View : public Framework::View::DrawablesView<
+			DogeDrawable<ParentLayout>
+		>
+		{
+		private:
+			using Base = Framework::View::DrawablesView<
+				DogeDrawable<ParentLayout>
+			>;
+
+			using RangeLayout = Layouts::TranslationRange<
+				ParentLayout,
+				DogeDrawable<ParentLayout>,
+				Layouts::Scale<ParentLayout>::Value>;
+
+		public:
+			View() : Base()
+			{
+			}
+
+			~View() = default;
+
+		private:
+			DogeDrawable<ParentLayout>& Doge()
+			{
+				return Base::template drawable<0>();
+			}
+
+		protected:
+			void ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
+			{
+				// Animate translation bouncing around the screen.
+				const uint16_t progressX = ProgressScaler::TriangleResponse(
+					static_cast<angle_t>(frameTime / Constants::TranslationXPeriod));
+				const uint16_t progressY = ProgressScaler::TriangleResponse(
+					static_cast<angle_t>(frameTime / Constants::TranslationYPeriod));
+				Doge().TransformShader.SetTranslation(
+					ProgressScaler::ScaleProgress(progressX, uint16_t(RangeLayout::RangeX())),
+					ProgressScaler::ScaleProgress(progressY, uint16_t(RangeLayout::RangeY())));
+
+				// Animate continuous rotation.
+				Doge().TransformShader.SetRotation(static_cast<angle_t>(frameTime / Constants::RotationPeriod));
+			}
+		};
+	}
 
 	template<typename ParentLayout>
-	struct Layout
+	struct FrameMonoChrome : public Framework::View::FrameAdapter<Bitmask::View<ParentLayout>>
 	{
-		using SpriteType = Assets::DogeSprite;
+		using Base = Framework::View::FrameAdapter<Bitmask::View<ParentLayout>>;
 
-		// Anchor sprite inside the parent layout.
-		static constexpr pixel_t X() { return ParentLayout::X(); }
-		static constexpr pixel_t Y() { return ParentLayout::Y(); }
-		static constexpr pixel_t Width() { return SpriteType::Width; }
-		static constexpr pixel_t Height() { return SpriteType::Height; }
+		FrameMonoChrome() : Base() {}
+		virtual ~FrameMonoChrome() = default;
 
-		static constexpr pixel_t RangeX() { return ParentLayout::Width() - Width(); }
-		static constexpr pixel_t RangeY() { return ParentLayout::Height() - Height(); }
-
-		// Partial drawing keeps big sprites responsive.
-		static constexpr uint8_t DrawSteps() { return SpriteType::Height / 2; }
-		static constexpr pixel_t SectionHeight()
+#if defined(SERIAL_LOG)
+		void PrintDescription() const
 		{
-			return SpriteType::Height / DrawSteps();
+			Serial.println(F("Bitmask\n\twith translation and rotation animation."));
 		}
+#endif
 	};
 
-	template<typename ParentLayout, bool Monochrome>
-	class View : public Framework::View::AbstractView
+	template<typename ParentLayout>
+	struct FrameColor : public Framework::View::FrameAdapter<Bitmap::View<ParentLayout>>
 	{
-	private:
-		static constexpr uint32_t TranslationXDuration = 7000000U;
-		static constexpr uint32_t TranslationYDuration = 13000000U;
-		static constexpr uint32_t BrightnessPeriod = 3876543U;
-		static constexpr uint16_t RotationFrequency = 50U;
+		using Base = Framework::View::FrameAdapter<Bitmap::View<ParentLayout>>;
 
-		using LayoutDefinition = Layout<ParentLayout>;
-		using SpriteType = typename LayoutDefinition::SpriteType;
-
-		BrightnessEffect<TransparentColorEffect<SpriteType>> Doge{};
-		RotateTransform<SpriteType::Width, SpriteType::Height> DogeRotator{};
-		pixel_point_t Position{};
-		uint8_t SectionIndex = 0;
-
-	public:
-		View() : Framework::View::AbstractView()
-		{
-			Doge.SetTransparentColor(0);
-		}
-
-	protected:
-		void ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
-		{
-			// Ping-pong translation across the layout.
-			const uint16_t progressX = ProgressScaler::TriangleResponse(
-				ProgressScaler::GetProgress<TranslationXDuration>(frameTime));
-			const uint16_t progressY = ProgressScaler::TriangleResponse(
-				ProgressScaler::GetProgress<TranslationYDuration>(frameTime));
-
-			Position.x = static_cast<pixel_t>(
-				LayoutDefinition::X() +
-				ProgressScaler::ScaleProgress(progressX, static_cast<uint16_t>(LayoutDefinition::RangeX())));
-			Position.y = static_cast<pixel_t>(
-				LayoutDefinition::Y() +
-				ProgressScaler::ScaleProgress(progressY, static_cast<uint16_t>(LayoutDefinition::RangeY())));
-
-			// Color displays breathe brightness; mono stays steady.
-			if (Monochrome)
-			{
-				Doge.SetBrightness(0);
-			}
-			else
-			{
-				const fraction16_t brightnessFraction =
-					Fraction16::GetScalar(frameTime % BrightnessPeriod, BrightnessPeriod);
-				const angle_t brightnessAngle = Fraction(brightnessFraction, ANGLE_RANGE);
-				Doge.SetBrightness(Sine16(brightnessAngle));
-			}
-
-			// Rotate slowly and restart the partial draw cycle.
-			DogeRotator.SetRotation(frameTime / RotationFrequency);
-			SectionIndex = 0;
-		}
-
-		bool Draw(IFrameBuffer* frame) override
-		{
-			// Render a narrow strip per call to stay within frame budgets.
-			SpriteRenderer::TransformDrawPartial(
-				frame,
-				&Doge,
-				&DogeRotator,
-				Position.x,
-				Position.y,
-				0,
-				SectionIndex * LayoutDefinition::SectionHeight(),
-				SpriteType::Width,
-				LayoutDefinition::SectionHeight());
-
-			SectionIndex++;
-			if (SectionIndex >= LayoutDefinition::DrawSteps())
-			{
-				SectionIndex = 0;
-				return true;
-			}
-
-			return false;
-		}
-	};
-
-	template<typename ParentLayout, bool Monochrome>
-	struct Frame : public Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>
-	{
-		using Base = Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>;
-
-		Frame() : Base() {}
-		virtual ~Frame() = default;
+		FrameColor() : Base() {}
+		virtual ~FrameColor() = default;
 
 #if defined(SERIAL_LOG)
 		void PrintDescription() const
@@ -133,5 +288,16 @@ namespace BitmapDemo
 		}
 #endif
 	};
+
+	/// <summary>
+	/// Type selector between monochrome and color frame types based on a compile-time parameters.
+	/// </summary>
+	/// <typeparam name="ParentLayout">The parent layout.</typeparam>
+	/// <typeparam name="Monochrome">Monochrome display flag.</typeparam>
+	template<typename ParentLayout, bool Monochrome>
+	using Frame = typename TypeTraits::TypeConditional::conditional_type<
+		FrameMonoChrome<ParentLayout>,
+		FrameColor<ParentLayout>,
+		Monochrome>::type;
 }
 #endif

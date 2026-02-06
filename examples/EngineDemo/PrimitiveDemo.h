@@ -1,13 +1,13 @@
 #ifndef _PRIMITIVE_DEMO_h
 #define _PRIMITIVE_DEMO_h
 
-#include <EgfxDrawer.h>
+#include <EgfxFramework.h>
+
 
 // Demo of primitive shapes: lines, rectangles, and triangles.
 namespace PrimitiveDemo
 {
 	using namespace Egfx;
-
 	namespace Assets
 	{
 		template<typename ParentLayout>
@@ -51,7 +51,7 @@ namespace PrimitiveDemo
 
 		namespace Animators
 		{
-			template<typename Layout, bool Monochrome>
+			template<typename ParentLayout, bool Monochrome>
 			struct Lines
 			{
 				template<typename LineElementType>
@@ -61,10 +61,10 @@ namespace PrimitiveDemo
 						Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, (uint16_t(UINT8_MAX) * 9) / 10);
 
 					// Calculate deltaX
-					pixel_t deltaX = (frameTime / 70000) % Layout::Width();
-					if (deltaX >= Layout::Width() / 2)
+					pixel_t deltaX = (frameTime / 70000) % ParentLayout::Width();
+					if (deltaX >= ParentLayout::Width() / 2)
 					{
-						deltaX = (Layout::Width() - deltaX) * 2;
+						deltaX = (ParentLayout::Width() - deltaX) * 2;
 					}
 					else
 					{
@@ -73,10 +73,10 @@ namespace PrimitiveDemo
 					lineElement.DeltaX = deltaX;
 
 					// Calculate deltaY
-					pixel_t deltaY = (frameTime / 60000) % Layout::Height();
-					if (deltaY >= Layout::Height() / 2)
+					pixel_t deltaY = (frameTime / 60000) % ParentLayout::Height();
+					if (deltaY >= ParentLayout::Height() / 2)
 					{
-						deltaY = (Layout::Height() - deltaY) * 2;
+						deltaY = (ParentLayout::Height() - deltaY) * 2;
 					}
 					else
 					{
@@ -86,16 +86,16 @@ namespace PrimitiveDemo
 				}
 			};
 
-			template<typename Layout, bool Monochrome>
+			template<typename ParentLayout, bool Monochrome>
 			struct Triangle
 			{
 				template<typename TriangleElementType>
 				static pixel_rectangle_t Animate(TriangleElementType& triangleElement, const uint32_t frameTime, const uint16_t /*frameCounter*/)
 				{
 					triangleElement.Color = GetColor(frameTime);
-					triangleElement.TriangleA = GetRoundSquare<Layout::MaxHeight()>(frameTime / 90);
-					triangleElement.TriangleB = GetRoundSquare<Layout::MaxHeight()>(frameTime / 166);
-					triangleElement.TriangleC = GetRoundSquare<Layout::MaxHeight()>(frameTime / 75);
+					triangleElement.TriangleA = GetRoundSquare<ParentLayout::MaxHeight()>(frameTime / 90);
+					triangleElement.TriangleB = GetRoundSquare<ParentLayout::MaxHeight()>(frameTime / 166);
+					triangleElement.TriangleC = GetRoundSquare<ParentLayout::MaxHeight()>(frameTime / 75);
 
 					pixel_rectangle_t boundingBox{};
 					boundingBox.topLeft.x = MinValue(triangleElement.TriangleA.x, MinValue(triangleElement.TriangleB.x, triangleElement.TriangleC.x));
@@ -192,7 +192,7 @@ namespace PrimitiveDemo
 			/// <summary>
 			/// Passive lines drawable - renders animated lines based on current state.
 			/// </summary>
-			template<typename Layout, bool Monochrome>
+			template<typename ParentLayout, bool Monochrome>
 			struct Lines
 			{
 				pixel_t DeltaX = 0;
@@ -201,13 +201,13 @@ namespace PrimitiveDemo
 
 				void Draw(IFrameBuffer* frame)
 				{
-					for (uint8_t i = 0; i < Layout::HorizontalCount(); i++)
+					for (uint8_t i = 0; i < ParentLayout::HorizontalCount(); i++)
 					{
-						const pixel_t x = Layout::CenterX() + ((((Layout::HorizontalSeparation() / 2) * i) + DeltaX / 2) % (Layout::Width() / 2));
-						frame->Line(Color, x, Layout::Y(), x + DeltaX, Layout::Y() + Layout::Height() - 1);
+						const pixel_t x = ParentLayout::CenterX() + ((((ParentLayout::HorizontalSeparation() / 2) * i) + DeltaX / 2) % (ParentLayout::Width() / 2));
+						frame->Line(Color, x, ParentLayout::Y(), x + DeltaX, ParentLayout::Y() + ParentLayout::Height() - 1);
 
-						const pixel_t y = Layout::Y() + ((((Layout::VerticalSeparation() / 2) * i) + DeltaY / 2) % Layout::Height());
-						frame->Line(Color, Layout::X(), y, Layout::CenterX(), y + DeltaY);
+						const pixel_t y = ParentLayout::Y() + ((((ParentLayout::VerticalSeparation() / 2) * i) + DeltaY / 2) % ParentLayout::Height());
+						frame->Line(Color, ParentLayout::X(), y, ParentLayout::CenterX(), y + DeltaY);
 					}
 				}
 			};
@@ -215,7 +215,7 @@ namespace PrimitiveDemo
 			/// <summary>
 			/// Passive triangle drawable - renders triangle based on current state.
 			/// </summary>
-			template<typename Layout, bool Monochrome>
+			template<typename ParentLayout, bool Monochrome>
 			struct Triangle
 			{
 				pixel_point_t TriangleA{};
@@ -228,16 +228,16 @@ namespace PrimitiveDemo
 				{
 					// Draw triangle with current color
 					frame->TriangleFill(Color,
-						Layout::CenterX() + TriangleA.x, Layout::CenterY() + TriangleA.y,
-						Layout::CenterX() + TriangleB.x, Layout::CenterY() + TriangleB.y,
-						Layout::CenterX() + TriangleC.x, Layout::CenterY() + TriangleC.y);
+						ParentLayout::CenterX() + TriangleA.x, ParentLayout::CenterY() + TriangleA.y,
+						ParentLayout::CenterX() + TriangleB.x, ParentLayout::CenterY() + TriangleB.y,
+						ParentLayout::CenterX() + TriangleC.x, ParentLayout::CenterY() + TriangleC.y);
 				}
 			};
 
 			/// <summary>
 			/// Passive rectangle drawable - renders bounding box around triangle.
 			/// </summary>
-			template<typename Layout, bool Monochrome>
+			template<typename ParentLayout, bool Monochrome>
 			struct Rectangle
 			{
 				pixel_rectangle_t BoundingBox{};
@@ -249,31 +249,31 @@ namespace PrimitiveDemo
 					// Draw rectangle around triangle
 					if (Active)
 						frame->RectangleFill(RGB_COLOR_WHITE,
-							Layout::CenterX() + BoundingBox.topLeft.x, Layout::CenterY() + BoundingBox.topLeft.y,
-							Layout::CenterX() + BoundingBox.bottomRight.x,
-							Layout::CenterY() + BoundingBox.bottomRight.y);
+							ParentLayout::CenterX() + BoundingBox.topLeft.x, ParentLayout::CenterY() + BoundingBox.topLeft.y,
+							ParentLayout::CenterX() + BoundingBox.bottomRight.x,
+							ParentLayout::CenterY() + BoundingBox.bottomRight.y);
 				}
 			};
 		}
 	}
 
-	template<typename Layout, bool Monochrome>
-	class View : public Egfx::Framework::View::DrawablesView<
-		Assets::Drawables::Lines<typename Assets::Layout<Layout>::Lines, Monochrome>,
-		Assets::Drawables::Rectangle<typename Assets::Layout<Layout>::Rectangle, Monochrome>,
-		Assets::Drawables::Triangle<typename Assets::Layout<Layout>::Triangle, Monochrome>
+	template<typename ParentLayout, bool Monochrome>
+	class View : public Framework::View::DrawablesView<
+		Assets::Drawables::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>,
+		Assets::Drawables::Rectangle<typename Assets::Layout<ParentLayout>::Rectangle, Monochrome>,
+		Assets::Drawables::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>
 	>
 	{
 	private:
-		using Base = Egfx::Framework::View::DrawablesView<
-			Assets::Drawables::Lines<typename Assets::Layout<Layout>::Lines, Monochrome>,
-			Assets::Drawables::Rectangle<typename Assets::Layout<Layout>::Rectangle, Monochrome>,
-			Assets::Drawables::Triangle<typename Assets::Layout<Layout>::Triangle, Monochrome>>;
+		using Base = Framework::View::DrawablesView<
+			Assets::Drawables::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>,
+			Assets::Drawables::Rectangle<typename Assets::Layout<ParentLayout>::Rectangle, Monochrome>,
+			Assets::Drawables::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>>;
 
 	private:
-		using LinesAnimator = Assets::Animators::Lines<typename Assets::Layout<Layout>::Lines, Monochrome>;
+		using LinesAnimator = Assets::Animators::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>;
 		using RectangleAnimator = Assets::Animators::Rectangle<Monochrome>;
-		using TriangleAnimator = Assets::Animators::Triangle<typename Assets::Layout<Layout>::Triangle, Monochrome>;
+		using TriangleAnimator = Assets::Animators::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>;
 
 	public:
 		View() : Base()
@@ -305,10 +305,10 @@ namespace PrimitiveDemo
 	/// <summary>
 	/// Wrapper type exposing the demo's single view via the IFrameDraw interface.
 	/// </summary>
-	template<typename Layout, bool Monochrome>
-	struct Frame : Egfx::Framework::View::FrameAdapter<View<Layout, Monochrome>>
+	template<typename ParentLayout, bool Monochrome>
+	struct Frame : Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>
 	{
-		using Base = Egfx::Framework::View::FrameAdapter<View<Layout, Monochrome>>;
+		using Base = Framework::View::FrameAdapter<View<ParentLayout, Monochrome>>;
 		Frame() : Base() {}
 		virtual ~Frame() = default;
 

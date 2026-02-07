@@ -175,7 +175,7 @@ namespace VectorTextDemo
 		}
 
 	protected:
-		void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+		bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 		{
 			auto& numbers = Base::template drawable<0>();
 			numbers.Value = frameCounter;
@@ -198,6 +198,7 @@ namespace VectorTextDemo
 				CodeTextDrawer.ColorSource.Color = Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, UINT8_MAX);
 				VectorTextDrawer.ColorSource.Color = Rgb::Color(uint32_t(~CodeTextDrawer.ColorSource.Color));
 			}
+			return true;
 		}
 	};
 

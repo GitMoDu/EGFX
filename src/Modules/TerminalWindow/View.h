@@ -63,7 +63,7 @@ namespace Egfx
 					}
 
 				protected:
-					void ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) override
+					bool ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) override
 					{
 						const uint32_t elapsed = Drawable.GetNewLineElapsedTime();
 
@@ -77,6 +77,7 @@ namespace Egfx
 							// Animation complete - reset offset Y.
 							Drawable.OffsetY = 0;
 						}
+						return true;
 					}
 
 					bool Draw(IFrameBuffer* frame) override

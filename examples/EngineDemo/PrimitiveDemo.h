@@ -287,7 +287,7 @@ namespace PrimitiveDemo
 		/// View-level animation orchestration - updates all drawable state.
 		/// No framebuffer access - pure state update.
 		/// </summary>
-		void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+		bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 		{
 			// Get references to drawables by index. The order is determined by the class template parameters.
 			auto& lines = Base::template drawable<0>();
@@ -299,6 +299,7 @@ namespace PrimitiveDemo
 
 			// Animate triangle and set the resulting bounding box on rectangle drawable
 			rectangle.BoundingBox = TriangleAnimator::Animate(triangle, frameTime, frameCounter);
+			return true;
 		}
 	};
 

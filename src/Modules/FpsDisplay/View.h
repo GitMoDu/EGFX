@@ -57,7 +57,7 @@ namespace Egfx
 					}
 
 				protected:
-					void ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
+					bool ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
 					{
 						const uint32_t frameDuration = frameTime - LastFrametime;
 						LastFrametime = frameTime;
@@ -95,6 +95,7 @@ namespace Egfx
 						};
 
 						Drawable.FrameRate = LastFrameRate;
+						return true;
 					}
 
 					bool Draw(IFrameBuffer* frame) override

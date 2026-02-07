@@ -2,13 +2,27 @@
 
 [![License](https://img.shields.io/github/license/GitMoDu/EGFX)](LICENSE)
 
-A high-performance, cooperative-task graphics engine for memory-constrained embedded systems, targeting Arduino-compatible microcontrollers. 
+EGFX is a frame-buffer-based graphics framework designed for embedded systems with limited resources, targeting Arduino-compatible microcontrollers. 
+It provides a complete graphics pipeline with hardware-accelerated display drivers, efficient rendering primitives, and a task-based architecture that avoids CPU hogging.
 
 # ![Embedded Graphics Framework](https://github.com/GitMoDu/EGFX/blob/master/media/logo_splash_multi_screen.gif)
 
 ## Overview
 
-EGFX is a frame-buffer-based graphics framework designed for embedded systems with limited resources. It provides a complete graphics pipeline with hardware-accelerated display drivers, efficient rendering primitives, and a task-based architecture that prevents CPU hogging while maintaining smooth frame rates.
+# ![Library Organization](https://github.com/GitMoDu/EGFX/blob/master/media/high_level_organization.png)
+
+The library is organized into four main components:
+
+- Framebuffer: Manages screen memory and rendering operations
+- ScreenDriver: Handles display communication over SPI/I2C with optional DMA and RTOS support
+- DisplayEngine: Orchestrates the complete graphics pipeline—managing the asynchronous draw cycle, frame timing, buffer flipping, and pushing frames to the display
+- Framework: Template-driven UI system featuring:
+    - Compile-time layouts
+    - Drawables, fonts, and text rendering
+    - Views, composites, and adapters
+
+The framework includes a collection of built-in assets (drawables, fonts, shaders) and supports custom Modules—self-contained views with their own drawables, layouts, and assets.
+
 
 ### Key Features
 

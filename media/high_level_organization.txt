@@ -1,0 +1,61 @@
+flowchart TD
+
+subgraph Egfx
+    AA[Platform]
+    AB[ DisplayOptions
+        GraphicsBuffer]
+    AC[Color modes:
+        Monochrome
+        Rgb233
+        Rgb565
+        Rgb888]
+    AD[ IFramebuffer
+        IScreenDriver
+        IFrameDraw
+        IFrameEngine]
+end
+
+subgraph Framebuffer
+    BB[ TemplateFramebuffer
+        DoubleBufferedFramebuffer]
+    BC[Optimized frame painter]
+end
+
+subgraph ScreenDrivers
+    CB[AbstractDriver:
+        SPI,
+        I2C]
+    CD[TemplateVariants:
+        DMA,
+        RTOS
+        Async]
+end
+
+subgraph DisplayEngine
+    DA[SyncType]
+    DB[TemplateEngine]
+end
+
+subgraph Framework
+    EA[ Template driven:
+        Layouts, Views...
+        Templated text font
+        Unified pixel shading model]
+    EB[ Assets:
+        Drawables
+        Fonts
+        Shaders]
+
+end
+
+subgraph Modules
+    EC[ Self contained views,
+     drawables, layouts...]   
+end
+
+  %% Connections
+Egfx --> Framebuffer
+Egfx --> ScreenDrivers
+Egfx --> DisplayEngine
+Egfx --> Framework
+Framework --> Modules

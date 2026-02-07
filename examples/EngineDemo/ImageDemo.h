@@ -129,7 +129,7 @@ namespace ImageDemo
 			}
 
 		protected:
-			void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+			bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 			{
 				// Animate translation bouncing around the screen.
 				const uint16_t progressX = ProgressScaler::TriangleResponse(
@@ -146,6 +146,7 @@ namespace ImageDemo
 				// Animate brightness with sine wave.
 				const angle_t brightnessAngle = static_cast<angle_t>(frameTime / Constants::BrightnessPeriod);
 				Doge().ColorShader.SetBrightness(Sine16(brightnessAngle));
+				return true;
 			}
 		};
 	}
@@ -240,7 +241,7 @@ namespace ImageDemo
 			}
 
 		protected:
-			void ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
+			bool ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
 			{
 				// Animate translation bouncing around the screen.
 				const uint16_t progressX = ProgressScaler::TriangleResponse(
@@ -253,6 +254,7 @@ namespace ImageDemo
 
 				// Animate continuous rotation.
 				Doge().TransformShader.SetRotation(static_cast<angle_t>(frameTime / Constants::RotationPeriod));
+				return true;
 			}
 		};
 	}

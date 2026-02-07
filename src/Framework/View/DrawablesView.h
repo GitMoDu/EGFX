@@ -68,7 +68,8 @@ namespace Egfx
 				/// </summary>
 				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
 				/// <param name="frameCounter">Rolling frame counter.</param>
-				virtual void ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) {}
+				/// <returns>True to proceed with rendering, false to skip the entire cycle.</returns>
+				virtual bool ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) { return true; }
 
 			public:
 				/// <summary>
@@ -111,9 +112,10 @@ namespace Egfx
 				/// <summary>
 				/// DrawCall orchestration implementing View contract:
 				/// 1. Calls ViewStep() once at start of cycle to update animation state.
-				/// 2. Renders current drawable via Draw(framebuffer).
-				/// 3. Advances to the next drawable on the next call.
-				/// 4. Returns true when all drawables rendered (cycle complete).
+				/// 2. If ViewStep() returns false, the cycle is skipped and completed immediately.
+				/// 3. Renders current drawable via Draw(framebuffer).
+				/// 4. Advances to the next drawable on the next call.
+				/// 5. Returns true when all drawables rendered (cycle complete).
 				/// </summary>
 				/// <param name="frame">Target framebuffer to draw into.</param>
 				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
@@ -132,7 +134,12 @@ namespace Egfx
 					// Update animation state once per cycle (when starting from first drawable)
 					if (CurrentDrawable == 0)
 					{
-						ViewStep(frameTime, frameCounter);
+						// If ViewStep returns false, skip the entire cycle
+						if (!ViewStep(frameTime, frameCounter))
+						{
+							// Skip cycle - complete immediately (CurrentDrawable already 0)
+							return true;
+						}
 					}
 
 					// Render current drawable (passive - framebuffer only)

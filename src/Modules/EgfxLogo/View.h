@@ -43,7 +43,7 @@ namespace Egfx
 					Drawable::LettersFX<ParentLayout, Monochrome>& GetLetterFX() { return this->template drawable<2>(); }
 
 				protected:
-					void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 					{
 						auto& lettersFX = GetLetterFX();
 						lettersFX.FontDrawer.ColorSource.FrameCounter = frameCounter;
@@ -51,7 +51,7 @@ namespace Egfx
 
 						if (Monochrome)
 						{
-							return;
+							return true;
 						}
 
 						auto& lettersEG = GetLettersEG();
@@ -98,6 +98,7 @@ namespace Egfx
 								Colors::Color2);
 							break;
 						}
+						return true;
 					}
 				};
 
@@ -183,7 +184,7 @@ namespace Egfx
 						lettersFX.FontDrawer.ColorSource.Alpha = alpha;
 					}
 
-					void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 					{
 						Base::ViewStep(frameTime, frameCounter);
 
@@ -250,6 +251,7 @@ namespace Egfx
 						default:
 							break;
 						}
+						return true;
 					}
 				};
 			}

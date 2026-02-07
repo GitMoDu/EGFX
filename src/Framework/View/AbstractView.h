@@ -34,7 +34,8 @@ namespace Egfx
 				/// </summary>
 				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
 				/// <param name="frameCounter">Rolling frame counter.</param>
-				virtual void ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) = 0;
+				/// <returns>True to proceed with rendering, false to skip the entire cycle.</returns>
+				virtual bool ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) = 0;
 
 			private:
 				bool Stepped = false;
@@ -45,6 +46,7 @@ namespace Egfx
 
 				/// <summary>
 				/// Orchestrates the view's step + draw cycle.
+				/// If ViewStep() returns false, the cycle is skipped and completed immediately.
 				/// </summary>
 				/// <param name="frame">Target framebuffer to draw into.</param>
 				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
@@ -58,7 +60,13 @@ namespace Egfx
 						Stepped = true;
 
 						// Update animation state (no framebuffer - pure state update)
-						ViewStep(frameTime, frameCounter);
+						// If ViewStep returns false, skip the entire cycle
+						if (!ViewStep(frameTime, frameCounter))
+						{
+							// Skip cycle - reset state and complete immediately
+							Stepped = false;
+							return true;
+						}
 
 						return false;
 					}

@@ -271,7 +271,7 @@ namespace BitmaskTextDemo
 		/// View-level animation orchestration - updates all drawable state.
 		/// No framebuffer access - pure state update.
 		/// </summary>
-		void ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
+		bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 		{
 			auto& numbers = Base::template drawable<0>();
 			auto& bigText = Base::template drawable<1>();
@@ -290,6 +290,7 @@ namespace BitmaskTextDemo
 			bigText.Translation.x = Animators::TextScroller::GetOffset(frameTime, 15000U, LongTextWidth, ParentLayout::Width());
 			smallText1.Translation.x = Animators::TextScroller::GetOffset(frameTime, 30000U, ShortTextWidth, ParentLayout::Width());
 			smallText2.Translation.x = Animators::TextScroller::GetOffset(frameTime, 45000U, ShortTextWidth, ParentLayout::Width());
+			return true;
 		}
 	};
 

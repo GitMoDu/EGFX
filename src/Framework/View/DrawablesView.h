@@ -137,7 +137,7 @@ namespace Egfx
 						// If ViewStep returns false, skip the entire cycle
 						if (!ViewStep(frameTime, frameCounter))
 						{
-							// Skip cycle - reset state and complete immediately
+							// Skip cycle - complete immediately (CurrentDrawable already 0)
 							return true;
 						}
 					}

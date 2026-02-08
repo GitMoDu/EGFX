@@ -35,6 +35,7 @@ The library is organized into five main components:
 ### Dependencies
 
 - [TaskScheduler](https://github.com/arkhipenko/TaskScheduler) — Cooperative task scheduling
+- [IntegerSignal](https://github.com/GitMoDu/IntegerSignal) — Fixed-point math, trigonometry, curves, and type utilities
 
 ---
 

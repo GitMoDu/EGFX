@@ -87,10 +87,10 @@ namespace Egfx
 				{
 					static_assert(Index < sizeof...(Weights), "HorizontalWeightedLayout Cell Index out of range.");
 
-					static constexpr pixel_t X() { return ParentLayout::X() + XSumImpl<Index>::Value; }
-					static constexpr pixel_t Y() { return ParentLayout::Y(); }
+					static constexpr pixel_t X() { return HorizontalWeighted::X() + XSumImpl<Index>::Value; }
+					static constexpr pixel_t Y() { return HorizontalWeighted::Y(); }
 					static constexpr pixel_t Width() { return CalculateWidth<Index>(); }
-					static constexpr pixel_t Height() { return ParentLayout::Height(); }
+					static constexpr pixel_t Height() { return HorizontalWeighted::Height(); }
 				};
 			};
 
@@ -172,9 +172,9 @@ namespace Egfx
 				{
 					static_assert(Index < sizeof...(Weights), "VerticalWeightedLayout Cell Index out of range.");
 
-					static constexpr pixel_t X() { return ParentLayout::X(); }
-					static constexpr pixel_t Y() { return ParentLayout::Y() + YSumImpl<Index>::Value; }
-					static constexpr pixel_t Width() { return ParentLayout::Width(); }
+					static constexpr pixel_t X() { return VerticalWeighted::X(); }
+					static constexpr pixel_t Y() { return VerticalWeighted::Y() + YSumImpl<Index>::Value; }
+					static constexpr pixel_t Width() { return VerticalWeighted::Width(); }
 					static constexpr pixel_t Height() { return CalculateHeight<Index>(); }
 				};
 			};

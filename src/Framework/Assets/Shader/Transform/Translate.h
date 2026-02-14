@@ -46,6 +46,16 @@ namespace Egfx
 							OffsetY = offsetY;
 						}
 
+						void SetTranslationX(const dimension_t offsetX)
+						{
+							OffsetX = offsetX;
+						}
+
+						void SetTranslationY(const dimension_t offsetY)
+						{
+							OffsetY = offsetY;
+						}
+
 						/// <summary>
 						/// Applies the transform chain and then adds the configured translation offset.
 						/// </summary>

@@ -33,6 +33,6 @@
 #include "Framework/Assets/Font/Vector/Epoxy/EpoxyNumbersType.h" // Compact vector font with numbers and basic punctuation.
 
 // Drawables.
-#include "Framework/Assets/Drawable/Code/Rectangle.h"
+#include "Framework/Assets/Code/Drawable/Rectangle.h"
 
 #endif

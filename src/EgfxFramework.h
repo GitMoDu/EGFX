@@ -15,6 +15,7 @@
 #include "Framework/Layout/Weighted.h"
 #include "Framework/Layout/Margin.h"
 #include "Framework/Layout/Align.h"
+#include "Framework/Layout/Translate.h"
 
 // Drawable contract.
 #include "Framework/Drawable.h"

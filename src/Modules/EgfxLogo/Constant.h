@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_EGFX_LOGO_CONSTANTS_h
-#define _EGFX_MODULES_EGFX_LOGO_CONSTANTS_h
+#ifndef _EGFX_MODULES_EGFX_LOGO_CONSTANT_h
+#define _EGFX_MODULES_EGFX_LOGO_CONSTANT_h
 
 #include <EgfxFramework.h>
 #include <EgfxAssets.h>

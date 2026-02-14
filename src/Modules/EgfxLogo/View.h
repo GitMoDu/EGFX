@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_EGFX_LOGO_VIEWS_h
-#define _EGFX_MODULES_EGFX_LOGO_VIEWS_h
+#ifndef _EGFX_MODULES_EGFX_LOGO_VIEW_h
+#define _EGFX_MODULES_EGFX_LOGO_VIEW_h
 
 #include "Drawable.h"
 #include "Layout.h"

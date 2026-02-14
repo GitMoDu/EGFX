@@ -1,5 +1,5 @@
-#ifndef _EGFX_FRAMEWORK_ASSETS_DRAWBLE_CODE_RECTANGLE_h
-#define _EGFX_FRAMEWORK_ASSETS_DRAWBLE_CODE_RECTANGLE_h
+#ifndef _EGFX_FRAMEWORK_ASSETS_CODE_DRAWABLE_RECTANGLE_h
+#define _EGFX_FRAMEWORK_ASSETS_CODE_DRAWABLE_RECTANGLE_h
 
 #include <EgfxFramework.h>
 
@@ -9,9 +9,9 @@ namespace Egfx
 	{
 		namespace Assets
 		{
-			namespace Drawable
+			namespace Code
 			{
-				namespace Code
+				namespace Drawable
 				{
 					namespace Rectangle
 					{
@@ -21,13 +21,14 @@ namespace Egfx
 						/// Primitive shader defaults to no-shader (direct drawing, single color).
 						/// </summary>
 						template<typename ParentLayout,
+							bool FillDefault = false,
 							typename PrimitiveShaderType = Framework::Shader::Primitive::NoShader<pixel_t>
 						>
 						struct TemplateDrawable : PrimitiveShaderType
 						{
 							bool Fill;
 
-							TemplateDrawable(const bool fill = false)
+							TemplateDrawable(const bool fill = FillDefault)
 								: Fill(fill)
 							{
 							}
@@ -67,6 +68,9 @@ namespace Egfx
 								}
 							}
 						};
+
+
+						
 					}
 				}
 			}

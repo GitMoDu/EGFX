@@ -25,8 +25,9 @@ namespace Egfx
 				/// Rectangle outline with custom Pixel shader.
 				/// </summary>
 				template<typename ParentLayout, bool Monochrome>
-				using Screen = Framework::Assets::Drawable::Code::Rectangle::TemplateDrawable<
+				using Screen = Framework::Assets::Code::Drawable::Rectangle::TemplateDrawable<
 					typename Layout::LogoLayout<ParentLayout>::ScreenMargin,
+					false,
 					Shader::Primitive::Screen<Monochrome>
 				>;
 

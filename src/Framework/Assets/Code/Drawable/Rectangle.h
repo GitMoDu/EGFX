@@ -16,21 +16,25 @@ namespace Egfx
 					/// <summary>
 					/// Fills a rectangle.
 					/// </summary>
-					/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
 					/// <typeparam name="dimension_t">The drawable's intrinsic dimension type.</typeparam>
-					/// <typeparam name="PrimitiveShaderType">The primitive shader type used for rendering.</typeparam>
-					template<typename ParentLayout,
-						typename dimension_t = pixel_t,
-						typename PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t>
+					/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
+					/// <typeparam name="PixelShaderType">The pixel shader type used for rendering.</typeparam>
+					template<typename dimension_t,
+						typename ParentLayout,
+						typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 					>
-					struct RectangleFill : PrimitiveShaderType
+					class RectangleFill : public Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>
 					{
+					private:
+						using Base = Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>;
+
+					public:
 						/// <summary>
 						/// Prepares the primitive shader origin to the rectangle's top-left corner.
 						/// </summary>
-						RectangleFill()
+						RectangleFill() : Base()
 						{
-							PrimitiveShaderType::Prepare(ParentLayout::X(), ParentLayout::Y());
+							Base::Prepare(ParentLayout::X(), ParentLayout::Y());
 						}
 						~RectangleFill() = default;
 
@@ -40,7 +44,7 @@ namespace Egfx
 						/// </summary>
 						void Draw(IFrameBuffer* frame)
 						{
-							PrimitiveShaderType::RectangleFill(frame,
+							Base::RectangleFill(frame,
 								0, 0,
 								ParentLayout::Width() - 1, ParentLayout::Height() - 1);
 						}
@@ -51,20 +55,24 @@ namespace Egfx
 					/// </summary>
 					/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
 					/// <typeparam name="dimension_t">The drawable's intrinsic dimension type.</typeparam>
-					/// <typeparam name="PrimitiveShaderType">The Primitive shader type used for rendering the rectangle.</typeparam>
+					/// <typeparam name="PixelShaderType">The Pixel shader type used for rendering the rectangle.</typeparam>
 					/// <typeparam name="StrokeWidth">The width of the rectangle's border in units of dimension_t. Must be greater than 0. Defaults to 1.</typeparam>
-					template<typename ParentLayout,
-						typename dimension_t = pixel_t,
+					template<typename dimension_t,
+						typename ParentLayout,
 						dimension_t StrokeWidth = 1,
-						typename PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t>
+						typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 					>
-					struct Rectangle : PrimitiveShaderType
+					class Rectangle : public Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>
 					{
+					private:
 						static_assert(StrokeWidth > 0, "Stroke width must be greater than 0.");
 
-						Rectangle()
+						using Base = Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>;
+
+					public:
+						Rectangle() : Base()
 						{
-							PrimitiveShaderType::Prepare(ParentLayout::X(), ParentLayout::Y());
+							Base::Prepare(ParentLayout::X(), ParentLayout::Y());
 						}
 
 						~Rectangle() = default;
@@ -72,22 +80,22 @@ namespace Egfx
 						void Draw(IFrameBuffer* frame)
 						{
 							// Top
-							PrimitiveShaderType::RectangleFill(frame,
+							Base::RectangleFill(frame,
 								0, 0,
 								ParentLayout::Width() - 1, StrokeWidth - 1);
 
 							// Right
-							PrimitiveShaderType::RectangleFill(frame,
+							Base::RectangleFill(frame,
 								ParentLayout::Width() - 1, StrokeWidth,
 								ParentLayout::Width() - 1 - StrokeWidth + 1, ParentLayout::Height() - 1 - StrokeWidth + 1);
 
 							// Bottom
-							PrimitiveShaderType::RectangleFill(frame,
+							Base::RectangleFill(frame,
 								0, ParentLayout::Height() - 1 - StrokeWidth + 1,
 								ParentLayout::Width() - 1, ParentLayout::Height() - 1);
 
 							// Left
-							PrimitiveShaderType::RectangleFill(frame,
+							Base::RectangleFill(frame,
 								0, StrokeWidth,
 								StrokeWidth - 1, ParentLayout::Height() - 1 - StrokeWidth + 1);
 						}

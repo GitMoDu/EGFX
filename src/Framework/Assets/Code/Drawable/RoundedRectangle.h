@@ -2,7 +2,6 @@
 #define _EGFX_FRAMEWORK_ASSETS_CODE_DRAWABLE_ROUNDED_RECTANGLE_h
 
 #include <EgfxFramework.h>
-#include "../../Shader/Geometry/Circle.h"
 
 namespace Egfx
 {
@@ -20,12 +19,14 @@ namespace Egfx
 					template<typename ParentLayout,
 						typename dimension_t,
 						dimension_t CornerRadius,
-						typename PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t>
+						typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 					>
-					class RoundedRectangle : public Framework::Assets::Shader::Geometry::CircleShader<dimension_t, PrimitiveShaderType>
+					class RoundedRectangle : public Framework::Shader::Geometry::CircleShader<dimension_t,
+						Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>
 					{
 					private:
-						using Base = Framework::Assets::Shader::Geometry::CircleShader<dimension_t, PrimitiveShaderType>;
+						using Base = Framework::Shader::Geometry::CircleShader<dimension_t,
+							Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>;
 
 					private:
 						struct RoundedLayout
@@ -146,12 +147,14 @@ namespace Egfx
 					template<typename ParentLayout,
 						typename dimension_t,
 						dimension_t CornerRadius,
-						typename PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t>
+						typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 					>
-					class RoundedRectangleFill : public Framework::Assets::Shader::Geometry::CircleShader<dimension_t, PrimitiveShaderType>
+					class RoundedRectangleFill : public Framework::Shader::Geometry::CircleShader<dimension_t,
+						Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>
 					{
 					private:
-						using Base = Framework::Assets::Shader::Geometry::CircleShader<dimension_t, PrimitiveShaderType>;
+						using Base = Framework::Shader::Geometry::CircleShader<dimension_t,
+							Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>;
 
 					private:
 						struct RoundedLayout

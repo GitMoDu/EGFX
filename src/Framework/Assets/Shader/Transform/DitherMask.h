@@ -14,9 +14,10 @@ namespace Egfx
 				namespace Transform
 				{
 					/// <summary>
-					/// Full classic alternating checkerboard tiles with configurable modulus and phase offset.
-					/// For simple 1x1 checkerboard patterns, use CheckerboardMask instead for better performance.
-					/// Uses two modulo operations per pixel.
+					/// Grid dither mask with configurable modulus and phase offsets.
+					/// Keeps a pixel only when both (x + OffsetX) and (y + OffsetY) land on a modulus boundary.
+					/// For a classic 1x1 checkerboard pattern, use CheckerboardMask for better performance.
+					/// Uses two modulo operations per pixel when enabled.
 					/// </summary>
 					/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
 					/// <typeparam name="UseGlobalCoordinates">When true, uses Origin+x/y so the pattern is stable across nested transforms.</typeparam>
@@ -28,13 +29,15 @@ namespace Egfx
 					class DitherMask : public Base
 					{
 					private:
-						/// <summary>Tile modulus. Values &lt; 2 disable the mask.</summary>
-						uint8_t Modulus = 0;
+						/// <summary>
+						/// Grid modulus (step). Values &lt; 2 disable the mask (all pixels are kept).
+						/// </summary>
+						uint8_t Modulus = 2;
 
-						/// <summary>Phase offset applied to the mask X coordinate.</summary>
+						/// <summary>Phase offset added to the mask X coordinate before applying the modulus.</summary>
 						uint8_t OffsetX = 0;
 
-						/// <summary>Phase offset applied to the mask Y coordinate.</summary>
+						/// <summary>Phase offset added to the mask Y coordinate before applying the modulus.</summary>
 						uint8_t OffsetY = 0;
 
 					protected:
@@ -44,7 +47,7 @@ namespace Egfx
 						DitherMask() : Base() {}
 						~DitherMask() = default;
 
-						/// <summary>Disables the dither mask.</summary>
+						/// <summary>Disables the mask (keeps all pixels).</summary>
 						void DisableDitherMask()
 						{
 							Modulus = 0;
@@ -81,18 +84,18 @@ namespace Egfx
 							OffsetY = offsetY;
 						}
 
-						/// <summary>Sets the tile modulus. Values &lt; 2 disable the mask.</summary>
+						/// <summary>Sets the grid modulus (step). Values &lt; 2 disable the mask.</summary>
 						void SetModulus(const uint8_t modulus)
 						{
 							Modulus = modulus;
 						}
 
-						/// <summary>Gets the tile modulus.</summary>
+						/// <summary>Gets the grid modulus (step).</summary>
 						uint8_t GetModulus() const { return Modulus; }
 
 						/// <summary>
 						/// Applies the base transform chain and then applies the mask.
-						/// Returns false when the pixel should be rejected by the checkerboard mask.
+						/// Returns false when the pixel should be rejected by the dither mask.
 						/// </summary>
 						/// <param name="x">X coordinate to transform in-place.</param>
 						/// <param name="y">Y coordinate to transform in-place.</param>
@@ -104,38 +107,26 @@ namespace Egfx
 								return false;
 							}
 
+							// Disabled for values < 2 (also avoids modulo-by-zero).
 							if (Modulus < 2)
-							{
-								return true; // disabled
-							}
-
-							const pixel_index_t maskX = static_cast<pixel_index_t>(
-								UseGlobalCoordinates ? (Origin.x + x) : x) + OffsetX;
-
-							const pixel_index_t maskY = static_cast<pixel_index_t>(
-								UseGlobalCoordinates ? (Origin.y + y) : y) + OffsetY;
-
-							// Classic alternating tiles without division:
-							// Determine which half of the modulus we're in for each axis, XOR for checkerboard.
-							const uint8_t half = static_cast<uint8_t>(Modulus >> 1);
-							if (half == 0)
 							{
 								return true;
 							}
 
-							const uint8_t rx = static_cast<uint8_t>(maskX % Modulus);
-							const uint8_t ry = static_cast<uint8_t>(maskY % Modulus);
+							const pixel_index_t maskX = static_cast<pixel_index_t>(
+								UseGlobalCoordinates ? (Origin.x + x) : x);
 
-							const bool a = (rx < half);
-							const bool b = (ry < half);
+							const pixel_index_t maskY = static_cast<pixel_index_t>(
+								UseGlobalCoordinates ? (Origin.y + y) : y);
 
-							return (a ^ b);
+							return (((maskX + OffsetX) % Modulus) == 0)
+								&& (((maskY + OffsetY) % Modulus) == 0);
 						}
 					};
 
 					/// <summary>
-					/// Fast dither mask: per-pixel 1x1 checkerboard with configurable phase offset.
-					/// Modulus is intentionally not supported here; this is the dedicated fast-path type.
+					/// Fast 1x1 checkerboard mask with configurable phase offset.
+					/// This is the dedicated fast-path type: no modulus support by design.
 					/// Uses only an AND with 1 (no division).
 					/// </summary>
 					/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
@@ -148,7 +139,7 @@ namespace Egfx
 					class CheckerboardMask : public Base
 					{
 					private:
-						/// <summary>Phase offset applied to (x+y) (mask-space).</summary>
+						/// <summary>Phase offset added to (x + y) before evaluating the checkerboard parity.</summary>
 						uint8_t Offset = 0;
 
 						/// <summary>Enables/disables the mask without changing the phase.</summary>
@@ -161,17 +152,16 @@ namespace Egfx
 						CheckerboardMask() : Base() {}
 						~CheckerboardMask() = default;
 
-						/// <summary>Disables the dither mask.</summary>
-						void DisableDitherMask()
+						/// <summary>Enables or disables the checkerboard mask without changing the phase.</summary>
+						void SetCheckerboardMaskEnabled(const bool enabled)
 						{
-							Enabled = false;
+							Enabled = enabled;
 						}
 
-						/// <summary>Sets the pattern phase/shift and enables the mask.</summary>
+						/// <summary>Sets the pattern phase/shift (does not change enabled state).</summary>
 						void SetMaskPhase(const uint8_t offset)
 						{
 							Offset = offset;
-							Enabled = true;
 						}
 
 						/// <summary>Gets the pattern phase/shift.</summary>

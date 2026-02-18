@@ -34,5 +34,6 @@
 
 // Drawables.
 #include "Framework/Assets/Code/Drawable/Rectangle.h"
+#include "Framework/Assets/Code/Drawable/RoundedRectangle.h"
 
 #endif

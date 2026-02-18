@@ -1,7 +1,7 @@
 #ifndef _EGFX_FRAMEWORK_SHADER_GEOMETRY_LINE_H
 #define _EGFX_FRAMEWORK_SHADER_GEOMETRY_LINE_H
 
-#include "../../../Model/IFrameDraw.h"
+#include "../Pixel/Model.h"
 
 namespace Egfx
 {

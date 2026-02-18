@@ -1,7 +1,7 @@
 #ifndef _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_h
 #define _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_h
 
-#include <EgfxFramework.h>
+#include "Rectangle.h"
 
 namespace Egfx
 {
@@ -18,7 +18,7 @@ namespace Egfx
 				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
 				/// <typeparam name="PrimitiveShaderType">Primitive shader type providing Pixel(...), RectangleFill(...), and Prepare(...).</typeparam>
 				template<typename dimension_t,
-					typename PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t>
+					typename PrimitiveShaderType = Framework::Shader::Geometry::RectangleShader<dimension_t>
 				>
 				class CircleShader : public PrimitiveShaderType
 				{

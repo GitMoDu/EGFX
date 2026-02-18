@@ -25,7 +25,7 @@ namespace Egfx
 						/// <typeparam name="FontWidth">The width of each character in pixels.</typeparam>
 						/// <typeparam name="FontHeight">The height of each character in pixels.</typeparam>
 						template<dimension_t FontWidth, dimension_t FontHeight,
-							typename PrimitiveShaderType = Framework::Shader::Primitive::NoShader<dimension_t>
+							typename PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t>
 						>
 						struct TemplateFont : Framework::Code::Font::AbstractDrawer<dimension_t, PrimitiveShaderType>
 						{

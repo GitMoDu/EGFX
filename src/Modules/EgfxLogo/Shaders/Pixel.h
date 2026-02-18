@@ -18,7 +18,7 @@ namespace Egfx
 					/// <summary>
 					/// Templated pixel shader for rendering the screen effect in monochrome mode.
 					/// </summary>
-					using ScreenMonochrome = Framework::Shader::Pixel::TemplateColorAndTransform<
+					using ScreenMonochrome = Framework::Shader::Pixel::TemplateShader<
 						dimension_t,
 						Framework::Shader::Source::StaticColor<dimension_t>,
 						Color::ScreenDitherAlpha,
@@ -28,7 +28,7 @@ namespace Egfx
 					/// <summary>
 					/// Templated pixel shader for rendering the screen effect in color mode.
 					/// </summary>
-					using ScreenColor = Framework::Shader::Pixel::TemplateColorAndTransform<
+					using ScreenColor = Framework::Shader::Pixel::TemplateShader<
 						dimension_t,
 						Framework::Shader::Source::SingleColor<dimension_t>,
 						Color::ScreenColorAlpha,

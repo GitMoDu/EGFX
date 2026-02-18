@@ -105,7 +105,7 @@ namespace Egfx
 				/// <summary>
 				/// Animated splash screen class that provides slide-in, hold, and fade-out animation effects for a splash display.
 				/// </summary>
-				/// <typeparam name="ParentLayout">The parent layout class that defines the screen dimensions and layout properties.</typeparam>
+				/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
 				/// <typeparam name="Monochrome">Boolean flag indicating whether the animation should use monochrome (dithered) or color rendering.</typeparam>
 				/// <typeparam name="AnimationDuration">The total duration of the animation sequence in microseconds. Defaults to 4000000 (4 seconds).</typeparam>
 				/// <typeparam name="AutoStart">Boolean flag indicating whether the animation should start automatically. Defaults to true.</typeparam>
@@ -138,7 +138,6 @@ namespace Egfx
 					};
 
 					static constexpr pixel_t VerticalShift = ParentLayout::Height() / 2;
-					//static constexpr pixel_t VerticalShift = Layout::LogoLayout<ParentLayout>::LogoPadding::Height();
 
 					uint32_t AnimationStart = 0;
 					AnimationEnum State = AutoStart ? AnimationEnum::AnimationStart : AnimationEnum::AnimationEnd;
@@ -175,11 +174,10 @@ namespace Egfx
 					void SetAlpha(const uint8_t alpha)
 					{
 						auto& screen = Base::GetScreen();
-						screen.ColorShader.Alpha = alpha;
-						//screen.ColorShader.Alpha = (uint16_t(alpha) * 9) / 10;
-
 						auto& lettersEG = Base::GetLettersEG();
 						auto& lettersFX = Base::GetLetterFX();
+						
+						screen.ColorShader.Alpha = alpha;
 						lettersEG.FontDrawer.ColorSource.Alpha = alpha;
 						lettersFX.FontDrawer.ColorSource.Alpha = alpha;
 					}

@@ -28,7 +28,7 @@ namespace Egfx
 					{
 						const pixel_t cursorX = ParentLayout::X() + offsetX;
 						const pixel_t cursorY = ParentLayout::Y() + ParentLayout::Height() - FontHeight;
-						frame->Line(color, cursorX, cursorY, cursorX, cursorY + FontHeight - 1);
+						frame->LineVertical(color, cursorX, cursorY, cursorY + FontHeight - 1);
 					}
 				};
 

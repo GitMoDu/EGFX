@@ -2,6 +2,7 @@
 #define _PRIMITIVE_DEMO_h
 
 #include <EgfxFramework.h>
+#include <EgfxAssets.h>
 
 
 // Demo of primitive shapes: lines, rectangles, and triangles.
@@ -49,7 +50,7 @@ namespace PrimitiveDemo
 			};
 		};
 
-		namespace Animators
+		namespace Animator
 		{
 			template<typename ParentLayout, bool Monochrome>
 			struct Lines
@@ -57,7 +58,7 @@ namespace PrimitiveDemo
 				template<typename LineElementType>
 				static void Animate(LineElementType& lineElement, const uint32_t frameTime, const uint16_t /*frameCounter*/)
 				{
-					lineElement.Color = Monochrome ? RGB_COLOR_WHITE :
+					lineElement.ColorSource.Color = Monochrome ? RGB_COLOR_WHITE :
 						Rgb::ColorFromHSV(static_cast<angle_t>(frameTime / 100), UINT8_MAX, (uint16_t(UINT8_MAX) * 9) / 10);
 
 					// Calculate deltaX
@@ -92,7 +93,7 @@ namespace PrimitiveDemo
 				template<typename TriangleElementType>
 				static pixel_rectangle_t Animate(TriangleElementType& triangleElement, const uint32_t frameTime, const uint16_t /*frameCounter*/)
 				{
-					triangleElement.Color = GetColor(frameTime);
+					triangleElement.ColorSource.Color = GetColor(frameTime);
 					triangleElement.TriangleA = GetRoundSquare<ParentLayout::MaxHeight()>(frameTime / 90);
 					triangleElement.TriangleB = GetRoundSquare<ParentLayout::MaxHeight()>(frameTime / 166);
 					triangleElement.TriangleC = GetRoundSquare<ParentLayout::MaxHeight()>(frameTime / 75);
@@ -175,39 +176,63 @@ namespace PrimitiveDemo
 					}
 				}
 			};
-
-			template<bool Monochrome>
-			struct Rectangle
-			{
-				template<typename RectangleElementType>
-				static void Animate(RectangleElementType& rectangleElement, const uint32_t /*frameTime*/, const uint16_t frameCounter)
-				{
-					rectangleElement.Active = Monochrome ? (frameCounter & 0b1) : true;
-				}
-			};
 		}
 
-		namespace Drawables
+		namespace Shader
+		{
+			namespace Pixel
+			{
+				using Lines = Framework::Shader::Pixel::TemplateShader<pixel_t, Framework::Shader::Source::SingleColor<pixel_t, RGB_COLOR_WHITE>>;
+				using Triangle = Framework::Shader::Pixel::TemplateShader<pixel_t, Framework::Shader::Source::SingleColor<pixel_t, RGB_COLOR_WHITE>>;
+
+				using Rectangle = Framework::Shader::Pixel::TemplateShader<pixel_t,
+					Framework::Shader::Source::StaticColor<pixel_t, RGB_COLOR_WHITE>,
+					Framework::Shader::Color::NoShader<pixel_t>,
+					Framework::Assets::Shader::Transform::CheckerboardMask<pixel_t>
+				>;
+			}
+
+			namespace Primitive
+			{
+				using Lines = Framework::Shader::Primitive::TemplateShader<pixel_t, Pixel::Lines>;
+				using Triangle = Framework::Shader::Primitive::TemplateShader<pixel_t, Pixel::Triangle>;
+
+				using Rectangle = Framework::Shader::Primitive::TemplateShader<pixel_t, Pixel::Rectangle>;
+			}
+		}
+
+		namespace Drawable
 		{
 			/// <summary>
 			/// Passive lines drawable - renders animated lines based on current state.
 			/// </summary>
 			template<typename ParentLayout, bool Monochrome>
-			struct Lines
+			class Lines : public Shader::Primitive::Lines
 			{
+			private:
+				using Base = Shader::Primitive::Lines;
+
+			public:
 				pixel_t DeltaX = 0;
 				pixel_t DeltaY = 0;
-				rgb_color_t Color = RGB_COLOR_WHITE;
+
+			public:
+				Lines() : Base()
+				{
+					Base::Prepare(ParentLayout::X(), ParentLayout::Y());
+				}
+
+				~Lines() = default;
 
 				void Draw(IFrameBuffer* frame)
 				{
 					for (uint8_t i = 0; i < ParentLayout::HorizontalCount(); i++)
 					{
-						const pixel_t x = ParentLayout::CenterX() + ((((ParentLayout::HorizontalSeparation() / 2) * i) + DeltaX / 2) % (ParentLayout::Width() / 2));
-						frame->Line(Color, x, ParentLayout::Y(), x + DeltaX, ParentLayout::Y() + ParentLayout::Height() - 1);
+						const pixel_t x = (ParentLayout::Width() / 2) + ((((ParentLayout::HorizontalSeparation() / 2) * i) + DeltaX / 2) % (ParentLayout::Width() / 2));
+						Base::Line(frame, x, 0, x + DeltaX, ParentLayout::Height() - 1);
 
-						const pixel_t y = ParentLayout::Y() + ((((ParentLayout::VerticalSeparation() / 2) * i) + DeltaY / 2) % ParentLayout::Height());
-						frame->Line(Color, ParentLayout::X(), y, ParentLayout::CenterX(), y + DeltaY);
+						const pixel_t y = ((((ParentLayout::VerticalSeparation() / 2) * i) + DeltaY / 2) % ParentLayout::Height());
+						Base::Line(frame, 0, y, ParentLayout::Width() / 2, y + DeltaY);
 					}
 				}
 			};
@@ -216,21 +241,30 @@ namespace PrimitiveDemo
 			/// Passive triangle drawable - renders triangle based on current state.
 			/// </summary>
 			template<typename ParentLayout, bool Monochrome>
-			struct Triangle
+			class Triangle : public Shader::Primitive::Triangle
 			{
+			private:
+				using Base = Shader::Primitive::Triangle;
+
+			public:
 				pixel_point_t TriangleA{};
 				pixel_point_t TriangleB{};
 				pixel_point_t TriangleC{};
 
-				rgb_color_t Color = RGB_COLOR_WHITE;
+			public:
+				Triangle() : Base()
+				{
+					Base::Prepare(ParentLayout::CenterX(), ParentLayout::CenterY());
+				}
+
+				~Triangle() = default;
 
 				void Draw(IFrameBuffer* frame)
 				{
-					// Draw triangle with current color
-					frame->TriangleFill(Color,
-						ParentLayout::CenterX() + TriangleA.x, ParentLayout::CenterY() + TriangleA.y,
-						ParentLayout::CenterX() + TriangleB.x, ParentLayout::CenterY() + TriangleB.y,
-						ParentLayout::CenterX() + TriangleC.x, ParentLayout::CenterY() + TriangleC.y);
+					Base::TriangleFill(frame,
+						TriangleA.x, TriangleA.y,
+						TriangleB.x, TriangleB.y,
+						TriangleC.x, TriangleC.y);
 				}
 			};
 
@@ -238,20 +272,28 @@ namespace PrimitiveDemo
 			/// Passive rectangle drawable - renders bounding box around triangle.
 			/// </summary>
 			template<typename ParentLayout, bool Monochrome>
-			struct Rectangle
+			class Rectangle : public Shader::Primitive::Rectangle
 			{
+			private:
+				using Base = Shader::Primitive::Rectangle;
+
+			public:
 				pixel_rectangle_t BoundingBox{};
 
-				bool Active = true;
+			public:
+				Rectangle() : Base()
+				{
+					Base::Prepare(ParentLayout::CenterX(), ParentLayout::CenterY());
+				}
+
+				~Rectangle() = default;
 
 				void Draw(IFrameBuffer* frame)
 				{
-					// Draw rectangle around triangle
-					if (Active)
-						frame->RectangleFill(RGB_COLOR_WHITE,
-							ParentLayout::CenterX() + BoundingBox.topLeft.x, ParentLayout::CenterY() + BoundingBox.topLeft.y,
-							ParentLayout::CenterX() + BoundingBox.bottomRight.x,
-							ParentLayout::CenterY() + BoundingBox.bottomRight.y);
+					Base::RectangleFill(frame,
+						BoundingBox.topLeft.x, BoundingBox.topLeft.y,
+						BoundingBox.bottomRight.x,
+						BoundingBox.bottomRight.y);
 				}
 			};
 		}
@@ -259,21 +301,20 @@ namespace PrimitiveDemo
 
 	template<typename ParentLayout, bool Monochrome>
 	class View : public Framework::View::DrawablesView<
-		Assets::Drawables::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>,
-		Assets::Drawables::Rectangle<typename Assets::Layout<ParentLayout>::Rectangle, Monochrome>,
-		Assets::Drawables::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>
+		Assets::Drawable::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>,
+		Assets::Drawable::Rectangle<typename Assets::Layout<ParentLayout>::Rectangle, Monochrome>,
+		Assets::Drawable::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>
 	>
 	{
 	private:
 		using Base = Framework::View::DrawablesView<
-			Assets::Drawables::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>,
-			Assets::Drawables::Rectangle<typename Assets::Layout<ParentLayout>::Rectangle, Monochrome>,
-			Assets::Drawables::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>>;
+			Assets::Drawable::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>,
+			Assets::Drawable::Rectangle<typename Assets::Layout<ParentLayout>::Rectangle, Monochrome>,
+			Assets::Drawable::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>>;
 
 	private:
-		using LinesAnimator = Assets::Animators::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>;
-		using RectangleAnimator = Assets::Animators::Rectangle<Monochrome>;
-		using TriangleAnimator = Assets::Animators::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>;
+		using LinesAnimator = Assets::Animator::Lines<typename Assets::Layout<ParentLayout>::Lines, Monochrome>;
+		using TriangleAnimator = Assets::Animator::Triangle<typename Assets::Layout<ParentLayout>::Triangle, Monochrome>;
 
 	public:
 		View() : Base()
@@ -295,7 +336,6 @@ namespace PrimitiveDemo
 			auto& triangle = Base::template drawable<2>();
 
 			LinesAnimator::Animate(lines, frameTime, frameCounter);
-			RectangleAnimator::Animate(rectangle, frameTime, frameCounter);
 
 			// Animate triangle and set the resulting bounding box on rectangle drawable
 			rectangle.BoundingBox = TriangleAnimator::Animate(triangle, frameTime, frameCounter);

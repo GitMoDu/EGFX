@@ -37,15 +37,19 @@ namespace Egfx
 						typename ColorSourceType = Framework::Shader::Source::SingleColor<dimension_t>,
 						typename TransformShaderType = Framework::Assets::Shader::Transform::Translate<dimension_t>
 					>
-					struct RetroLines
+					class RetroLines
 					{
+					private:
 						using RetroLayout = Layout::RetroLinesLayout<FontWidth, FontHeight>;
 
+					public:
 						ColorSourceType ColorSource{};
 						TransformShaderType TransformShader{};
 
+					protected:
 						pixel_point_t Origin{ 0, 0 };
 
+					public:
 						RetroLines() {}
 						~RetroLines() = default;
 
@@ -94,11 +98,10 @@ namespace Egfx
 
 								const pixel_t y = Origin.y + coordinatesY1 + RetroLayout::GetLineYOffset(i);
 
-								framebuffer->Line(color,
+								framebuffer->LineHorizontal(color,
 									static_cast<pixel_t>(Origin.x + coordinatesX1),
-									static_cast<pixel_t>(y + RetroLayout::LineHeight() / 2),
 									static_cast<pixel_t>(Origin.x + coordinatesX2),
-									static_cast<pixel_t>(y + RetroLayout::LineHeight() / 2));
+									static_cast<pixel_t>(y));
 
 								if (RetroLayout::LineHeight() >= (1 + RetroLayout::LineMargin() * 2))
 								{
@@ -115,11 +118,10 @@ namespace Egfx
 								}
 								else if ((RetroLayout::LineHeight() > 2))
 								{
-									framebuffer->Line(color,
+									framebuffer->LineHorizontal(color,
 										static_cast<pixel_t>(Origin.x + coordinatesX1 + RetroLayout::ScanlineMargin()),
-										static_cast<pixel_t>(y + 1 + RetroLayout::LineHeight() / 2),
 										static_cast<pixel_t>(Origin.x + coordinatesX2 - RetroLayout::ScanlineMargin()),
-										static_cast<pixel_t>(y + 1 + RetroLayout::LineHeight() / 2));
+										static_cast<pixel_t>(y + RetroLayout::LineHeight() / 2));
 								}
 							}
 						}
@@ -136,15 +138,19 @@ namespace Egfx
 						typename ColorSourceType = Framework::Shader::Source::SingleColor<dimension_t>,
 						typename TransformShaderType = Framework::Assets::Shader::Transform::Translate<dimension_t>
 					>
-					struct DotMatrix
+					class DotMatrix
 					{
+					private:
 						using DotLayout = Layout::DotMatrixLayout<FontWidth, FontHeight>;
 
+					public:
 						ColorSourceType ColorSource{};
 						TransformShaderType TransformShader{};
 
+					protected:
 						pixel_point_t Origin{ 0, 0 };
 
+					public:
 						DotMatrix() {}
 						~DotMatrix() = default;
 

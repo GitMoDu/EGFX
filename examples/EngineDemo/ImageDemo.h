@@ -170,7 +170,7 @@ namespace ImageDemo
 		using ColorSourceType = Framework::Shader::Source::SingleColor<dimension_t>;
 
 		template<uint8_t ScaleUp>
-		using PixelShaderType = Framework::Shader::Pixel::TemplateColorAndTransform<
+		using PixelShaderType = Framework::Shader::Pixel::TemplateShader<
 			dimension_t,
 			ColorSourceType,
 			ColorShaderType,
@@ -265,7 +265,7 @@ namespace ImageDemo
 		using Base = Framework::View::FrameAdapter<Bitmask::View<ParentLayout>>;
 
 		FrameMonoChrome() : Base() {}
-		virtual ~FrameMonoChrome() = default;
+		~FrameMonoChrome() = default;
 
 #if defined(SERIAL_LOG)
 		void PrintDescription() const
@@ -281,7 +281,7 @@ namespace ImageDemo
 		using Base = Framework::View::FrameAdapter<Bitmap::View<ParentLayout>>;
 
 		FrameColor() : Base() {}
-		virtual ~FrameColor() = default;
+		~FrameColor() = default;
 
 #if defined(SERIAL_LOG)
 		void PrintDescription() const

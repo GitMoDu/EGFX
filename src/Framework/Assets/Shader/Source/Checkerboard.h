@@ -28,7 +28,7 @@ namespace Egfx
 					private:
 						uint8_t Offset = 0;
 
-					private:
+					protected:
 						pixel_point_t Origin{ 0, 0 };
 
 					public:

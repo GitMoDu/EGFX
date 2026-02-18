@@ -19,15 +19,18 @@ namespace Egfx
 			/// <typeparam name="ModelType">Vector node model type providing node_t, axis_t, decode helpers, and scaling helpers.</typeparam>
 			/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
 			/// <typeparam name="vector_count_t">Vector node index type.</typeparam>
-			/// <typeparam name="PrimitiveShaderType">Primitive shader type providing Prepare(...) and primitive draw calls.</typeparam>
+			/// <typeparam name="PrimitiveShaderType">Primitive shader type providing Prepare(...) and primitive draw calls. Must implement TriangleFill primitive</typeparam>
 			template<
 				typename ModelType,
 				typename dimension_t,
 				typename vector_count_t = uint_fast8_t,
-				typename PrimitiveShaderType = Shader::Primitive::NoShader<dimension_t>
+				typename PrimitiveShaderType = Shader::Primitive::TemplateShader<dimension_t>
 			>
 			class TemplateDrawer : public PrimitiveShaderType
 			{
+			private:
+				using Base = PrimitiveShaderType;
+
 			protected:
 				using axis_t = typename ModelType::axis_t;
 				using node_t = typename ModelType::node_t;
@@ -52,7 +55,7 @@ namespace Egfx
 				/// <param name="width">Target width used when scaling local-space X coordinates (pixels).</param>
 				/// <param name="height">Target height used when scaling local-space Y coordinates (pixels).</param>
 				TemplateDrawer(const dimension_t width = 16, const dimension_t height = 16)
-					: PrimitiveShaderType()
+					: Base()
 					, Width(width), Height(height)
 				{
 				}
@@ -77,7 +80,7 @@ namespace Egfx
 				/// <param name="vectorCount">Number of nodes in the vector stream.</param>
 				void Draw(IFrameBuffer* framebuffer, const pixel_t x, const pixel_t y, const node_t* vectors, const uint16_t vectorCount)
 				{
-					PrimitiveShaderType::Prepare(x, y);
+					Base::Prepare(x, y);
 
 					coordinates_t lastPoints[3]{}; // [prev2, prev1, current]
 					uint8_t pointIndex = 0;        // 0: none, 1: prev1 valid, 2: prev2 + prev1 valid
@@ -104,12 +107,12 @@ namespace Egfx
 							{
 								if (lastPoints[1].x != lastPoints[2].x || lastPoints[1].y != lastPoints[2].y)
 								{
-									PrimitiveShaderType::Line(framebuffer, lastPoints[1].x, lastPoints[1].y,
+									Base::Line(framebuffer, lastPoints[1].x, lastPoints[1].y,
 										lastPoints[2].x, lastPoints[2].y);
 								}
 								else
 								{
-									PrimitiveShaderType::Pixel(framebuffer, lastPoints[2].x, lastPoints[2].y);
+									Base::Pixel(framebuffer, lastPoints[2].x, lastPoints[2].y);
 								}
 							}
 
@@ -122,7 +125,7 @@ namespace Egfx
 								polygonActive = false;
 								if (pointIndex >= 2)
 								{
-									PrimitiveShaderType::TriangleFill(framebuffer,
+									Base::TriangleFill(framebuffer,
 										lastPoints[0].x, lastPoints[0].y,
 										lastPoints[1].x, lastPoints[1].y,
 										lastPoints[2].x, lastPoints[2].y);
@@ -132,12 +135,12 @@ namespace Egfx
 							{
 								if (lastPoints[1].x != lastPoints[2].x || lastPoints[1].y != lastPoints[2].y)
 								{
-									PrimitiveShaderType::Line(framebuffer, lastPoints[1].x, lastPoints[1].y,
+									Base::Line(framebuffer, lastPoints[1].x, lastPoints[1].y,
 										lastPoints[2].x, lastPoints[2].y);
 								}
 								else
 								{
-									PrimitiveShaderType::Pixel(framebuffer, lastPoints[2].x, lastPoints[2].y);
+									Base::Pixel(framebuffer, lastPoints[2].x, lastPoints[2].y);
 								}
 							}
 
@@ -156,7 +159,7 @@ namespace Egfx
 
 							if (polygonActive && pointIndex >= 2)
 							{
-								PrimitiveShaderType::TriangleFill(framebuffer,
+								Base::TriangleFill(framebuffer,
 									lastPoints[0].x, lastPoints[0].y,
 									lastPoints[1].x, lastPoints[1].y,
 									lastPoints[2].x, lastPoints[2].y);
@@ -171,7 +174,7 @@ namespace Egfx
 							// Emit rectangle using previous and current as opposite corners.
 							if (pointIndex >= 1)
 							{
-								PrimitiveShaderType::RectangleFill(framebuffer,
+								Base::RectangleFill(framebuffer,
 									lastPoints[1].x, lastPoints[1].y,
 									lastPoints[2].x, lastPoints[2].y);
 							}

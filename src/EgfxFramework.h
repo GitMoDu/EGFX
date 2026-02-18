@@ -42,6 +42,12 @@
 #include "Framework/Shader/Pixel/Model.h"
 #include "Framework/Shader/Pixel/Shaders.h"
 
+// Geometry shaders.
+#include "Framework/Shader/Geometry/Line.h"
+#include "Framework/Shader/Geometry/Rectangle.h"
+#include "Framework/Shader/Geometry/Triangle.h"
+#include "Framework/Shader/Geometry/Circle.h"
+
 // Primitive shaders.
 #include "Framework/Shader/Primitive/Model.h"
 #include "Framework/Shader/Primitive/Shaders.h"

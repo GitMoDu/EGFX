@@ -33,7 +33,7 @@ namespace Egfx
 		BinaryFramePainter(uint8_t* buffer = nullptr) : Base(buffer) {}
 
 	protected:
-		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y)
+		inline void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const pixel_t yByte = y / 8;
 			const uint8_t yBit = y % 8;

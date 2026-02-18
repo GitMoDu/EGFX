@@ -25,7 +25,8 @@ namespace Egfx
 					template<typename dimension_t,
 						dimension_t Width,
 						dimension_t Height,
-						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>>
+						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>
+					>
 					class ScaleDownX : public Base
 					{
 					private:
@@ -128,7 +129,8 @@ namespace Egfx
 					template<typename dimension_t,
 						dimension_t Width,
 						dimension_t Height,
-						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>>
+						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>
+					>
 					class ScaleDownY : public Base
 					{
 					private:
@@ -230,7 +232,7 @@ namespace Egfx
 						dimension_t Width,
 						dimension_t Height,
 						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>>
-					using ScaleDownXY = ScaleDownY<dimension_t, Width, Height, ScaleDownX<dimension_t, Width, Height, Base>>;
+						using ScaleDownXY = ScaleDownY<dimension_t, Width, Height, ScaleDownX<dimension_t, Width, Height, Base>>;
 				}
 			}
 		}

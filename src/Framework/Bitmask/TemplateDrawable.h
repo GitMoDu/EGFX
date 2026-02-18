@@ -31,7 +31,7 @@ namespace Egfx
 				typename BitmaskReader = Framework::Bitmask::Reader::Flash,
 				uint8_t ScaleX = 1,
 				uint8_t ScaleY = 1,
-				typename PrimitiveShaderType = Shader::Primitive::NoShader<dimension_t>
+				typename PrimitiveShaderType = Shader::Primitive::TemplateShader<dimension_t>
 			>
 			class BitmaskDrawable : public TemplateDrawer<
 				dimension_t, BitmaskWidth, BitmaskHeight,

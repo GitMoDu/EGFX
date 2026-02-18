@@ -30,7 +30,6 @@ namespace Egfx
 						// PrimitiveShader implementation.
 						void Line(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1, const dimension_t x2, const dimension_t y2) {}
 						void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1, const dimension_t x2, const dimension_t y2) {}
-						void TriangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1, const dimension_t x2, const dimension_t y2, const dimension_t x3, const dimension_t y3) {}
 					};
 				}
 			}

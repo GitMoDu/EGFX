@@ -28,7 +28,7 @@ namespace Egfx
 					/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
 					/// <typeparam name="PrimitiveShaderType">Primitive shader type providing Prepare(...) and primitive draw calls.</typeparam>
 					template<typename dimension_t,
-						typename PrimitiveShaderType = Shader::Primitive::NoShader<dimension_t>
+						typename PrimitiveShaderType = Shader::Primitive::TemplateShader<dimension_t>
 					>
 					struct FontDrawer : AbstractDrawer<dimension_t, PrimitiveShaderType>
 					{

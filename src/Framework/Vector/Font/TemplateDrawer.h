@@ -25,7 +25,7 @@ namespace Egfx
 				/// <typeparam name="PrimitiveShaderType">Primitive shader type providing Prepare(...) and primitive draw calls.</stypeparam>
 				template<typename VectorFontType,
 					typename vector_count_t = uint_fast8_t,
-					typename PrimitiveShaderType = Shader::Primitive::NoShader<typename VectorFontType::dimension_t>
+					typename PrimitiveShaderType = Shader::Primitive::TemplateShader<typename VectorFontType::dimension_t>
 				>
 				class TemplateDrawer : public Vector::TemplateDrawer<
 					typename VectorFontType::CharacterSetType::VectorModel,

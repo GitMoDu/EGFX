@@ -25,7 +25,7 @@ namespace Egfx
 				dimension_t MaskWidth,
 				dimension_t MaskHeight,
 				typename MaskReader = Reader::Flash,
-				typename PrimitiveShaderType = Shader::Primitive::NoShader<dimension_t>
+				typename PrimitiveShaderType = Shader::Primitive::TemplateShader<dimension_t>
 			>
 			struct TemplateDrawerNoScale : PrimitiveShaderType
 			{
@@ -119,7 +119,7 @@ namespace Egfx
 				typename MaskReader = Reader::Flash,
 				uint8_t ScaleX = 1,
 				uint8_t ScaleY = ScaleX,
-				typename PrimitiveShaderType = Shader::Primitive::NoShader<dimension_t>
+				typename PrimitiveShaderType = Shader::Primitive::TemplateShader<dimension_t>
 			>
 			struct TemplateDrawerIntegerScale : PrimitiveShaderType
 			{
@@ -215,7 +215,7 @@ namespace Egfx
 				typename MaskReader = Reader::Flash,
 				uint8_t ScaleX = 1,
 				uint8_t ScaleY = 1,
-				typename PrimitiveShaderType = Shader::Primitive::NoShader<dimension_t>
+				typename PrimitiveShaderType = Shader::Primitive::TemplateShader<dimension_t>
 			>
 			using TemplateDrawer = typename TypeTraits::TypeConditional::conditional_type<
 				TemplateDrawerNoScale<dimension_t, MaskWidth, MaskHeight, MaskReader, PrimitiveShaderType>,

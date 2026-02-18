@@ -18,7 +18,7 @@ namespace Egfx
 					template<uint8_t DefaultFontWidth = 5,
 						uint8_t DefaultFontHeight = 7,
 						uint8_t DefaultKerningWidth = 2,
-						typename PrimitiveShaderType = Framework::Shader::Primitive::NoShader<pixel_t>
+						typename PrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<pixel_t>
 					>
 					class RawBot : public Framework::Code::Font::AbstractDrawer<pixel_t, PrimitiveShaderType>
 					{

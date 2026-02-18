@@ -21,7 +21,7 @@ namespace Egfx
 				/// <typeparam name="BitmaskFontType">Bitmask font type providing dimension_t, Width, Height, ReaderType, and GetCharacter().</typeparam>
 				/// <typeparam name="PrimitiveShaderType">Primitive shader type providing Prepare(...) and primitive draw calls.</typeparam>
 				template<typename BitmaskFontType,
-					typename PrimitiveShaderType = Shader::Primitive::NoShader<typename BitmaskFontType::dimension_t>
+					typename PrimitiveShaderType = Shader::Primitive::TemplateShader<typename BitmaskFontType::dimension_t>
 				>
 				class TemplateDrawerNoScale : public Bitmask::TemplateDrawer<
 					typename BitmaskFontType::dimension_t,
@@ -141,7 +141,7 @@ namespace Egfx
 				template<typename BitmaskFontType,
 					uint8_t ScaleX = 1,
 					uint8_t ScaleY = ScaleX,
-					typename PrimitiveShaderType = Shader::Primitive::NoShader<typename BitmaskFontType::dimension_t>
+					typename PrimitiveShaderType = Shader::Primitive::TemplateShader<typename BitmaskFontType::dimension_t>
 				>
 				class TemplateDrawerIntegerScale : public Bitmask::TemplateDrawer<
 					typename BitmaskFontType::dimension_t,
@@ -262,7 +262,7 @@ namespace Egfx
 				template<typename BitmaskFontType,
 					uint8_t ScaleX = 1,
 					uint8_t ScaleY = ScaleX,
-					typename PrimitiveShaderType = Shader::Primitive::NoShader<typename BitmaskFontType::dimension_t>
+					typename PrimitiveShaderType = Shader::Primitive::TemplateShader<typename BitmaskFontType::dimension_t>
 				>
 				using TemplateDrawer = typename TypeTraits::TypeConditional::conditional_type<
 					TemplateDrawerNoScale<BitmaskFontType, PrimitiveShaderType>,

@@ -13,7 +13,7 @@ namespace Egfx
 			/// Layout-bound drawable for a 3-3-2 (8-bit) bitmap source.
 			/// Wraps a bitmap pointer and draws it using Bitmap::TemplateDrawer at ParentLayout::X()/Y().
 			/// </summary>
-			/// <typeparam name="ParentLayout">Layout type that provides X() and Y() for positioning.</typeparam>
+			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
 			/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
 			/// <typeparam name="Width">Bitmap width in pixels (source-space).</typeparam>
 			/// <typeparam name="Height">Bitmap height in pixels (source-space).</typeparam>

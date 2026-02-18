@@ -20,6 +20,8 @@ namespace Egfx
 					rgb_color_t Color = RGB_COLOR_WHITE>
 				struct StaticColor
 				{
+					static constexpr bool IsConstantColor = true;
+
 					static constexpr rgb_color_t Source(const dimension_t /*x*/, const dimension_t /*y*/)
 					{
 						return Color;
@@ -34,12 +36,31 @@ namespace Egfx
 				template<typename dimension_t, rgb_color_t DefaultColor = RGB_COLOR_WHITE>
 				struct SingleColor
 				{
+					static constexpr bool IsConstantColor = true;
+
 					rgb_color_t Color = DefaultColor;
 
 					rgb_color_t Source(const dimension_t /*x*/, const dimension_t /*y*/) const
 					{
 						return Color;
 					}
+				};
+
+				/// <summary>
+				/// Compile-time extractor for ColorSourceType::IsConstantColor.
+				/// Defaults to false when the member does not exist.
+				/// </summary>
+				template<typename T, typename = void>
+				struct ConstantColorFlag
+				{
+					static constexpr bool value = false;
+				};
+
+				template<typename T>
+				struct ConstantColorFlag<T,
+					typename IntegerSignal::TypeTraits::TypeEnableIf::enable_if<(T::IsConstantColor), void>::type>
+				{
+					static constexpr bool value = true;
 				};
 			}
 		}

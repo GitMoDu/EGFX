@@ -20,7 +20,7 @@ namespace Egfx
 				/// Derived font drawers must implement:
 				/// - pixel_t Draw(IFrameBuffer*, pixel_t x, pixel_t y, char printableChar)
 				///   which calls the inherited pixel shader Prepare(x, y) and then renders the glyph
-				///   using shader primitives (Pixel/Line/TriangleFill/RectangleFill).
+				///   using shader primitives (Pixel/Line/RectangleFill).
 				///
 				/// The SetFontWidth/SetFontHeight methods are virtual so derived classes can
 				/// recompute cached/intermediate metrics (e.g. midpoints) when the font size changes.
@@ -28,7 +28,7 @@ namespace Egfx
 				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
 				/// <typeparam name="PrimitiveShaderType">Primitive shader type providing Prepare(...) and primitive draw calls.</typeparam>
 				template<typename dimension_t,
-					typename PrimitiveShaderType = Shader::Primitive::NoShader<dimension_t>
+					typename PrimitiveShaderType = Shader::Primitive::TemplateShader<dimension_t>
 				>
 				class AbstractDrawer : public PrimitiveShaderType
 				{

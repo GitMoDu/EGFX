@@ -118,12 +118,12 @@ namespace Egfx
 			Buffer = buffer;
 		}
 
-		void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		inline void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
 			Pixel(color, pixel_point_t{ x, y });
 		}
 
-		void Pixel(const rgb_color_t color, const pixel_point_t point) final
+		inline void Pixel(const rgb_color_t color, const pixel_point_t point) final
 		{
 			if (point.x >= 0 && point.x < FrameWidth &&
 				point.y >= 0 && point.y < FrameHeight)
@@ -231,45 +231,47 @@ namespace Egfx
 			}
 		}
 
-		void Line(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2) final
+		void LineHorizontal(const rgb_color_t color, const pixel_t x1, const pixel_t x2, const pixel_t y) final
 		{
-			const pixel_line_t line{ {x1, y1}, {x2, y2} };
-			Line(color, line);
-		}
-
-		void Line(const rgb_color_t color, const pixel_line_t& line) final
-		{
-			pixel_point_t start = line.start;
-			pixel_point_t end = line.end;
-
-			if (!ClipLine(start, end))
+			if (y < 0 || y >= FrameHeight)
 			{
 				return;
 			}
 
 			const color_t rawColor = GetRawColor(color);
 
-			start = TransformCoordinates(start);
-			end = TransformCoordinates(end);
+			const pixel_point_t start = TransformCoordinates({ x1, y });
+			const pixel_point_t end = TransformCoordinates({ x2, y });
 
-			if (start.x == end.x)
-			{
-				if (start.y == end.y)
-				{
-					FramePainter::PixelRaw(rawColor, start.x, start.y);
-				}
-				else
-				{
-					FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
-				}
-			}
-			else if (start.y == end.y)
+			if (start.y == end.y)
 			{
 				FramePainter::LineHorizontalRaw(rawColor, start.x, start.y, end.x);
 			}
 			else
 			{
-				BresenhamDiagonal(rawColor, start, end);
+				FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
+			}
+		}
+
+		void LineVertical(const rgb_color_t color, const pixel_t x, const pixel_t y1, const pixel_t y2) final
+		{
+			if (x < 0 || x >= FrameWidth)
+			{
+				return;
+			}
+
+			const color_t rawColor = GetRawColor(color);
+
+			const pixel_point_t start = TransformCoordinates({ x, y1 });
+			const pixel_point_t end = TransformCoordinates({ x, y2 });
+
+			if (start.x == end.x)
+			{
+				FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
+			}
+			else
+			{
+				FramePainter::LineHorizontalRaw(rawColor, start.x, start.y, end.x);
 			}
 		}
 
@@ -327,238 +329,12 @@ namespace Egfx
 			}
 		}
 
-		void Rectangle(const rgb_color_t color, const pixel_t topLeftX, const pixel_t topLeftY,
-			const pixel_t bottomRightX, const pixel_t bottomRightY) final
-		{
-			Rectangle(color, pixel_rectangle_t{ {topLeftX, topLeftY}, {bottomRightX, bottomRightY} });
-		}
-
-		void Rectangle(const rgb_color_t color, const pixel_rectangle_t& rectangle) final
-		{
-			const pixel_t minX = (rectangle.topLeft.x <= rectangle.bottomRight.x) ? rectangle.topLeft.x : rectangle.bottomRight.x;
-			const pixel_t maxX = (rectangle.topLeft.x <= rectangle.bottomRight.x) ? rectangle.bottomRight.x : rectangle.topLeft.x;
-			const pixel_t minY = (rectangle.topLeft.y <= rectangle.bottomRight.y) ? rectangle.topLeft.y : rectangle.bottomRight.y;
-			const pixel_t maxY = (rectangle.topLeft.y <= rectangle.bottomRight.y) ? rectangle.bottomRight.y : rectangle.topLeft.y;
-
-			pixel_point_t topLeft{ minX, minY };
-			pixel_point_t bottomRight{ maxX, maxY };
-
-			if (!ClipRectangle(topLeft, bottomRight))
-			{
-				return;
-			}
-
-			// Use logical corners to draw all four edges; Line will handle transform/clipping per edge.
-			Line(color, pixel_line_t{ topLeft, { bottomRight.x, topLeft.y } });
-			Line(color, pixel_line_t{ { bottomRight.x, topLeft.y }, bottomRight });
-			Line(color, pixel_line_t{ bottomRight, { topLeft.x, bottomRight.y } });
-			Line(color, pixel_line_t{ { topLeft.x, bottomRight.y }, topLeft });
-		}
-
-		void Triangle(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
-		{
-			Triangle(color, pixel_triangle_t{ {x1, y1}, {x2, y2}, {x3, y3} });
-		}
-
-		void Triangle(const rgb_color_t color, const pixel_triangle_t& triangle) final
-		{
-			Line(color, triangle.a.x, triangle.a.y, triangle.b.x, triangle.b.y);
-			Line(color, triangle.b.x, triangle.b.y, triangle.c.x, triangle.c.y);
-			Line(color, triangle.a.x, triangle.a.y, triangle.c.x, triangle.c.y);
-		}
-
-		void TriangleFill(const rgb_color_t color, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2, const pixel_t x3, const pixel_t y3) final
-		{
-			TriangleFill(color, pixel_triangle_t{ {x1, y1}, {x2, y2}, {x3, y3} });
-		}
-
-		void TriangleFill(const rgb_color_t color, const pixel_triangle_t& triangle) final
-		{
-			pixel_point_t a = TransformCoordinates(triangle.a);
-			pixel_point_t b = TransformCoordinates(triangle.b);
-			pixel_point_t c = TransformCoordinates(triangle.c);
-
-			const color_t rawColor = GetRawColor(color);
-
-			if (a.y <= b.y && a.y <= c.y)
-			{
-				if (b.y <= c.y)
-				{
-					TriangleYOrderedFill(rawColor, a, b, c);
-				}
-				else
-				{
-					TriangleYOrderedFill(rawColor, a, c, b);
-				}
-			}
-			else if (b.y <= a.y && b.y <= c.y)
-			{
-				if (a.y <= c.y)
-				{
-					TriangleYOrderedFill(rawColor, b, a, c);
-				}
-				else
-				{
-					TriangleYOrderedFill(rawColor, b, c, a);
-				}
-			}
-			else
-			{
-				if (a.y <= b.y)
-				{
-					TriangleYOrderedFill(rawColor, c, a, b);
-				}
-				else
-				{
-					TriangleYOrderedFill(rawColor, c, b, a);
-				}
-			}
-		}
-
 		void Fill(const rgb_color_t color) final
 		{
 			FramePainter::FillRaw(GetRawColor(color));
 		}
 
 	private:
-		void TriangleYOrderedFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
-		{
-			if (b.y == c.y) // Flat bottom.
-			{
-				BresenhamFlatBottomFill(rawColor, a, b, c);
-			}
-			else if (a.y == b.y) // Flat top.
-			{
-				BresenhamFlatTopFill(rawColor, a, b, c);
-			}
-			else // General triangle: split it.
-			{
-				// Calculate splitting vertex Vi.
-				const pixel_t dxTotal = static_cast<pixel_t>(c.x - a.x);
-				const pixel_t dyTotal = static_cast<pixel_t>(c.y - a.y);
-				const pixel_t dySegment = static_cast<pixel_t>(b.y - a.y);
-
-				if (dyTotal == 0)
-					return; // Degenerate triangle
-
-				// Calculate Vi_x in fixed-point.
-				const pixel_t Vi_x = FixedRoundToInt(IntToFixed(a.x) + (((IntToFixed(dxTotal) * dySegment) / dyTotal)));
-				const pixel_point_t Vi = { Vi_x, b.y };
-
-				// Draw the two sub-triangles
-				BresenhamFlatBottomFill(rawColor, a, b, Vi);
-				BresenhamFlatTopFill(rawColor, b, Vi, c);
-			}
-		}
-
-		void BresenhamFlatBottomFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
-		{
-			// Calculate inverse slopes in fixed-point
-			pixel_index_t invSlope1 = 1;
-			if (b.y != a.y)
-			{
-				invSlope1 = IntToFixed(b.x - a.x) / (b.y - a.y);
-			}
-			pixel_index_t invSlope2 = 1;
-			if (c.y != a.y)
-			{
-				invSlope2 = IntToFixed(c.x - a.x) / (c.y - a.y);
-			}
-
-			// Starting x positions in fixed-point
-			pixel_index_t x1 = IntToFixed(a.x);
-			pixel_index_t x2 = x1;
-
-			pixel_t xSide1{};
-			pixel_t xSide2{};
-
-			// Loop from a.y to b.y (inclusive)
-			for (pixel_t y = a.y; y <= b.y; y++)
-			{
-				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FramePainter::PhysicalWidth - 1);
-				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FramePainter::PhysicalWidth - 1);
-
-				if (xSide1 == xSide2)
-				{
-					FramePainter::PixelRaw(rawColor, xSide1, y);
-				}
-				else
-				{
-					FramePainter::LineHorizontalRaw(rawColor, xSide1, y, xSide2);
-				}
-
-				switch (displayOptions::AntiAliasing)
-				{
-				case DisplayOptions::AntiAliasingEnum::EdgeBlend:
-				{
-					TriangleEdgeAntiAliasingEdgeBlend(rawColor, xSide1, xSide2, y);
-				}
-				break;
-				case DisplayOptions::AntiAliasingEnum::PixelCoverage:
-				{
-					TriangleEdgeAntiAliasingPixelCoverage(rawColor, x1, x2, xSide1, xSide2, y);
-				}
-				break;
-				case DisplayOptions::AntiAliasingEnum::None:
-				default:
-					break;
-				}
-
-				x1 += invSlope1;
-				x2 += invSlope2;
-			}
-		}
-
-		void BresenhamFlatTopFill(const color_t rawColor, const pixel_point_t a, const pixel_point_t b, const pixel_point_t c)
-		{
-			// Calculate inverse slopes in fixed-point
-			const pixel_index_t invSlope1 = IntToFixed(c.x - a.x) / (c.y - a.y);
-			const pixel_index_t invSlope2 = IntToFixed(c.x - b.x) / (c.y - b.y);
-
-			// Starting x positions in fixed-point
-			pixel_index_t x1 = IntToFixed(c.x);
-			pixel_index_t x2 = x1;
-
-			pixel_t xSide1{};
-			pixel_t xSide2{};
-
-			// Loop from c.y down to a.y (inclusive)
-			for (pixel_t y = c.y; y >= a.y; y--)
-			{
-				xSide1 = LimitValue<pixel_t>(FixedRoundToInt(x1), 0, FramePainter::PhysicalWidth - 1);
-				xSide2 = LimitValue<pixel_t>(FixedRoundToInt(x2), 0, FramePainter::PhysicalWidth - 1);
-
-				if (xSide1 == xSide2)
-				{
-					FramePainter::PixelRaw(rawColor, xSide1, y);
-				}
-				else
-				{
-					FramePainter::LineHorizontalRaw(rawColor, xSide1, y, xSide2);
-				}
-
-				switch (displayOptions::AntiAliasing)
-				{
-				case DisplayOptions::AntiAliasingEnum::EdgeBlend:
-				{
-					TriangleEdgeAntiAliasingEdgeBlend(rawColor, xSide1, xSide2, y);
-				}
-				break;
-				case DisplayOptions::AntiAliasingEnum::PixelCoverage:
-				{
-					TriangleEdgeAntiAliasingPixelCoverage(rawColor, x1, x2, xSide1, xSide2, y);
-				}
-				break;
-				case DisplayOptions::AntiAliasingEnum::None:
-				default:
-					break;
-				}
-
-				x1 -= invSlope1;
-				x2 -= invSlope2;
-			}
-		}
-
 		/// <summary>
 		/// Draws a diagonal line between two points using Bresenham's algorithm, selecting the optimal direction based on the line's slope.
 		/// Implementation based on https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
@@ -633,19 +409,6 @@ namespace Egfx
 				{
 					y += slopeUnit;
 					slopeError -= scaledWidth;
-
-					switch (displayOptions::AntiAliasing)
-					{
-					case DisplayOptions::AntiAliasingEnum::EdgeBlend:
-						if (x >= 0 && x < FramePainter::PhysicalWidth &&
-							y >= 0 && y < FramePainter::PhysicalHeight)
-						{
-							FramePainter::PixelRawBlend(rawColor, x, y);
-						}
-						break;
-					default:
-						break;
-					}
 				}
 			}
 
@@ -672,87 +435,11 @@ namespace Egfx
 				{
 					x += slopeUnit;
 					slopeError -= scaledHeight;
-
-					switch (displayOptions::AntiAliasing)
-					{
-					case DisplayOptions::AntiAliasingEnum::EdgeBlend:
-						if (x >= 0 && x < FramePainter::PhysicalWidth &&
-							y >= 0 && y < FramePainter::PhysicalHeight)
-						{
-							FramePainter::PixelRawBlend(rawColor, x, y);
-						}
-						break;
-					default:
-						break;
-					}
 				}
 			}
 
 			// Ensure the final endpoint is drawn.
 			FramePainter::PixelRaw(rawColor, end.x, end.y);
-		}
-
-		void TriangleEdgeAntiAliasingEdgeBlend(const color_t rawColor,
-			const pixel_t xSide1, const pixel_t xSide2,
-			const pixel_t y)
-		{
-			// Get edge pixels.
-			const bool leftToRight = (xSide2 >= xSide1);
-			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
-			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
-
-			// Blend the edge pixels.
-			if (aax1 >= 0 && aax1 < FramePainter::PhysicalWidth)
-				FramePainter::PixelRawBlend(rawColor, aax1, y);
-			if (aax2 >= 0 && aax2 < FramePainter::PhysicalWidth)
-				FramePainter::PixelRawBlend(rawColor, aax2, y);
-		}
-
-		void TriangleEdgeAntiAliasingPixelCoverage(const color_t rawColor,
-			const pixel_index_t x1, const pixel_index_t x2,
-			const pixel_t xSide1, const pixel_t xSide2,
-			const pixel_t y)
-		{
-			// Get edge pixels.
-			const bool leftToRight = (xSide2 >= xSide1);
-			const pixel_t aax1 = leftToRight ? (xSide1 - 1) : (xSide1 + 1);
-			const pixel_t aax2 = leftToRight ? (xSide2 + 1) : (xSide2 - 1);
-
-			static constexpr int32_t MASK = (int32_t(1) << (FramePainter::BRESENHAM_SCALE - 1)) - 1;
-
-			// For left-to-right scanning:
-			// - Left edge: high alpha when x1 fraction is LOW (just entered the shape)
-			// - Right edge: high alpha when x2 fraction is HIGH (about to exit the shape)
-			if (aax1 >= 0 && aax1 < FramePainter::PhysicalWidth)
-			{
-				if (leftToRight)
-				{
-					// Left edge: invert the sub-pixel position for correct coverage
-					const uint8_t alpha = 255 - FixedRoundToInt(static_cast<pixel_index_t>(x1 & MASK) * 255);
-					FramePainter::PixelRawBlendAlpha(rawColor, aax1, y, alpha);
-				}
-				else
-				{
-					// Right-to-left: normal sub-pixel position for correct coverage
-					const uint8_t alpha = FixedRoundToInt(static_cast<pixel_index_t>(x1 & MASK) * 255);
-					FramePainter::PixelRawBlendAlpha(rawColor, aax1, y, alpha);
-				}
-			}
-
-			if (aax2 >= 0 && aax2 < FramePainter::PhysicalWidth)
-			{
-				if (leftToRight) {
-					// Right edge: normal sub-pixel position for correct coverage
-					const uint8_t alpha = FixedRoundToInt(static_cast<pixel_index_t>(x2 & MASK) * 255);
-					FramePainter::PixelRawBlendAlpha(rawColor, aax2, y, alpha);
-				}
-				else
-				{
-					// Right-to-left: invert the sub-pixel position for correct coverage
-					const uint8_t alpha = 255 - FixedRoundToInt(static_cast<pixel_index_t>(x2 & MASK) * 255);
-					FramePainter::PixelRawBlendAlpha(rawColor, aax2, y, alpha);
-				}
-			}
 		}
 
 	private:
@@ -762,7 +449,7 @@ namespace Egfx
 		{
 			// Get the inversion aware, native raw color from the underlying frame painter.
 			return displayOptions::Inverted ?
-				static_cast<color_t>(FramePainter::GetRawColor(rgb_color_t(~color | 0xFF000000))) : // Mask to the number of valid bits for the color depth and invert only those bits.
+				static_cast<color_t>(FramePainter::GetRawColor(rgb_color_t(~color | ColorMask))) : // Mask to the number of valid bits for the color depth and invert only those bits.
 				FramePainter::GetRawColor(color); 	// If inversion is not enabled at compile-time, return raw unchanged.
 		}
 

@@ -29,8 +29,7 @@ using DisplayConfig = Egfx::PlatformPresets::Configs::NRF52_SPI_GENERIC;
 using EgfxOptions = Egfx::DisplayOptions::TemplateOptions<
 	Egfx::DisplayOptions::MirrorEnum::None,
 	Egfx::DisplayOptions::RotationEnum::None,
-	false,
-	Egfx::DisplayOptions::AntiAliasingEnum::None
+	false
 >;
 
 // Uncomment Driver and matching Framebuffer type. Drivers will have Async, DMA, and RTOS variants, depending on the platform.

@@ -29,8 +29,7 @@ using DisplayConfig = Egfx::PlatformPresets::Configs::NRF52_SPI_GENERIC;
 using EgfxOptions = Egfx::DisplayOptions::TemplateOptions<
 	Egfx::DisplayOptions::MirrorEnum::None,
 	Egfx::DisplayOptions::RotationEnum::None,
-	false,
-	Egfx::DisplayOptions::AntiAliasingEnum::None
+	false
 >;
 
 // Uncomment Driver and matching Framebuffer type. Drivers will have Async, DMA, and RTOS variants, depending on the platform.
@@ -60,5 +59,4 @@ using FramebufferType = Egfx::BinaryFramebuffer<ScreenDriverType::ScreenWidth, S
 //using ScreenDriverType = Egfx::ScreenDriverGC9107_128x128x16_SPI<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
 //using ScreenDriverType = Egfx::ScreenDriverGC9A01_240x240x16_SPI<DisplayConfig::CS, DisplayConfig::DC, DisplayConfig::RESET>;
 //using FramebufferType = Egfx::Color16Framebuffer<ScreenDriverType::ScreenWidth, ScreenDriverType::ScreenHeight, 0, EgfxOptions>;
-
 #endif

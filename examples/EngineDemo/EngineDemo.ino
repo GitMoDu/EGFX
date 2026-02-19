@@ -15,7 +15,6 @@
 //#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
 //#define EGFX_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for EGFX engine.
 
-
 #define _TASK_OO_CALLBACKS
 #include <TScheduler.hpp>
 
@@ -72,7 +71,6 @@ Egfx::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
 	SchedulerBase, Framebuffer, ScreenDriver);
 
 // The layout of the demos within the screen area.
-
 struct Layout
 {
 	static constexpr uint8_t MarginX = 0;

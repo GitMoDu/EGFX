@@ -14,6 +14,10 @@ namespace BitmaskTextDemo
 
 	namespace Definitions
 	{
+		using BitmaskFontColorSourceType = Framework::Shader::Source::SingleColor<pixel_t>;
+		using BitmaskFontPixelShaderType = Framework::Shader::Pixel::TemplateShader<pixel_t, BitmaskFontColorSourceType>;
+		using BitmaskFontPrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<pixel_t, BitmaskFontPixelShaderType>;
+
 		// Bitmask fonts are set with a template parameter type.
 		// Share font for regular and upscaled font drawers.
 		using BitmaskFontType = Framework::Assets::Font::Bitmask::Plastic::FontType5x5;
@@ -27,7 +31,7 @@ namespace BitmaskTextDemo
 			static constexpr uint8_t ScaleY = 1 + (ScaleDimension / 32);
 
 			// Single color, bitmask scaled font drawer type.
-			using BitmaskFontDrawerType = Framework::Bitmask::Font::TemplateDrawer<BitmaskFontType, ScaleX, ScaleY>;
+			using BitmaskFontDrawerType = Framework::Bitmask::Font::TemplateDrawer<BitmaskFontType, ScaleX, ScaleY, BitmaskFontPrimitiveShaderType>;
 
 			// Bitmask text drawer type with all the template parameters set.
 			using BitmaskTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, BitmaskFontDrawerType>;
@@ -37,7 +41,7 @@ namespace BitmaskTextDemo
 		struct SmallFontDefinitions
 		{
 			// Single color bitmask font drawer type.
-			using BitmaskFontDrawerType = Framework::Bitmask::Font::TemplateDrawer<BitmaskFontType>;
+			using BitmaskFontDrawerType = Framework::Bitmask::Font::TemplateDrawer<BitmaskFontType, 1, 1, BitmaskFontPrimitiveShaderType>;
 
 			// Bitmask text drawer type with all the template parameters set.
 			using BitmaskTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, BitmaskFontDrawerType>;
@@ -69,8 +73,6 @@ namespace BitmaskTextDemo
 				}
 			}
 		};
-
-
 
 		template<typename ParentLayout, typename TextDrawerType>
 		struct SmallText1

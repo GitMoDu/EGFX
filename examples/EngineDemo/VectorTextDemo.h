@@ -14,19 +14,23 @@ namespace VectorTextDemo
 
 	namespace Definitions
 	{
+		using FontColorSourceType = Framework::Shader::Source::SingleColor<pixel_t>;
+		using FontPixelShaderType = Framework::Shader::Pixel::TemplateShader<pixel_t, FontColorSourceType>;
+		using FontPrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<pixel_t, FontPixelShaderType>;
+
 		template<typename ParentLayout>
 		struct VectorFontDefinitions
 		{
 			using VectorFontType = Framework::Assets::Font::Vector::Epoxy::FullFontType;
 
-			using VectorFontDrawerType = Framework::Vector::Font::TemplateDrawer<VectorFontType>;
+			using VectorFontDrawerType = Framework::Vector::Font::TemplateDrawer<VectorFontType, uint_fast8_t, FontPrimitiveShaderType>;
 			using VectorTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, VectorFontDrawerType>;
 		};
 
 		template<typename ParentLayout>
 		struct CodeFontDefinitions
 		{
-			using CodeFontDrawerType = Framework::Assets::Font::Code::RawBot<>;
+			using CodeFontDrawerType = Framework::Assets::Font::Code::RawBot<5, 7, 2, FontPrimitiveShaderType>;
 			using CodeTextDrawerType = Framework::Text::TemplateWriter<ParentLayout, CodeFontDrawerType>;
 		};
 
@@ -136,7 +140,8 @@ namespace VectorTextDemo
 		Drawables::Numbers<typename Layout<ParentLayout>::Numbers, Definitions::CodeTextDrawerType<ParentLayout>>,
 		Drawables::LongText<typename Layout<ParentLayout>::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>>,
 		Drawables::HighTextLine<typename Layout<ParentLayout>::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>, 1>,
-		Drawables::HighTextLine<typename Layout<ParentLayout>::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>, 2>>
+		Drawables::HighTextLine<typename Layout<ParentLayout>::ScalingText, Definitions::VectorTextDrawerType<ParentLayout>, 2>
+	>
 	{
 	private:
 		using LayoutDefinition = Layout<ParentLayout>;
@@ -153,8 +158,7 @@ namespace VectorTextDemo
 		Definitions::CodeTextDrawerType<ParentLayout> CodeTextDrawer{};
 
 	public:
-		View()
-			: Base()
+		View() : Base()
 		{
 			CodeTextDrawer.SetFontDimensions(LayoutDefinition::MinFontHeight, LayoutDefinition::MinFontHeight, 1);
 			VectorTextDrawer.SetFontDimensions(LayoutDefinition::MinFontHeight, LayoutDefinition::MinFontHeight, LayoutDefinition::Kerning);

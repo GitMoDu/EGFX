@@ -24,7 +24,7 @@ namespace Egfx
 	class TemplateFramebuffer : public FramePainter
 	{
 	private:
-		enum class TransformCase : uint8_t
+		enum class TransformCaseType : uint8_t
 		{
 			Identity,
 			MirrorX,
@@ -65,6 +65,31 @@ namespace Egfx
 #else
 		static constexpr uint8_t ClearStepsCount = uint8_t(1) << clearDivisorPower;
 #endif
+		static constexpr TransformCaseType TransformCase = // Explicitly map each rotation+mirror combination to a named case. C++11 compatible implementation.
+			(displayOptions::Rotation == DisplayOptions::RotationEnum::None) ?
+			((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCaseType::Identity :
+				(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCaseType::MirrorX :
+				(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCaseType::MirrorY :
+				TransformCaseType::MirrorXY)
+			: (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate90) ?
+			((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCaseType::Rotate90 :
+				(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCaseType::Rotate90MirrorX :
+				(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCaseType::Rotate90MirrorY :
+				TransformCaseType::Rotate90MirrorXY)
+			: (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate180) ?
+			((displayOptions::Mirror == DisplayOptions::MirrorEnum::None ||
+				displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorXY) ? TransformCaseType::Rotate180 :
+				(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCaseType::Rotate180MirrorX :
+				TransformCaseType::Rotate180MirrorY)
+			: ((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCaseType::Rotate90MirrorXY :
+				(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCaseType::Rotate90MirrorY :
+				(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCaseType::Rotate90MirrorX :
+				TransformCaseType::Rotate90);
+
+		static constexpr bool AxisSwapped = (TransformCase == TransformCaseType::Rotate90) ||
+			(TransformCase == TransformCaseType::Rotate90MirrorX) ||
+			(TransformCase == TransformCaseType::Rotate90MirrorY) ||
+			(TransformCase == TransformCaseType::Rotate90MirrorXY);
 
 	protected:
 		using FramePainter::Buffer;
@@ -238,18 +263,39 @@ namespace Egfx
 				return;
 			}
 
+			// Normalize endpoints (fx1 <= fx2) for cheap reject/clamp.
+			pixel_t fx1 = x1;
+			pixel_t fx2 = x2;
+			if (fx1 > fx2)
+			{
+				const pixel_t tmp = fx1;
+				fx1 = fx2;
+				fx2 = tmp;
+			}
+
+			// If the line is completely outside the horizontal bounds of the frame, skip drawing.
+			if (fx2 < 0 || fx1 >= FrameWidth)
+			{
+				return;
+			}
+
+			// Clip to framebuffer bounds to keep raw painters in-range.
+			fx1 = MaxValue<pixel_t>(fx1, 0);
+			fx2 = MinValue<pixel_t>(fx2, FrameWidth - 1);
+
 			const color_t rawColor = GetRawColor(color);
 
-			const pixel_point_t start = TransformCoordinates({ x1, y });
-			const pixel_point_t end = TransformCoordinates({ x2, y });
+			const pixel_point_t start = TransformCoordinates({ fx1, y });
+			const pixel_point_t end = TransformCoordinates({ fx2, y });
 
-			if (start.y == end.y)
+			if (AxisSwapped)
 			{
-				FramePainter::LineHorizontalRaw(rawColor, start.x, start.y, end.x);
+				// Horizontal becomes vertical after 90/270-degree rotation.
+				FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
 			}
 			else
 			{
-				FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
+				FramePainter::LineHorizontalRaw(rawColor, start.x, start.y, end.x);
 			}
 		}
 
@@ -260,18 +306,39 @@ namespace Egfx
 				return;
 			}
 
+			// Normalize endpoints (fy1 <= fy2) for cheap reject/clamp.
+			pixel_t fy1 = y1;
+			pixel_t fy2 = y2;
+			if (fy1 > fy2)
+			{
+				const pixel_t tmp = fy1;
+				fy1 = fy2;
+				fy2 = tmp;
+			}
+
+			// If the line is completely outside the vertical bounds of the frame, skip drawing.
+			if (fy2 < 0 || fy1 >= FrameHeight)
+			{
+				return;
+			}
+
+			// Clip to framebuffer bounds to keep raw painters in-range.
+			fy1 = MaxValue<pixel_t>(fy1, 0);
+			fy2 = MinValue<pixel_t>(fy2, FrameHeight - 1);
+
 			const color_t rawColor = GetRawColor(color);
 
-			const pixel_point_t start = TransformCoordinates({ x, y1 });
-			const pixel_point_t end = TransformCoordinates({ x, y2 });
+			const pixel_point_t start = TransformCoordinates({ x, fy1 });
+			const pixel_point_t end = TransformCoordinates({ x, fy2 });
 
-			if (start.x == end.x)
+			if (AxisSwapped)
 			{
-				FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
+				// Vertical becomes horizontal after 90/270-degree rotation.
+				FramePainter::LineHorizontalRaw(rawColor, start.x, start.y, end.x);
 			}
 			else
 			{
-				FramePainter::LineHorizontalRaw(rawColor, start.x, start.y, end.x);
+				FramePainter::LineVerticalRaw(rawColor, start.x, start.y, end.y);
 			}
 		}
 
@@ -455,76 +522,52 @@ namespace Egfx
 
 		pixel_point_t TransformCoordinates(const pixel_point_t coordinates) const
 		{
-			switch (GetTransformCase())
+			switch (TransformCase)
 			{
-			case TransformCase::Identity:
+			case TransformCaseType::Identity:
 			default:
 				return coordinates;
 
-			case TransformCase::MirrorX:
+			case TransformCaseType::MirrorX:
 				return { static_cast<pixel_t>(FrameWidth - 1 - coordinates.x),
 						 coordinates.y };
 
-			case TransformCase::MirrorY:
+			case TransformCaseType::MirrorY:
 				return { coordinates.x,
 						 static_cast<pixel_t>(FrameHeight - 1 - coordinates.y) };
 
-			case TransformCase::MirrorXY:
+			case TransformCaseType::MirrorXY:
 				return { static_cast<pixel_t>(FrameWidth - 1 - coordinates.x),
 						 static_cast<pixel_t>(FrameHeight - 1 - coordinates.y) };
 
-			case TransformCase::Rotate90:
+			case TransformCaseType::Rotate90:
 				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.y),
 						 coordinates.x };
 
-			case TransformCase::Rotate90MirrorX:
+			case TransformCaseType::Rotate90MirrorX:
 				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.y),
 						 static_cast<pixel_t>(FrameWidth - 1 - coordinates.x) };
 
-			case TransformCase::Rotate90MirrorY:
+			case TransformCaseType::Rotate90MirrorY:
 				return { coordinates.y,
 						 coordinates.x };
 
-			case TransformCase::Rotate90MirrorXY:
+			case TransformCaseType::Rotate90MirrorXY:
 				return { coordinates.y,
 						 static_cast<pixel_t>(FramePainter::PhysicalHeight - 1 - coordinates.x) };
 
-			case TransformCase::Rotate180:
+			case TransformCaseType::Rotate180:
 				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.x),
 						 static_cast<pixel_t>(FramePainter::PhysicalHeight - 1 - coordinates.y) };
 
-			case TransformCase::Rotate180MirrorX:
+			case TransformCaseType::Rotate180MirrorX:
 				return { coordinates.x,
 						 static_cast<pixel_t>(FramePainter::PhysicalHeight - 1 - coordinates.y) };
 
-			case TransformCase::Rotate180MirrorY:
+			case TransformCaseType::Rotate180MirrorY:
 				return { static_cast<pixel_t>(FramePainter::PhysicalWidth - 1 - coordinates.x),
 						 coordinates.y };
 			}
-		}
-
-		static constexpr TransformCase GetTransformCase()
-		{
-			return // Explicitly map each rotation+mirror combination to a named case. C++11 compatible implementation.
-				(displayOptions::Rotation == DisplayOptions::RotationEnum::None) ?
-				((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCase::Identity :
-					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::MirrorX :
-					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCase::MirrorY :
-					TransformCase::MirrorXY)
-				: (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate90) ?
-				((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCase::Rotate90 :
-					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::Rotate90MirrorX :
-					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCase::Rotate90MirrorY :
-					TransformCase::Rotate90MirrorXY)
-				: (displayOptions::Rotation == DisplayOptions::RotationEnum::Rotate180) ?
-				((displayOptions::Mirror == DisplayOptions::MirrorEnum::None ||
-					displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorXY) ? TransformCase::Rotate180 :
-					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::Rotate180MirrorX :
-					TransformCase::Rotate180MirrorY)
-				: ((displayOptions::Mirror == DisplayOptions::MirrorEnum::None) ? TransformCase::Rotate90MirrorXY :
-					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorX) ? TransformCase::Rotate90MirrorY :
-					(displayOptions::Mirror == DisplayOptions::MirrorEnum::MirrorY) ? TransformCase::Rotate90MirrorX :
-					TransformCase::Rotate90);
 		}
 
 #if defined(ARDUINO_ARCH_RP2040)

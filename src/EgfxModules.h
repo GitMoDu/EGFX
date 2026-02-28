@@ -10,4 +10,9 @@
 // Terminal Window module.
 #include "Modules/TerminalWindow/View.h"
 
+// Battery indicator module.
+#include "Modules/BatteryIndicator/View.h"
+
+// Wireless indicator module.
+#include "Modules/WirelessIndicator/View.h"
 #endif

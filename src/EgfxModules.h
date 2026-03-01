@@ -15,4 +15,7 @@
 
 // Wireless indicator module.
 #include "Modules/WirelessIndicator/View.h"
+
+// Timecode text module.
+#include "Modules/TimecodeText/View.h"
 #endif

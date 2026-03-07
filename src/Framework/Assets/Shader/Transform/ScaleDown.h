@@ -32,18 +32,17 @@ namespace Egfx
 					private:
 						using Selector = Framework::Shader::Transform::FractionSelector<Width, Height>;
 						using ufraction_t = typename Selector::ufraction_t;
+						using signed_t = typename TypeTraits::TypeNext::next_int_type<dimension_t>::type;
 
-						/// <summary>Source width (pixels) as the working index type.</summary>
-						static constexpr pixel_index_t SourceWidth = static_cast<pixel_index_t>(Width);
-
+					private:
 						/// <summary>Target width (pixels) produced by the transform.</summary>
-						pixel_index_t TargetWidth = SourceWidth;
+						dimension_t TargetWidth = Width;
 
 						/// <summary>Number of source pixels to drop across the width.</summary>
-						pixel_index_t SkipCount = 0;
+						dimension_t SkipCount = 0;
 
-						/// <summary>Cached scalar: SkipCount / SourceWidth (fixed-point).</summary>
-						ufraction_t SkipScalar = {}; // SkipCount / SourceWidth
+						/// <summary>Cached scalar: SkipCount / Width (fixed-point).</summary>
+						ufraction_t SkipScalar = {}; // SkipCount / Width
 
 					public:
 						ScaleDownX() : Base() {}
@@ -55,16 +54,15 @@ namespace Egfx
 						/// </summary>
 						void SetWidth(const dimension_t width)
 						{
-							const pixel_index_t target =
-								(static_cast<pixel_index_t>(width) > SourceWidth) ? SourceWidth : static_cast<pixel_index_t>(width);
+							const dimension_t target = (width > Width) ? Width : width;
 
 							TargetWidth = (target < 0) ? 0 : target;
-							SkipCount = SourceWidth - TargetWidth;
+							SkipCount = Width - TargetWidth;
 
 							if (Selector::Use16)
-								SkipScalar = UFraction16::GetScalar<pixel_index_t>(SkipCount, SourceWidth);
+								SkipScalar = UFraction16::GetScalar<dimension_t>(SkipCount, Width);
 							else
-								SkipScalar = UFraction8::GetScalar<pixel_index_t>(SkipCount, SourceWidth);
+								SkipScalar = UFraction8::GetScalar<dimension_t>(SkipCount, Width);
 						}
 
 						/// <summary>Gets the current target width (pixels).</summary>
@@ -87,8 +85,7 @@ namespace Egfx
 								return false;
 							}
 
-							const pixel_index_t sourceX = static_cast<pixel_index_t>(x);
-							if (sourceX < 0 || sourceX >= SourceWidth)
+							if (x < 0 || x >= Width)
 							{
 								return false;
 							}
@@ -98,21 +95,21 @@ namespace Egfx
 								return true;
 							}
 
-							const pixel_index_t skippedBefore = Fraction(SkipScalar, sourceX);
+							const dimension_t skippedBefore = Fraction(SkipScalar, x);
 
 							// Skip the seam pixel.
-							if (skippedBefore != 0 && sourceX == skippedBefore)
+							if (skippedBefore != 0 && x == skippedBefore)
 							{
 								return false;
 							}
 
-							const pixel_index_t destX = sourceX - skippedBefore;
+							const signed_t destX = x - skippedBefore;
 							if (destX < 0 || destX >= TargetWidth)
 							{
 								return false;
 							}
 
-							x = static_cast<dimension_t>(destX);
+							x = destX;
 							return true;
 						}
 					};
@@ -136,18 +133,17 @@ namespace Egfx
 					private:
 						using Selector = Framework::Shader::Transform::FractionSelector<Width, Height>;
 						using ufraction_t = typename Selector::ufraction_t;
+						using signed_t = typename TypeTraits::TypeNext::next_int_type<dimension_t>::type;
 
-						/// <summary>Source height (pixels) as the working index type.</summary>
-						static constexpr pixel_index_t SourceHeight = static_cast<pixel_index_t>(Height);
-
+					private:
 						/// <summary>Target height (pixels) produced by the transform.</summary>
-						pixel_index_t TargetHeight = SourceHeight;
+						dimension_t TargetHeight = Height;
 
 						/// <summary>Number of source pixels to drop across the height.</summary>
-						pixel_index_t SkipCount = 0;
+						dimension_t SkipCount = 0;
 
-						/// <summary>Cached scalar: SkipCount / SourceHeight (fixed-point).</summary>
-						ufraction_t SkipScalar = {}; // SkipCount / SourceHeight
+						/// <summary>Cached scalar: SkipCount / Height (fixed-point).</summary>
+						ufraction_t SkipScalar = {}; // SkipCount / Height
 
 					public:
 						ScaleDownY() : Base() {}
@@ -159,16 +155,15 @@ namespace Egfx
 						/// </summary>
 						void SetHeight(const dimension_t height)
 						{
-							const pixel_index_t target =
-								(static_cast<pixel_index_t>(height) > SourceHeight) ? SourceHeight : static_cast<pixel_index_t>(height);
+							const dimension_t target = (height > Height) ? Height : height;
 
 							TargetHeight = (target < 0) ? 0 : target;
-							SkipCount = SourceHeight - TargetHeight;
+							SkipCount = Height - TargetHeight;
 
 							if (Selector::Use16)
-								SkipScalar = UFraction16::GetScalar<pixel_index_t>(SkipCount, SourceHeight);
+								SkipScalar = UFraction16::GetScalar<dimension_t>(SkipCount, Height);
 							else
-								SkipScalar = UFraction8::GetScalar<pixel_index_t>(SkipCount, SourceHeight);
+								SkipScalar = UFraction8::GetScalar<dimension_t>(SkipCount, Height);
 						}
 
 						/// <summary>Gets the current target height (pixels).</summary>
@@ -191,8 +186,7 @@ namespace Egfx
 								return false;
 							}
 
-							const pixel_index_t sourceY = static_cast<pixel_index_t>(y);
-							if (sourceY < 0 || sourceY >= SourceHeight)
+							if (y < 0 || y >= Height)
 							{
 								return false;
 							}
@@ -202,21 +196,22 @@ namespace Egfx
 								return true;
 							}
 
-							const pixel_index_t skippedBefore = Fraction(SkipScalar, sourceY);
+							const dimension_t skippedBefore = Fraction(SkipScalar, y);
 
 							// Skip the seam pixel.
-							if (skippedBefore != 0 && sourceY == skippedBefore)
+							if (skippedBefore != 0 && y == skippedBefore)
 							{
 								return false;
 							}
 
-							const pixel_index_t destY = sourceY - skippedBefore;
+							const signed_t destY = y - skippedBefore;
 							if (destY < 0 || destY >= TargetHeight)
 							{
 								return false;
 							}
 
-							y = static_cast<dimension_t>(destY);
+							y = destY;
+
 							return true;
 						}
 					};

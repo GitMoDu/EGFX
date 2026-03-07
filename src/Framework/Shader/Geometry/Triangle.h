@@ -25,9 +25,10 @@ namespace Egfx
 				private:
 					using Base = RectangleShader<dimension_t, PixelShaderType>;
 
-				protected:
+				private:
 					/// <summary>Intermediate type used by Bresenham drawing.</summary>
 					using bresenham_t = typename TypeTraits::TypeNext::next_int_type<dimension_t>::type;
+					using signed_t = typename TypeTraits::TypeSign::make_signed<pixel_t>::type;
 
 				private:
 					// Extract shader types for compile-time optimizations.
@@ -55,7 +56,7 @@ namespace Egfx
 					static constexpr uint8_t BRESENHAM_SCALE = 8;
 
 					// Fixed-point rounding helper: add half-unit for the current Bresenham scale, then arithmetic right-shift.
-					static constexpr int16_t FP_ROUND_HALF = SignedLeftShift<int16_t>(1, BRESENHAM_SCALE - 1);
+					static constexpr signed_t FP_ROUND_HALF = SignedLeftShift<signed_t>(1, BRESENHAM_SCALE - 1);
 
 				public:
 					TriangleShader() : Base() {}
@@ -78,12 +79,12 @@ namespace Egfx
 						const dimension_t x3, const dimension_t y3)
 					{
 						// Sort vertices by Y (and reorder X accordingly).
-						dimension_t ax = x1, ay = y1;
-						dimension_t bx = x2, by = y2;
-						dimension_t cx = x3, cy = y3;
+						signed_t ax = x1, ay = y1;
+						signed_t bx = x2, by = y2;
+						signed_t cx = x3, cy = y3;
 
 						{
-							dimension_t tmp;
+							signed_t tmp;
 							if (ay > by)
 							{
 								tmp = ax; ax = bx; bx = tmp;
@@ -110,21 +111,21 @@ namespace Egfx
 							return;
 						}
 
-						const dimension_t hTop = by - ay;
-						const dimension_t hBottom = cy - by;
-						const dimension_t hTotal = cy - ay;
-
-						const bresenham_t fxA = IntToFixed(ax);
-						const bresenham_t fxB = IntToFixed(bx);
+						const signed_t hTop = static_cast<signed_t>(by) - ay;
+						const signed_t hBottom = static_cast<signed_t>(cy) - by;
+						const signed_t hTotal = static_cast<signed_t>(cy) - ay;
 
 						const bresenham_t dxLong = (hTotal != 0) ? (IntToFixed(cx - ax) / hTotal) : 0;
 						const bresenham_t dxTop = (hTop != 0) ? (IntToFixed(bx - ax) / hTop) : 0;
 						const bresenham_t dxBottom = (hBottom != 0) ? (IntToFixed(cx - bx) / hBottom) : 0;
 
+						bresenham_t fxA = IntToFixed(ax);
+						bresenham_t fxB = IntToFixed(bx);
+
 						// Determine if the long edge is left of the top edge at y = by.
 						const bool longEdgeIsLeft = ((fxA + dxLong * hTop) <= fxB);
 
-						// Top segment [ay, by)
+						// Top segment [ay, by]
 						if (hTop > 0)
 						{
 							const bresenham_t stepLeft = longEdgeIsLeft ? dxLong : dxTop;
@@ -133,7 +134,7 @@ namespace Egfx
 							FillTriangleSegment(framebuffer, ay, by, fxA, fxA, stepLeft, stepRight);
 						}
 
-						// Bottom segment [by, cy)
+						// Bottom segment [by, cy]
 						if (hBottom > 0)
 						{
 							const bresenham_t stepLeft = longEdgeIsLeft ? dxLong : dxBottom;
@@ -150,23 +151,6 @@ namespace Egfx
 
 				private:
 					/// <summary>
-					/// Rounds a fixed-point value to the nearest integer using a signed right shift.
-					/// </summary>
-					inline constexpr dimension_t FixedRoundToInt(const bresenham_t fx)
-					{
-						return SignedRightShift(fx + FP_ROUND_HALF, BRESENHAM_SCALE);
-					}
-
-					/// <summary>
-					/// Converts an integer pixel coordinate to fixed-point representation.
-					/// </summary>
-					inline constexpr bresenham_t IntToFixed(const dimension_t x)
-					{
-						return SignedLeftShift<bresenham_t>(x, BRESENHAM_SCALE);
-					}
-
-				private:
-					/// <summary>
 					/// Fills a horizontal segment of a triangle by drawing scanlines between interpolated left and right edges.
 					/// </summary>
 					/// <param name="framebuffer">Target framebuffer to draw into.</param>
@@ -176,27 +160,60 @@ namespace Egfx
 					/// <param name="fxRight">Fixed-point x-coordinate of the right edge at yStart.</param>
 					/// <param name="stepLeft">Fixed-point increment of the left edge per scanline.</param>
 					/// <param name="stepRight">Fixed-point increment of the right edge per scanline.</param>
-					inline void FillTriangleSegment(IFrameBuffer* framebuffer,
-						const dimension_t yStart,
-						const dimension_t yEnd,
+					void FillTriangleSegment(IFrameBuffer* framebuffer,
+						signed_t yStart,
+						signed_t yEnd,
 						bresenham_t fxLeft,
 						bresenham_t fxRight,
 						const bresenham_t stepLeft,
 						const bresenham_t stepRight)
 					{
-						for (dimension_t y = yStart; y < yEnd; y++)
+						if (yStart < 0)
 						{
-							const dimension_t startX = FixedRoundToInt(fxLeft);
-							const dimension_t endX = static_cast<dimension_t>(FixedRoundToInt(fxRight) - 1);
+							// Skip scanlines above the layout by advancing the fixed-point edges to the first scanline and setting yStart to 0.
+							const signed_t skipLines = -yStart;
+							fxLeft += stepLeft * skipLines;
+							fxRight += stepRight * skipLines;
+							yStart = 0;
+						}
 
-							if (startX <= endX)
+						// Limit yEnd to avoid drawing outside the layout.
+						yEnd = MaxValue(yStart, yEnd);
+
+						for (signed_t y = yStart; y < yEnd; y++)
+						{
+							const signed_t startX = FixedRoundToInt(fxLeft);
+							const signed_t endX = FixedRoundToInt(fxRight) - 1;
+
+							if (startX <= endX
+								&& endX >= 0)
 							{
-								Base::LineHorizontal(framebuffer, startX, endX, y, SkipSourceTag{}, SkipTransformTag{});
+								Base::LineHorizontal(framebuffer,
+									MaxValue<signed_t>(startX, 0),
+									MaxValue<signed_t>(endX, 0),
+									y, SkipSourceTag{}, SkipTransformTag{});
 							}
 
 							fxLeft += stepLeft;
 							fxRight += stepRight;
 						}
+					}
+
+				private:
+					/// <summary>
+					/// Rounds a fixed-point value to the nearest integer using a signed right shift.
+					/// </summary>
+					inline constexpr signed_t FixedRoundToInt(const bresenham_t fx)
+					{
+						return SignedRightShift(fx + FP_ROUND_HALF, BRESENHAM_SCALE);
+					}
+
+					/// <summary>
+					/// Converts an integer pixel coordinate to fixed-point representation.
+					/// </summary>
+					inline constexpr bresenham_t IntToFixed(const signed_t x)
+					{
+						return SignedLeftShift<bresenham_t>(x, BRESENHAM_SCALE);
 					}
 				};
 			}

@@ -13,7 +13,10 @@ namespace Egfx
 	/// <typeparam name="frameHeight">The height of the frame in pixels.</typeparam>
 	/// <typeparam name="colorThreshold">The threshold value used by the binary color converter to determine pixel on/off state.</typeparam>
 	/// <typeparam name="rotated">Whether the frame is rotated (width and height swapped).</typeparam>
-	template<pixel_t frameWidth, pixel_t frameHeight, uint8_t colorThreshold, bool rotated>
+	template<uint16_t frameWidth,
+		uint16_t frameHeight,
+		uint8_t colorThreshold,
+		bool rotated>
 	class BinaryFramePainter : public AbstractFramePainter<BinaryColorConverter1<colorThreshold>, frameWidth, frameHeight, rotated>
 	{
 	private:
@@ -38,7 +41,7 @@ namespace Egfx
 			const pixel_t yByte = y / 8;
 			const uint8_t yBit = y % 8;
 
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
+			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
 
 			if (rawColor > 0)
 			{
@@ -150,7 +153,7 @@ namespace Egfx
 				const uint8_t startBit = yStart % 8;
 				const uint8_t endBit = yEnd % 8;
 				const uint8_t mask = ((uint8_t(0xFF) << startBit) & (uint8_t(0xFF) >> (7 - endBit)));
-				const pixel_index_t offset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
+				const size_t offset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
 
 				if (rawColor > 0)
 					Buffer[offset] |= mask;
@@ -162,7 +165,7 @@ namespace Egfx
 
 			// First byte - partial
 			const uint8_t startBit = yStart % 8;
-			const pixel_index_t startOffset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
+			const size_t startOffset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
 
 			if (startBit > 0)
 			{
@@ -180,14 +183,14 @@ namespace Egfx
 			// Middle bytes - full bytes
 			for (pixel_t byteIndex = startByte + 1; byteIndex < endByte; byteIndex++)
 			{
-				const pixel_index_t midOffset = (sizeof(color_t) * frameWidth * byteIndex) + xOffset;
+				const size_t midOffset = (sizeof(color_t) * frameWidth * byteIndex) + xOffset;
 				Buffer[midOffset] = (rawColor > 0) ? 0xFF : 0x00;
 			}
 
 			// Last byte - partial
 			const uint8_t endBit = yEnd % 8;
 			const uint8_t lastByteMask = uint8_t(0xFF) >> (7 - endBit);
-			const pixel_index_t endOffset = (sizeof(color_t) * frameWidth * endByte) + xOffset;
+			const size_t endOffset = (sizeof(color_t) * frameWidth * endByte) + xOffset;
 
 			if (rawColor > 0)
 				Buffer[endOffset] |= lastByteMask;
@@ -201,7 +204,7 @@ namespace Egfx
 			const uint8_t yBit = y % 8;
 			const int8_t sign = (x2 >= x1) ? 1 : -1;
 			const pixel_t width = (pixel_t(sign) * (x2 - x1));
-			pixel_index_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
+			size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
 
 			if (rawColor > 0)
 			{
@@ -252,7 +255,7 @@ namespace Egfx
 		{
 			const pixel_t yByte = y / 8;
 			const uint8_t yBit = y % 8;
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
+			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
 
 			return (Buffer[offset] & (uint8_t(1) << yBit)) != 0;
 		}

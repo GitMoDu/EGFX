@@ -30,7 +30,7 @@ namespace Egfx
 	protected:
 		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 			Buffer[offset] = Rgb::B(rawColor);
 			Buffer[offset + 1] = Rgb::G(rawColor);
 			Buffer[offset + 2] = Rgb::R(rawColor);
@@ -38,7 +38,7 @@ namespace Egfx
 
 		void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			// Average each channel
 			Buffer[offset + 2] = ((uint16_t(Buffer[offset + 2]) + uint16_t(Rgb::R(rawColor))) >> 1);
@@ -48,7 +48,8 @@ namespace Egfx
 
 		void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha)
 		{
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+
 			const uint8_t alphaInv = 255 - alpha;
 			Buffer[offset + 2] = ((uint16_t(Buffer[offset + 2]) * alphaInv) + (uint16_t(Rgb::R(rawColor) * alpha))) >> 8;
 			Buffer[offset + 1] = ((uint16_t(Buffer[offset + 1]) * alphaInv) + (uint16_t(Rgb::G(rawColor) * alpha))) >> 8;
@@ -57,7 +58,7 @@ namespace Egfx
 
 		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			// Add each channel, clamp to 255
 			Buffer[offset + 2] = uint8_t(MinValue<uint16_t>(255, uint16_t(Buffer[offset + 2]) + uint16_t(Rgb::R(rawColor))));
@@ -67,7 +68,8 @@ namespace Egfx
 
 		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+
 			// Subtract each channel, clamp to 0
 			Buffer[offset + 2] = uint8_t(MaxValue<int16_t>(0, int16_t(Buffer[offset + 2]) - int16_t(Rgb::R(rawColor))));
 			Buffer[offset + 1] = uint8_t(MaxValue<int16_t>(0, int16_t(Buffer[offset + 1]) - int16_t(Rgb::G(rawColor))));
@@ -76,7 +78,7 @@ namespace Egfx
 
 		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			// Multiply each channel, normalize to 8 bits
 			Buffer[offset + 2] = uint8_t((uint16_t(Buffer[offset + 2]) * uint16_t(Rgb::R(rawColor))) >> 8);
@@ -86,7 +88,7 @@ namespace Egfx
 
 		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const pixel_index_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
 
 			// Screen blend: result = 255 - ((255 - src) * (255 - dst) / 255)
 			Buffer[offset + 2] = 255 - ((uint16_t(255 - Buffer[offset + 2]) * uint16_t(255 - Rgb::R(rawColor))) >> 8);

@@ -14,7 +14,7 @@ namespace Egfx
 	/// <typeparam name="frameWidth">The physical width of the frame buffer in pixels.</typeparam>
 	/// <typeparam name="frameHeight">The physical height of the frame buffer in pixels.</typeparam>
 	/// <typeparam name="rotated">If true, the logical frame dimensions are rotated 90 degrees relative to physical dimensions.</typeparam>
-	template<typename ColorConverter, pixel_t frameWidth, pixel_t frameHeight, bool rotated>
+	template<typename ColorConverter, uint16_t frameWidth, uint16_t frameHeight, bool rotated>
 	class AbstractFramePainter : public IFrameBuffer
 	{
 	private:
@@ -28,13 +28,13 @@ namespace Egfx
 
 	public:
 		// Physical screen dimensions
-		static constexpr pixel_t PhysicalWidth = frameWidth;
-		static constexpr pixel_t PhysicalHeight = frameHeight;
+		static constexpr uint16_t PhysicalWidth = frameWidth;
+		static constexpr uint16_t PhysicalHeight = frameHeight;
 		static constexpr size_t BufferSize = ColorConverter::BufferSize(frameWidth, frameHeight);
 
 		// Logical dimensions (taking rotation into account)
-		static constexpr pixel_t FrameWidth = rotated ? frameHeight : frameWidth;
-		static constexpr pixel_t FrameHeight = rotated ? frameWidth : frameHeight;
+		static constexpr uint16_t FrameWidth = rotated ? frameHeight : frameWidth;
+		static constexpr uint16_t FrameHeight = rotated ? frameWidth : frameHeight;
 
 	public:
 		static constexpr uint8_t ColorDepth = ColorConverter::ColorDepth;
@@ -69,7 +69,7 @@ namespace Egfx
 		/// <summary>
 		/// Rounds a 32-bit fixed-point value to the nearest integer using a signed right shift.
 		/// </summary>
-		static constexpr pixel_t FixedRoundToInt(const int32_t fx)
+		inline constexpr pixel_t FixedRoundToInt(const int32_t fx)
 		{
 			return SignedRightShift(fx + FP_ROUND_HALF, BRESENHAM_SCALE);
 		}
@@ -77,7 +77,7 @@ namespace Egfx
 		/// <summary>
 		/// Converts an integer pixel coordinate to fixed-point representation.
 		/// </summary>
-		static constexpr int32_t IntToFixed(const pixel_t x)
+		inline constexpr int32_t IntToFixed(const pixel_t x)
 		{
 			return SignedLeftShift<int32_t>(x, BRESENHAM_SCALE);
 		}

@@ -19,9 +19,9 @@ namespace Egfx
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="threshold">Grayscale threshold for color.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
-	template<const pixel_t frameWidth, const pixel_t frameHeight
-		, const uint8_t clearDivisorPower = 0
-		, const uint8_t threshold = 0
+	template<uint16_t frameWidth, uint16_t frameHeight
+		, uint8_t clearDivisorPower = 0
+		, uint8_t threshold = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class BinaryFramebuffer
 		: public TemplateFramebuffer<BinaryFramePainter<frameWidth, frameHeight, threshold, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
@@ -40,8 +40,8 @@ namespace Egfx
 	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
-	template<const pixel_t frameWidth, const pixel_t frameHeight
-		, const uint8_t clearDivisorPower = 0
+	template<uint16_t frameWidth, uint16_t frameHeight
+		, uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Color8Framebuffer
 		: public TemplateFramebuffer<Color8FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
@@ -60,8 +60,8 @@ namespace Egfx
 	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
-	template<const pixel_t frameWidth, const pixel_t frameHeight
-		, const uint8_t clearDivisorPower = 0
+	template<uint16_t frameWidth, uint16_t frameHeight
+		, uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Grayscale8Framebuffer
 		: public TemplateFramebuffer<Grayscale8FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>
@@ -80,7 +80,7 @@ namespace Egfx
 	/// <typeparam name="frameHeight">Frame buffer height.</typeparam>
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
-	template<pixel_t frameWidth, pixel_t frameHeight
+	template<uint16_t frameWidth, uint16_t frameHeight
 		, uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Color16Framebuffer
@@ -101,8 +101,8 @@ namespace Egfx
 	/// <typeparam name="clearDivisorPower">Frame buffer clear will be divided into sections. The divisor is set by the power of 2, keeping it a multiple of 2.</typeparam>
 	/// <typeparam name="ColorConverter">Must be an implementation of AbstractColorConverter32.</typeparam>
 	/// <typeparam name="displayOptions">Display configuration options (mirror, rotation, inverted colors, AA).</typeparam>
-	template<const pixel_t frameWidth, const pixel_t frameHeight
-		, const uint8_t clearDivisorPower = 0
+	template<uint16_t frameWidth, uint16_t frameHeight
+		, uint8_t clearDivisorPower = 0
 		, typename displayOptions = DisplayOptions::Default>
 	class Color32FrameBuffer
 		: public TemplateFramebuffer<Color32FramePainter<frameWidth, frameHeight, displayOptions::HasRotation()>, clearDivisorPower, displayOptions>

@@ -121,8 +121,8 @@ namespace Egfx
 					class GradientRadial
 					{
 					private:
-						using radius_t = pixel_t;
-						using power_t = pixel_index_t;
+						using radius_t = dimension_t;
+						using power_t = typename TypeTraits::TypeNext::next_uint_type<radius_t>::type;
 
 					public:
 						rgb_color_t ColorCenter = RGB_COLOR_WHITE;

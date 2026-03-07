@@ -31,10 +31,17 @@ namespace Egfx
 	using namespace IntegerSignal;
 	using namespace IntegerSignal::Trigonometry;
 
+#if defined(EGFX_PLATFORM_32BIT)
 	/// <summary>
 	/// Pixel coordinate type.
 	/// </summary>
 	using pixel_t = int16_t;
+#else
+	/// <summary>
+	/// Pixel coordinate type.
+	/// </summary>
+	using pixel_t = uint16_t;
+#endif
 
 #if defined(EGFX_PLATFORM_HDR)
 	/// <summary>

@@ -34,8 +34,8 @@ namespace Egfx
 	};
 
 	template<size_t bufferSize,
-		const pixel_t width,
-		const pixel_t height,
+		const uint16_t width,
+		const uint16_t height,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST>
@@ -46,8 +46,8 @@ namespace Egfx
 
 	public:
 		static constexpr size_t BufferSize = bufferSize;
-		static constexpr pixel_t ScreenWidth = width;
-		static constexpr pixel_t ScreenHeight = height;
+		static constexpr uint16_t ScreenWidth = width;
+		static constexpr uint16_t ScreenHeight = height;
 
 	protected:
 		SpiType& SpiInstance;

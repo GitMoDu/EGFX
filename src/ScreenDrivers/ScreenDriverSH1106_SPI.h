@@ -9,8 +9,8 @@
 
 namespace Egfx
 {
-	template<const pixel_t width,
-		const pixel_t height,
+	template<const uint16_t width,
+		const uint16_t height,
 		const uint8_t pageStartOffset,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
@@ -275,8 +275,8 @@ namespace Egfx
 	};
 
 #if defined(TEMPLATE_SCREEN_DRIVER_SPI_DMA)
-	template<const pixel_t width,
-		const pixel_t height,
+	template<const uint16_t width,
+		const uint16_t height,
 		const uint8_t pageStartOffset,
 		const uint8_t pinCS,
 		const uint8_t pinDC,

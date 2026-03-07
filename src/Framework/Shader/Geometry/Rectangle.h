@@ -34,6 +34,9 @@ namespace Egfx
 					using Base::TransformShader;
 
 				private:
+					using signed_t = int16_t;
+
+				private:
 					// Extract shader types for compile-time optimizations.
 					using ColorSourceType = typename PixelShaderType::color_source_t;
 					using ColorShaderType = typename PixelShaderType::color_shader_t;
@@ -68,7 +71,6 @@ namespace Egfx
 						IntegerSignal::TypeTraits::TypeDispatch::FalseType,
 						IntegerSignal::TypeTraits::TypeDispatch::is_same<TransformShaderType, Shader::Transform::NoTransform<dimension_t>>::value>::type;
 
-
 				public:
 					RectangleShader() : Base() {}
 					~RectangleShader() = default;
@@ -96,9 +98,17 @@ namespace Egfx
 					{
 						const dimension_t startY = MinValue(y1, y2);
 						const dimension_t endY = MaxValue(y1, y2);
-						for (dimension_t y = startY; y <= endY; y++)
+
+						dimension_t y = startY;
+						while (true)
 						{
 							LineHorizontal(framebuffer, x1, x2, y, TypeTraits::TypeDispatch::FalseType{}, TypeTraits::TypeDispatch::FalseType{});
+
+							if (y == endY)
+							{
+								break;
+							}
+							++y;
 						}
 					}
 
@@ -109,9 +119,17 @@ namespace Egfx
 					{
 						const dimension_t startY = MinValue(y1, y2);
 						const dimension_t endY = MaxValue(y1, y2);
-						for (dimension_t y = startY; y <= endY; y++)
+
+						dimension_t y = startY;
+						while (true)
 						{
 							LineHorizontal(framebuffer, x1, x2, y, TypeTraits::TypeDispatch::FalseType{}, TypeTraits::TypeDispatch::TrueType{});
+
+							if (y == endY)
+							{
+								break;
+							}
+							++y;
 						}
 					}
 
@@ -122,12 +140,18 @@ namespace Egfx
 					{
 						const rgb_color_t color = ColorShader.Shade(ColorSource.Source(0, 0));
 
+						const dimension_t startX = MinValue(x1, x2);
+						const dimension_t endX = MaxValue(x1, x2);
 						const dimension_t startY = MinValue(y1, y2);
 						const dimension_t endY = MaxValue(y1, y2);
+
 						dimension_t fx, fy;
-						for (dimension_t y = startY; y <= endY; y++)
+
+						dimension_t y = startY;
+						while (true)
 						{
-							for (dimension_t x = MinValue(x1, x2); x <= MaxValue(x1, x2); x++)
+							dimension_t x = startX;
+							while (true)
 							{
 								fx = x;
 								fy = y;
@@ -135,7 +159,19 @@ namespace Egfx
 								{
 									PixelBlend(framebuffer, color, fx, fy);
 								}
+
+								if (x == endX)
+								{
+									break;
+								}
+								++x;
 							}
+
+							if (y == endY)
+							{
+								break;
+							}
+							++y;
 						}
 					}
 
@@ -144,9 +180,16 @@ namespace Egfx
 						const dimension_t x2, const dimension_t y2,
 						TypeTraits::TypeDispatch::TrueType, TypeTraits::TypeDispatch::TrueType)
 					{
+						const signed_t ox1 = static_cast<signed_t>(Base::Origin.x) + x1;
+						const signed_t oy1 = static_cast<signed_t>(Base::Origin.y) + y1;
+						const signed_t ox2 = static_cast<signed_t>(Base::Origin.x) + x2;
+						const signed_t oy2 = static_cast<signed_t>(Base::Origin.y) + y2;
+
 						framebuffer->RectangleFill(ColorShader.Shade(ColorSource.Source(0, 0)),
-							Base::Origin.x + x1, Base::Origin.y + y1,
-							Base::Origin.x + x2, Base::Origin.y + y2);
+							static_cast<pixel_t>(MaxValue<signed_t>(ox1, 0)),
+							static_cast<pixel_t>(MaxValue<signed_t>(oy1, 0)),
+							static_cast<pixel_t>(MaxValue<signed_t>(ox2, 0)),
+							static_cast<pixel_t>(MaxValue<signed_t>(oy2, 0)));
 					}
 				};
 			}

@@ -26,9 +26,8 @@ namespace Egfx
 					using Base = PixelShaderType;
 
 				protected:
-					/// <summary>Intermediate type used by Bresenham drawing.</summary>
-					using bresenham_t = typename TypeTraits::TypeNext::next_int_type<pixel_t>::type;
-					using signed_t = typename TypeTraits::TypeSign::make_signed<pixel_t>::type;
+					using signed_t = int16_t;
+					using bresenham_t = typename TypeTraits::TypeNext::next_int_type<dimension_t>::type;
 
 				protected:
 					using Base::PixelBlend;
@@ -80,7 +79,7 @@ namespace Egfx
 					static constexpr uint8_t BRESENHAM_SCALE = 8;
 
 					// Fixed-point rounding helper: add half-unit for the current Bresenham scale, then arithmetic right-shift.
-					static constexpr int16_t FP_ROUND_HALF = SignedLeftShift<int16_t>(1, BRESENHAM_SCALE - 1);
+					static constexpr signed_t FP_ROUND_HALF = SignedLeftShift<signed_t>(1, BRESENHAM_SCALE - 1);
 
 				public:
 					LineShader() : Base() {}
@@ -108,8 +107,8 @@ namespace Egfx
 						}
 						else
 						{
-							const bresenham_t dx = AbsValue(static_cast<bresenham_t>(x2) - x1);
-							const bresenham_t dy = AbsValue(static_cast<bresenham_t>(y2) - y1);
+							const signed_t dx = AbsValue(static_cast<signed_t>(x2) - static_cast<signed_t>(x1));
+							const signed_t dy = AbsValue(static_cast<signed_t>(y2) - static_cast<signed_t>(y1));
 
 							// X-major
 							if (dx >= dy)
@@ -150,9 +149,16 @@ namespace Egfx
 						const dimension_t startX = MinValue(x1, x2);
 						const dimension_t endX = MaxValue(x1, x2);
 
-						for (dimension_t x = startX; x <= endX; x++)
+						dimension_t x = startX;
+						while (true)
 						{
 							Base::Pixel(framebuffer, x, y);
+
+							if (x == endX)
+							{
+								break;
+							}
+							x++;
 						}
 					}
 
@@ -160,7 +166,9 @@ namespace Egfx
 						TypeTraits::TypeDispatch::TrueType, TypeTraits::TypeDispatch::TrueType)
 					{
 						framebuffer->LineHorizontal(ColorShader.Shade(ColorSource.Source(0, 0)),
-							Base::Origin.x + x1, Base::Origin.x + x2, Base::Origin.y + y);
+							static_cast<pixel_t>(Base::Origin.x + static_cast<pixel_t>(x1)),
+							static_cast<pixel_t>(Base::Origin.x + static_cast<pixel_t>(x2)),
+							static_cast<pixel_t>(Base::Origin.y + static_cast<pixel_t>(y)));
 					}
 
 					inline void LineHorizontal(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t x2, const dimension_t y,
@@ -170,8 +178,9 @@ namespace Egfx
 						const dimension_t endX = MaxValue(x1, x2);
 						const rgb_color_t color = ColorShader.Shade(ColorSource.Source(0, 0));
 
+						dimension_t x = startX;
 						dimension_t fx, fy;
-						for (dimension_t x = startX; x <= endX; x++)
+						while (true)
 						{
 							fx = x;
 							fy = y;
@@ -179,6 +188,12 @@ namespace Egfx
 							{
 								PixelBlend(framebuffer, color, fx, fy);
 							}
+
+							if (x == endX)
+							{
+								break;
+							}
+							x++;
 						}
 					}
 
@@ -188,9 +203,16 @@ namespace Egfx
 						const dimension_t startX = MinValue(x1, x2);
 						const dimension_t endX = MaxValue(x1, x2);
 
-						for (dimension_t x = startX; x <= endX; x++)
+						dimension_t x = startX;
+						while (true)
 						{
 							PixelBlend(framebuffer, ColorShader.Shade(ColorSource.Source(x, y)), x, y);
+
+							if (x == endX)
+							{
+								break;
+							}
+							x++;
 						}
 					}
 
@@ -203,9 +225,16 @@ namespace Egfx
 						const dimension_t startY = MinValue(y1, y2);
 						const dimension_t endY = MaxValue(y1, y2);
 
-						for (dimension_t y = startY; y <= endY; y++)
+						dimension_t y = startY;
+						while (true)
 						{
 							Base::Pixel(framebuffer, x, y);
+
+							if (y == endY)
+							{
+								break;
+							}
+							y++;
 						}
 					}
 
@@ -213,7 +242,9 @@ namespace Egfx
 						TypeTraits::TypeDispatch::TrueType, TypeTraits::TypeDispatch::TrueType)
 					{
 						framebuffer->LineVertical(ColorShader.Shade(ColorSource.Source(0, 0)),
-							Base::Origin.x + x, Base::Origin.y + y1, Base::Origin.y + y2);
+							static_cast<pixel_t>(Base::Origin.x + static_cast<pixel_t>(x)),
+							static_cast<pixel_t>(Base::Origin.y + static_cast<pixel_t>(y1)),
+							static_cast<pixel_t>(Base::Origin.y + static_cast<pixel_t>(y2)));
 					}
 
 					inline void LineVertical(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y1, const dimension_t y2,
@@ -223,8 +254,9 @@ namespace Egfx
 						const dimension_t endY = MaxValue(y1, y2);
 						const rgb_color_t color = ColorShader.Shade(ColorSource.Source(0, 0));
 
+						dimension_t y = startY;
 						dimension_t fx, fy;
-						for (dimension_t y = startY; y <= endY; y++)
+						while (true)
 						{
 							fx = x;
 							fy = y;
@@ -232,6 +264,12 @@ namespace Egfx
 							{
 								PixelBlend(framebuffer, color, fx, fy);
 							}
+
+							if (y == endY)
+							{
+								break;
+							}
+							y++;
 						}
 					}
 
@@ -241,9 +279,16 @@ namespace Egfx
 						const dimension_t startY = MinValue(y1, y2);
 						const dimension_t endY = MaxValue(y1, y2);
 
-						for (dimension_t y = startY; y <= endY; y++)
+						dimension_t y = startY;
+						while (true)
 						{
 							PixelBlend(framebuffer, ColorShader.Shade(ColorSource.Source(x, y)), x, y);
+
+							if (y == endY)
+							{
+								break;
+							}
+							y++;
 						}
 					}
 
@@ -266,17 +311,19 @@ namespace Egfx
 						const dimension_t endX, const dimension_t endY,
 						TypeTraits::TypeDispatch::FalseType, SkipTransformT)
 					{
-						const bresenham_t scaledWidth = (endX - startX) << 1;
-						const bresenham_t slopeMagnitude = AbsValue(endY - startY) << 1;
+						const bresenham_t dx = static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX);
+						const bresenham_t dy = AbsValue(static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY));
+
+						const bresenham_t scaledWidth = dx << 1;
+						const bresenham_t slopeMagnitude = dy << 1;
 						const int8_t slopeUnit = (endY >= startY) ? 1 : -1;
-						const int8_t slopeSign = (endX >= startX) ? 1 : -1;
 
-						bresenham_t slopeError = slopeMagnitude - (endX - startX);
-						dimension_t y = startY;
+						bresenham_t slopeError = slopeMagnitude - dx;
+						signed_t y = static_cast<signed_t>(startY);
 
-						for (dimension_t x = startX; x != endX; x += slopeSign)
+						for (dimension_t x = startX; x < endX; x++)
 						{
-							BresenhamEmit(framebuffer, x, y, TypeTraits::TypeDispatch::FalseType{}, SkipTransformT{});
+							BresenhamEmit(framebuffer, x, static_cast<dimension_t>(y), TypeTraits::TypeDispatch::FalseType{}, SkipTransformT{});
 
 							slopeError += slopeMagnitude;
 							if (slopeError >= 0)
@@ -297,17 +344,19 @@ namespace Egfx
 					{
 						const rgb_color_t color = ColorShader.Shade(ColorSource.Source(0, 0));
 
-						const bresenham_t scaledWidth = (endX - startX) << 1;
-						const bresenham_t slopeMagnitude = AbsValue(endY - startY) << 1;
+						const bresenham_t dx = static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX);
+						const bresenham_t dy = AbsValue(static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY));
+
+						const bresenham_t scaledWidth = dx << 1;
+						const bresenham_t slopeMagnitude = dy << 1;
 						const int8_t slopeUnit = (endY >= startY) ? 1 : -1;
-						const int8_t slopeSign = (endX >= startX) ? 1 : -1;
 
-						bresenham_t slopeError = slopeMagnitude - (endX - startX);
-						dimension_t y = startY;
+						bresenham_t slopeError = slopeMagnitude - dx;
+						signed_t y = static_cast<signed_t>(startY);
 
-						for (dimension_t x = startX; x != endX; x += slopeSign)
+						for (dimension_t x = startX; x < endX; x++)
 						{
-							BresenhamEmit(framebuffer, x, y, color, TypeTraits::TypeDispatch::TrueType{}, SkipTransformT{});
+							BresenhamEmit(framebuffer, x, static_cast<dimension_t>(y), color, TypeTraits::TypeDispatch::TrueType{}, SkipTransformT{});
 
 							slopeError += slopeMagnitude;
 							if (slopeError >= 0)
@@ -338,17 +387,19 @@ namespace Egfx
 						const dimension_t endX, const dimension_t endY,
 						TypeTraits::TypeDispatch::FalseType, SkipTransformT)
 					{
-						const bresenham_t scaledHeight = (endY - startY) << 1;
-						const bresenham_t slopeMagnitude = AbsValue(endX - startX) << 1;
+						const bresenham_t dy = static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY);
+						const bresenham_t dx = AbsValue(static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX));
+
+						const bresenham_t scaledHeight = dy << 1;
+						const bresenham_t slopeMagnitude = dx << 1;
 						const int8_t slopeUnit = (endX >= startX) ? 1 : -1;
-						const int8_t slopeSign = (endY >= startY) ? 1 : -1;
 
-						bresenham_t slopeError = (bresenham_t)slopeMagnitude - (endY - startY);
-						dimension_t x = startX;
+						bresenham_t slopeError = slopeMagnitude - dy;
+						signed_t x = static_cast<signed_t>(startX);
 
-						for (dimension_t y = startY; y != endY; y += slopeSign)
+						for (dimension_t y = startY; y < endY; y++)
 						{
-							BresenhamEmit(framebuffer, x, y, TypeTraits::TypeDispatch::FalseType{}, SkipTransformT{});
+							BresenhamEmit(framebuffer, static_cast<dimension_t>(x), y, TypeTraits::TypeDispatch::FalseType{}, SkipTransformT{});
 
 							slopeError += slopeMagnitude;
 							if (slopeError >= 0)
@@ -369,17 +420,19 @@ namespace Egfx
 					{
 						const rgb_color_t color = ColorShader.Shade(ColorSource.Source(0, 0));
 
-						const bresenham_t scaledHeight = (endY - startY) << 1;
-						const bresenham_t slopeMagnitude = AbsValue(endX - startX) << 1;
+						const bresenham_t dy = static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY);
+						const bresenham_t dx = AbsValue(static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX));
+
+						const bresenham_t scaledHeight = dy << 1;
+						const bresenham_t slopeMagnitude = dx << 1;
 						const int8_t slopeUnit = (endX >= startX) ? 1 : -1;
-						const int8_t slopeSign = (endY >= startY) ? 1 : -1;
 
-						bresenham_t slopeError = (bresenham_t)slopeMagnitude - (endY - startY);
-						dimension_t x = startX;
+						bresenham_t slopeError = slopeMagnitude - dy;
+						signed_t x = static_cast<signed_t>(startX);
 
-						for (dimension_t y = startY; y != endY; y += slopeSign)
+						for (dimension_t y = startY; y < endY; y++)
 						{
-							BresenhamEmit(framebuffer, x, y, color, TypeTraits::TypeDispatch::TrueType{}, SkipTransformT{});
+							BresenhamEmit(framebuffer, static_cast<dimension_t>(x), y, color, TypeTraits::TypeDispatch::TrueType{}, SkipTransformT{});
 
 							slopeError += slopeMagnitude;
 							if (slopeError >= 0)

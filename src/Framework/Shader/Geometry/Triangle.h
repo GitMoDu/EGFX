@@ -26,9 +26,8 @@ namespace Egfx
 					using Base = RectangleShader<dimension_t, PixelShaderType>;
 
 				private:
-					/// <summary>Intermediate type used by Bresenham drawing.</summary>
+					using signed_t = int16_t;
 					using bresenham_t = typename TypeTraits::TypeNext::next_int_type<dimension_t>::type;
-					using signed_t = typename TypeTraits::TypeSign::make_signed<pixel_t>::type;
 
 				private:
 					// Extract shader types for compile-time optimizations.
@@ -79,9 +78,12 @@ namespace Egfx
 						const dimension_t x3, const dimension_t y3)
 					{
 						// Sort vertices by Y (and reorder X accordingly).
-						signed_t ax = x1, ay = y1;
-						signed_t bx = x2, by = y2;
-						signed_t cx = x3, cy = y3;
+						signed_t ax = static_cast<signed_t>(x1);
+						signed_t ay = static_cast<signed_t>(y1);
+						signed_t bx = static_cast<signed_t>(x2);
+						signed_t by = static_cast<signed_t>(y2);
+						signed_t cx = static_cast<signed_t>(x3);
+						signed_t cy = static_cast<signed_t>(y3);
 
 						{
 							signed_t tmp;
@@ -105,19 +107,19 @@ namespace Egfx
 						// Degenerate (single scanline).
 						if (ay == cy)
 						{
-							const dimension_t xStart = MinValue(ax, MinValue(bx, cx));
-							const dimension_t xEnd = MaxValue(ax, MaxValue(bx, cx));
-							Base::Line(framebuffer, xStart, ay, xEnd, ay);
+							const dimension_t xStart = static_cast<dimension_t>(MinValue(ax, MinValue(bx, cx)));
+							const dimension_t xEnd = static_cast<dimension_t>(MaxValue(ax, MaxValue(bx, cx)));
+							Base::Line(framebuffer, xStart, static_cast<dimension_t>(ay), xEnd, static_cast<dimension_t>(ay));
 							return;
 						}
 
-						const signed_t hTop = static_cast<signed_t>(by) - ay;
-						const signed_t hBottom = static_cast<signed_t>(cy) - by;
-						const signed_t hTotal = static_cast<signed_t>(cy) - ay;
+						const signed_t hTop = by - ay;
+						const signed_t hBottom = cy - by;
+						const signed_t hTotal = cy - ay;
 
-						const bresenham_t dxLong = (hTotal != 0) ? (IntToFixed(cx - ax) / hTotal) : 0;
-						const bresenham_t dxTop = (hTop != 0) ? (IntToFixed(bx - ax) / hTop) : 0;
-						const bresenham_t dxBottom = (hBottom != 0) ? (IntToFixed(cx - bx) / hBottom) : 0;
+						const signed_t dxLong = (hTotal != 0) ? (IntToFixed((cx - ax)) / hTotal) : 0;
+						const signed_t dxTop = (hTop != 0) ? (IntToFixed((bx - ax)) / hTop) : 0;
+						const signed_t dxBottom = (hBottom != 0) ? (IntToFixed((cx - bx)) / hBottom) : 0;
 
 						bresenham_t fxA = IntToFixed(ax);
 						bresenham_t fxB = IntToFixed(bx);
@@ -128,8 +130,8 @@ namespace Egfx
 						// Top segment [ay, by]
 						if (hTop > 0)
 						{
-							const bresenham_t stepLeft = longEdgeIsLeft ? dxLong : dxTop;
-							const bresenham_t stepRight = longEdgeIsLeft ? dxTop : dxLong;
+							const signed_t stepLeft = longEdgeIsLeft ? dxLong : dxTop;
+							const signed_t stepRight = longEdgeIsLeft ? dxTop : dxLong;
 
 							FillTriangleSegment(framebuffer, ay, by, fxA, fxA, stepLeft, stepRight);
 						}
@@ -137,8 +139,8 @@ namespace Egfx
 						// Bottom segment [by, cy]
 						if (hBottom > 0)
 						{
-							const bresenham_t stepLeft = longEdgeIsLeft ? dxLong : dxBottom;
-							const bresenham_t stepRight = longEdgeIsLeft ? dxBottom : dxLong;
+							const signed_t stepLeft = longEdgeIsLeft ? dxLong : dxBottom;
+							const signed_t stepRight = longEdgeIsLeft ? dxBottom : dxLong;
 
 							const bresenham_t fxLongAtB = fxA + dxLong * hTop;
 
@@ -165,8 +167,8 @@ namespace Egfx
 						signed_t yEnd,
 						bresenham_t fxLeft,
 						bresenham_t fxRight,
-						const bresenham_t stepLeft,
-						const bresenham_t stepRight)
+						const signed_t stepLeft,
+						const signed_t stepRight)
 					{
 						if (yStart < 0)
 						{
@@ -213,7 +215,7 @@ namespace Egfx
 					/// </summary>
 					inline constexpr bresenham_t IntToFixed(const signed_t x)
 					{
-						return SignedLeftShift<bresenham_t>(x, BRESENHAM_SCALE);
+						return SignedLeftShift<bresenham_t>(static_cast<bresenham_t>(x), BRESENHAM_SCALE);
 					}
 				};
 			}

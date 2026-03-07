@@ -69,7 +69,7 @@ namespace Egfx
 					class CropCircle : public Base
 					{
 					private:
-						using signed_t = TypeTraits::TypeSign::make_signed<pixel_t>::type;
+						using signed_t = int16_t;
 						using power_t = typename TypeTraits::TypeNext::next_uint_type<dimension_t>::type;
 
 					private:

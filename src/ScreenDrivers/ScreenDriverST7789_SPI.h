@@ -10,8 +10,8 @@
 namespace Egfx
 {
 	template<typename pixel_color_t,
-		const pixel_t width,
-		const pixel_t height,
+		const uint16_t width,
+		const uint16_t height,
 		const uint16_t offsetX,
 		const uint16_t offsetY,
 		const uint8_t pinCS,

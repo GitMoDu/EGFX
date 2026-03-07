@@ -54,16 +54,12 @@ namespace Egfx
 						return TextDrawer;
 					}
 
-					// Back-compat with older view APIs.
-					void SetDuration(const uint32_t totalSeconds)
+					// MM:SS:cs (centiseconds)
+					void SetMinutes(const uint32_t totalMilliseconds)
 					{
-						SetSeconds(totalSeconds);
-					}
-
-					void SetMilliseconds(const uint32_t totalMilliseconds)
-					{
-						if (totalMilliseconds >= Durations::MaxDurationMilliseconds)
+						if (totalMilliseconds >= Durations::MaxMinutesTimecodeMilliseconds)
 						{
+							// 99:59:99
 							Digit1 = 9;
 							Digit2 = 9;
 							Digit3 = 5;
@@ -73,10 +69,11 @@ namespace Egfx
 						}
 						else
 						{
-							const uint32_t minutes = (totalMilliseconds % 3600000) / 60000;
+							const uint32_t minutes = totalMilliseconds / 60000;
 							const uint32_t seconds = (totalMilliseconds % 60000) / 1000;
 							const uint32_t milliseconds = totalMilliseconds % 1000;
-							const uint8_t centiseconds = milliseconds / 10;
+							const uint8_t centiseconds = static_cast<uint8_t>(milliseconds / 10);
+
 							Digit6 = static_cast<uint8_t>(centiseconds % 10);
 							Digit5 = static_cast<uint8_t>(centiseconds / 10);
 							Digit4 = static_cast<uint8_t>(seconds % 10);
@@ -86,7 +83,7 @@ namespace Egfx
 						}
 					}
 
-					void SetSeconds(const uint32_t totalSeconds)
+					void SetHours(const uint32_t totalSeconds)
 					{
 						if (totalSeconds >= Durations::MaxDurationSeconds)
 						{

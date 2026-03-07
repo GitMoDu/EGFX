@@ -37,10 +37,16 @@ namespace Egfx
 						timecodeDrawable.GetTextDrawer().SetColor(color);
 					}
 
-					void SetDuration(const uint32_t totalSeconds)
+					void SetMinutes(const uint32_t totalMilliseconds)
 					{
 						auto& timecodeDrawable = this->template drawable<0>();
-						timecodeDrawable.SetDuration(totalSeconds);
+						timecodeDrawable.SetMinutes(totalMilliseconds);
+					}
+
+					void SetHours(const uint32_t totalSeconds)
+					{
+						auto& timecodeDrawable = this->template drawable<0>();
+						timecodeDrawable.SetHours(totalSeconds);
 					}
 
 					void SetMode(const PresentModeEnum mode)
@@ -50,7 +56,7 @@ namespace Egfx
 					}
 				};
 
-				template<typename ParentLayout, bool Monochrome, bool UseMilliseconds = true>
+				template<typename ParentLayout, bool Monochrome, bool UseHours = false>
 				class TimecodeDemoView : public TimecodeView<ParentLayout, Monochrome>
 				{
 				private:
@@ -131,7 +137,7 @@ namespace Egfx
 						}
 
 						uint32_t timestamp = millis() - StartDuration;
-						if (!UseMilliseconds)
+						if (UseHours)
 						{
 							timestamp = timestamp / 1000;
 						}
@@ -139,13 +145,13 @@ namespace Egfx
 						if (timestamp != LastTotal)
 						{
 							LastTotal = timestamp;
-							if (UseMilliseconds)
+							if (UseHours)
 							{
-								timecodeDrawable.SetMilliseconds(timestamp);
+								timecodeDrawable.SetHours(timestamp);
 							}
 							else
 							{
-								timecodeDrawable.SetSeconds(timestamp);
+								timecodeDrawable.SetMinutes(timestamp);
 							}
 						}
 

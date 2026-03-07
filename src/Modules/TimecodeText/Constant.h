@@ -26,8 +26,16 @@ namespace Egfx
 
 			namespace Durations
 			{
-				static constexpr uint32_t MaxDurationSeconds = (static_cast<uint32_t>(99) * 3600) + ((static_cast<uint32_t>(59) * 60) + 59);
-				static constexpr uint32_t MaxDurationMilliseconds = (static_cast<uint32_t>(99) * 3600000) + ((static_cast<uint32_t>(59) * 60000) + (59 * 1000) + 999);
+				// HH:MM:SS maximum: 99:59:59
+				static constexpr uint32_t MaxDurationSeconds = (static_cast<uint32_t>(99) * 3600)
+					+ ((static_cast<uint32_t>(59) * 60) + 59);
+				static constexpr uint32_t MaxDurationMilliseconds = MaxDurationSeconds * 1000;
+
+				// MM:SS:cs maximum: 99:59:99 (i.e., 99 minutes, 59 seconds, 990..999 ms)
+				static constexpr uint32_t MaxMinutesTimecodeMilliseconds =
+					(static_cast<uint32_t>(99) * 60000)
+					+ (static_cast<uint32_t>(59) * 1000)
+					+ 999;
 			}
 
 			enum class PresentModeEnum : uint8_t

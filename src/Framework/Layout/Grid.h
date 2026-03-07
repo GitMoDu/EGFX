@@ -30,24 +30,24 @@ namespace Egfx
 				static_assert(Columns > 0, "GridLayout Columns must be > 0.");
 
 				/// <summary>Width of an individual cell (integer division).</summary>
-				static constexpr pixel_t CellWidth() { return ParentLayout::Width() / Columns; }
+				static constexpr int16_t CellWidth() { return ParentLayout::Width() / Columns; }
 
 				/// <summary>Height of an individual cell (integer division).</summary>
-				static constexpr pixel_t CellHeight() { return ParentLayout::Height() / Rows; }
+				static constexpr int16_t CellHeight() { return ParentLayout::Height() / Rows; }
 
 				/// <summary>Total width of the grid area (<= parent width).</summary>
-				static constexpr pixel_t GridWidth() { return CellWidth() * Columns; }
+				static constexpr int16_t GridWidth() { return CellWidth() * Columns; }
 
 				/// <summary>Total height of the grid area (<= parent height).</summary>
-				static constexpr pixel_t GridHeight() { return CellHeight() * Rows; }
+				static constexpr int16_t GridHeight() { return CellHeight() * Rows; }
 
 				/// <summary>Top-left anchor of the grid area.</summary>
-				static constexpr pixel_t X() { return ParentLayout::X(); }
-				static constexpr pixel_t Y() { return ParentLayout::Y(); }
+				static constexpr int16_t X() { return ParentLayout::X(); }
+				static constexpr int16_t Y() { return ParentLayout::Y(); }
 
 				/// <summary>Size of the grid area (may be smaller than parent due to truncation).</summary>
-				static constexpr pixel_t Width() { return GridWidth(); }
-				static constexpr pixel_t Height() { return GridHeight(); }
+				static constexpr int16_t Width() { return GridWidth(); }
+				static constexpr int16_t Height() { return GridHeight(); }
 
 				/// <summary>Grid cell addressed by column and row indices.</summary>
 				/// <typeparam name="ColIndex">Zero-based column index.</typeparam>
@@ -58,10 +58,10 @@ namespace Egfx
 					static_assert(RowIndex < Rows, "GridLayout Cell RowIndex out of range.");
 					static_assert(ColIndex < Columns, "GridLayout Cell ColIndex out of range.");
 
-					static constexpr pixel_t X() { return Grid::X() + (pixel_t(CellWidth()) * ColIndex); }
-					static constexpr pixel_t Y() { return Grid::Y() + (pixel_t(CellHeight()) * RowIndex); }
-					static constexpr pixel_t Width() { return CellWidth(); }
-					static constexpr pixel_t Height() { return CellHeight(); }
+					static constexpr int16_t X() { return Grid::X() + (int16_t(CellWidth()) * ColIndex); }
+					static constexpr int16_t Y() { return Grid::Y() + (int16_t(CellHeight()) * RowIndex); }
+					static constexpr int16_t Width() { return CellWidth(); }
+					static constexpr int16_t Height() { return CellHeight(); }
 				};
 			};
 		}

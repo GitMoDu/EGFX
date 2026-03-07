@@ -27,46 +27,46 @@ namespace Egfx
 			/// <typeparam name="minHeight">Minimum height (pixels).</typeparam>
 			/// <typeparam name="maxHeight">Maximum height (pixels).</typeparam>
 			template<typename ParentLayout,
-				pixel_t minWidth,
-				pixel_t maxWidth,
-				pixel_t minHeight,
-				pixel_t maxHeight
+				int16_t minWidth,
+				int16_t maxWidth,
+				int16_t minHeight,
+				int16_t maxHeight
 			>
 			struct ConstrainedDimensions
 			{
 				static_assert(minWidth <= maxWidth, "ConstrainedDimensions requires minWidth <= maxWidth.");
 				static_assert(minHeight <= maxHeight, "ConstrainedDimensions requires minHeight <= maxHeight.");
 
-				static constexpr pixel_t MinWidth() { return minWidth; }
-				static constexpr pixel_t MaxWidth() { return maxWidth; }
-				static constexpr pixel_t MinHeight() { return minHeight; }
-				static constexpr pixel_t MaxHeight() { return maxHeight; }
+				static constexpr int16_t MinWidth() { return minWidth; }
+				static constexpr int16_t MaxWidth() { return maxWidth; }
+				static constexpr int16_t MinHeight() { return minHeight; }
+				static constexpr int16_t MaxHeight() { return maxHeight; }
 
 				/// <summary>
 				/// Constrained width of the result (clamped parent width).
 				/// </summary>
-				static constexpr pixel_t Width()
+				static constexpr int16_t Width()
 				{
-					return MinValue<pixel_t>(
-						MaxValue<pixel_t>(MinWidth(), ParentLayout::Width()),
+					return MinValue<int16_t>(
+						MaxValue<int16_t>(MinWidth(), ParentLayout::Width()),
 						MaxWidth());
 				}
 
 				/// <summary>
 				/// Constrained height of the result (clamped parent height).
 				/// </summary>
-				static constexpr pixel_t Height()
+				static constexpr int16_t Height()
 				{
-					return MinValue<pixel_t>(
-						MaxValue<pixel_t>(MinHeight(), ParentLayout::Height()),
+					return MinValue<int16_t>(
+						MaxValue<int16_t>(MinHeight(), ParentLayout::Height()),
 						MaxHeight());
 				}
 
 				/// <summary>
 				/// Top-left anchor of the constrained rectangle.
 				/// </summary>
-				static constexpr pixel_t X() { return ParentLayout::X(); }
-				static constexpr pixel_t Y() { return ParentLayout::Y(); }
+				static constexpr int16_t X() { return ParentLayout::X(); }
+				static constexpr int16_t Y() { return ParentLayout::Y(); }
 			};
 		}
 	}

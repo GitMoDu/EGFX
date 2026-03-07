@@ -35,12 +35,12 @@ namespace Egfx
 					return Support::NumericPack::ValueAtU8<Index, Weights...>::Value;
 				}
 
-				static constexpr pixel_t ParentWidth() { return ParentLayout::Width(); }
+				static constexpr int16_t ParentWidth() { return ParentLayout::Width(); }
 
 				template<uint8_t Index>
-				static constexpr pixel_t CalculateWidth()
+				static constexpr int16_t CalculateWidth()
 				{
-					return static_cast<pixel_t>((uint32_t(ParentWidth()) * WeightAt<Index>()) / TotalWeight());
+					return static_cast<int16_t>((uint32_t(ParentWidth()) * WeightAt<Index>()) / TotalWeight());
 				}
 
 				// Sum of widths for cells [0, Index). This is used to compute X offsets.
@@ -50,13 +50,13 @@ namespace Egfx
 				template<uint8_t Index>
 				struct XSumImpl<Index, false>
 				{
-					static constexpr pixel_t Value = static_cast<pixel_t>(XSumImpl<Index - 1>::Value + CalculateWidth<Index - 1>());
+					static constexpr int16_t Value = static_cast<int16_t>(XSumImpl<Index - 1>::Value + CalculateWidth<Index - 1>());
 				};
 
 				template<uint8_t Index>
 				struct XSumImpl<Index, true>
 				{
-					static constexpr pixel_t Value = 0;
+					static constexpr int16_t Value = 0;
 				};
 
 				// Sum of widths for cells [0, Count). This is used to compute total layout Width().
@@ -66,31 +66,31 @@ namespace Egfx
 				template<uint8_t Count>
 				struct WidthSumImpl<Count, false>
 				{
-					static constexpr pixel_t Value = static_cast<pixel_t>(WidthSumImpl<Count - 1>::Value + CalculateWidth<Count - 1>());
+					static constexpr int16_t Value = static_cast<int16_t>(WidthSumImpl<Count - 1>::Value + CalculateWidth<Count - 1>());
 				};
 
 				template<uint8_t Count>
 				struct WidthSumImpl<Count, true>
 				{
-					static constexpr pixel_t Value = 0;
+					static constexpr int16_t Value = 0;
 				};
 
 			public:
-				static constexpr pixel_t X() { return ParentLayout::X(); }
-				static constexpr pixel_t Y() { return ParentLayout::Y(); }
+				static constexpr int16_t X() { return ParentLayout::X(); }
+				static constexpr int16_t Y() { return ParentLayout::Y(); }
 
-				static constexpr pixel_t Width() { return WidthSumImpl<sizeof...(Weights)>::Value; }
-				static constexpr pixel_t Height() { return ParentLayout::Height(); }
+				static constexpr int16_t Width() { return WidthSumImpl<sizeof...(Weights)>::Value; }
+				static constexpr int16_t Height() { return ParentLayout::Height(); }
 
 				template<uint8_t Index>
 				struct Cell
 				{
 					static_assert(Index < sizeof...(Weights), "HorizontalWeightedLayout Cell Index out of range.");
 
-					static constexpr pixel_t X() { return HorizontalWeighted::X() + XSumImpl<Index>::Value; }
-					static constexpr pixel_t Y() { return HorizontalWeighted::Y(); }
-					static constexpr pixel_t Width() { return CalculateWidth<Index>(); }
-					static constexpr pixel_t Height() { return HorizontalWeighted::Height(); }
+					static constexpr int16_t X() { return HorizontalWeighted::X() + XSumImpl<Index>::Value; }
+					static constexpr int16_t Y() { return HorizontalWeighted::Y(); }
+					static constexpr int16_t Width() { return CalculateWidth<Index>(); }
+					static constexpr int16_t Height() { return HorizontalWeighted::Height(); }
 				};
 			};
 
@@ -120,12 +120,12 @@ namespace Egfx
 					return Support::NumericPack::ValueAtU8<Index, Weights...>::Value;
 				}
 
-				static constexpr pixel_t ParentHeight() { return ParentLayout::Height(); }
+				static constexpr int16_t ParentHeight() { return ParentLayout::Height(); }
 
 				template<uint8_t Index>
-				static constexpr pixel_t CalculateHeight()
+				static constexpr int16_t CalculateHeight()
 				{
-					return static_cast<pixel_t>((uint32_t(ParentHeight()) * WeightAt<Index>()) / TotalWeight());
+					return static_cast<int16_t>((uint32_t(ParentHeight()) * WeightAt<Index>()) / TotalWeight());
 				}
 
 				// Sum of heights for cells [0, Index). Used for Y offsets.
@@ -135,13 +135,13 @@ namespace Egfx
 				template<uint8_t Index>
 				struct YSumImpl<Index, false>
 				{
-					static constexpr pixel_t Value = static_cast<pixel_t>(YSumImpl<Index - 1>::Value + CalculateHeight<Index - 1>());
+					static constexpr int16_t Value = static_cast<int16_t>(YSumImpl<Index - 1>::Value + CalculateHeight<Index - 1>());
 				};
 
 				template<uint8_t Index>
 				struct YSumImpl<Index, true>
 				{
-					static constexpr pixel_t Value = 0;
+					static constexpr int16_t Value = 0;
 				};
 
 				// Sum of heights for cells [0, Count). Used for total Height().
@@ -151,31 +151,31 @@ namespace Egfx
 				template<uint8_t Count>
 				struct HeightSumImpl<Count, false>
 				{
-					static constexpr pixel_t Value = static_cast<pixel_t>(HeightSumImpl<Count - 1>::Value + CalculateHeight<Count - 1>());
+					static constexpr int16_t Value = static_cast<int16_t>(HeightSumImpl<Count - 1>::Value + CalculateHeight<Count - 1>());
 				};
 
 				template<uint8_t Count>
 				struct HeightSumImpl<Count, true>
 				{
-					static constexpr pixel_t Value = 0;
+					static constexpr int16_t Value = 0;
 				};
 
 			public:
-				static constexpr pixel_t X() { return ParentLayout::X(); }
-				static constexpr pixel_t Y() { return ParentLayout::Y(); }
+				static constexpr int16_t X() { return ParentLayout::X(); }
+				static constexpr int16_t Y() { return ParentLayout::Y(); }
 
-				static constexpr pixel_t Width() { return ParentLayout::Width(); }
-				static constexpr pixel_t Height() { return HeightSumImpl<sizeof...(Weights)>::Value; }
+				static constexpr int16_t Width() { return ParentLayout::Width(); }
+				static constexpr int16_t Height() { return HeightSumImpl<sizeof...(Weights)>::Value; }
 
 				template<uint8_t Index>
 				struct Cell
 				{
 					static_assert(Index < sizeof...(Weights), "VerticalWeightedLayout Cell Index out of range.");
 
-					static constexpr pixel_t X() { return VerticalWeighted::X(); }
-					static constexpr pixel_t Y() { return VerticalWeighted::Y() + YSumImpl<Index>::Value; }
-					static constexpr pixel_t Width() { return VerticalWeighted::Width(); }
-					static constexpr pixel_t Height() { return CalculateHeight<Index>(); }
+					static constexpr int16_t X() { return VerticalWeighted::X(); }
+					static constexpr int16_t Y() { return VerticalWeighted::Y() + YSumImpl<Index>::Value; }
+					static constexpr int16_t Width() { return VerticalWeighted::Width(); }
+					static constexpr int16_t Height() { return CalculateHeight<Index>(); }
 				};
 			};
 		}

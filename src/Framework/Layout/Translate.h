@@ -16,22 +16,22 @@ namespace Egfx
 			/// <typeparam name="ShiftX">X offset in pixels (added to ParentLayout X).</typeparam>
 			/// <typeparam name="ShiftY">Y offset in pixels (added to ParentLayout Y).</typeparam>
 			template<typename ParentLayout,
-				pixel_t ShiftX = 0,
-				pixel_t ShiftY = 0
+				int16_t ShiftX = 0,
+				int16_t ShiftY = 0
 			>
 			struct Translate
 			{
 				/// <summary>Translated X position.</summary>
-				static constexpr pixel_t X() { return ParentLayout::X() + ShiftX; }
+				static constexpr int16_t X() { return ParentLayout::X() + ShiftX; }
 
 				/// <summary>Translated Y position.</summary>
-				static constexpr pixel_t Y() { return ParentLayout::Y() + ShiftY; }
+				static constexpr int16_t Y() { return ParentLayout::Y() + ShiftY; }
 
 				/// <summary>Unchanged width.</summary>
-				static constexpr pixel_t Width() { return ParentLayout::Width(); }
+				static constexpr int16_t Width() { return ParentLayout::Width(); }
 
 				/// <summary>Unchanged height.</summary>
-				static constexpr pixel_t Height() { return ParentLayout::Height(); }
+				static constexpr int16_t Height() { return ParentLayout::Height(); }
 			};
 		}
 	}

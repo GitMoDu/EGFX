@@ -12,17 +12,17 @@ namespace Egfx
 			namespace Layout
 			{
 
-				/*template<pixel_t FontWidth, pixel_t FontHeight>
+				/*template<int16_t FontWidth, int16_t FontHeight>
 				struct FontLayout
 				{
 					static constexpr uint8_t Margin() { return 1; }
 
-					static constexpr pixel_t RowHeight()
+					static constexpr int16_t RowHeight()
 					{
 						return FontHeight / Dimensions::LineCount;
 					}
 
-					static constexpr pixel_t EffectiveHeight()
+					static constexpr int16_t EffectiveHeight()
 					{
 						return RowHeight() * (Dimensions::LineCount - 1);
 					}
@@ -30,10 +30,10 @@ namespace Egfx
 					static constexpr uint8_t LinesPerRow() { return RowHeight() >= (3 + Margin()) ? 2 : 1; }
 				};*/
 
-				template<pixel_t FontWidth, pixel_t FontHeight>
+				template<int16_t FontWidth, int16_t FontHeight>
 				struct RetroLinesLayout
 				{
-					static constexpr pixel_t RowHeight()
+					static constexpr int16_t RowHeight()
 					{
 						return FontHeight / Dimensions::LineCount;
 					}
@@ -44,28 +44,28 @@ namespace Egfx
 
 					static constexpr uint8_t LinesPerRow() { return RowHeight() >= (3 + Margin()) ? 2 : 1; }
 
-					static constexpr pixel_t LineHeight()
+					static constexpr int16_t LineHeight()
 					{
 						return RowHeight() / LinesPerRow();
 					}
 
-					static constexpr pixel_t LineMargin()
+					static constexpr int16_t LineMargin()
 					{
 						return 1 + (LineHeight() / 3);
 					}
 
-					static constexpr pixel_t GetLineYOffset(const uint8_t lineIndex)
+					static constexpr int16_t GetLineYOffset(const uint8_t lineIndex)
 					{
-						return static_cast<pixel_t>(pixel_t(lineIndex) * LineHeight());
+						return static_cast<int16_t>(int16_t(lineIndex) * LineHeight());
 					}
 				};
 
-				template<pixel_t FontWidth, pixel_t FontHeight>
+				template<int16_t FontWidth, int16_t FontHeight>
 				struct DotMatrixLayout
 				{
 					static constexpr uint8_t Margin() { return Dimensions::FontLayoutMargin(); }
 
-					static constexpr pixel_t RowHeight()
+					static constexpr int16_t RowHeight()
 					{
 						return FontHeight / Dimensions::LineCount;
 					}
@@ -73,12 +73,12 @@ namespace Egfx
 					static constexpr uint8_t SquaresPerRow() { return RowHeight() >= (3 + Margin()) ? 2 : 1; }
 
 
-					static constexpr pixel_t SquareSize()
+					static constexpr int16_t SquareSize()
 					{
 						return (FontWidth / Dimensions::ColumnCount);
 					}
 
-					static constexpr pixel_t SquareVisibleSize()
+					static constexpr int16_t SquareVisibleSize()
 					{
 						return SquareSize() - (Margin() * 2);
 					}
@@ -95,8 +95,8 @@ namespace Egfx
 					static constexpr pixel_point_t GetSquareOffset(const uint8_t squareX, const uint8_t squareY)
 					{
 						return pixel_point_t{
-							static_cast<pixel_t>(pixel_t(squareX) * SquareSize()),
-							static_cast<pixel_t>(pixel_t(squareY) * SquareSize())
+							static_cast<int16_t>(int16_t(squareX) * SquareSize()),
+							static_cast<int16_t>(int16_t(squareY) * SquareSize())
 						};
 					}
 				};
@@ -105,26 +105,26 @@ namespace Egfx
 				template<typename ParentLayout>
 				struct LogoLayout
 				{
-					static constexpr pixel_t MinDimension() { return MinValue(ParentLayout::Width(), ParentLayout::Height()); }
-					static constexpr pixel_t MaxDimension() { return MaxValue(ParentLayout::Width(), ParentLayout::Height()); }
+					static constexpr int16_t MinDimension() { return MinValue(ParentLayout::Width(), ParentLayout::Height()); }
+					static constexpr int16_t MaxDimension() { return MaxValue(ParentLayout::Width(), ParentLayout::Height()); }
 
-					static constexpr pixel_t Kerning()
+					static constexpr int16_t Kerning()
 					{
 						return 0 +
 							((uint32_t(Dimensions::KerningRatio()) * ParentLayout::Width()) / UINT8_MAX);
 					}
 
-					static constexpr pixel_t MarginRaw()
+					static constexpr int16_t MarginRaw()
 					{
 						return MinDimension() / 12;
 					}
 
-					static constexpr pixel_t Margin()
+					static constexpr int16_t Margin()
 					{
 						return (MinDimension() > MarginRaw()) ? MarginRaw() : 0;
 					}
 
-					static constexpr pixel_t Padding()
+					static constexpr int16_t Padding()
 					{
 						return (MinDimension() / 32) | 0b1;
 					}
@@ -135,38 +135,38 @@ namespace Egfx
 
 					struct Logo
 					{
-						static constexpr pixel_t FontWidth()
+						static constexpr int16_t FontWidth()
 						{
 							return ((LogoPadding::Width() - Padding() * 2) - (Kerning() * (Dimensions::LetterCount() - 1))) / Dimensions::LetterCount();
 						}
 
-						static constexpr pixel_t FontHeight()
+						static constexpr int16_t FontHeight()
 						{
 							return LogoPadding::Height();
 						}
 
-						static constexpr pixel_t RowHeight()
+						static constexpr int16_t RowHeight()
 						{
 							return FontHeight() / Dimensions::LineCount;
 						}
 
-						static constexpr pixel_t Height()
+						static constexpr int16_t Height()
 						{
 							return RowHeight() * Dimensions::LineCount;
 						}
 
-						static constexpr pixel_t Width()
+						static constexpr int16_t Width()
 						{
 							return (uint32_t(FontWidth()) * (Dimensions::LetterCount()))
 								+ (uint32_t(Kerning()) * (Dimensions::LetterCount() - 1));
 						}
 
-						static constexpr pixel_t X()
+						static constexpr int16_t X()
 						{
 							return LogoPadding::X() + ((LogoPadding::Width() - Width()) / 2);
 						}
 
-						static constexpr pixel_t Y()
+						static constexpr int16_t Y()
 						{
 							return LogoPadding::Y() + ((LogoPadding::Height() - Height()) / 2);
 						}
@@ -174,28 +174,28 @@ namespace Egfx
 
 					struct LetterE
 					{
-						static constexpr pixel_t X() { return Logo::X(); }
-						static constexpr pixel_t Y() { return Logo::Y(); }
-						static constexpr pixel_t Width() { return Logo::FontWidth(); }
-						static constexpr pixel_t Height() { return Logo::FontHeight(); }
+						static constexpr int16_t X() { return Logo::X(); }
+						static constexpr int16_t Y() { return Logo::Y(); }
+						static constexpr int16_t Width() { return Logo::FontWidth(); }
+						static constexpr int16_t Height() { return Logo::FontHeight(); }
 					};
 
 					struct LetterG
 					{
-						static constexpr pixel_t X() { return LetterE::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr pixel_t Y() { return Logo::Y(); }
-						static constexpr pixel_t Width() { return Logo::FontWidth(); }
-						static constexpr pixel_t Height() { return Logo::FontHeight(); }
+						static constexpr int16_t X() { return LetterE::X() + Logo::FontWidth() + Kerning(); }
+						static constexpr int16_t Y() { return Logo::Y(); }
+						static constexpr int16_t Width() { return Logo::FontWidth(); }
+						static constexpr int16_t Height() { return Logo::FontHeight(); }
 					};
 
 					struct LetterF
 					{
-						static constexpr pixel_t X() { return LetterG::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr pixel_t Y() { return Logo::Y(); }
-						static constexpr pixel_t Width() { return Logo::FontWidth(); }
-						static constexpr pixel_t Height() { return Logo::FontHeight(); }
+						static constexpr int16_t X() { return LetterG::X() + Logo::FontWidth() + Kerning(); }
+						static constexpr int16_t Y() { return Logo::Y(); }
+						static constexpr int16_t Width() { return Logo::FontWidth(); }
+						static constexpr int16_t Height() { return Logo::FontHeight(); }
 
-						static constexpr pixel_t SquareSize()
+						static constexpr int16_t SquareSize()
 						{
 							return (Width() / Dimensions::ColumnCount);
 						}
@@ -203,12 +203,12 @@ namespace Egfx
 
 					struct LetterX
 					{
-						static constexpr pixel_t X() { return LetterF::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr pixel_t Y() { return Logo::Y(); }
-						static constexpr pixel_t Width() { return Logo::FontWidth(); }
-						static constexpr pixel_t Height() { return Logo::FontHeight(); }
+						static constexpr int16_t X() { return LetterF::X() + Logo::FontWidth() + Kerning(); }
+						static constexpr int16_t Y() { return Logo::Y(); }
+						static constexpr int16_t Width() { return Logo::FontWidth(); }
+						static constexpr int16_t Height() { return Logo::FontHeight(); }
 
-						static constexpr pixel_t SquareSize()
+						static constexpr int16_t SquareSize()
 						{
 							return (Width() / Dimensions::ColumnCount);
 						}

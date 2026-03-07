@@ -14,10 +14,10 @@ namespace Egfx
 				template<typename ParentLayout>
 				struct TerminalLayout
 				{
-					static constexpr pixel_t X() { return ParentLayout::X(); }
-					static constexpr pixel_t Y() { return ParentLayout::Y(); }
-					static constexpr pixel_t Width() { return ParentLayout::Width(); }
-					static constexpr pixel_t Height() { return ParentLayout::Height(); }
+					static constexpr int16_t X() { return ParentLayout::X(); }
+					static constexpr int16_t Y() { return ParentLayout::Y(); }
+					static constexpr int16_t Width() { return ParentLayout::Width(); }
+					static constexpr int16_t Height() { return ParentLayout::Height(); }
 				};
 			}
 		}

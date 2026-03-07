@@ -113,10 +113,10 @@ namespace Egfx
 								return true;
 							}
 
-							const pixel_index_t maskX = static_cast<pixel_index_t>(
+							const pixel_t maskX = static_cast<pixel_t>(
 								UseGlobalCoordinates ? (Origin.x + x) : x);
 
-							const pixel_index_t maskY = static_cast<pixel_index_t>(
+							const pixel_t maskY = static_cast<pixel_t>(
 								UseGlobalCoordinates ? (Origin.y + y) : y);
 
 							return (((maskX + OffsetX) % Modulus) == 0)
@@ -189,10 +189,10 @@ namespace Egfx
 								return true;
 							}
 
-							const pixel_index_t maskX = static_cast<pixel_index_t>(
+							const pixel_t maskX = static_cast<pixel_t>(
 								UseGlobalCoordinates ? (Origin.x + x) : x);
 
-							const pixel_index_t maskY = static_cast<pixel_index_t>(
+							const pixel_t maskY = static_cast<pixel_t>(
 								UseGlobalCoordinates ? (Origin.y + y) : y);
 
 							// Keep every other pixel in a 1x1 checkerboard pattern.

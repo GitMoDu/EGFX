@@ -9,8 +9,8 @@
 
 namespace Egfx
 {
-	template<const pixel_t width,
-		const pixel_t height,
+	template<const uint16_t width,
+		const uint16_t height,
 		const uint8_t comPins,
 		const uint8_t pinCS,
 		const uint8_t pinDC,

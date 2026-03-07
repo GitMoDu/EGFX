@@ -18,8 +18,8 @@ namespace Egfx
 		using Type = WireType;
 	};
 
-	template<const pixel_t width,
-		const pixel_t height,
+	template<const uint8_t width,
+		const uint8_t height,
 		const uint8_t i2cAddress>
 	class AbstractScreenDriverI2C : public IScreenDriver
 	{

@@ -36,12 +36,6 @@ namespace Egfx
 	/// </summary>
 	using pixel_t = int16_t;
 
-#if defined(EGFX_PLATFORM_32BIT)
-	using pixel_index_t = int32_t;
-#else
-	using pixel_index_t = int16_t;
-#endif
-
 #if defined(EGFX_PLATFORM_HDR)
 	/// <summary>
 	/// Native EGFX HDR rgb color.

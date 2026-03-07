@@ -69,9 +69,13 @@ namespace Egfx
 					class CropCircle : public Base
 					{
 					private:
-						pixel_index_t RadiusPow = 0;
-						int16_t OffsetX = 0;
-						int16_t OffsetY = 0;
+						using signed_t = TypeTraits::TypeSign::make_signed<pixel_t>::type;
+						using power_t = typename TypeTraits::TypeNext::next_uint_type<dimension_t>::type;
+
+					private:
+						power_t RadiusPow = 0;
+						signed_t OffsetX = 0;
+						signed_t OffsetY = 0;
 
 					public:
 						CropCircle() : Base() {}
@@ -80,7 +84,7 @@ namespace Egfx
 						/// <summary>
 						/// Set crop circle center offset and radius in pixels.
 						/// </summary>
-						void SetCircleCrop(const int16_t offsetX, const int16_t offsetY, const pixel_t radius)
+						void SetCircleCrop(const signed_t offsetX, const signed_t offsetY, const dimension_t radius)
 						{
 							OffsetX = offsetX;
 							OffsetY = offsetY;
@@ -88,11 +92,15 @@ namespace Egfx
 							// Matches SpriteShaderEffect::CropCircleEffect seam tweak for radius > 1.
 							if (radius > 1)
 							{
-								RadiusPow = (static_cast<pixel_index_t>(radius) * radius) - 1;
+								RadiusPow = (static_cast<power_t>(radius) * radius) - 1;
+							}
+							if (radius >= 0)
+							{
+								RadiusPow = (static_cast<power_t>(radius) * radius);
 							}
 							else
 							{
-								RadiusPow = (static_cast<pixel_index_t>(radius) * radius);
+								RadiusPow = 0;
 							}
 						}
 
@@ -109,12 +117,10 @@ namespace Egfx
 					private:
 						bool IsInsideCircle(const dimension_t x, const dimension_t y) const
 						{
-							const int16_t xx = static_cast<int16_t>(x) - OffsetX;
-							const int16_t yy = static_cast<int16_t>(y) - OffsetY;
+							const power_t xx = AbsValue(static_cast<signed_t>(x) - OffsetX);
+							const power_t yy = AbsValue(static_cast<signed_t>(y) - OffsetY);
 
-							const pixel_index_t distancePow =
-								(static_cast<pixel_index_t>(xx) * xx)
-								+ (static_cast<pixel_index_t>(yy) * yy);
+							const power_t distancePow = (xx * xx) + (yy * yy);
 
 							return distancePow <= RadiusPow;
 						}

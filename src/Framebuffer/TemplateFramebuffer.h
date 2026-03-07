@@ -54,6 +54,8 @@ namespace Egfx
 		using FramePainter::ClipRectangle;
 		using FramePainter::ClipLine;
 
+		using signed_t = TypeTraits::TypeSign::make_signed<pixel_t>::type;
+
 #if defined(ARDUINO_ARCH_RP2040)
 		// Static fill constant lives for the lifetime of the program; safe as DMA source.
 		const uint32_t FillZero32 = 0x00000000u;
@@ -90,6 +92,8 @@ namespace Egfx
 			(TransformCase == TransformCaseType::Rotate90MirrorX) ||
 			(TransformCase == TransformCaseType::Rotate90MirrorY) ||
 			(TransformCase == TransformCaseType::Rotate90MirrorXY);
+
+		static constexpr color_t ColorMask = static_cast<color_t>((uint64_t(1) << FramePainter::ColorDepth) - 1);
 
 	protected:
 		using FramePainter::Buffer;
@@ -460,11 +464,11 @@ namespace Egfx
 		void BresenhamRight(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
 		{
 			const pixel_t scaledWidth = (end.x - start.x) << 1;
-			const pixel_index_t slopeMagnitude = AbsValue(end.y - start.y) << 1;
+			const signed_t slopeMagnitude = AbsValue(end.y - start.y) << 1;
 			const int8_t slopeUnit = (end.y >= start.y) ? 1 : -1;
 			const int8_t slopeSign = (end.x >= start.x) ? 1 : -1;
 
-			pixel_index_t slopeError = slopeMagnitude - (end.x - start.x);
+			signed_t slopeError = slopeMagnitude - (end.x - start.x);
 			pixel_t y = start.y;
 
 			for (pixel_t x = start.x; x != end.x; x += slopeSign)
@@ -486,11 +490,11 @@ namespace Egfx
 		void BresenhamUp(const color_t rawColor, const pixel_point_t start, const pixel_point_t end)
 		{
 			const pixel_t scaledHeight = (end.y - start.y) << 1;
-			const pixel_t slopeMagnitude = AbsValue(end.x - start.x) << 1;
+			const signed_t slopeMagnitude = AbsValue(end.x - start.x) << 1;
 			const int8_t slopeUnit = (end.x >= start.x) ? 1 : -1;
 			const int8_t slopeSign = (end.y >= start.y) ? 1 : -1;
 
-			pixel_index_t slopeError = (pixel_index_t)slopeMagnitude - (end.y - start.y);
+			signed_t slopeError = slopeMagnitude - (end.y - start.y);
 			pixel_t x = start.x;
 
 			for (pixel_t y = start.y; y != end.y; y += slopeSign)
@@ -510,8 +514,6 @@ namespace Egfx
 		}
 
 	private:
-		static constexpr color_t ColorMask = static_cast<color_t>((uint64_t(1) << FramePainter::ColorDepth) - 1);
-
 		inline constexpr color_t GetRawColor(const rgb_color_t color)
 		{
 			// Get the inversion aware, native raw color from the underlying frame painter.

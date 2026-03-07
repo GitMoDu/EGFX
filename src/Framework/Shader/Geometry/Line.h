@@ -27,7 +27,8 @@ namespace Egfx
 
 				protected:
 					/// <summary>Intermediate type used by Bresenham drawing.</summary>
-					using bresenham_t = typename TypeTraits::TypeNext::next_int_type<dimension_t>::type;
+					using bresenham_t = typename TypeTraits::TypeNext::next_int_type<pixel_t>::type;
+					using signed_t = typename TypeTraits::TypeSign::make_signed<pixel_t>::type;
 
 				protected:
 					using Base::PixelBlend;

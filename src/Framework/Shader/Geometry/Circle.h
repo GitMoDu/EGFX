@@ -25,6 +25,8 @@ namespace Egfx
 				private:
 					using Base = PrimitiveShaderType;
 
+					using signed_t = typename TypeTraits::TypeSign::make_signed<dimension_t>::type;
+
 				public:
 					CircleShader() : Base() {}
 					~CircleShader() = default;
@@ -49,7 +51,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Draw8(framebuffer, centerX, centerY, x, y);
 
@@ -90,7 +92,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Fill4Spans(framebuffer, centerX, centerY, x, y);
 
@@ -130,7 +132,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::Pixel(framebuffer, centerX - x, centerY - y);
 						Base::Pixel(framebuffer, centerX - y, centerY - x);
@@ -173,7 +175,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::RectangleFill(framebuffer, centerX - x, centerY - y, centerX, centerY - y);
 						Base::RectangleFill(framebuffer, centerX - y, centerY - x, centerX, centerY - x);
@@ -215,7 +217,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::Pixel(framebuffer, centerX + x, centerY - y);
 						Base::Pixel(framebuffer, centerX + y, centerY - x);
@@ -258,7 +260,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::RectangleFill(framebuffer, centerX, centerY - y, centerX + x, centerY - y);
 						Base::RectangleFill(framebuffer, centerX, centerY - x, centerX + y, centerY - x);
@@ -300,7 +302,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::Pixel(framebuffer, centerX - x, centerY + y);
 						Base::Pixel(framebuffer, centerX - y, centerY + x);
@@ -343,7 +345,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::RectangleFill(framebuffer, centerX - x, centerY + y, centerX, centerY + y);
 						Base::RectangleFill(framebuffer, centerX - y, centerY + x, centerX, centerY + x);
@@ -385,7 +387,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::Pixel(framebuffer, centerX + x, centerY + y);
 						Base::Pixel(framebuffer, centerX + y, centerY + x);
@@ -428,7 +430,7 @@ namespace Egfx
 
 						dimension_t x = radius;
 						dimension_t y = 0;
-						dimension_t d = 1 - radius;
+						signed_t d = signed_t(1) - radius;
 
 						Base::RectangleFill(framebuffer, centerX, centerY + y, centerX + x, centerY + y);
 						Base::RectangleFill(framebuffer, centerX, centerY + x, centerX + y, centerY + x);

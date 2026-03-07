@@ -26,12 +26,12 @@ namespace Egfx
 					{
 						return pixel_rectangle_t{
 							pixel_point_t{
-								static_cast<int16_t>(ParentLayout::X() + r.topLeft.x),
-								static_cast<int16_t>(ParentLayout::Y() + r.topLeft.y)
+								static_cast<pixel_t>(ParentLayout::X() + r.topLeft.x),
+								static_cast<pixel_t>(ParentLayout::Y() + r.topLeft.y)
 							},
 							pixel_point_t{
-								static_cast<int16_t>(ParentLayout::X() + r.bottomRight.x),
-								static_cast<int16_t>(ParentLayout::Y() + r.bottomRight.y)
+								static_cast<pixel_t>(ParentLayout::X() + r.bottomRight.x),
+								static_cast<pixel_t>(ParentLayout::Y() + r.bottomRight.y)
 							}
 						};
 					}
@@ -332,24 +332,24 @@ namespace Egfx
 					static constexpr pixel_rectangle_t BarN(const uint8_t index)
 					{
 						return Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
-							{ InnerLayout::X() + (BarWidth() * index) + 1, InnerLayout::Y() },
-							{ InnerLayout::X() + (BarWidth() * (index + 1)) - 1 - InnerMargin(), InnerLayout::Y() + InnerLayout::Height() - 1 }
+							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * index) + 1), static_cast<pixel_t>(InnerLayout::Y()) },
+							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * (index + 1)) - 1 - InnerMargin()), static_cast<pixel_t>(InnerLayout::Y() + InnerLayout::Height() - 1) }
 							});
 					}
 
 					static constexpr pixel_rectangle_t BarLastBody()
 					{
 						return Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
-							{ InnerLayout::X() + (BarWidth() * (Style::BarCount - 1)) + 1, InnerLayout::Y() },
-							{ Battery::HeadTopUnoriented().topLeft.x - 1 - InnerMargin(), InnerLayout::Y() + InnerLayout::Height() - 1 }
+							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * (Style::BarCount - 1)) + 1), static_cast<pixel_t>(InnerLayout::Y()) },
+							{ static_cast<pixel_t>(Battery::HeadTopUnoriented().topLeft.x - 1 - InnerMargin()), static_cast<pixel_t>(InnerLayout::Y() + InnerLayout::Height() - 1) }
 							});
 					}
 
 					static constexpr pixel_rectangle_t BarLastHead()
 					{
 						return Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
-							{ Battery::HeadTopUnoriented().topLeft.x - InnerMargin(), Battery::HeadTopUnoriented().topLeft.y + Battery::StrokeWidth() + InnerMargin() },
-							{ Battery::HeadTopUnoriented().bottomRight.x - 1 - Battery::StrokeWidth() - InnerMargin(), Battery::HeadBottomUnoriented().topLeft.y - Battery::StrokeWidth() - InnerMargin() }
+							{ static_cast<pixel_t>(Battery::HeadTopUnoriented().topLeft.x - InnerMargin()), static_cast<pixel_t>(Battery::HeadTopUnoriented().topLeft.y + Battery::StrokeWidth() + InnerMargin()) },
+							{ static_cast<pixel_t>(Battery::HeadTopUnoriented().bottomRight.x - 1 - Battery::StrokeWidth() - InnerMargin()), static_cast<pixel_t>(Battery::HeadBottomUnoriented().topLeft.y - Battery::StrokeWidth() - InnerMargin()) }
 							});
 					}
 

@@ -214,52 +214,52 @@ namespace Egfx
 					static constexpr pixel_triangle_t Triangle1()
 					{
 						return pixel_triangle_t{
-							{ 1, Height() - 1 },
-							{ 1, Height() - 1 - Corner() },
-							{ Corner(), Height() - 1 }
+							{ 1, static_cast<pixel_t>(Height() - 1) },
+							{ 1, static_cast<pixel_t>(Height() - 1 - Corner()) },
+							{ static_cast<pixel_t>(Corner()), static_cast<pixel_t>(Height() - 1) }
 						};
 					}
 
 					static constexpr pixel_triangle_t Triangle2()
 					{
 						return pixel_triangle_t{
-							{ Width() - 1 - Corner(), 0  },
-							{ Width() - 1, 0  },
-							{ Width() - 1, Corner() }
+							{ static_cast<pixel_t>(Width() - 1 - Corner()), 0  },
+							{ static_cast<pixel_t>(Width() - 1), 0  },
+							{ static_cast<pixel_t>(Width() - 1), Corner() }
 						};
 					}
 
 					static constexpr pixel_triangle_t Triangle3()
 					{
 						return pixel_triangle_t{
-							{ 0, Height() - 1 - Corner() },
-							{ Width() - 1 - Corner(), 0  },
-							{ Width() - 1, Corner() }
+							{ 0, static_cast<pixel_t>(Height() - 1 - Corner()) },
+							{  static_cast<pixel_t>(Width() - 1 - Corner()), 0  },
+							{  static_cast<pixel_t>(Width() - 1), Corner() }
 						};
 					}
 
 					static constexpr pixel_triangle_t Triangle4()
 					{
 						return pixel_triangle_t{
-							{ 0, Height() - 1 - Corner() },
-							{ Corner(), Height() - 1 },
-							{ Width() - 1, Corner() }
+							{ 0, static_cast<pixel_t>(Height() - 1 - Corner()) },
+							{ Corner(), static_cast<pixel_t>(Height() - 1) },
+							{ static_cast<pixel_t>(Width() - 1), Corner() }
 						};
 					}
 
 					static constexpr pixel_line_t LineTop(const uint8_t index)
 					{
 						return pixel_line_t{
-							{ 0, Height() - 2 - Corner() - index},
-							{ Width() - 1 - Corner() - index, 0  }
+							{ 0, static_cast<pixel_t>(Height() - 2 - Corner() - index)},
+							{ static_cast<pixel_t>(Width() - 1 - Corner() - index), 0  }
 						};
 					}
 
 					static constexpr pixel_line_t LineBottom(const uint8_t index)
 					{
 						return pixel_line_t{
-							{ Corner() + index + 1, Height() - 1 },
-							{ Width() - 1, 1 + Corner() + index }
+							{ static_cast<pixel_t>(Corner() + index + 1), static_cast<pixel_t>(Height() - 1) },
+							{ static_cast<pixel_t>(Width() - 1), static_cast<pixel_t>(Corner() + index + 1) }
 						};
 					}
 				};

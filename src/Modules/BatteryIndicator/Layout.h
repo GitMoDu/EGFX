@@ -26,18 +26,18 @@ namespace Egfx
 					{
 						return pixel_rectangle_t{
 							pixel_point_t{
-								static_cast<pixel_t>(ParentLayout::X() + r.topLeft.x),
-								static_cast<pixel_t>(ParentLayout::Y() + r.topLeft.y)
+								static_cast<int16_t>(ParentLayout::X() + r.topLeft.x),
+								static_cast<int16_t>(ParentLayout::Y() + r.topLeft.y)
 							},
 							pixel_point_t{
-								static_cast<pixel_t>(ParentLayout::X() + r.bottomRight.x),
-								static_cast<pixel_t>(ParentLayout::Y() + r.bottomRight.y)
+								static_cast<int16_t>(ParentLayout::X() + r.bottomRight.x),
+								static_cast<int16_t>(ParentLayout::Y() + r.bottomRight.y)
 							}
 						};
 					}
 
 					template<typename ParentLayout, OrientationEnum Orientation>
-					static constexpr pixel_t LocalWidth()
+					static constexpr int16_t LocalWidth()
 					{
 						return ((Orientation == OrientationEnum::TopToBottom) || (Orientation == OrientationEnum::BottomToTop))
 							? ParentLayout::Height()
@@ -45,7 +45,7 @@ namespace Egfx
 					}
 
 					template<typename ParentLayout, OrientationEnum Orientation>
-					static constexpr pixel_t LocalHeight()
+					static constexpr int16_t LocalHeight()
 					{
 						return ((Orientation == OrientationEnum::TopToBottom) || (Orientation == OrientationEnum::BottomToTop))
 							? ParentLayout::Width()
@@ -57,11 +57,11 @@ namespace Egfx
 					{
 						return pixel_rectangle_t{
 							pixel_point_t{
-								static_cast<pixel_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.bottomRight.x),
+								static_cast<int16_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.bottomRight.x),
 								r.topLeft.y
 							},
 							pixel_point_t{
-								static_cast<pixel_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.topLeft.x),
+								static_cast<int16_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.topLeft.x),
 								r.bottomRight.y
 							}
 						};
@@ -73,11 +73,11 @@ namespace Egfx
 						return pixel_rectangle_t{
 							pixel_point_t{
 								r.topLeft.x,
-								static_cast<pixel_t>(LocalHeight<ParentLayout, Orientation>() - 1 - r.bottomRight.y)
+								static_cast<int16_t>(LocalHeight<ParentLayout, Orientation>() - 1 - r.bottomRight.y)
 							},
 							pixel_point_t{
 								r.bottomRight.x,
-								static_cast<pixel_t>(LocalHeight<ParentLayout, Orientation>() - 1 - r.topLeft.y)
+								static_cast<int16_t>(LocalHeight<ParentLayout, Orientation>() - 1 - r.topLeft.y)
 							}
 						};
 					}
@@ -88,11 +88,11 @@ namespace Egfx
 						return pixel_rectangle_t{
 							pixel_point_t{
 								r.topLeft.y,
-								static_cast<pixel_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.bottomRight.x)
+								static_cast<int16_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.bottomRight.x)
 							},
 							pixel_point_t{
 								r.bottomRight.y,
-								static_cast<pixel_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.topLeft.x)
+								static_cast<int16_t>(LocalWidth<ParentLayout, Orientation>() - 1 - r.topLeft.x)
 							}
 						};
 					}
@@ -154,74 +154,74 @@ namespace Egfx
 						return (Style::Orientation == OrientationEnum::TopToBottom) || (Style::Orientation == OrientationEnum::BottomToTop);
 					}
 
-					static constexpr pixel_t EffectiveWidth()
+					static constexpr int16_t EffectiveWidth()
 					{
 						return IsVertical() ? ParentLayout::Height() : ParentLayout::Width();
 					}
 
-					static constexpr pixel_t EffectiveHeight()
+					static constexpr int16_t EffectiveHeight()
 					{
 						return IsVertical() ? ParentLayout::Width() : ParentLayout::Height();
 					}
 
-					static constexpr pixel_t StrokeWidth()
+					static constexpr int16_t StrokeWidth()
 					{
-						return MaxValue<pixel_t>(0, Fraction16::Fraction<pixel_t>(Style::Stroke, EffectiveHeight() / 2));
+						return MaxValue<int16_t>(0, Fraction16::Fraction<int16_t>(Style::Stroke, EffectiveHeight() / 2));
 					}
 
-					static constexpr pixel_t HeadHeight()
+					static constexpr int16_t HeadHeight()
 					{
-						return MaxValue<pixel_t>(0, Fraction16::Fraction<pixel_t>(Style::HeadHeight, EffectiveHeight() / 2));
+						return MaxValue<int16_t>(0, Fraction16::Fraction<int16_t>(Style::HeadHeight, EffectiveHeight() / 2));
 					}
 
-					static constexpr pixel_t HeadWidth()
+					static constexpr int16_t HeadWidth()
 					{
-						return MaxValue<pixel_t>(0, Fraction16::Fraction(Style::HeadWidth, EffectiveHeight()));
+						return MaxValue<int16_t>(0, Fraction16::Fraction(Style::HeadWidth, EffectiveHeight()));
 					}
 
-					static constexpr pixel_t HeadMarginTop()
+					static constexpr int16_t HeadMarginTop()
 					{
-						return MaxValue<pixel_t>(0, (EffectiveHeight() - HeadHeight()) / 2);
+						return MaxValue<int16_t>(0, (EffectiveHeight() - HeadHeight()) / 2);
 					}
 
 				private:
 					static constexpr pixel_rectangle_t HeadTopCanonical()
 					{
 						return pixel_rectangle_t{
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth()), HeadMarginTop() },
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - 1), static_cast<pixel_t>(HeadMarginTop() + StrokeWidth() - 1) }
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth()), HeadMarginTop() },
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - 1), static_cast<int16_t>(HeadMarginTop() + StrokeWidth() - 1) }
 						};
 					}
 
 					static constexpr pixel_rectangle_t HeadBottomCanonical()
 					{
 						return pixel_rectangle_t{
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth()), static_cast<pixel_t>(EffectiveHeight() - 1 - HeadMarginTop()) },
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - 1), static_cast<pixel_t>(EffectiveHeight() - StrokeWidth() - HeadMarginTop()) }
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth()), static_cast<int16_t>(EffectiveHeight() - 1 - HeadMarginTop()) },
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - 1), static_cast<int16_t>(EffectiveHeight() - StrokeWidth() - HeadMarginTop()) }
 						};
 					}
 
 					static constexpr pixel_rectangle_t HeadRightCanonical()
 					{
 						return pixel_rectangle_t{
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - StrokeWidth()), static_cast<pixel_t>(HeadMarginTop() + StrokeWidth()) },
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - 1), static_cast<pixel_t>(EffectiveHeight() - 1 - HeadMarginTop() - StrokeWidth()) }
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - StrokeWidth()), static_cast<int16_t>(HeadMarginTop() + StrokeWidth()) },
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - 1), static_cast<int16_t>(EffectiveHeight() - 1 - HeadMarginTop() - StrokeWidth()) }
 						};
 					}
 
 					static constexpr pixel_rectangle_t HeadLeftTopCanonical()
 					{
 						return pixel_rectangle_t{
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth()), StrokeWidth() },
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), HeadMarginTop() }
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth()), StrokeWidth() },
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), HeadMarginTop() }
 						};
 					}
 
 					static constexpr pixel_rectangle_t HeadLeftBottomCanonical()
 					{
 						return pixel_rectangle_t{
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth()), static_cast<pixel_t>(EffectiveHeight() - 1 - StrokeWidth()) },
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), static_cast<pixel_t>(EffectiveHeight() - 1 - HeadMarginTop()) }
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth()), static_cast<int16_t>(EffectiveHeight() - 1 - StrokeWidth()) },
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), static_cast<int16_t>(EffectiveHeight() - 1 - HeadMarginTop()) }
 						};
 					}
 
@@ -229,7 +229,7 @@ namespace Egfx
 					{
 						return pixel_rectangle_t{
 							pixel_point_t{ 0, StrokeWidth() },
-							pixel_point_t{ static_cast<pixel_t>(StrokeWidth() - 1), static_cast<pixel_t>(EffectiveHeight() - StrokeWidth()) }
+							pixel_point_t{ static_cast<int16_t>(StrokeWidth() - 1), static_cast<int16_t>(EffectiveHeight() - StrokeWidth()) }
 						};
 					}
 
@@ -237,15 +237,15 @@ namespace Egfx
 					{
 						return pixel_rectangle_t{
 							pixel_point_t{ 0, 0 },
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), static_cast<pixel_t>(StrokeWidth() - 1) }
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), static_cast<int16_t>(StrokeWidth() - 1) }
 						};
 					}
 
 					static constexpr pixel_rectangle_t OutsideBottomCanonical()
 					{
 						return pixel_rectangle_t{
-							pixel_point_t{ 0, static_cast<pixel_t>(EffectiveHeight() - StrokeWidth()) },
-							pixel_point_t{ static_cast<pixel_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), static_cast<pixel_t>(EffectiveHeight() - 1) }
+							pixel_point_t{ 0, static_cast<int16_t>(EffectiveHeight() - StrokeWidth()) },
+							pixel_point_t{ static_cast<int16_t>(EffectiveWidth() - HeadWidth() + StrokeWidth() - 1), static_cast<int16_t>(EffectiveHeight() - 1) }
 						};
 					}
 
@@ -308,9 +308,9 @@ namespace Egfx
 				{
 					using Battery = typename Layout::Battery<ParentLayout, Style>;
 
-					static constexpr pixel_t InnerMargin()
+					static constexpr int16_t InnerMargin()
 					{
-						return Fraction16::Fraction<pixel_t>(Style::InnerMargin, Battery::EffectiveHeight() / 2);
+						return Fraction16::Fraction<int16_t>(Style::InnerMargin, Battery::EffectiveHeight() / 2);
 					}
 
 					using InnerLayout = Framework::TemplateLayout<
@@ -320,14 +320,14 @@ namespace Egfx
 						Battery::EffectiveHeight() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2)
 					>;
 
-					static constexpr pixel_t BarWidth()
+					static constexpr int16_t BarWidth()
 					{
 						return (Battery::EffectiveWidth() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2)) / Style::BarCount;
 					}
 
-					static constexpr pixel_t BarRemainder()
+					static constexpr int16_t BarRemainder()
 					{
-						return MaxValue<pixel_t>(0, InnerLayout::Width() - (BarWidth() * Style::BarCount) - InnerMargin());
+						return MaxValue<int16_t>(0, InnerLayout::Width() - (BarWidth() * Style::BarCount) - InnerMargin());
 					}
 					static constexpr pixel_rectangle_t BarN(const uint8_t index)
 					{
@@ -353,10 +353,10 @@ namespace Egfx
 							});
 					}
 
-					static constexpr pixel_t X() { return ParentLayout::X(); }
-					static constexpr pixel_t Y() { return ParentLayout::Y(); }
-					static constexpr pixel_t Width() { return Battery::EffectiveWidth() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2); }
-					static constexpr pixel_t Height() { return Battery::EffectiveHeight() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2); }
+					static constexpr int16_t X() { return ParentLayout::X(); }
+					static constexpr int16_t Y() { return ParentLayout::Y(); }
+					static constexpr int16_t Width() { return Battery::EffectiveWidth() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2); }
+					static constexpr int16_t Height() { return Battery::EffectiveHeight() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2); }
 				};
 			}
 		}

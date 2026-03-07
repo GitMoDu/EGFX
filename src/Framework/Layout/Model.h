@@ -27,11 +27,11 @@ namespace Egfx
 		/// </summary>
 		struct LayoutContract
 		{
-			static constexpr pixel_t X() { return 0; }
-			static constexpr pixel_t Y() { return 0; }
+			static constexpr int16_t X() { return 0; }
+			static constexpr int16_t Y() { return 0; }
 
-			static constexpr pixel_t Width() { return 0; }
-			static constexpr pixel_t Height() { return 0; }
+			static constexpr int16_t Width() { return 0; }
+			static constexpr int16_t Height() { return 0; }
 		};
 
 		/// <summary>
@@ -50,15 +50,15 @@ namespace Egfx
 		/// <typeparam name="y">Top-left Y coordinate (pixels).</typeparam>
 		/// <typeparam name="width">Layout width (pixels).</typeparam>
 		/// <typeparam name="height">Layout height (pixels).</typeparam>
-		template<const pixel_t x, const pixel_t y,
-			const pixel_t width, const pixel_t height>
+		template<const int16_t x, const int16_t y,
+			const int16_t width, const int16_t height>
 		struct TemplateLayout
 		{
-			static constexpr pixel_t X() { return x; }
-			static constexpr pixel_t Y() { return y; }
+			static constexpr int16_t X() { return x; }
+			static constexpr int16_t Y() { return y; }
 
-			static constexpr pixel_t Width() { return width; }
-			static constexpr pixel_t Height() { return height; }
+			static constexpr int16_t Width() { return width; }
+			static constexpr int16_t Height() { return height; }
 		};
 	}
 }

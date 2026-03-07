@@ -26,10 +26,10 @@ namespace Egfx
 			/// <typeparam name="MarginRight">Right margin (pixels).</typeparam>
 			/// <typeparam name="MarginBottom">Bottom margin (pixels).</typeparam>
 			template<typename ParentLayout,
-				pixel_t MarginLeft = 0,
-				pixel_t MarginTop = 0,
-				pixel_t MarginRight = 0,
-				pixel_t MarginBottom = 0
+				int16_t MarginLeft = 0,
+				int16_t MarginTop = 0,
+				int16_t MarginRight = 0,
+				int16_t MarginBottom = 0
 			>
 			struct Margin
 			{
@@ -39,32 +39,32 @@ namespace Egfx
 				static_assert(MarginBottom >= 0, "MarginLayout: MarginBottom must be >= 0.");
 
 			private:
-				static constexpr pixel_t Left()
+				static constexpr int16_t Left()
 				{
 					return (MarginLeft >= ParentLayout::Width()) ? ParentLayout::Width() : MarginLeft;
 				}
 
-				static constexpr pixel_t Top()
+				static constexpr int16_t Top()
 				{
 					return (MarginTop >= ParentLayout::Height()) ? ParentLayout::Height() : MarginTop;
 				}
 
-				static constexpr pixel_t WidthAfterLeft()
+				static constexpr int16_t WidthAfterLeft()
 				{
 					return ParentLayout::Width() - Left();
 				}
 
-				static constexpr pixel_t HeightAfterTop()
+				static constexpr int16_t HeightAfterTop()
 				{
 					return ParentLayout::Height() - Top();
 				}
 
-				static constexpr pixel_t Right()
+				static constexpr int16_t Right()
 				{
 					return (MarginRight >= WidthAfterLeft()) ? WidthAfterLeft() : MarginRight;
 				}
 
-				static constexpr pixel_t Bottom()
+				static constexpr int16_t Bottom()
 				{
 					return (MarginBottom >= HeightAfterTop()) ? HeightAfterTop() : MarginBottom;
 				}
@@ -73,14 +73,14 @@ namespace Egfx
 				/// <summary>
 				/// Top-left of the inset area (parent origin plus effective left/top margins).
 				/// </summary>
-				static constexpr pixel_t X() { return ParentLayout::X() + Left(); }
-				static constexpr pixel_t Y() { return ParentLayout::Y() + Top(); }
+				static constexpr int16_t X() { return ParentLayout::X() + Left(); }
+				static constexpr int16_t Y() { return ParentLayout::Y() + Top(); }
 
 				/// <summary>
 				/// Size of the inset area (parent size minus effective margins).
 				/// </summary>
-				static constexpr pixel_t Width() { return WidthAfterLeft() - Right(); }
-				static constexpr pixel_t Height() { return HeightAfterTop() - Bottom(); }
+				static constexpr int16_t Width() { return WidthAfterLeft() - Right(); }
+				static constexpr int16_t Height() { return HeightAfterTop() - Bottom(); }
 			};
 		}
 	}

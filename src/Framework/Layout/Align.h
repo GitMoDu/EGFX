@@ -38,19 +38,19 @@ namespace Egfx
 			struct Align
 			{
 			private:
-				static constexpr pixel_t ParentWidth() { return ParentLayout::Width(); }
-				static constexpr pixel_t ParentHeight() { return ParentLayout::Height(); }
+				static constexpr int16_t ParentWidth() { return ParentLayout::Width(); }
+				static constexpr int16_t ParentHeight() { return ParentLayout::Height(); }
 
-				static constexpr pixel_t ChildWidth() { return ChildLayout::Width(); }
-				static constexpr pixel_t ChildHeight() { return ChildLayout::Height(); }
+				static constexpr int16_t ChildWidth() { return ChildLayout::Width(); }
+				static constexpr int16_t ChildHeight() { return ChildLayout::Height(); }
 
 				static_assert(ChildWidth() <= ParentWidth(), "Layout::Align requires ChildLayout::Width() <= ParentLayout::Width().");
 				static_assert(ChildHeight() <= ParentHeight(), "Layout::Align requires ChildLayout::Height() <= ParentLayout::Height().");
 
-				static constexpr pixel_t WidthRemainder() { return ParentWidth() - ChildWidth(); }
-				static constexpr pixel_t HeightRemainder() { return ParentHeight() - ChildHeight(); }
+				static constexpr int16_t WidthRemainder() { return ParentWidth() - ChildWidth(); }
+				static constexpr int16_t HeightRemainder() { return ParentHeight() - ChildHeight(); }
 
-				static constexpr pixel_t XOffset()
+				static constexpr int16_t XOffset()
 				{
 					return (alignment == AlignmentEnum::TopLeft ||
 						alignment == AlignmentEnum::MiddleLeft ||
@@ -63,7 +63,7 @@ namespace Egfx
 							: WidthRemainder());
 				}
 
-				static constexpr pixel_t YOffset()
+				static constexpr int16_t YOffset()
 				{
 					return (alignment == AlignmentEnum::TopLeft ||
 						alignment == AlignmentEnum::TopCenter ||
@@ -80,22 +80,22 @@ namespace Egfx
 				/// <summary>
 				/// Aligned position of the child (top-left corner).
 				/// </summary>
-				static constexpr pixel_t X() { return ParentLayout::X() + XOffset(); }
+				static constexpr int16_t X() { return ParentLayout::X() + XOffset(); }
 
 				/// <summary>
 				/// Aligned position of the child (top-left corner).
 				/// </summary>
-				static constexpr pixel_t Y() { return ParentLayout::Y() + YOffset(); }
+				static constexpr int16_t Y() { return ParentLayout::Y() + YOffset(); }
 
 				/// <summary>
 				/// Size of the aligned child (unchanged from ChildLayout).
 				/// </summary>
-				static constexpr pixel_t Width() { return ChildWidth(); }
+				static constexpr int16_t Width() { return ChildWidth(); }
 
 				/// <summary>
 				/// Size of the aligned child (unchanged from ChildLayout).
 				/// </summary>
-				static constexpr pixel_t Height() { return ChildHeight(); }
+				static constexpr int16_t Height() { return ChildHeight(); }
 			};
 		}
 	}

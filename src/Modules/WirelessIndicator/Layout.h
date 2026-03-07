@@ -14,14 +14,14 @@ namespace Egfx
 			namespace Layout
 			{
 				template<typename ParentLayout,
-					pixel_t BitmaskWidth>
+					int16_t BitmaskWidth>
 				static constexpr uint8_t GetScaleX()
 				{
 					return MaxValue(1, ParentLayout::Width() / BitmaskWidth);
 				}
 
 				template<typename ParentLayout,
-					pixel_t BitmaskHeight>
+					int16_t BitmaskHeight>
 				static constexpr uint8_t GetScaleY()
 				{
 					return MaxValue(1, ParentLayout::Height() / BitmaskHeight);
@@ -47,7 +47,7 @@ namespace Egfx
 					ParentLayout::X(),
 					ParentLayout::Y(),
 					ParentLayout::Width(),
-					MinValue<pixel_t>(16, ParentLayout::Height())* GetScaleY<ParentLayout, Assets::Bitmask22x16::Height>()
+					MinValue<int16_t>(16, ParentLayout::Height())* GetScaleY<ParentLayout, Assets::Bitmask22x16::Height>()
 				>;
 
 				template<typename ParentLayout>
@@ -58,7 +58,7 @@ namespace Egfx
 					ParentLayout::X(),
 					ParentLayout::Y(),
 					ParentLayout::Width(),
-					MinValue<pixel_t>(16, ParentLayout::Height())* GetScaleY<ParentLayout, Assets::Bitmask24x16::Height>()
+					MinValue<int16_t>(16, ParentLayout::Height())* GetScaleY<ParentLayout, Assets::Bitmask24x16::Height>()
 				>;
 				template<typename ParentLayout>
 				using Bars42x30Constrained = Framework::Layout::ConstrainedDimensions<ParentLayout, 13, 42, 15, 30>;
@@ -68,18 +68,18 @@ namespace Egfx
 					ParentLayout::X(),
 					ParentLayout::Y(),
 					ParentLayout::Width(),
-					MinValue<pixel_t>(30, ParentLayout::Height())* GetScaleY<ParentLayout, Assets::Bitmask42x30::Height>()
+					MinValue<int16_t>(30, ParentLayout::Height())* GetScaleY<ParentLayout, Assets::Bitmask42x30::Height>()
 				>;
 
 				template<typename ParentLayout>
 				struct Primitives
 				{
-					static constexpr pixel_t BarOffsetX(const uint8_t barIndex)
+					static constexpr int16_t BarOffsetX(const uint8_t barIndex)
 					{
 						return (Dimensions::BarCount - 1) - barIndex;
 					}
 
-					static constexpr pixel_t BarStartY(const uint8_t barIndex)
+					static constexpr int16_t BarStartY(const uint8_t barIndex)
 					{
 						return ParentLayout::Y()
 							+ ParentLayout::Height()
@@ -87,17 +87,17 @@ namespace Egfx
 							- (Dimensions::PrimitiveBarHeight * barIndex);
 					}
 
-					static constexpr pixel_t BarStartX(const uint8_t barIndex)
+					static constexpr int16_t BarStartX(const uint8_t barIndex)
 					{
 						return ParentLayout::X() + BarOffsetX(barIndex);
 					}
 
-					static constexpr pixel_t BarEndY(const uint8_t barIndex)
+					static constexpr int16_t BarEndY(const uint8_t barIndex)
 					{
 						return BarStartY(barIndex) + Dimensions::PrimitiveBarHeight - 1;
 					}
 
-					static constexpr pixel_t BarEndX(const uint8_t barIndex)
+					static constexpr int16_t BarEndX(const uint8_t barIndex)
 					{
 						return ParentLayout::X() + ParentLayout::Width() - 1 - ((Dimensions::BarCount - 1) - barIndex);
 					}
@@ -202,13 +202,13 @@ namespace Egfx
 				template<typename ParentLayout>
 				struct ParallelogramLayout
 				{
-					static constexpr pixel_t X() { return ParentLayout::X(); }
-					static constexpr pixel_t Y() { return ParentLayout::Y(); }
-					static constexpr pixel_t Width() { return ParentLayout::Width(); }
-					static constexpr pixel_t Height() { return ParentLayout::Height(); }
-					static constexpr pixel_t Dimension() { return MinValue(Width(), Height()); }
+					static constexpr int16_t X() { return ParentLayout::X(); }
+					static constexpr int16_t Y() { return ParentLayout::Y(); }
+					static constexpr int16_t Width() { return ParentLayout::Width(); }
+					static constexpr int16_t Height() { return ParentLayout::Height(); }
+					static constexpr int16_t Dimension() { return MinValue(Width(), Height()); }
 
-					static constexpr pixel_t Corner() { return MaxValue<int32_t>(1, Dimension() / Dimensions::ParallelogramCornerDivisor); }
+					static constexpr int16_t Corner() { return MaxValue<int32_t>(1, Dimension() / Dimensions::ParallelogramCornerDivisor); }
 					static constexpr uint8_t BackgroundLinesCount() { return MaxValue<int32_t>(1, Dimension() / Dimensions::ParallelogramBackgroundLinesDivisor); }
 
 					static constexpr pixel_triangle_t Triangle1()

@@ -170,7 +170,7 @@ namespace Egfx
 					using Base = BatteryView<pixel_t, ParentLayout, TemplateBatteryStyle<Monochrome>>;
 
 				private:
-					static constexpr uint32_t CyclePeriod = 5000000;
+					static constexpr uint32_t CyclePeriod = 10000000;
 
 					static constexpr uint32_t ProgressiveDuration = CyclePeriod / 2;
 					static constexpr uint32_t HoldDuration = CyclePeriod / 4;

@@ -96,6 +96,7 @@ namespace Egfx
 				template<uint8_t Index>
 				typename Support::ParameterPack::GetHelper<Index, DrawableTypes...>::type& drawable()
 				{
+					static_assert(Index < DrawableCount, "DrawablesView::drawable<Index>() - Index out of range.");
 					return drawables_.template Get<Index>();
 				}
 
@@ -106,6 +107,7 @@ namespace Egfx
 				template<uint8_t Index>
 				const typename Support::ParameterPack::GetHelper<Index, DrawableTypes...>::type& drawable() const
 				{
+					static_assert(Index < DrawableCount, "DrawablesView::drawable<Index>() - Index out of range.");
 					return drawables_.template Get<Index>();
 				}
 

@@ -68,13 +68,13 @@ namespace Egfx
 					count_t sampleCount = 32
 				>
 				class PlotHorizontalDemoView : public Framework::View::DrawablesView<
-					Drawable::SeriesHorizontal<uint8_t, ParentLayout, TemplatePlotStyle<sampleCount, PlotTypeEnum::Step, false>>,
+					Drawable::SeriesHorizontal<uint8_t, ParentLayout, TemplatePlotStyle<sampleCount, PlotTypeEnum::Line, false>>,
 					Drawable::SeriesHorizontal<uint8_t, ParentLayout, TemplatePlotStyle<sampleCount, PlotTypeEnum::FillLow, false>, Shader::Pixel::PlotDither<uint8_t>>
 				>
 				{
 				private:
 					using Base = Framework::View::DrawablesView<
-						Drawable::SeriesHorizontal<uint8_t, ParentLayout, TemplatePlotStyle<sampleCount, PlotTypeEnum::Step, false>>,
+						Drawable::SeriesHorizontal<uint8_t, ParentLayout, TemplatePlotStyle<sampleCount, PlotTypeEnum::Line, false>>,
 						Drawable::SeriesHorizontal<uint8_t, ParentLayout, TemplatePlotStyle<sampleCount, PlotTypeEnum::FillLow, false>, Shader::Pixel::PlotDither<uint8_t>>
 					>;
 

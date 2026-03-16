@@ -18,4 +18,8 @@
 
 // Timecode text module.
 #include "Modules/TimecodeText/View.h"
+
+// Plot module.
+#include "Modules/Plot/View.h"
+
 #endif

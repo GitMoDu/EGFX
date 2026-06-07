@@ -49,10 +49,9 @@ namespace Egfx
 			digitalWrite(pinDC, HIGH);
 		}
 
-		void EndBuffer() override
+		void EndBufferTransfer() override
 		{
 			BaseClass::SpiInstance.transfer((uint8_t)GC9A01::CommandEnum::Nop);
-			BaseClass::EndBuffer();
 		}
 
 	private:

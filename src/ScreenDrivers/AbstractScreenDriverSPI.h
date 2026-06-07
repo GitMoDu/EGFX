@@ -7,6 +7,9 @@
 #if defined(ARDUINO_ARCH_ESP32)
 #include "Esp32Spi.h"
 #endif
+#if defined(PICO_RP2350)
+#include <hardware/gpio.h>
+#endif
 
 namespace Egfx
 {
@@ -111,8 +114,13 @@ namespace Egfx
 			return false;
 		}
 
+		virtual void EndBufferTransfer()
+		{
+		}
+
 		virtual void EndBuffer()
 		{
+			EndBufferTransfer();
 			CommandEnd();
 		}
 
@@ -127,20 +135,35 @@ namespace Egfx
 		}
 
 	protected:
+		static void DisableInputBuffer(const uint8_t pin)
+		{
+#if defined(PICO_RP2350)
+			if (pin != UINT8_MAX)
+			{
+				gpio_set_input_enabled(pin, false);
+			}
+#else
+			(void)pin;
+#endif
+		}
+
 		void PinReset(const uint32_t waitPeriod = 10)
 		{
 			pinMode(pinDC, OUTPUT);
+			DisableInputBuffer(pinDC);
 			digitalWrite(pinDC, LOW);
 			if (pinCS != UINT8_MAX)
 			{
 				digitalWrite(pinCS, HIGH);
 				pinMode(pinCS, OUTPUT);
+				DisableInputBuffer(pinCS);
 			}
 
 			if (pinRST != UINT8_MAX)
 			{
 				digitalWrite(pinRST, HIGH);
 				pinMode(pinRST, OUTPUT);
+				DisableInputBuffer(pinRST);
 				delayMicroseconds(waitPeriod);
 				digitalWrite(pinRST, LOW);
 				delayMicroseconds(waitPeriod);

@@ -104,10 +104,9 @@ namespace Egfx
 			digitalWrite(pinDC, HIGH);
 		}
 
-		virtual void EndBuffer()
+		virtual void EndBufferTransfer()
 		{
 			SpiInstance.transfer((uint8_t)ST7789::CommandEnum::Nop);
-			BaseClass::EndBuffer();
 		}
 	};
 

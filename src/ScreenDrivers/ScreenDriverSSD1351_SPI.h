@@ -43,11 +43,10 @@ namespace Egfx
 		~AbstractScreenDriverSSD1351_SPI() override = default;
 
 	public:
-		virtual void EndBuffer()
+		virtual void EndBufferTransfer()
 		{
 			digitalWrite(pinDC, LOW);
 			SpiInstance.transfer((uint8_t)SSD1351::CommandEnum::Nop1);
-			BaseClass::EndBuffer();
 		}
 
 		virtual bool Start()

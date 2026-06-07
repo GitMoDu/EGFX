@@ -1,5 +1,3 @@
-// TemplateScreenDriverSpiAsync.h
-
 #ifndef _TEMPLATE_SCREEN_DRIVER_SPI_ASYNC_h
 #define _TEMPLATE_SCREEN_DRIVER_SPI_ASYNC_h
 
@@ -66,7 +64,7 @@ namespace Egfx
 				if (REMAINDER_SIZE > 0)
 				{
 #if defined(ARDUINO_ARCH_STM32F1) || defined(ARDUINO_ARCH_STM32F4)
-					SpiInstance.transfer((uint8_t*)&frameBuffer[REMAINDER_START], CHUNK_SIZE);
+					SpiInstance.transfer((uint8_t*)&frameBuffer[REMAINDER_START], REMAINDER_SIZE);
 #else
 					SpiInstance.transfer((void*)&frameBuffer[REMAINDER_START], REMAINDER_SIZE);
 #endif

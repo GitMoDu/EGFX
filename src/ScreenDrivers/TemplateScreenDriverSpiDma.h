@@ -26,9 +26,6 @@ namespace Egfx
 	template<typename InlineSpiScreenDriver,
 		uint32_t pushSleepDuration,
 		size_t pushChunckMaxSize = UINT8_MAX
-#if defined(ARDUINO_ARCH_RP2040)
-		, uint8_t DmaSpiIndex = UINT8_MAX
-#endif
 	>
 	class TemplateScreenDriverSpiDma : public InlineSpiScreenDriver
 	{
@@ -272,30 +269,16 @@ namespace Egfx
 
 		spi_inst_t* GetRp2040DmaSpiInstance()
 		{
-			if constexpr (DmaSpiIndex == 0)
+			if (&SpiInstance == &SPI)
 			{
-				return spi0;
+				return __SPI0_DEVICE;
 			}
-			else if constexpr (DmaSpiIndex == 1)
+			if (&SpiInstance == &SPI1)
 			{
-				return spi1;
+				return __SPI1_DEVICE;
 			}
-			else
-			{
-#if defined(PIN_SPI0_MISO)
-				if (&SpiInstance == &SPI)
-				{
-					return __SPI0_DEVICE;
-				}
-#endif
-#if defined(PIN_SPI1_MISO)
-				if (&SpiInstance == &SPI1)
-				{
-					return __SPI1_DEVICE;
-				}
-#endif
-				return nullptr;
-			}
+
+			return nullptr;
 		}
 
 		static bool IsRp2040SramBuffer(const void* buffer, const size_t size)

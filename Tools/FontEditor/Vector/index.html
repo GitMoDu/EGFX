@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EGFX Vector Font Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="workspace">
+    <aside class="panel controls-panel">
+      <section>
+        <div class="section-heading"><h1>EGFX Vector Font Editor</h1><button id="resetButton" type="button" class="quiet">Reset</button></div>
+        <h2>Font</h2>
+        <label>Maximum width<input id="maxWidth" type="number" min="1" max="15" value="8"></label>
+        <label>Height<input id="height" type="number" min="1" max="15" value="15"></label>
+        <label>Space width<input id="spaceWidth" type="number" min="0" max="15" value="2"></label>
+      </section>
+      <section>
+        <h2>Glyph tools</h2>
+         <div id="toolPalette" class="tool-palette" aria-label="Glyph drawing tools"><button type="button" data-tool="Select">Select / edit</button></div>
+      </section>
+      <section>
+        <div class="section-heading"><h2>Palette</h2><span id="paletteCount"></span></div>
+        <div id="paletteList" class="palette-list" aria-label="Editable color palette"></div>
+        <button id="addPaletteButton" type="button">Add color</button>
+      </section>
+      <section>
+        <h2>Vector font source</h2>
+        <textarea id="sourceInput" spellcheck="false" placeholder="Paste generated vector font source"></textarea>
+        <div class="button-row"><button id="importButton" type="button">Import source</button><button id="copySourceButton" type="button">Copy source</button></div>
+        <label>Asset name<input id="assetName" value="MyVectorFont"></label>
+        <label>Source namespace<input id="sourceNamespace" value="SourceVector"></label>
+      </section>
+    </aside>
+    <section class="content">
+       <section class="panel output-preview"><div class="preview-title"><h2>Glyph preview</h2><span id="glyphInfo"></span></div><label>Glyph width<input id="glyphWidth" type="number" min="1" max="15" value="8"></label><div class="canvas-wrap"><canvas id="previewCanvas"></canvas></div><div id="nodeEditor" class="node-editor" aria-live="polite"></div><div id="nodeList" class="node-list" aria-label="Vector glyph nodes"></div><div class="button-row"><button id="addNodeButton" type="button">Insert node</button><button id="duplicateNodeButton" type="button">Duplicate</button><button id="deleteNodeButton" type="button" class="danger">Delete node</button></div></section>
+      <section class="panel nodes-panel"><div class="section-heading"><h2>Glyphs</h2><span id="glyphCount"></span></div><div id="glyphList" class="glyph-keyboard"></div></section>
+         <section class="panel text-previews-panel"><div class="section-heading"><h2>Font previews</h2><span id="fontPreviewScaleValue">32 px</span></div><label class="font-preview-scale">Output height<input id="fontPreviewScale" type="range" min="2" max="64" step="1" value="32"></label><div id="textPreviews" class="text-previews"></div></section>
+      <section class="panel output-preview"><div class="preview-title"><h2>C++ output</h2><span id="status" class="status" role="status"></span></div><textarea id="cppOutput" readonly></textarea><button id="copyCppButton" type="button">Copy C++ atlas</button><h2>Font declaration</h2><textarea id="fontOutput" readonly></textarea><button id="copyFontButton" type="button">Copy font declaration</button></section>
+    </section>
+  </main>
+   <script src="../../VectorImageEditor/editor-config.js"></script><script src="../../VectorImageEditor/vector-renderer.js"></script><script src="../../VectorImageEditor/editor-ui.js"></script><script src="../shared/editor-ui.js"></script><script src="../shared/vector-atlas.js"></script><script src="model.js"></script><script src="declaration.js"></script><script src="app.js"></script>
+</body>
+</html>

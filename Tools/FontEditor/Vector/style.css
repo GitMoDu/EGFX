@@ -1,0 +1,30 @@
+@import url("../Bitmask/style.css");
+
+.node-list { display: flex; gap: .35rem; max-width: 100%; overflow-x: auto; padding: .2rem .1rem .45rem; }
+.node-chip { display: inline-flex; align-items: center; gap: .3rem; flex: 0 0 auto; min-width: 4.5rem; padding: .35rem .45rem; background: var(--panel-2); font-size: .78rem; }
+.node-chip:hover, .node-chip.selected { border-color: var(--node-color, var(--accent)); box-shadow: 0 0 0 1px var(--node-color, #286a8d) inset; }
+.node-chip .node-index { color: var(--muted); }
+.node-icon { color: var(--node-color, var(--accent)); font-size: 1rem; line-height: 1; }
+.node-editor { display: grid; grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr); gap: .75rem 1rem; margin-bottom: .65rem; padding-bottom: .65rem; border-bottom: 1px solid var(--line); }
+.node-editor strong { display: block; margin-bottom: .45rem; color: var(--node-color, #d5e8f2); font-size: 1.05rem; }
+.node-identity { display: grid; align-content: start; gap: .5rem; }
+.node-fields { display: flex; flex-wrap: wrap; align-content: start; gap: .5rem; }
+.node-fields label { min-width: 7rem; flex: 1 1 7rem; }
+.node-index { text-align: center; color: var(--muted); font: .75rem ui-monospace, monospace; }
+@media (max-width: 700px) { .node-editor { grid-template-columns: 1fr; } }
+
+.tool-palette { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .3rem; }
+.tool-palette button { padding: .3rem; }
+.tool-palette button.active { background: var(--accent); border-color: #9ce0ff; color: #071116; }
+.palette-list { display: grid; gap: .35rem; }
+.palette-row { display: grid; grid-template-columns: 1.5rem 2.2rem 1fr 2rem; gap: .45rem; align-items: center; padding: .25rem; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-2); }
+.palette-row input[type="color"] { width: 2.2rem; height: 1.8rem; padding: .1rem; }
+.palette-row output { color: var(--muted); font: .75rem ui-monospace, monospace; }
+.glyph-button { min-width: 2.1rem; padding: .3rem; }
+.glyph-button.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.font-wrap { min-height: 180px; }
+.font-wrap canvas { max-width: 100%; height: auto; }
+#previewCanvas { max-width: none; aspect-ratio: auto; }
+.text-preview-canvas { display: block; max-width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+.font-preview-scale { display: flex; align-items: center; gap: .65rem; }
+.font-preview-scale input { flex: 1 1 auto; }

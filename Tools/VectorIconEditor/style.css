@@ -1,0 +1,24 @@
+@import url("../FontEditor/Bitmask/style.css");
+
+.content { min-width: 0; }
+.output-preview, .nodes-panel { display: grid; gap: .55rem; }
+.icon-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr)); gap: .3rem; max-height: 28rem; overflow: auto; }
+.icon-button { display: grid; grid-template-columns: 1.35rem minmax(0, 1fr) auto; align-items: center; gap: .3rem; min-width: 0; min-height: 2.25rem; padding: .3rem .4rem; text-align: left; font-size: .78rem; line-height: 1.1; overflow: hidden; }
+.icon-button.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.icon-emoji { font-family: "Segoe MDL2 Assets", sans-serif; font-size: 1rem; line-height: 1; text-align: center; }
+.icon-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-variant { color: var(--muted); font-size: .65rem; }
+.field-help { color: var(--muted); font-size: .72rem; }
+.canvas-wrap { overflow: auto; max-width: 100%; }
+.icon-offset-controls { display: grid; grid-template-columns: repeat(3, 2.4rem); justify-content: center; gap: .25rem; }
+.icon-offset-controls button { min-width: 2.4rem; min-height: 2rem; padding: .2rem; }
+.offset-center { display: grid; place-items: center; color: var(--muted); font-size: .72rem; }
+.assigned-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr)); gap: .6rem; }
+.assigned-tile { display: grid; justify-items: center; gap: .25rem; min-width: 0; padding: .45rem; background: var(--panel-2); }
+.assigned-tile canvas { width: 5rem; height: 5rem; image-rendering: pixelated; image-rendering: crisp-edges; background: #000; }
+.assigned-tile span, .assigned-tile small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.assigned-tile small, .empty-state { color: var(--muted); font-size: .72rem; }
+.icon-button.unassigned { opacity: .65; }
+#previewCanvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+#atlasCanvas { max-width: 100%; height: auto; image-rendering: pixelated; image-rendering: crisp-edges; }
+textarea { min-height: 8rem; }

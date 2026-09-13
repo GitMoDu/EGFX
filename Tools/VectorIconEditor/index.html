@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EGFX Vector Icon Set Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="workspace">
+    <aside class="panel controls-panel">
+      <section>
+        <div class="section-heading"><h1>EGFX Vector Icon Set Editor</h1><button id="resetButton" type="button" class="quiet">Reset</button></div>
+        <h2>Icon set</h2>
+        <label>Canvas width<input id="canvasWidth" type="number" min="1" max="255" value="15"></label>
+        <label>Canvas height<input id="canvasHeight" type="number" min="1" max="255" value="15"></label>
+        <label>Edge inset<input id="inset" type="number" min="0" max="7" value="0"><span class="field-help">Source coordinate units reserved around every icon</span></label>
+        <label>Columns in atlas<input id="atlasColumns" type="number" min="1" max="32" value="8"></label>
+        <label>Asset name<input id="assetName" value="MyIconSet"></label>
+        <label>Source namespace<input id="sourceNamespace" value="SourceIcons"></label>
+      </section>
+      <section>
+        <h2>Icon set source</h2>
+        <textarea id="sourceInput" spellcheck="false" placeholder="Paste exported JSON icon-set data"></textarea>
+        <div class="button-row"><button id="importButton" type="button">Import source</button><button id="copySourceButton" type="button">Copy source</button></div>
+      </section>
+    </aside>
+    <section class="content">
+      <section class="panel output-preview">
+        <div class="preview-title"><h2>Icon preview</h2><span id="iconInfo"></span></div>
+        <div class="canvas-wrap"><canvas id="previewCanvas"></canvas></div>
+        <div class="icon-offset-controls">
+          <span></span><button type="button" data-offset-y="-1" aria-label="Move icon up" title="Move icon up">▲</button><span></span>
+          <button type="button" data-offset-x="-1" aria-label="Move icon left" title="Move icon left">◀</button><span class="offset-center">Offset</span><button type="button" data-offset-x="1" aria-label="Move icon right" title="Move icon right">▶</button>
+          <span></span><button type="button" data-offset-y="1" aria-label="Move icon down" title="Move icon down">▼</button><span></span>
+        </div>
+        <h2>Packed vector data</h2>
+        <textarea id="packedInput" spellcheck="false" placeholder="Paste packed bytes from the Vector Image Editor"></textarea>
+        <div class="button-row"><button id="importPackedButton" type="button">Assign packed data</button><button id="copyPackedButton" type="button">Copy packed data</button><button id="removeIconButton" type="button" class="danger">Remove assignment</button></div>
+        <label>Reassign selected data to<select id="reassignTarget"></select></label>
+        <button id="reassignButton" type="button">Reassign icon</button>
+      </section>
+      <section class="panel nodes-panel"><div class="section-heading"><h2>Icons</h2><span id="iconCount"></span></div><div id="iconList" class="icon-list"></div></section>
+      <section class="panel assigned-panel"><div class="section-heading"><h2>Assigned icons</h2><span id="assignedCount"></span></div><div id="assignedList" class="assigned-list"></div></section>
+      <section class="panel output-preview"><div class="preview-title"><h2>Atlas preview</h2><span id="atlasInfo"></span></div><label class="icon-preview-scale">Output height <span id="iconPreviewScaleValue">32 px</span><input id="iconPreviewScale" type="range" min="2" max="128" step="1" value="32"></label><div class="canvas-wrap atlas-wrap"><canvas id="atlasCanvas"></canvas></div></section>
+      <section class="panel output-preview"><div class="preview-title"><h2>C++ atlas output</h2><span id="status" class="status" role="status"></span></div><textarea id="cppOutput" readonly></textarea><button id="copyCppButton" type="button">Copy complete IconSet source</button><h2>IconSet declaration</h2><textarea id="declarationOutput" readonly></textarea><button id="copyDeclarationButton" type="button">Copy IconSet declaration</button></section>
+    </section>
+  </main>
+  <script src="../VectorImageEditor/editor-config.js"></script>
+  <script src="../VectorImageEditor/vector-renderer.js"></script>
+  <script src="catalog.js"></script>
+  <script src="defaults.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

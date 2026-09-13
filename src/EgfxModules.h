@@ -34,6 +34,5 @@
 
 
 
-//#include "Modules/Logo/View.h" // New logo with for new name, do not commit yet.
 
 #endif

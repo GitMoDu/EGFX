@@ -4,7 +4,6 @@
 #include "../../../Bitmap/Abstract.h"
 #include "../../Color/Shaders.h"
 #include "../../Transform/Shaders.h"
-#include "../../Primitive/Shaders.h"
 
 namespace Egfx
 {

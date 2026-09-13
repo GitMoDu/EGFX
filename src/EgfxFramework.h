@@ -59,10 +59,6 @@
 #include "Framework/Shader/Geometry/CircleRing.h" // No dependency on Sine().
 #include "Framework/Shader/Geometry/CircleArc.h" // Depends on Sine().
 
-// Primitive shaders.
-#include "Framework/Shader/Primitive/Model.h"
-#include "Framework/Shader/Primitive/Shaders.h"
-
 // Bitmask graphics.
 #include "Framework/Bitmask/Model.h"
 #include "Framework/Bitmask/Source.h"

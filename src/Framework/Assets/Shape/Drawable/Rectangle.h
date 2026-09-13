@@ -23,10 +23,10 @@ namespace Egfx
 						typename ParentLayout,
 						typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 					>
-					class RectangleFill : public Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>
+					class RectangleFill : public Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>
 					{
 					private:
-						using Base = Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>;
+						using Base = Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>;
 
 					public:
 						/// <summary>
@@ -61,12 +61,12 @@ namespace Egfx
 						dimension_t StrokeWidth = 1,
 						typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 					>
-					class Rectangle : public Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>
+					class Rectangle : public Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>
 					{
 					private:
 						static_assert(StrokeWidth > 0, "Stroke width must be greater than 0.");
 
-						using Base = Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>;
+						using Base = Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>;
 
 					public:
 						Rectangle() : Base(0, 0, ParentLayout::Width(), ParentLayout::Height())

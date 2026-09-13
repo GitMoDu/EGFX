@@ -11,7 +11,7 @@ namespace SH1106
 	static constexpr uint8_t Width = 132;
 	static constexpr uint8_t Height = 64;
 
-	static constexpr uint32_t BOOT_DELAY_MICROS = 100000;
+	static constexpr uint32_t BOOT_DELAY_MICROS = 64000;
 	static constexpr uint32_t RESET_DELAY_MICROS = 100;
 	static constexpr uint8_t RESET_WAIT_MICROS = 5;
 

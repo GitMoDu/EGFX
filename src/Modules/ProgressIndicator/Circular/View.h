@@ -19,14 +19,14 @@ namespace Egfx
 					typename BorderPixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>,
 					typename TrackPixelShaderType = Framework::Shader::Pixel::MockShader<dimension_t>
 				>
-				class View :public Framework::View::DrawablesView<
+				class View :public Framework::View::DrawablesView<ParentLayout,
 					Drawable::CircularTrack<dimension_t, ParentLayout, Style, TrackPixelShaderType>,
 					Drawable::CircularIndicator<dimension_t, ParentLayout, Style, FillPixelShaderType>,
 					Drawable::CircularBorder<dimension_t, ParentLayout, Style, BorderPixelShaderType>
 				>
 				{
 				private:
-					using Base = Framework::View::DrawablesView<
+					using Base = Framework::View::DrawablesView<ParentLayout,
 						Drawable::CircularTrack<dimension_t, ParentLayout, Style, TrackPixelShaderType>,
 						Drawable::CircularIndicator<dimension_t, ParentLayout, Style, FillPixelShaderType>,
 						Drawable::CircularBorder<dimension_t, ParentLayout, Style, BorderPixelShaderType>
@@ -40,21 +40,6 @@ namespace Egfx
 				public:
 					View() : Base() {}
 					~View() = default;
-
-					void SetBounds(const dimension_t left, const dimension_t top,
-						const dimension_t right, const dimension_t bottom)
-					{
-						Base::template drawable<0>().SetBounds(left, top, right, bottom);
-						Base::template drawable<1>().SetBounds(left, top, right, bottom);
-						Base::template drawable<2>().SetBounds(left, top, right, bottom);
-					}
-
-					void SetTranslation(const int16_t x, const int16_t y)
-					{
-						Base::template drawable<0>().SetTranslation(x, y);
-						Base::template drawable<1>().SetTranslation(x, y);
-						Base::template drawable<2>().SetTranslation(x, y);
-					}
 
 					void SetProgress(const ufraction16_t progress)
 					{

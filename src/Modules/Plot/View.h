@@ -21,14 +21,14 @@ namespace Egfx
 				typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
 				Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace
 			>
-			class View : public Framework::View::DrawablesView<
+			class View : public Framework::View::DrawablesView<ParentLayout,
 				Drawable::TemplatePlot<dimension_t, ParentLayout, PlotStyle,
 				ColorShaderType, TransformShaderType, BlendMode, SourceType>>
 			{
 			private:
 				using DrawableType = Drawable::TemplatePlot<dimension_t, ParentLayout, PlotStyle,
 					ColorShaderType, TransformShaderType, BlendMode, SourceType>;
-				using Base = Framework::View::DrawablesView<DrawableType>;
+				using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 			public:
 				View() : Base() {}
@@ -40,16 +40,6 @@ namespace Egfx
 					Base::template drawable<0>().Bind(source);
 				}
 
-				void SetBounds(const dimension_t left, const dimension_t top,
-					const dimension_t right, const dimension_t bottom)
-				{
-					Base::template drawable<0>().SetBounds(left, top, right, bottom);
-				}
-
-				void SetTranslation(const int16_t x, const int16_t y)
-				{
-					Base::template drawable<0>().SetTranslation(x, y);
-				}
 			};
 
 			namespace Demo

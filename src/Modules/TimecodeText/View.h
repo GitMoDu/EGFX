@@ -30,6 +30,8 @@ namespace Egfx
 				DrawableType TimecodeDrawable{};
 
 			public:
+				using ViewLayout = ParentLayout;
+
 				View() : Base() {}
 				~View() = default;
 

@@ -13,14 +13,14 @@ namespace Egfx
 			namespace View
 			{
 				template<typename ParentLayout, bool Monochrome>
-				class Logo : public Egfx::Framework::View::DrawablesView<
+				class Logo : public Egfx::Framework::View::DrawablesView<ParentLayout,
 					Drawable::Screen<ParentLayout, Monochrome>,
 					Drawable::LettersEG<ParentLayout, Monochrome>,
 					Drawable::LettersFX<ParentLayout, Monochrome>
 				>
 				{
 				private:
-					using Base = Egfx::Framework::View::DrawablesView<
+					using Base = Egfx::Framework::View::DrawablesView<ParentLayout,
 						Drawable::Screen<ParentLayout, Monochrome>,
 						Drawable::LettersEG<ParentLayout, Monochrome>,
 						Drawable::LettersFX<ParentLayout, Monochrome>

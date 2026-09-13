@@ -19,7 +19,7 @@ namespace Egfx
 					typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-				class StaticImageView : public Framework::View::DrawablesView<
+				class StaticImageView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, PaletteType, ColorShaderType, TransformShaderType>>
 				{
 				public:
@@ -27,7 +27,7 @@ namespace Egfx
 
 				private:
 					using DrawableType = Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, PaletteType, ColorShaderType, TransformShaderType>;
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					StaticImageView() : Base() {}
@@ -44,7 +44,7 @@ namespace Egfx
 					typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-					class ImageView : public Framework::View::DrawablesView<
+					class ImageView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Image<dimension_t, ParentLayout, Style, PaletteType, ColorShaderType, TransformShaderType>>
 				{
 				public:
@@ -52,7 +52,7 @@ namespace Egfx
 
 				private:
 					using DrawableType = Drawable::Image<dimension_t, ParentLayout, Style, PaletteType, ColorShaderType, TransformShaderType>;
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					ImageView() : Base() {}

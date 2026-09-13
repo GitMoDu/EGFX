@@ -2,6 +2,7 @@
 #define _EGFX_FRAMEWORK_COMPOSITE_VIEW_h
 
 #include "Model.h"
+#include "Child.h"
 
 namespace Egfx
 {
@@ -17,9 +18,16 @@ namespace Egfx
 			/// The composite DrawCall completes only after every child view has reported completion.
 			/// </summary>
 			/// <typeparam name="ViewTypes">Child view types implementing DrawCall().</typeparam>
-			template<typename... ViewTypes>
+			template<typename ParentLayout, typename... ViewTypes>
 			class CompositeView
 			{
+			public:
+				using ViewLayout = ParentLayout;
+
+			private:
+				template<typename ViewType>
+				using ChildType = Detail::LayoutChild<ViewType, ParentLayout, typename ViewType::ViewLayout>;
+
 			public:
 				static constexpr uint8_t ViewCount = static_cast<uint8_t>(sizeof...(ViewTypes));
 
@@ -48,7 +56,7 @@ namespace Egfx
 				};
 
 			private:
-				Support::ParameterPack::ElementPack<ViewTypes...> InnerViews;
+				Support::ParameterPack::ElementPack<ChildType<ViewTypes>...> InnerViews;
 				uint8_t CurrentView = 0;
 				bool Stepped = false;
 
@@ -71,12 +79,23 @@ namespace Egfx
 
 				virtual ~CompositeView() = default;
 
+				void SetBounds(const int16_t left, const int16_t top,
+					const int16_t right, const int16_t bottom)
+				{
+					BoundsDispatcher<0, ViewCount>::Dispatch(this, left, top, right, bottom);
+				}
+
+				void SetTranslation(const int16_t x, const int16_t y)
+				{
+					TranslationDispatcher<0, ViewCount>::Dispatch(this, x, y);
+				}
+
 				/// <summary>
 				/// Access a specific view by index.
 				/// Example: view<0>().Color = rgb_color_t{255, 0, 0};
 				/// </summary>
 				template<uint8_t Index>
-				typename Support::ParameterPack::GetHelper<Index, ViewTypes...>::type& view()
+				typename Support::ParameterPack::GetHelper<Index, ChildType<ViewTypes>...>::type& view()
 				{
 					return InnerViews.template Get<Index>();
 				}
@@ -86,7 +105,7 @@ namespace Egfx
 				/// Example: view<0>().Color = rgb_color_t{255, 0, 0};
 				/// </summary>
 				template<uint8_t Index>
-				const typename Support::ParameterPack::GetHelper<Index, ViewTypes...>::type& view() const
+				const typename Support::ParameterPack::GetHelper<Index, ChildType<ViewTypes>...>::type& view() const
 				{
 					return InnerViews.template Get<Index>();
 				}
@@ -143,6 +162,40 @@ namespace Egfx
 				}
 
 			private:
+				template<uint8_t Index, uint8_t N>
+				struct BoundsDispatcher
+				{
+					static void Dispatch(CompositeView* self, const int16_t left, const int16_t top,
+						const int16_t right, const int16_t bottom)
+					{
+						self->InnerViews.template Get<Index>().SetBounds(left, top, right, bottom);
+						BoundsDispatcher<Index + 1, N>::Dispatch(self, left, top, right, bottom);
+					}
+				};
+
+				template<uint8_t N>
+				struct BoundsDispatcher<N, N>
+				{
+					static void Dispatch(CompositeView*, const int16_t, const int16_t,
+						const int16_t, const int16_t) {}
+				};
+
+				template<uint8_t Index, uint8_t N>
+				struct TranslationDispatcher
+				{
+					static void Dispatch(CompositeView* self, const int16_t x, const int16_t y)
+					{
+						self->InnerViews.template Get<Index>().SetTranslation(x, y);
+						TranslationDispatcher<Index + 1, N>::Dispatch(self, x, y);
+					}
+				};
+
+				template<uint8_t N>
+				struct TranslationDispatcher<N, N>
+				{
+					static void Dispatch(CompositeView*, const int16_t, const int16_t) {}
+				};
+
 				template<uint8_t Index>
 				bool DrawViewAt(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
 				{

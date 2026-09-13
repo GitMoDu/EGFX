@@ -16,12 +16,12 @@ namespace Egfx
 					typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-				class IconView : public Framework::View::DrawablesView<
+				class IconView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Icon<dimension_t, ParentLayout, IconSetType, Style, PaletteType, ColorShaderType, TransformShaderType>>
 				{
 				private:
 					using DrawableType = Drawable::Icon<dimension_t, ParentLayout, IconSetType, Style, PaletteType, ColorShaderType, TransformShaderType>;
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					using ViewLayout = ParentLayout;

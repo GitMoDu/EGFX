@@ -19,7 +19,7 @@ namespace Egfx
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 				>
-				class TextView : public Framework::View::DrawablesView<
+				class TextView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Text<dimension_t, ParentLayout, GlyphSourceType, GlyphStyle,
 					ColorShaderType, TransformShaderType, BlendMode>
 				>
@@ -31,7 +31,7 @@ namespace Egfx
 					using ViewLayout = ParentLayout;
 
 				private:
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					TextView() : Base() {}
@@ -58,7 +58,7 @@ namespace Egfx
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 				>
-				class NumberView : public Framework::View::DrawablesView<
+				class NumberView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Number<dimension_t, ParentLayout, number_t,
 					GlyphSourceType, GlyphStyle,
 					ColorShaderType, TransformShaderType, BlendMode>
@@ -71,7 +71,7 @@ namespace Egfx
 					using ViewLayout = ParentLayout;
 
 				private:
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					NumberView() : Base() {}

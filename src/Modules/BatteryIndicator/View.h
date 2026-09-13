@@ -23,14 +23,14 @@ namespace Egfx
 				Framework::Shader::Pixel::BlendModeEnum WholeBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace,
 				Framework::Shader::Pixel::BlendModeEnum LastBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace
 			>
-			class View : public Framework::View::DrawablesView<
+			class View : public Framework::View::DrawablesView<ParentLayout,
 				Drawable::Outside<dimension_t, ParentLayout, BatteryStyle, OutsideColorShaderType, OutsideTransformShaderType>,
 				Drawable::ProgressBars<dimension_t, ParentLayout, BatteryStyle,
 				WholeColorShaderType, WholeTransformShaderType, LastColorShaderType, LastTransformShaderType, WholeBlendMode, LastBlendMode>
 			>
 			{
 			private:
-				using Base = Framework::View::DrawablesView<
+				using Base = Framework::View::DrawablesView<ParentLayout,
 					Drawable::Outside<dimension_t, ParentLayout, BatteryStyle, OutsideColorShaderType, OutsideTransformShaderType>,
 					Drawable::ProgressBars<dimension_t, ParentLayout, BatteryStyle,
 					WholeColorShaderType, WholeTransformShaderType, LastColorShaderType, LastTransformShaderType, WholeBlendMode, LastBlendMode>
@@ -53,19 +53,6 @@ namespace Egfx
 			public:
 				View() : Base() {}
 				~View() = default;
-
-				void SetBounds(const dimension_t left, const dimension_t top,
-					const dimension_t right, const dimension_t bottom)
-				{
-					Base::template drawable<0>().SetBounds(left, top, right, bottom);
-					Base::template drawable<1>().SetBounds(left, top, right, bottom);
-				}
-
-				void SetTranslation(const int16_t x, const int16_t y)
-				{
-					Base::template drawable<0>().SetTranslation(x, y);
-					Base::template drawable<1>().SetTranslation(x, y);
-				}
 
 				void SetCharging(const bool charging)
 				{

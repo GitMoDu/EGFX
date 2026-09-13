@@ -16,12 +16,12 @@ namespace Egfx
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>
 				>
-				class TextView : public Framework::View::DrawablesView<
+				class TextView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Text<dimension_t, ParentLayout, FontType, GlyphStyle, ColorShaderType, TransformShaderType>>
 				{
 				private:
 					using DrawableType = Drawable::Text<dimension_t, ParentLayout, FontType, GlyphStyle, ColorShaderType, TransformShaderType>;
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					using ViewLayout = ParentLayout;
@@ -43,7 +43,7 @@ namespace Egfx
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>
 				>
-				class NumberView : public Framework::View::DrawablesView<
+				class NumberView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Number<dimension_t, ParentLayout, number_t, FontType,
 					GlyphStyle, ColorShaderType, TransformShaderType>
 				>
@@ -54,7 +54,7 @@ namespace Egfx
 					using ViewLayout = ParentLayout;
 
 				private:
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					NumberView() : Base() {}

@@ -16,11 +16,11 @@ namespace Egfx
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace>
-				class TextView : public Framework::View::DrawablesView<Drawable::Text<dimension_t, ParentLayout, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>>
+				class TextView : public Framework::View::DrawablesView<ParentLayout, Drawable::Text<dimension_t, ParentLayout, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>>
 				{
 				private:
 					using DrawableType = Drawable::Text<dimension_t, ParentLayout, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>;
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					using ViewLayout = ParentLayout;
@@ -43,11 +43,11 @@ namespace Egfx
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace>
-				class NumberView : public Framework::View::DrawablesView<Drawable::Number<dimension_t, ParentLayout, number_t, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>>
+				class NumberView : public Framework::View::DrawablesView<ParentLayout, Drawable::Number<dimension_t, ParentLayout, number_t, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>>
 				{
 				private:
 					using DrawableType = Drawable::Number<dimension_t, ParentLayout, number_t, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>;
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					using ViewLayout = ParentLayout;

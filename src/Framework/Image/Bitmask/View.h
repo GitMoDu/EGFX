@@ -19,7 +19,7 @@ namespace Egfx
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 				>
-				class StaticImageView : public Framework::View::DrawablesView<
+				class StaticImageView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, ColorShaderType, TransformShaderType, BlendMode>
 				>
 				{
@@ -28,7 +28,7 @@ namespace Egfx
 
 				private:
 					using DrawableType = Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, ColorShaderType, TransformShaderType, BlendMode>;
-					using Base = Framework::View::DrawablesView<DrawableType>;
+					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
 					StaticImageView() : Base() {}

@@ -2,6 +2,7 @@
 #define _EGFX_FRAMEWORK_DRAWABLES_VIEW_h
 
 #include "Model.h"
+#include "Child.h"
 
 namespace Egfx
 {
@@ -20,17 +21,58 @@ namespace Egfx
 			/// When all drawables have been rendered, returns true and resets.
 			/// </summary>
 			/// <typeparam name="DrawableTypes">Drawable types implementing Draw(IFrameBuffer*).</typeparam>
-			template<typename... DrawableTypes>
+			template<typename ParentLayout, typename... DrawableTypes>
 			class DrawablesView
 			{
+			public:
+				using ViewLayout = ParentLayout;
+
 			private:
-				Support::ParameterPack::ElementPack<DrawableTypes...> drawables_;
+				template<typename DrawableType>
+				using ChildType = Detail::LayoutChild<DrawableType, ParentLayout, ParentLayout>;
+
+			private:
+				Support::ParameterPack::ElementPack<ChildType<DrawableTypes>...> drawables_;
 				uint8_t CurrentDrawable = 0;
 
 			public:
 				static constexpr uint8_t DrawableCount = static_cast<uint8_t>(sizeof...(DrawableTypes));
 
 			private:
+				template<uint8_t Index, uint8_t N>
+				struct BoundsDispatcher
+				{
+					static void Dispatch(DrawablesView* self, const int16_t left, const int16_t top,
+						const int16_t right, const int16_t bottom)
+					{
+						self->drawables_.template Get<Index>().SetBounds(left, top, right, bottom);
+						BoundsDispatcher<Index + 1, N>::Dispatch(self, left, top, right, bottom);
+					}
+				};
+
+				template<uint8_t N>
+				struct BoundsDispatcher<N, N>
+				{
+					static void Dispatch(DrawablesView*, const int16_t, const int16_t,
+						const int16_t, const int16_t) {}
+				};
+
+				template<uint8_t Index, uint8_t N>
+				struct TranslationDispatcher
+				{
+					static void Dispatch(DrawablesView* self, const int16_t x, const int16_t y)
+					{
+						self->drawables_.template Get<Index>().SetTranslation(x, y);
+						TranslationDispatcher<Index + 1, N>::Dispatch(self, x, y);
+					}
+				};
+
+				template<uint8_t N>
+				struct TranslationDispatcher<N, N>
+				{
+					static void Dispatch(DrawablesView*, const int16_t, const int16_t) {}
+				};
+
 				// Compile-time dispatcher: calls Draw(frame) on target drawable.
 				template<uint8_t Index>
 				void DrawAt(IFrameBuffer* frame)
@@ -94,7 +136,7 @@ namespace Egfx
 				/// Example: drawable<0>().TransformShader.SetRotation(45);
 				/// </summary>
 				template<uint8_t Index>
-				typename Support::ParameterPack::GetHelper<Index, DrawableTypes...>::type& drawable()
+				typename Support::ParameterPack::GetHelper<Index, ChildType<DrawableTypes>...>::type& drawable()
 				{
 					static_assert(Index < DrawableCount, "DrawablesView::drawable<Index>() - Index out of range.");
 					return drawables_.template Get<Index>();
@@ -118,12 +160,23 @@ namespace Egfx
 				template<uint8_t Index>
 				auto transformShader() const -> const decltype(drawable<Index>().TransformShader)& { return drawable<Index>().TransformShader; }
 
+				void SetBounds(const int16_t left, const int16_t top,
+					const int16_t right, const int16_t bottom)
+				{
+					BoundsDispatcher<0, DrawableCount>::Dispatch(this, left, top, right, bottom);
+				}
+
+				void SetTranslation(const int16_t x, const int16_t y)
+				{
+					TranslationDispatcher<0, DrawableCount>::Dispatch(this, x, y);
+				}
+
 				/// <summary>
 				/// Access a specific const drawable by index.
 				/// Example: drawable<0>().TransformShader.SetRotation(45);
 				/// </summary>
 				template<uint8_t Index>
-				const typename Support::ParameterPack::GetHelper<Index, DrawableTypes...>::type& drawable() const
+				const typename Support::ParameterPack::GetHelper<Index, ChildType<DrawableTypes>...>::type& drawable() const
 				{
 					static_assert(Index < DrawableCount, "DrawablesView::drawable<Index>() - Index out of range.");
 					return drawables_.template Get<Index>();

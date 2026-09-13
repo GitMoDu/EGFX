@@ -11,7 +11,7 @@ namespace Egfx
 		{
 			namespace View
 			{
-				template<typename Layout
+				template<typename ParentLayout
 					, FpsDrawerPosition fpsDrawerPosition = FpsDrawerPosition::TopRight
 					, uint8_t AveragingSampleCount = 5>
 				class FpsText : public Framework::View::AbstractView
@@ -20,7 +20,8 @@ namespace Egfx
 					using Base = Framework::View::AbstractView;
 
 				public:
-					using DrawableType = Drawable::FpsText<Layout, fpsDrawerPosition>;
+					using ViewLayout = ParentLayout;
+					using DrawableType = Drawable::FpsText<ParentLayout, fpsDrawerPosition>;
 
 				private:
 					enum class StateEnum : uint8_t
@@ -113,16 +114,16 @@ namespace Egfx
 				};
 
 				template<
-					typename Layout,
+					typename ParentLayout,
 					FpsDrawerPosition fpsDrawerPosition = FpsDrawerPosition::TopRight,
 					typename... ViewTypes>
-				class CompositeWithFps : public Framework::View::CompositeView<
+				class CompositeWithFps : public Framework::View::CompositeView<ParentLayout,
 					ViewTypes...,
-					FpsText<Layout, fpsDrawerPosition>>
+					FpsText<ParentLayout, fpsDrawerPosition>>
 				{
 				private:
-					using FpsViewType = FpsText<Layout, fpsDrawerPosition>;
-					using Base = Framework::View::CompositeView<ViewTypes..., FpsViewType>;
+					using FpsViewType = FpsText<ParentLayout, fpsDrawerPosition>;
+					using Base = Framework::View::CompositeView<ParentLayout, ViewTypes..., FpsViewType>;
 
 				public:
 					CompositeWithFps() = default;
@@ -130,8 +131,7 @@ namespace Egfx
 					template<typename... Args>
 					explicit CompositeWithFps(Args&&... args)
 						: Base(static_cast<Args&&>(args)...)
-					{
-					}
+					{}
 
 					FpsViewType& FpsView()
 					{

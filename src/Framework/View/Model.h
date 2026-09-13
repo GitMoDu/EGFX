@@ -63,6 +63,8 @@ namespace Egfx
 					/// <param name="x">Horizontal output translation in pixels.</param>
 					/// <param name="y">Vertical output translation in pixels.</param>
 					void SetTranslation(const int16_t /*x*/, const int16_t /*y*/) {}
+
+					bool IsVisible() const { return true; }
 				};
 			}
 

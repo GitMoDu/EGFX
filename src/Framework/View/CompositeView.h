@@ -39,6 +39,11 @@ namespace Egfx
 					{
 						if (Index == target)
 						{
+							if (!self->InnerViews.template Get<Index>().IsVisible())
+							{
+								return true;
+							}
+
 							return self->template DrawViewAt<Index>(frame, frameTime, frameCounter);
 						}
 
@@ -85,6 +90,8 @@ namespace Egfx
 					BoundsDispatcher<0, ViewCount>::Dispatch(this, left, top, right, bottom);
 				}
 
+				bool IsVisible() const { return true; }
+
 				void SetTranslation(const int16_t x, const int16_t y)
 				{
 					TranslationDispatcher<0, ViewCount>::Dispatch(this, x, y);
@@ -125,7 +132,6 @@ namespace Egfx
 						Stepped = false;
 						return true;
 					}
-
 					if (CurrentView >= ViewCount)
 					{
 						CurrentView = 0;

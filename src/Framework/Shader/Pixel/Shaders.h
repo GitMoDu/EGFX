@@ -100,9 +100,9 @@ namespace Egfx
 						Viewport.TranslationY = y;
 					}
 
-					void SetViewport(const viewport_t viewport)
+					bool IsVisible() const
 					{
-						Viewport = viewport;
+						return Viewport.IsValid();
 					}
 
 					/// <summary>

@@ -87,7 +87,10 @@ namespace Egfx
 					{
 						if (Index == target)
 						{
-							self->template DrawAt<Index>(frame);
+							if (self->drawables_.template Get<Index>().IsVisible())
+							{
+								self->template DrawAt<Index>(frame);
+							}
 						}
 						else
 						{
@@ -165,6 +168,8 @@ namespace Egfx
 				{
 					BoundsDispatcher<0, DrawableCount>::Dispatch(this, left, top, right, bottom);
 				}
+
+				bool IsVisible() const { return true; }
 
 				void SetTranslation(const int16_t x, const int16_t y)
 				{

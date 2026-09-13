@@ -1,10 +1,7 @@
 #ifndef _EGFX_FRAMEWORK_SHADER_PRIMITIVE_MODEL_h
 #define _EGFX_FRAMEWORK_SHADER_PRIMITIVE_MODEL_h
 
-#include "../../../EgfxCore.h"
-
-#include "../Source/Sources.h"
-#include "../Pixel/Shaders.h"
+#include "../Model.h"
 
 namespace Egfx
 {

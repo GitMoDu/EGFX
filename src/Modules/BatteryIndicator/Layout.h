@@ -24,16 +24,7 @@ namespace Egfx
 					template<typename ParentLayout>
 					static constexpr pixel_rectangle_t TranslateToParent(const pixel_rectangle_t r)
 					{
-						return pixel_rectangle_t{
-							pixel_point_t{
-								static_cast<pixel_t>(ParentLayout::X() + r.topLeft.x),
-								static_cast<pixel_t>(ParentLayout::Y() + r.topLeft.y)
-							},
-							pixel_point_t{
-								static_cast<pixel_t>(ParentLayout::X() + r.bottomRight.x),
-								static_cast<pixel_t>(ParentLayout::Y() + r.bottomRight.y)
-							}
-						};
+						return r;
 					}
 
 					template<typename ParentLayout, OrientationEnum Orientation>
@@ -314,8 +305,8 @@ namespace Egfx
 					}
 
 					using InnerLayout = Framework::TemplateLayout<
-						ParentLayout::X() + Battery::StrokeWidth() + InnerMargin(),
-						ParentLayout::Y() + Battery::StrokeWidth() + InnerMargin(),
+						Battery::StrokeWidth() + InnerMargin(),
+						Battery::StrokeWidth() + InnerMargin(),
 						Battery::EffectiveWidth() - Battery::HeadWidth() - Battery::StrokeWidth() - InnerMargin(),
 						Battery::EffectiveHeight() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2)
 					>;

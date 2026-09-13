@@ -12,7 +12,8 @@ namespace Egfx
 			namespace Layout
 			{
 				template<typename ParentLayout>
-				using Time = Framework::Layout::HorizontalWeighted<ParentLayout,
+				using Time =
+					Framework::Layout::HorizontalWeighted<ParentLayout,
 					Dimensions::DigitLayoutWeight, // 0
 					Dimensions::KerningLayoutWeight,
 					Dimensions::DigitLayoutWeight, // 2
@@ -32,7 +33,8 @@ namespace Egfx
 					Dimensions::DigitLayoutWeight, // 12
 					Dimensions::KerningLayoutWeight,
 					Dimensions::DigitLayoutWeight // 14
-				>;
+					>;
+
 
 				static constexpr uint8_t Digi1Index = 0;
 				static constexpr uint8_t Digi2Index = 2;

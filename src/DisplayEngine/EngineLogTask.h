@@ -26,7 +26,7 @@ namespace Egfx
 		Print& SerialInstance;
 
 	public:
-		PerformanceLogTask(TS::Scheduler& scheduler, IFrameEngine& engine, Print& serial = Serial)
+		PerformanceLogTask(TS::Scheduler& scheduler, IFrameEngine& engine, Print& serial)
 			: TS::Task(LogPeriodMillis, TASK_FOREVER, &scheduler, false)
 			, Engine(engine)
 			, SerialInstance(serial)

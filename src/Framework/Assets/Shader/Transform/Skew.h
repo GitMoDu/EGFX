@@ -18,22 +18,27 @@ namespace Egfx
 					/// Produces an X offset proportional to (y - ReferenceY), scaled by the configured skew amount.
 					/// </summary>
 					/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-					/// <typeparam name="Height">Transform-space height used to normalize the skew fraction.</typeparam>
 					/// <typeparam name="Base">Base transform type in the chain (defaults to BaseTransform).</typeparam>
 					template<typename dimension_t,
-						dimension_t Height,
 						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>
 					>
 					class SkewX : public Base
 					{
 					private:
-						using signed_t = typename TypeTraits::TypeSign::make_signed<dimension_t>::type;
-						using Selector = Framework::Shader::Transform::FractionSelector<1, Height>;
-						using fraction_t = typename Selector::fraction_t;
+						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
+
+						//static constexpr bool Use16 = (sizeof(dimension_t) > sizeof(uint8_t));
+						static constexpr bool Use16 = true;
+						using fraction_t = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type <
+							fraction16_t,
+							fraction8_t,
+							Use16
+						> ::type;
 
 					private:
+						dimension_t Height = 0;
 						/// <summary>Skew reference line in Y (transform-space).</summary>
-						dimension_t ReferenceY = static_cast<dimension_t>(Height / 2);
+						dimension_t ReferenceY = 0;
 
 						/// <summary>Cached value: skewPixels / (Height - 1) as a signed fixed-point fraction.</summary>
 						fraction_t SkewFraction = 0;
@@ -41,6 +46,13 @@ namespace Egfx
 					public:
 						SkewX() : Base() {}
 						~SkewX() = default;
+
+						void SetHeight(const dimension_t height)
+						{
+							Height = height;
+						}
+
+						dimension_t GetHeight() const { return Height; }
 
 						/// <summary>
 						/// Sets the skew amount in pixels applied over the full Height range.
@@ -55,11 +67,11 @@ namespace Egfx
 								return;
 							}
 
-							const signed_t limitedSkew = LimitValue<signed_t,
+							const signed_t limitedSkew = LimitValue<signed_t>(skewPixels,
 								-static_cast<signed_t>(Height - 1),
-								static_cast<signed_t>(Height - 1)>(skewPixels);
+								static_cast<signed_t>(Height - 1));
 
-							if (Selector::Use16)
+							if (Use16)
 								SkewFraction = Fraction16::GetScalar<signed_t>(limitedSkew, static_cast<signed_t>(Height - 1));
 							else
 								SkewFraction = Fraction8::GetScalar<signed_t>(limitedSkew, static_cast<signed_t>(Height - 1));
@@ -68,6 +80,9 @@ namespace Egfx
 						/// <summary>Gets the configured skew amount in pixels across the height.</summary>
 						signed_t GetSkewX() const
 						{
+							if (Height <= 1)
+								return 0;
+
 							return Fraction<signed_t>(SkewFraction, static_cast<signed_t>(Height - 1));
 						}
 
@@ -113,22 +128,26 @@ namespace Egfx
 					/// Produces a Y offset proportional to (x - ReferenceX), scaled by the configured skew amount.
 					/// </summary>
 					/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-					/// <typeparam name="Width">Transform-space width used to normalize the skew fraction.</typeparam>
 					/// <typeparam name="Base">Base transform type in the chain (defaults to BaseTransform).</typeparam>
 					template<typename dimension_t,
-						dimension_t Width,
 						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>
 					>
 					class SkewY : public Base
 					{
 					private:
 						using signed_t = typename TypeTraits::TypeSign::make_signed<dimension_t>::type;
-						using Selector = Framework::Shader::Transform::FractionSelector<Width>;
-						using fraction_t = typename Selector::fraction_t;
+						//static constexpr bool Use16 = (sizeof(dimension_t) > sizeof(uint8_t));
+						static constexpr bool Use16 = true;
+						using fraction_t = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type <
+							fraction16_t,
+							fraction8_t,
+							Use16
+						> ::type;
 
 					private:
+						dimension_t Width = 0;
 						/// <summary>Skew reference line in X (transform-space).</summary>
-						dimension_t ReferenceX = static_cast<dimension_t>(Width / 2);
+						dimension_t ReferenceX = 0;
 
 						/// <summary>Cached value: skewPixels / (Width - 1) as a signed fixed-point fraction.</summary>
 						fraction_t SkewFraction = 0;
@@ -136,6 +155,13 @@ namespace Egfx
 					public:
 						SkewY() : Base() {}
 						~SkewY() = default;
+
+						void SetWidth(const dimension_t width)
+						{
+							Width = width;
+						}
+
+						dimension_t GetWidth() const { return Width; }
 
 						/// <summary>
 						/// Sets the skew amount in pixels applied over the full Width range.
@@ -150,11 +176,11 @@ namespace Egfx
 								return;
 							}
 
-							const signed_t limitedSkew = LimitValue<signed_t,
+							const signed_t limitedSkew = LimitValue<signed_t>(skewPixels,
 								-static_cast<signed_t>(Width - 1),
-								static_cast<signed_t>(Width - 1)>(skewPixels);
+								static_cast<signed_t>(Width - 1));
 
-							if (Selector::Use16)
+							if (Use16)
 								SkewFraction = Fraction16::GetScalar<signed_t>(limitedSkew, static_cast<signed_t>(Width - 1));
 							else
 								SkewFraction = Fraction8::GetScalar<signed_t>(limitedSkew, static_cast<signed_t>(Width - 1));
@@ -163,6 +189,9 @@ namespace Egfx
 						/// <summary>Gets the configured skew amount in pixels across the width.</summary>
 						signed_t GetSkewY() const
 						{
+							if (Width <= 1)
+								return 0;
+
 							return Fraction<signed_t>(SkewFraction, static_cast<signed_t>(Width - 1));
 						}
 
@@ -207,15 +236,11 @@ namespace Egfx
 					/// Combined skew transform (Y skew, then X skew) using the provided Base transform chain.
 					/// </summary>
 					/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-					/// <typeparam name="Width">Transform-space width used by SkewY.</typeparam>
-					/// <typeparam name="Height">Transform-space height used by SkewX.</typeparam>
 					/// <typeparam name="Base">Base transform type in the chain (defaults to BaseTransform).</typeparam>
 					template<typename dimension_t,
-						dimension_t Width,
-						dimension_t Height,
 						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>
 					>
-					using SkewXY = SkewY<dimension_t, Width, SkewX<dimension_t, Height, Base>>;
+					using SkewXY = SkewY<dimension_t, SkewX<dimension_t, Base>>;
 				}
 			}
 		}

@@ -22,18 +22,24 @@
 #include "Framework/Assets/Shader/Transform/DitherMask.h"
 
 // Bitmask fonts.
-#include "Framework/Assets/Font/Bitmask/Plastic/Plastic.h" // Simple small font with 3x5 and 5x5 variants.
-#include "Framework/Assets/Font/Bitmask/Micron/Micron.h" // Subpixel-font with 1x5 and 2x5 variants.
+#include "Framework/Assets/Font/Bitmask/Contact/FontType.h" // Simple small font 5X6 with full ASCII set.
+#include "Framework/Assets/Font/Bitmask/Sealant/FontType.h" // Reduced character set of uppercase letters (F, P, S) and numbers for FPS counters.
+#include "Framework/Assets/Font/Bitmask/Threadlocker/FontType.h" // Tiny font for very small sizes with clear(ish) legibility. Uppercase-only letters, numbers and a few symbols.
+#include "Framework/Assets/Font/Bitmask/Resin/FontType.h" // Monospace 6x6 bitmask font for retro terminal and serial output.
 
-// Code font implementations.
-#include "Framework/Assets/Font/Code/RawBot.h" // Monospaced font with programming ligatures.
+// Bitmap fonts.
+#include "Framework/Assets/Font/Bitmap/ContactChromatic/FontType.h" // Colored bitmap version of the Contact font with full ASCII set, and groovy colors.
+#include "Framework/Assets/Font/Bitmap/Cyanoacrylate/FontType.h" // Subpixel-font with 1x5 and 2x5 variants.
 
-// Vector font Epoxy variants.
-#include "Framework/Assets/Font/Vector/Epoxy/EpoxyFullType.h" // Full-featured vector font with uppercase, lowercase, numbers, punctuation, and symbols.
-#include "Framework/Assets/Font/Vector/Epoxy/EpoxyNumbersType.h" // Compact vector font with numbers and basic punctuation.
 
-// Drawables.
-#include "Framework/Assets/Code/Drawable/Rectangle.h"
-#include "Framework/Assets/Code/Drawable/RoundedRectangle.h"
+// Vector fonts.
+#include "Framework/Assets/Font/Vector/Epoxy/FontType.h" // Full-featured vector font with uppercase, lowercase, numbers, punctuation, and symbols.
+
+// Vector icons.
+#include "Framework/Assets/Icon/Vector/Silkscreen/IconSetType.h" // Rich icon set in outline style.
+
+// Shape drawables.
+#include "Framework/Assets/Shape/Drawable/Rectangle.h"
+#include "Framework/Assets/Shape/Drawable/RoundedRectangle.h"
 
 #endif

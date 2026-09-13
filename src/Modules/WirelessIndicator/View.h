@@ -1,7 +1,7 @@
 #ifndef _EGFX_MODULES_WIRELESS_INDICATOR_VIEW_h
 #define _EGFX_MODULES_WIRELESS_INDICATOR_VIEW_h
 
-#include <EgfxAssets.h>
+#include "../../EgfxFramework.h"
 #include <IntegerSignal.h>
 
 #include "Constant.h"
@@ -20,6 +20,9 @@ namespace Egfx
 		{
 			namespace View
 			{
+				template<typename LayoutType>
+				using dimension_t = typename Framework::AutoDimension::ByLayout<LayoutType>::dimension_t;
+
 				namespace Bitmask
 				{
 					namespace Abstract
@@ -139,38 +142,50 @@ namespace Egfx
 						};
 					}
 
-					template<typename ParentLayout, bool Monochrome>
+					template<typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bars22x16 = Abstract::Bars4<
-						Drawable::Bitmask::Bars22x16Slice0<Layout::Bars22x16Slice0<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars22x16Slice1<Layout::Bars22x16Slice1<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars22x16Slice2<Layout::Bars22x16Slice2<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars22x16Slice3<Layout::Bars22x16Slice3<ParentLayout>, Monochrome>,
+						Drawable::Bitmask::Bars22x16Slice0<dimension_t<ParentLayout>, Layout::Bars22x16Slice0<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars22x16Slice1<dimension_t<ParentLayout>, Layout::Bars22x16Slice1<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars22x16Slice2<dimension_t<ParentLayout>, Layout::Bars22x16Slice2<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars22x16Slice3<dimension_t<ParentLayout>, Layout::Bars22x16Slice3<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
 						Monochrome>;
 
-					template<typename ParentLayout, bool Monochrome>
+					template<typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bars24x16 = Abstract::Bars4<
-						Drawable::Bitmask::Bars24x16Slice0<Layout::Bars24x16Slice0<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars24x16Slice1<Layout::Bars24x16Slice1<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars24x16Slice2<Layout::Bars24x16Slice2<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars24x16Slice3<Layout::Bars24x16Slice3<ParentLayout>, Monochrome>,
+						Drawable::Bitmask::Bars24x16Slice0<dimension_t<ParentLayout>, Layout::Bars24x16Slice0<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars24x16Slice1<dimension_t<ParentLayout>, Layout::Bars24x16Slice1<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars24x16Slice2<dimension_t<ParentLayout>, Layout::Bars24x16Slice2<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars24x16Slice3<dimension_t<ParentLayout>, Layout::Bars24x16Slice3<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
 						Monochrome>;
 
-					template<typename ParentLayout, bool Monochrome>
+					template<typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bars42x30 = Abstract::Bars4<
-						Drawable::Bitmask::Bars42x30Slice0<Layout::Bars42x30Slice0<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars42x30Slice1<Layout::Bars42x30Slice1<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars42x30Slice2<Layout::Bars42x30Slice2<ParentLayout>, Monochrome>,
-						Drawable::Bitmask::Bars42x30Slice3<Layout::Bars42x30Slice3<ParentLayout>, Monochrome>,
+						Drawable::Bitmask::Bars42x30Slice0<dimension_t<ParentLayout>, Layout::Bars42x30Slice0<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars42x30Slice1<dimension_t<ParentLayout>, Layout::Bars42x30Slice1<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars42x30Slice2<dimension_t<ParentLayout>, Layout::Bars42x30Slice2<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
+						Drawable::Bitmask::Bars42x30Slice3<dimension_t<ParentLayout>, Layout::Bars42x30Slice3<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>,
 						Monochrome>;
 
-					template<typename ParentLayout>
+					template<typename ParentLayout,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					class DisabledOverlay : public Framework::View::DrawablesView<
-						Drawable::Bitmask::DisabledOverlay<ParentLayout>
+						Drawable::Bitmask::DisabledOverlay<dimension_t<ParentLayout>, ParentLayout, ColorShaderType, TransformShaderType, BlendMode>
 					>
 					{
 					private:
 						using Base = Framework::View::DrawablesView<
-							Drawable::Bitmask::DisabledOverlay<ParentLayout>
+							Drawable::Bitmask::DisabledOverlay<dimension_t<ParentLayout>, ParentLayout, ColorShaderType, TransformShaderType, BlendMode>
 						>;
 
 					public:
@@ -235,7 +250,7 @@ namespace Egfx
 						private:
 							void SetBarsDithering(const uint16_t frameCounter, IntegerSignal::TypeTraits::TypeDispatch::TrueType)
 							{
-								this->template drawable<0>().OddFrame = frameCounter & 0b1;
+								this->template drawable<0>().TransformShader.SetMaskPhase(frameCounter & 0b1);
 							}
 
 							void SetBarsDithering(const uint16_t /*frameCounter*/, IntegerSignal::TypeTraits::TypeDispatch::FalseType)
@@ -245,34 +260,49 @@ namespace Egfx
 						};
 					}
 
-					template<typename ParentLayout, bool Monochrome>
+					template<typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bars8x7 = Abstract::Bars<
-						Drawable::Primitive::Bars8x7<Layout::Bars8x7<ParentLayout>, Monochrome>, Monochrome
+						Drawable::Bars8x7<dimension_t<ParentLayout>, Layout::Bars8x7<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>, Monochrome
 					>;
 
-					template<typename ParentLayout, bool Monochrome>
+					template<typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bars8x8 = Abstract::Bars<
-						Drawable::Primitive::Bars8x8<Layout::Bars8x8<ParentLayout>, Monochrome>, Monochrome
+						Drawable::Bars8x8<dimension_t<ParentLayout>, Layout::Bars8x8<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>, Monochrome
 					>;
 
-					template<typename ParentLayout, bool Monochrome>
+					template<typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bars10x7 = Abstract::Bars<
-						Drawable::Primitive::Bars10x7<Layout::Bars10x7<ParentLayout>, Monochrome>, Monochrome
+						Drawable::Bars10x7<dimension_t<ParentLayout>, Layout::Bars10x7<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>, Monochrome
 					>;
 
-					template<typename ParentLayout, bool Monochrome>
+					template<typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bars12x9 = Abstract::Bars<
-						Drawable::Primitive::Bars12x9<Layout::Bars12x9<ParentLayout>, Monochrome>, Monochrome
+						Drawable::Bars12x9<dimension_t<ParentLayout>, Layout::Bars12x9<ParentLayout>, Monochrome, ColorShaderType, TransformShaderType, BlendMode>, Monochrome
 					>;
 
-					template<typename ParentLayout>
+					template<typename ParentLayout,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					class DisabledOverlay : public Framework::View::DrawablesView<
-						Drawable::Primitive::DisabledOverlay<ParentLayout>
+						Drawable::DisabledOverlay<dimension_t<ParentLayout>, ParentLayout, ColorShaderType, TransformShaderType, BlendMode>
 					>
 					{
 					private:
 						using Base = Framework::View::DrawablesView<
-							Drawable::Primitive::DisabledOverlay<ParentLayout>
+							Drawable::DisabledOverlay<dimension_t<ParentLayout>, ParentLayout, ColorShaderType, TransformShaderType, BlendMode>
 						>;
 
 					public:
@@ -291,34 +321,41 @@ namespace Egfx
 				}
 
 
-				template<typename ParentLayout, bool Monochrome>
+				template<typename ParentLayout, bool Monochrome,
+					typename BarsColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+					typename BarsTransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+					Framework::Shader::Pixel::BlendModeEnum BarsBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace,
+					typename DisabledColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+					typename DisabledTransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+					Framework::Shader::Pixel::BlendModeEnum DisabledBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace
+				>
 				struct ViewSelector
 				{
 					using BaseSelector = Selector::BaseSelector<ParentLayout, Monochrome>;
 					using LayoutSelector = Layout::LayoutSelector<ParentLayout, Monochrome>;
 
 					using PrimitiveWideOr = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-						Primitive::Bars8x8<typename LayoutSelector::Bars, Monochrome>,
-						Primitive::Bars8x7<typename LayoutSelector::Bars, Monochrome>,
+						Primitive::Bars8x8<typename LayoutSelector::Bars, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode>,
+						Primitive::Bars8x7<typename LayoutSelector::Bars, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode>,
 						BaseSelector::UseWidePrimitive()>::type;
 
 					using PrimitiveHighOr = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-						Primitive::Bars10x7<typename LayoutSelector::Bars, Monochrome>,
+						Primitive::Bars10x7<typename LayoutSelector::Bars, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode>,
 						PrimitiveWideOr,
 						BaseSelector::UseHighPrimitive()>::type;
 
 					using PrimitiveTallOr = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-						Primitive::Bars12x9<typename LayoutSelector::Bars, Monochrome>,
+						Primitive::Bars12x9<typename LayoutSelector::Bars, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode>,
 						PrimitiveHighOr,
 						BaseSelector::UseTallPrimitive()>::type;
 
 					using BitmaskMediumOr = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-						Bitmask::Bars24x16<typename LayoutSelector::Bars, Monochrome>,
-						Bitmask::Bars22x16<typename LayoutSelector::Bars, Monochrome>,
+						Bitmask::Bars24x16<typename LayoutSelector::Bars, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode>,
+						Bitmask::Bars22x16<typename LayoutSelector::Bars, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode>,
 						BaseSelector::UseMediumBitmask()>::type;
 
 					using BitmaskTallOr = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-						Bitmask::Bars42x30<typename LayoutSelector::Bars, Monochrome>,
+						Bitmask::Bars42x30<typename LayoutSelector::Bars, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode>,
 						BitmaskMediumOr,
 						BaseSelector::UseTallBitmask()>::type;
 
@@ -328,22 +365,29 @@ namespace Egfx
 						BaseSelector::UseBitmask()>::type;
 
 					using DisabledOverlay = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-						Bitmask::DisabledOverlay<typename LayoutSelector::Bars>,
-						Primitive::DisabledOverlay<typename LayoutSelector::Bars>,
+						Bitmask::DisabledOverlay<typename LayoutSelector::Bars, DisabledColorShaderType, DisabledTransformShaderType, DisabledBlendMode>,
+						Primitive::DisabledOverlay<typename LayoutSelector::Bars, DisabledColorShaderType, DisabledTransformShaderType, DisabledBlendMode>,
 						BaseSelector::UseBitmask()>::type;
 				};
 
 				template<typename ParentLayout,
-					bool Monochrome>
-				class IndicatorView : public Framework::View::CompositeView<
-					typename ViewSelector<ParentLayout, Monochrome>::Bars,
-					typename ViewSelector<ParentLayout, Monochrome>::DisabledOverlay
+					bool Monochrome,
+					typename BarsColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+					typename BarsTransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+					Framework::Shader::Pixel::BlendModeEnum BarsBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace,
+					typename DisabledColorShaderType = Framework::Shader::Color::NoShader<dimension_t<ParentLayout>>,
+					typename DisabledTransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t<ParentLayout>>,
+					Framework::Shader::Pixel::BlendModeEnum DisabledBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace
+				>
+				class Indicator : public Framework::View::CompositeView<
+					typename ViewSelector<ParentLayout, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode, DisabledColorShaderType, DisabledTransformShaderType, DisabledBlendMode>::Bars,
+					typename ViewSelector<ParentLayout, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode, DisabledColorShaderType, DisabledTransformShaderType, DisabledBlendMode>::DisabledOverlay
 				>
 				{
 				private:
 					using Base = Framework::View::CompositeView<
-						typename ViewSelector<ParentLayout, Monochrome>::Bars,
-						typename ViewSelector<ParentLayout, Monochrome>::DisabledOverlay>;
+						typename ViewSelector<ParentLayout, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode, DisabledColorShaderType, DisabledTransformShaderType, DisabledBlendMode>::Bars,
+						typename ViewSelector<ParentLayout, Monochrome, BarsColorShaderType, BarsTransformShaderType, BarsBlendMode, DisabledColorShaderType, DisabledTransformShaderType, DisabledBlendMode>::DisabledOverlay>;
 
 					using MonochromeTag =
 						typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
@@ -372,8 +416,8 @@ namespace Egfx
 					IndicatorModeEnum LastIndicatorMode = IndicatorModeEnum::EnumCount;
 
 				public:
-					IndicatorView() : Base() {}
-					~IndicatorView() = default;
+					Indicator() : Base() {}
+					~Indicator() = default;
 
 				protected:
 					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
@@ -475,10 +519,10 @@ namespace Egfx
 
 				template<typename ParentLayout,
 					bool Monochrome>
-				class IndicatorDemoView : public IndicatorView<ParentLayout, Monochrome>
+				class Demo : public Indicator<ParentLayout, Monochrome>
 				{
 				private:
-					using Base = IndicatorView<ParentLayout, Monochrome>;
+					using Base = Indicator<ParentLayout, Monochrome>;
 
 				public:
 					using Base::IndicatorMode;
@@ -491,8 +535,8 @@ namespace Egfx
 					uint32_t LastModeChangeTime = 0;
 
 				public:
-					IndicatorDemoView() : Base() {}
-					~IndicatorDemoView() = default;
+					Demo() : Base() {}
+					~Demo() = default;
 
 				protected:
 					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override

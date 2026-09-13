@@ -100,6 +100,24 @@ namespace Egfx
 					return drawables_.template Get<Index>();
 				}
 
+				template<uint8_t Index>
+				auto colorSource() -> decltype(drawable<Index>().ColorSource)& { return drawable<Index>().ColorSource; }
+
+				template<uint8_t Index>
+				auto colorSource() const -> const decltype(drawable<Index>().ColorSource)& { return drawable<Index>().ColorSource; }
+
+				template<uint8_t Index>
+				auto colorShader() -> decltype(drawable<Index>().ColorShader)& { return drawable<Index>().ColorShader; }
+
+				template<uint8_t Index>
+				auto colorShader() const -> const decltype(drawable<Index>().ColorShader)& { return drawable<Index>().ColorShader; }
+
+				template<uint8_t Index>
+				auto transformShader() -> decltype(drawable<Index>().TransformShader)& { return drawable<Index>().TransformShader; }
+
+				template<uint8_t Index>
+				auto transformShader() const -> const decltype(drawable<Index>().TransformShader)& { return drawable<Index>().TransformShader; }
+
 				/// <summary>
 				/// Access a specific const drawable by index.
 				/// Example: drawable<0>().TransformShader.SetRotation(45);
@@ -159,6 +177,7 @@ namespace Egfx
 
 					return false; // More drawables remain in this cycle
 				}
+
 			};
 		}
 	}

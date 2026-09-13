@@ -1,8 +1,6 @@
 #ifndef _EGFX_FRAMEWORK_SHADER_PIXEL_MODEL_h
 #define _EGFX_FRAMEWORK_SHADER_PIXEL_MODEL_h
 
-#include "../../../EgfxCore.h"
-
 #include "../Color/Model.h"
 #include "../Transform/Model.h"
 
@@ -14,6 +12,34 @@ namespace Egfx
 		{
 			namespace Pixel
 			{
+				/// <summary>
+				/// Blend modes for pixel shaders.
+				/// Selects which framebuffer write/blend operation is used when emitting the final shaded color.
+				/// </summary>
+				enum class BlendModeEnum : uint8_t
+				{
+					// Replace the framebuffer pixel with the shader's output color.
+					Replace,
+
+					// Add the shader's output color to the framebuffer pixel.
+					Add,
+
+					// Subtract the shader's output color from the framebuffer pixel.
+					Subtract,
+
+					// Multiply the shader's output color with the framebuffer pixel.
+					Multiply,
+
+					// Divide the framebuffer pixel by the shader's output color.
+					Screen,
+
+					// Invert the framebuffer pixel and multiply by the shader's output color.
+					Xor,
+
+					// Blend the shader's output color with the framebuffer pixel using half alpha.
+					BlendHalfAlpha
+				};
+
 				namespace Contract
 				{
 					/// <summary>

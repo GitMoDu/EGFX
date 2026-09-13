@@ -10,7 +10,7 @@
 namespace Egfx
 {
 	template<typename FramebufferType, typename ScreenDriverType>
-	class DisplayEngineTask : public IFrameEngine, private TS::Task
+	class DisplayEngineTask : public IFrameEngine, public TS::Task
 	{
 	private:
 		enum class StateEnum : uint8_t

@@ -1,7 +1,7 @@
 #ifndef _EGFX_MODULES_BATTERY_INDICATOR_CONSTANT_h
 #define _EGFX_MODULES_BATTERY_INDICATOR_CONSTANT_h
 
-#include <EgfxFramework.h>
+#include "../../EgfxFramework.h"
 
 namespace Egfx
 {
@@ -27,7 +27,7 @@ namespace Egfx
 				ufraction16_t stroke = UFraction16::GetScalar<int16_t>(2, 27),
 				ufraction16_t innerMargin = stroke + 1,
 				ufraction16_t headHeight = UFraction16::GetScalar<int16_t>(12, 20),
-				ufraction16_t headWidth = UFraction16::GetScalar<int16_t>(4, 29)
+				ufraction16_t headWidth = UFraction16::GetScalar<int16_t>(3, 29)
 			>
 			struct TemplateBatteryStyle
 			{

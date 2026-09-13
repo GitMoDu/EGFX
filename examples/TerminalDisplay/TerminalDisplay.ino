@@ -5,14 +5,13 @@
 * Available options for serial logging, dynamic/double frame buffers, and performance logging.
 */
 
-//#define SERIAL_LOG // Enable serial logging.
+#define SERIAL_LOG // Enable serial logging.
 //#define DEBUG // Extra serial logging for debug builds.
 #define SERIAL_BAUD_RATE 115200
 
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation of framebuffer.
 //#define USE_DOUBLE_FRAME_BUFFER // Enable double framebuffer.
-//#define USE_DISPLAY_FPS // Enable FPS display counter.
-//#define USE_PERFORMANCE_LOG_TASK // Enable performance logging task.
+#define USE_PERFORMANCE_LOG_TASK // Enable performance logging task.
 
 //#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
 //#define EGFX_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for EGFX engine.
@@ -23,9 +22,9 @@
 // Configure display in this header.
 #include "DisplayConfiguration.h"
 #include <EgfxDisplayEngine.h>
+#include <EgfxAssets.h>
 
-#include "DisplayPrint.h"
-#include "Assets.h"
+#include <EgfxModules.h>
 
 // Process scheduler.
 TS::Scheduler SchedulerBase{};
@@ -57,43 +56,60 @@ FramebufferType Framebuffer(Buffer);
 #endif
 
 // EGFX display engine task.
-Egfx::DisplayEngineTask<FramebufferType,
-	ScreenDriverType> DisplayEngine(
-		SchedulerBase, Framebuffer, ScreenDriver);
+Egfx::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
+	SchedulerBase, Framebuffer, ScreenDriver);
 
 // Screen layout for terminal display.
 struct Layout
 {
-	static constexpr uint8_t Margin = 0;
-
-	static constexpr Egfx::pixel_t X() { return Margin; }
-	static constexpr Egfx::pixel_t Y() { return Margin; }
-	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth - (Margin * 2); }
-	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight - (Margin * 2); }
+	static constexpr int16_t Margin() { return 1; }
+	static constexpr Egfx::pixel_t X() { return Margin(); }
+	static constexpr Egfx::pixel_t Y() { return Margin(); }
+	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth - 2 * Margin(); }
+	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight - 2 * Margin(); }
 };
 
-// Compile-time auto-magic selection of best fit text display type.
-// The base Framework::Assets::TerminalWindow::Views::SerialText<> is always an option.
-using TerminalWindowViewType = Assets::SerialTextViewType<Layout>;
+// Terminal font type. Must be a monospace font for terminal display. 
+using TerminalFontType = Egfx::Framework::Assets::Font::Bitmask::Resin::FontType6x6;
 
-// Optional FPS drawer compositing.
-#if defined(USE_DISPLAY_FPS)
-// Composite view with terminal display and FPS display.
-using ViewLayersType = Egfx::Framework::Assets::FpsDisplay::Views::CompositeWithFps<Layout, TerminalWindowViewType>;
-Egfx::Framework::View::FrameAdapter<ViewLayersType> ViewsFrame{};
-static TerminalWindowViewType& TerminalView() { return ViewsFrame.ViewInstance.view<0>(); }
-#else
+// Scaled font size based on screen width.
+static constexpr uint8_t TerminalFontScale = 1 + (Layout::Width() / TerminalFontType::GetFontWidth()) / 24;
+
+// Terminal glyph style for text rendering. Uses standard transparent black color for bitmask font, and auto scaled font size.
+using TerminalGlyphStyle = Egfx::Framework::Image::TemplateImageStyle<
+	Egfx::Framework::Layout::AlignmentEnum::TopLeft,
+	true, Egfx::RGB_COLOR_BLACK,
+	IntegerSignal::MaxValue(1, TerminalFontScale / 2), TerminalFontScale
+>;
+
+// Terminal text view type, using the specified layout, font, and glyph style.
+using TerminalTextViewType = Egfx::Framework::Text::Bitmask::TextView<
+	typename Egfx::Framework::AutoDimension::ByLayout<Layout>::dimension_t,
+	Layout, TerminalFontType, TerminalGlyphStyle>;
+
+// Terminal configuration for text rendering, including font size, kerning, line spacing, and other parameters.
+using TerminalConfig = Egfx::Modules::TerminalWindow::Definitions::TerminalConfig<
+	uint16_t(TerminalFontType::GetFontWidth())* TerminalGlyphStyle::ScaleX, uint16_t(TerminalFontType::GetFontHeight())* TerminalGlyphStyle::ScaleY>;
+
+// Terminal view type, combining the layout, text view, and configuration for the terminal display.
+using TerminalViewType = Egfx::Modules::TerminalWindow::View::Terminal<Layout,
+	TerminalTextViewType, TerminalConfig>;
+
+// Terminal buffer type, derived from the terminal view type, used for managing the text content of the terminal display.
+using TerminalBufferType = typename TerminalViewType::BufferType;
+
 // Single terminal display view.
-Egfx::Framework::View::FrameAdapter<TerminalWindowViewType> ViewsFrame{};
-TerminalWindowViewType& TerminalView() { return ViewsFrame.ViewInstance; }
-#endif
+Egfx::Framework::View::ViewAdapter<TerminalViewType> ViewsView{};
 
-// Reference to terminal display print instance. Can be used as serial output replacement.
-Print& SerialDisplay = TerminalView().Serial();
+// Reference to terminal buffer instance. Can be used for direct buffer access.
+auto& TerminalBuffer = ViewsView.ViewInstance.Buffer();
+
+// Adapter to allow Print interface to write to terminal buffer.  Can be used as serial output replacement.
+Egfx::Modules::TerminalWindow::Input::PrintAdapter<TerminalBufferType> SerialDisplay(TerminalBuffer);
 
 // Optional performance logging task.
 #if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task. Will output to serial display.
-Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine, SerialDisplay);
+Egfx::PerformanceLogTask<5000> EngineLog(SchedulerBase, DisplayEngine, SerialDisplay);
 #endif
 
 void halt()
@@ -153,9 +169,7 @@ void setup()
 	// Optional callback for RTOS driver variants.
 	DisplayEngine.SetBufferTaskCallback(BufferTaskCallback);
 
-	//// Set the terminal display drawer.
-	//DisplayEngine.SetDrawer(&TerminalDisplayPrinter);
-	DisplayEngine.SetDrawer(&ViewsFrame);
+	DisplayEngine.SetDrawer(&ViewsView);
 
 	// Start EGFX display engine.
 	if (!DisplayEngine.Start())
@@ -182,20 +196,14 @@ void setup()
 		Serial.println(F(" bit color screen."));
 	}
 #endif
+
 	SerialDisplay.println(F("Terminal Display Start."));
 	SerialDisplay.print(F("\tLines: "));
-	SerialDisplay.println(TerminalView().Lines);
+	SerialDisplay.println(TerminalViewType::Lines);
 	SerialDisplay.print(F("\tCharacters: "));
-	SerialDisplay.println(TerminalView().CharactersPerLine);
-	SerialDisplay.print(FramebufferType::ColorDepth);
-	if (FramebufferType::Monochrome)
-	{
-		SerialDisplay.println(F(" bit monochrome screen."));
-	}
-	else
-	{
-		SerialDisplay.println(F(" bit color screen."));
-	}
+	SerialDisplay.println(TerminalViewType::CharactersPerLine);
+
+	SerialDisplay.print(F("Push text to serial port to see it here."));
 }
 
 void loop()

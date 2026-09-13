@@ -21,19 +21,14 @@ namespace Egfx
 					/// Matches `SpriteTransform::RotateTransform` logic but in the new shader/transform format.
 					/// </summary>
 					/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-					/// <typeparam name="Width">Source width in pixels.</typeparam>
-					/// <typeparam name="Height">Source height in pixels.</typeparam>
 					/// <typeparam name="Base">Optional base transform to chain.</typeparam>
 					template<typename dimension_t,
-						dimension_t Width,
-						dimension_t Height,
 						typename Base = Framework::Shader::Transform::BaseTransform<dimension_t>
 					>
 					class Rotate : public Base
 					{
 					private:
-						using signed_t = typename TypeTraits::TypeSign::make_signed<dimension_t>::type;
-						using Selector = Framework::Shader::Transform::FractionSelector<Width, Height>;
+						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
 
 					private:
 						enum class FlippingEnum : uint8_t
@@ -45,19 +40,63 @@ namespace Egfx
 						};
 
 					private:
-						SkewX<dimension_t, Height> SkewHorizontal{};
-						SkewY<dimension_t, Width> SkewVertical{};
+						SkewX<dimension_t> SkewHorizontal{};
+						SkewY<dimension_t> SkewVertical{};
 
 						FlippingEnum Flip = FlippingEnum::NoFlip;
 						angle_t Angle = 0;
+						dimension_t Width = 0;
+						dimension_t Height = 0;
+						dimension_t CenterX = 0;
+						dimension_t CenterY = 0;
 
 					public:
-						Rotate() : Base() {}
+						Rotate() : Base()
+						{
+							SetCenter(CenterX, CenterY);
+						}
 						~Rotate() = default;
+
+						void SetWidth(const dimension_t width)
+						{
+							Width = width;
+							SkewVertical.SetWidth(width);
+						}
+
+						void SetHeight(const dimension_t height)
+						{
+							Height = height;
+							SkewHorizontal.SetHeight(height);
+						}
+
+						void SetDimensions(const dimension_t width, const dimension_t height)
+						{
+							SetWidth(width);
+							SetHeight(height);
+							SetCenter(static_cast<dimension_t>(width / 2), static_cast<dimension_t>(height / 2));
+						}
+
+						void SetCenter(const dimension_t x, const dimension_t y)
+						{
+							CenterX = x;
+							CenterY = y;
+							SkewHorizontal.SetReferenceY(y);
+							SkewVertical.SetReferenceX(x);
+						}
+
+						dimension_t GetCenterX() const { return CenterX; }
+						dimension_t GetCenterY() const { return CenterY; }
 
 						void SetRotation(const angle_t angle)
 						{
 							Angle = angle;
+							if (Width <= 1 || Height <= 1)
+							{
+								Flip = FlippingEnum::NoFlip;
+								SkewHorizontal.SetSkewX(0);
+								SkewVertical.SetSkewY(0);
+								return;
+							}
 
 							angle_t adjustedAngle = angle;
 							Flip = FlippingEnum::NoFlip;
@@ -100,16 +139,8 @@ namespace Egfx
 							signed_t skewX = 0;
 							signed_t skewY = 0;
 
-							if (Selector::Use16)
-							{
-								skewX = Fraction<signed_t>(static_cast<fraction16_t>(-Tangent16(adjustedAngle >> 1)), Width);
-								skewY = Fraction<signed_t>(Sine16(adjustedAngle), Height);
-							}
-							else
-							{
-								skewX = Fraction<signed_t>(static_cast<fraction8_t>(-Tangent8(adjustedAngle >> 1)), Width);
-								skewY = Fraction<signed_t>(Sine8(adjustedAngle), Height);
-							}
+							skewX = Fraction<signed_t>(static_cast<fraction16_t>(-Tangent16(adjustedAngle >> 1)), static_cast<signed_t>(Width));
+							skewY = Fraction<signed_t>(Sine16(adjustedAngle), static_cast<signed_t>(Height));
 
 							SkewHorizontal.SetSkewX(skewX);
 							SkewVertical.SetSkewY(skewY);
@@ -132,23 +163,29 @@ namespace Egfx
 							{
 							case FlippingEnum::FlipInvertX:
 							{
-								const dimension_t oldX = x;
-								x = static_cast<dimension_t>(Height - 1 - y);
-								y = oldX;
+								const signed_t oldX = static_cast<signed_t>(x);
+								x = static_cast<dimension_t>(static_cast<signed_t>(CenterX)
+									+ static_cast<signed_t>(CenterY) - static_cast<signed_t>(y));
+								y = static_cast<dimension_t>(static_cast<signed_t>(CenterY)
+									+ oldX - static_cast<signed_t>(CenterX));
 							}
 							break;
 
 							case FlippingEnum::FlipInvertY:
 							{
-								const dimension_t oldX = x;
-								x = y;
-								y = static_cast<dimension_t>(Width - 1 - oldX);
+								const signed_t oldX = static_cast<signed_t>(x);
+								x = static_cast<dimension_t>(static_cast<signed_t>(CenterX)
+									+ static_cast<signed_t>(y) - static_cast<signed_t>(CenterY));
+								y = static_cast<dimension_t>(static_cast<signed_t>(CenterY)
+									+ static_cast<signed_t>(CenterX) - oldX);
 							}
 							break;
 
 							case FlippingEnum::Invert:
-								x = static_cast<dimension_t>(Width - 1 - x);
-								y = static_cast<dimension_t>(Height - 1 - y);
+								x = static_cast<dimension_t>(static_cast<signed_t>(CenterX) * 2
+									- static_cast<signed_t>(x));
+								y = static_cast<dimension_t>(static_cast<signed_t>(CenterY) * 2
+									- static_cast<signed_t>(y));
 								break;
 
 							case FlippingEnum::NoFlip:

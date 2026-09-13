@@ -2,6 +2,7 @@
 #define _EGFX_FRAMEWORK_VIEW_MODEL_h
 
 #include "../../Model/IFrameDraw.h"
+#include "../Layout/Model.h"
 #include "../Support.h"
 
 namespace Egfx
@@ -21,9 +22,20 @@ namespace Egfx
 				///
 				/// A view orchestrates animation and rendering and may require multiple calls to DrawCall()
 				/// to complete a single frame/cycle.
+				///
+				/// A view publishes its intrinsic local-space rectangle through ViewLayout.
+				/// Its effective local-space clip bounds and output translation are runtime state and
+				/// may be supplied by a containing view or composite.
 				/// </summary>
+				template<typename dimensiont_t, typename Layout>
 				struct View
 				{
+					/// <summary>
+					/// Compile-time layout of the view in its local coordinate space.
+					/// Implementations replace LayoutContract with their concrete layout type.
+					/// </summary>
+					using ViewLayout = Layout;
+
 					/// <summary>
 					/// Advances the view by one draw call.
 					/// </summary>
@@ -32,53 +44,41 @@ namespace Egfx
 					/// <param name="frameCounter">Rolling frame counter.</param>
 					/// <returns>True when the view has completed its current draw cycle.</returns>
 					bool DrawCall(IFrameBuffer* /*frame*/, const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) { return true; }
+
+					/// <summary>
+					/// Sets the effective local-space clipping rectangle propagated to the view's children.
+					/// Implementations must preserve the intrinsic ViewLayout and forward the effective clip to children.
+					/// </summary>
+					/// <param name="left">Inclusive left edge in local coordinates.</param>
+					/// <param name="top">Inclusive top edge in local coordinates.</param>
+					/// <param name="right">Inclusive right edge in local coordinates.</param>
+					/// <param name="bottom">Inclusive bottom edge in local coordinates.</param>
+					void SetBounds(const dimensiont_t /*left*/, const dimensiont_t /*top*/,
+						const dimensiont_t /*right*/, const dimensiont_t /*bottom*/) {}
+
+					/// <summary>
+					/// Sets the output translation propagated to the view's children.
+					/// Translation does not modify the view's local-space ViewLayout or clipping rectangle.
+					/// </summary>
+					/// <param name="x">Horizontal output translation in pixels.</param>
+					/// <param name="y">Vertical output translation in pixels.</param>
+					void SetTranslation(const int16_t /*x*/, const int16_t /*y*/) {}
 				};
 			}
 
 			/// <summary>
-			/// Adapts a view to the engine's IFrameDraw interface.
-			///
-			/// Wraps a view that implements DrawCall(frame, frameTime, frameCounter) and exposes
-			/// enable/disable control through IFrameDraw.
+			/// Adapts a view contract to the engine's IFrameDraw interface.
 			/// </summary>
-			/// <typeparam name="ViewType">Child view type implementing DrawCall().</typeparam>
-			template<typename ViewType = Contract::View>
-			class FrameAdapter : public IFrameDraw
+			template<typename ViewType>
+			class ViewAdapter : public IFrameDraw
 			{
 			public:
-				/// <summary>
-				/// Wrapped view instance.
-				/// Exposed for direct configuration by the owner.
-				/// </summary>
 				ViewType ViewInstance{};
 
-			private:
-				bool Enabled = true;
-
-			public:
-				FrameAdapter() : IFrameDraw()
-				{
-				}
-
-				~FrameAdapter() = default;
-
-				/// <summary>
-				/// Forwards DrawCall to the wrapped view when enabled.
-				/// </summary>
-				/// <param name="frame">Target framebuffer to draw into.</param>
-				/// <param name="frameTime">Rolling frame timestamp (microseconds).</param>
-				/// <param name="frameCounter">Rolling frame counter.</param>
-				/// <returns>True when the wrapped view has completed its current draw cycle.</returns>
 				bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) override
 				{
-					return Enabled ? ViewInstance.DrawCall(frame, frameTime, frameCounter) : true;
+					return ViewInstance.DrawCall(frame, frameTime, frameCounter);
 				}
-
-				/// <summary>Returns whether the adapter is enabled.</summary>
-				bool IsEnabled() const override { return Enabled; }
-
-				/// <summary>Enables or disables DrawCall forwarding.</summary>
-				void SetEnabled(const bool enabled) override { Enabled = enabled; }
 			};
 		}
 	}

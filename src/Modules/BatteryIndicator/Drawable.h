@@ -16,24 +16,39 @@ namespace Egfx
 				template<typename dimension_t,
 					typename ParentLayout,
 					typename BatteryStyle = TemplateBatteryStyle<>,
-					typename PixelShaderType = Shader::Pixel::BatteryOutside<dimension_t, BatteryStyle::Monochrome>
+					typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+					typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>
 				>
-				class Outside : public Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>
+				class Outside : public Framework::Shader::Geometry::RectangleShader<dimension_t,
+					Framework::Shader::Pixel::TemplateShader<dimension_t,
+					Framework::Shader::Source::StaticColor<dimension_t>, ColorShaderType, TransformShaderType>>
 				{
 				private:
-					using Base = Framework::Shader::Primitive::TemplateShader<dimension_t, PixelShaderType>;
+					using Base = Framework::Shader::Geometry::RectangleShader<dimension_t,
+						Framework::Shader::Pixel::TemplateShader<dimension_t,
+						Framework::Shader::Source::StaticColor<dimension_t>, ColorShaderType, TransformShaderType>>;
 
 					using BatteryLayout = typename Layout::Battery<ParentLayout, BatteryStyle>;
 
 				public:
-					Outside() : Base()
-					{
-						Base::Prepare(ParentLayout::X(), ParentLayout::Y());
-					}
+					Outside() : Base(0, 0, ParentLayout::Width(), ParentLayout::Height())
+					{}
 					~Outside() = default;
+
+					void SetBounds(const dimension_t left, const dimension_t top,
+						const dimension_t right, const dimension_t bottom)
+					{
+						Base::SetBounds(left, top, right, bottom);
+					}
+
+					void SetTranslation(const int16_t x, const int16_t y)
+					{
+						Base::SetTranslation(x, y);
+					}
 
 					void Draw(IFrameBuffer* frame)
 					{
+						Base::Prepare(ParentLayout::X(), ParentLayout::Y());
 						Base::RectangleFill(frame, BatteryLayout::HeadTop().topLeft.x, BatteryLayout::HeadTop().topLeft.y, BatteryLayout::HeadTop().bottomRight.x, BatteryLayout::HeadTop().bottomRight.y);
 						Base::RectangleFill(frame, BatteryLayout::HeadBottom().topLeft.x, BatteryLayout::HeadBottom().topLeft.y, BatteryLayout::HeadBottom().bottomRight.x, BatteryLayout::HeadBottom().bottomRight.y);
 						Base::RectangleFill(frame, BatteryLayout::HeadRight().topLeft.x, BatteryLayout::HeadRight().topLeft.y, BatteryLayout::HeadRight().bottomRight.x, BatteryLayout::HeadRight().bottomRight.y);
@@ -50,31 +65,49 @@ namespace Egfx
 				template<typename dimension_t,
 					typename ParentLayout,
 					typename BatteryStyle = TemplateBatteryStyle<>,
-					typename WholePixelShaderType = Shader::Pixel::BatteryBarsWhole<dimension_t, BatteryStyle::Monochrome>,
-					typename LastPixelShaderType = Shader::Pixel::BatteryBarsLast<dimension_t, BatteryStyle::Monochrome>
+					typename WholeColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+					typename WholeTransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
+					typename LastColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+					typename LastTransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
+					Framework::Shader::Pixel::BlendModeEnum WholeBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace,
+					Framework::Shader::Pixel::BlendModeEnum LastBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace
 				>
 				class ProgressBars
 				{
 				private:
-					using WholePrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t, WholePixelShaderType>;
-					using LastPrimitiveShaderType = Framework::Shader::Primitive::TemplateShader<dimension_t, LastPixelShaderType>;
+					using WholePixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t,
+						Framework::Shader::Source::StaticColor<dimension_t>, WholeColorShaderType, WholeTransformShaderType, WholeBlendMode>;
+					using LastPixelShaderType = Shader::Pixel::BatteryBarsLast<dimension_t, BatteryStyle::Monochrome,
+						LastColorShaderType, LastTransformShaderType, LastBlendMode>;
+					using WholePrimitiveShaderType = Framework::Shader::Geometry::RectangleShader<dimension_t, WholePixelShaderType>;
+					using LastPrimitiveShaderType = Framework::Shader::Geometry::RectangleShader<dimension_t, LastPixelShaderType>;
 
 					using ProgressBarsLayout = typename Layout::ProgressBars<ParentLayout, BatteryStyle>;
 
 				public:
-					WholePrimitiveShaderType WholeShader{};
-					LastPrimitiveShaderType LastShader{};
+					WholePrimitiveShaderType WholeShader{ 0, 0, ParentLayout::Width(), ParentLayout::Height() };
+					LastPrimitiveShaderType LastShader{ 0, 0, ParentLayout::Width(), ParentLayout::Height() };
 
 				private:
 					uint8_t FullCount = BatteryStyle::BarCount;
 
 				public:
 					ProgressBars()
-					{
-						WholeShader.Prepare(ParentLayout::X(), ParentLayout::Y());
-						LastShader.Prepare(ParentLayout::X(), ParentLayout::Y());
-					}
+					{}
 					~ProgressBars() = default;
+
+					void SetBounds(const dimension_t left, const dimension_t top,
+						const dimension_t right, const dimension_t bottom)
+					{
+						WholeShader.SetBounds(left, top, right, bottom);
+						LastShader.SetBounds(left, top, right, bottom);
+					}
+
+					void SetTranslation(const int16_t x, const int16_t y)
+					{
+						WholeShader.SetTranslation(x, y);
+						LastShader.SetTranslation(x, y);
+					}
 
 					void SetFullCount(const uint8_t index)
 					{
@@ -88,6 +121,9 @@ namespace Egfx
 
 					void Draw(IFrameBuffer* frame)
 					{
+						WholeShader.Prepare(ParentLayout::X(), ParentLayout::Y());
+						LastShader.Prepare(ParentLayout::X(), ParentLayout::Y());
+
 						if (FullCount > 0)
 						{
 							if (FullCount > 1)

@@ -2,6 +2,7 @@
 #define _EGFX_FRAMEWORK_VECTOR_MODEL_h
 
 #include "../../EgfxCore.h"
+#include "../Shader/Geometry/Model.h"
 
 namespace Egfx
 {
@@ -32,251 +33,233 @@ namespace Egfx
 		/// </summary>
 		namespace Vector
 		{
-			using namespace IntegerSignal::FixedPoint;
+			/// <summary>
+			///	Thickness scale factor type. Fast fixed-point unsigned fraction.
+			/// </summary>
+			using thickness_scale_t = IntegerSignal::FixedPoint::ScalarFraction::UFraction8::scalar_t;
 
 			/// <summary>
-			/// Primitive commands (2-bit values).
+			///	Thickness scale factor for 1x thickness (no scaling).
 			/// </summary>
-			enum class NodeEnum
+			static constexpr thickness_scale_t THICKNESS_SCALE_1X = IntegerSignal::FixedPoint::ScalarFraction::UFraction8::SCALAR_UNIT;
+
+			/// <summary>
+			/// Canvas coordinate type. 8-bit unsigned integer.
+			/// All canvases are at most 255x255, so we can use a single byte for each coordinate.
+			///	</summary>	
+			using canvas_t = uint8_t;
+
+			/// <summary>
+			/// Sequential packed vector streams.
+			///
+			/// Normal records are points and continue the current line. Records using the
+			/// reserved maximum coordinate row or column are commands. Vector shapes should
+			/// be top-left aligned so a caller can canvas each vector into a larger target
+			/// without requiring shape-specific placement compensation.
+			/// </summary>
+			enum class PackedVectorEnum : uint8_t
 			{
-				Start = 0b00,         // Begin/continue a segment; may draw a line from the previous point.
-				End = 0b01,           // End a segment; draw line/pixel from the previous point, then reset state.
-				TriangleFill = 0b10,  // Triangle strip: (prev2, prev1, current) -> filled triangle.
-				RectangleFill = 0b11, // Filled rectangle between the previous and current points.
+				Image15x15,
+				Image255x255
+			};
+
+			enum class PrimitiveEnum : uint8_t
+			{
+				// Set the line-thickness parameter for subsequent primitives; consumes one operand.
+				SetWeight,
+
+				// Set the color index for subsequent primitives; consumes one operand.
+				SetColor,
+
+				// End the current line segment and clear the decoder's previous-point state.
+				Break,
+
+				// Draw an outlined rectangle from two operand points used as opposite corners.
+				Rectangle,
+				// Draw a filled rectangle from two operand points used as opposite corners.
+				RectangleFill,
+
+				// Draw an outlined triangle from three operand points used as vertices.
+				Triangle,
+				// Draw a filled triangle from three operand points used as vertices.
+				TriangleFill,
+
+				// Draw an outlined circle from center and radius-point operands.
+				Circle,
+				// Draw a filled circle from center and radius-point operands.
+				CircleFill,
+
+				// Draw an outlined ring from center and radii operands; X is outer radius and Y is inner radius.
+				Ring,
+				// Draw a filled ring from center and radii operands; X is outer radius and Y is inner radius.
+				RingFill,
+
+				// Draw an outlined arc from center, radius/properties, and angle operands; angles use X/Y.
+				Arc,
+				// Draw a filled arc from center, outer/inner radii, and angle operands; angles use X/Y.
+				ArcFill,
+
+				// Draw an outlined circle quadrant from center and radius/properties operands; Y bits 0..1 select the quadrant.
+				CircleQuadrant,
+				// Draw a filled circle quadrant from center and radius/properties operands; Y bits 0..1 select the quadrant.
+				CircleQuadrantFill,
+
 				EnumCount
 			};
 
-			/// <summary>Bit mask covering the primitive opcode field.</summary>
-			static constexpr uint8_t PrimitiveMask = uint8_t(NodeEnum::EnumCount) - 1;
+			using QuadrantEnum = Shader::Geometry::QuadrantEnum;
 
-			/// <summary>
-			/// 8-bit node model: 2-bit primitive + 3-bit X + 3-bit Y (8x8 grid).
-			/// </summary>
-			struct VectorNode8x8
+
+			namespace Contract
 			{
-				using node_t = uint8_t; // 1 byte per node.
-				using axis_t = uint8_t;
-
-				static constexpr uint8_t CoordinatesSize =
-					GetBitShifts(TypeTraits::TypeLimits::type_limits<node_t>::Max()) - GetBitShifts(PrimitiveMask);
-
-				static constexpr uint8_t AxisSize = CoordinatesSize / 2;
-				static constexpr axis_t AxisMax = (1 << AxisSize) - 1; // 7
-				static constexpr uint8_t AxisMask = AxisMax;           // 0b111
-
-				static constexpr NodeEnum GetPrimitive(const node_t node)
-				{
-					return static_cast<NodeEnum>((node >> CoordinatesSize) & PrimitiveMask);
-				}
-
-				static constexpr axis_t GetAxisX(const node_t node)
-				{
-					return (node >> AxisSize) & AxisMask;
-				}
-
-				static constexpr axis_t GetAxisY(const node_t node)
-				{
-					return node & AxisMask;
-				}
-
-				/// <summary>
-				/// Scales a local axis value from [0..AxisMax] into [0..dimension] using integer division.
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
 				template<typename dimension_t>
-				static constexpr dimension_t GetScaled(const dimension_t dimension, const axis_t axis)
+				struct DecoderBase
 				{
-					using high_t = typename TypeTraits::TypeNext::next_uint_type<dimension_t>::type;
-					return static_cast<dimension_t>((static_cast<high_t>(dimension) * axis) / AxisMax);
-				}
+					void OnColorSet(const uint8_t colorIndex) {}
 
-				/// <summary>
-				/// Scales the packed X coordinate into [0..dimension].
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaledAxisX(const dimension_t dimension, const node_t node)
-				{
-					return GetScaled(dimension, GetAxisX(node));
-				}
-
-				/// <summary>
-				/// Scales the packed Y coordinate into [0..dimension].
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaledAxisY(const dimension_t dimension, const node_t node)
-				{
-					return GetScaled(dimension, GetAxisY(node));
-				}
-			};
-
-			/// <summary>
-			/// 16-bit node model (shift-optimized): 2-bit primitive + limited-range X/Y for fast scaling (right shift).
-			/// </summary>
-			struct VectorNode65x65
-			{
-				using node_t = uint16_t; // 2 bytes per node.
-				using axis_t = uint8_t;
-
-				static constexpr uint8_t CoordinatesSize =
-					GetBitShifts(TypeTraits::TypeLimits::type_limits<node_t>::Max()) - GetBitShifts(PrimitiveMask);
-
-				static constexpr uint8_t AxisSize = CoordinatesSize / 2;
-
-				// Note: AxisMax/AxisMask intentionally do not represent the full 7-bit mask.
-				static constexpr uint16_t AxisMax = 1 << (AxisSize - 1);
-				static constexpr uint16_t AxisMask = (1 << (AxisSize - 1));
-
-				static constexpr NodeEnum GetPrimitive(const node_t node)
-				{
-					return static_cast<NodeEnum>((node >> CoordinatesSize) & PrimitiveMask);
-				}
-
-				static constexpr uint16_t GetAxisX(const node_t node)
-				{
-					return (node >> AxisSize) & AxisMask;
-				}
-
-				static constexpr uint16_t GetAxisY(const node_t node)
-				{
-					return node & AxisMask;
-				}
-
-				/// <summary>
-				/// Scales via right shift: (dimension * axis) >> AxisSize.
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaled(const dimension_t dimension, const axis_t axis)
-				{
-					using large_t = typename TypeTraits::TypeConditional::larger_type<dimension_t, uint16_t>::type;
-					using high_t = typename TypeTraits::TypeNext::next_uint_type<large_t>::type;
-					return static_cast<dimension_t>((static_cast<high_t>(dimension) * axis) >> AxisSize);
-				}
-
-				/// <summary>
-				/// Scales the packed X coordinate into [0..dimension].
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaledAxisX(const dimension_t dimension, const node_t node)
-				{
-					return GetScaled(dimension, static_cast<axis_t>(GetAxisX(node)));
-				}
-
-				/// <summary>
-				/// Scales the packed Y coordinate into [0..dimension].
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaledAxisY(const dimension_t dimension, const node_t node)
-				{
-					return GetScaled(dimension, static_cast<axis_t>(GetAxisY(node)));
-				}
-			};
-
-			/// <summary>
-			/// 16-bit node model (full range): 2-bit primitive + 7-bit X + 7-bit Y (128x128 grid).
-			/// Uses integer division for scaling.
-			/// </summary>
-			struct VectorNode128x128
-			{
-				using node_t = uint16_t; // 2 bytes per node.
-				using axis_t = uint8_t;  // Axis max fits in uint8_t.
-
-				static constexpr uint8_t CoordinatesSize =
-					GetBitShifts(TypeTraits::TypeLimits::type_limits<node_t>::Max()) - GetBitShifts(PrimitiveMask);
-
-				static constexpr uint8_t AxisSize = CoordinatesSize / 2;
-				static constexpr axis_t AxisMax = (1 << AxisSize) - 1; // 127
-				static constexpr uint8_t AxisMask = AxisMax;
-
-				static constexpr NodeEnum GetPrimitive(const node_t node)
-				{
-					return static_cast<NodeEnum>((node >> CoordinatesSize) & PrimitiveMask);
-				}
-
-				static constexpr axis_t GetAxisX(const node_t node)
-				{
-					return (node >> AxisSize) & AxisMask;
-				}
-
-				static constexpr axis_t GetAxisY(const node_t node)
-				{
-					return node & AxisMask;
-				}
-
-				/// <summary>
-				/// Scales a local axis value from [0..AxisMax] into [0..dimension] using integer division.
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaled(const dimension_t dimension, const axis_t axis)
-				{
-					using high_t = typename TypeTraits::TypeNext::next_uint_type<dimension_t>::type;
-					return static_cast<dimension_t>((static_cast<high_t>(dimension) * axis) / AxisMax);
-				}
-
-				/// <summary>
-				/// Scales the packed X coordinate into [0..dimension].
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaledAxisX(const dimension_t dimension, const node_t node)
-				{
-					return GetScaled(dimension, GetAxisX(node));
-				}
-
-				/// <summary>
-				/// Scales the packed Y coordinate into [0..dimension].
-				/// </summary>
-				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
-				template<typename dimension_t>
-				static constexpr dimension_t GetScaledAxisY(const dimension_t dimension, const node_t node)
-				{
-					return GetScaled(dimension, GetAxisY(node));
-				}
-			};
-
-			/// <summary>
-			/// Packs a primitive opcode and 8x8 coordinates into an 8-bit node value.
-			/// </summary>
-			/// <param name="primitive">Primitive opcode.</param>
-			/// <param name="x">Local X coordinate on an 8x8 grid.</param>
-			/// <param name="y">Local Y coordinate on an 8x8 grid.</param>
-			inline constexpr VectorNode8x8::node_t Node8x8(const NodeEnum primitive, const uint8_t x, const uint8_t y)
-			{
-				return (static_cast<uint8_t>(primitive) << VectorNode8x8::CoordinatesSize)
-					| ((x & VectorNode8x8::AxisMask) << VectorNode8x8::AxisSize)
-					| (y & VectorNode8x8::AxisMask);
+					void OnDrawPoint(IFrameBuffer* frame, const dimension_t x, const dimension_t y, const dimension_t thickness) {}
+					void OnDrawLine(IFrameBuffer* frame, const dimension_t x1, const dimension_t y1, const dimension_t x2, const dimension_t y2, const dimension_t thickness) {}
+					void OnDrawRectangle(IFrameBuffer* frame, const dimension_t x1, const dimension_t y1,
+						const dimension_t x2, const dimension_t y2,
+						const bool fill, const dimension_t thickness) {}
+					void OnDrawTriangle(IFrameBuffer* frame, const dimension_t x1, const dimension_t y1,
+						const dimension_t x2, const dimension_t y2,
+						const dimension_t x3, const dimension_t y3,
+						const bool fill, const dimension_t thickness) {}
+					void OnDrawCircle(IFrameBuffer* frame, const dimension_t centerX, const dimension_t centerY,
+						const dimension_t radius, const bool fill, const dimension_t thickness) {}
+					void OnDrawCircleQuadrant(IFrameBuffer* frame, const dimension_t centerX, const dimension_t centerY,
+						const dimension_t radius, const QuadrantEnum quadrant,
+						const bool fill, const dimension_t thickness) {}
+					void OnDrawCircleArc(IFrameBuffer* frame, const dimension_t centerX, const dimension_t centerY,
+						const angle_t startAngle, const angle_t endAngle,
+						const dimension_t outerRadius, const dimension_t innerRadius,
+						const bool fill, const dimension_t thickness) {}
+					void OnDrawCircleRing(IFrameBuffer* frame, const dimension_t centerX, const dimension_t centerY,
+						const dimension_t outerRadius, const dimension_t innerRadius,
+						const bool fill, const dimension_t thickness) {}
+				};
 			}
 
-			/// <summary>
-			/// Packs a primitive opcode and 65x65 (shift-optimized) coordinates into a 16-bit node value.
-			/// </summary>
-			/// <param name="primitive">Primitive opcode.</param>
-			/// <param name="x">Local X coordinate on a limited-range grid.</param>
-			/// <param name="y">Local Y coordinate on a limited-range grid.</param>
-			inline constexpr VectorNode65x65::node_t Node65x65(const NodeEnum primitive, const uint8_t x, const uint8_t y)
+
+			namespace Detail
 			{
-				return (static_cast<uint16_t>(primitive) << VectorNode65x65::CoordinatesSize)
-					| ((x & VectorNode65x65::AxisMask) << VectorNode65x65::AxisSize)
-					| (y & VectorNode65x65::AxisMask);
+				template<typename packed_t, typename axis_t>
+				struct template_source_t
+				{
+					PackedVectorEnum type; // Type of the source vector model
+					const packed_t* data; // Pointer to the packed source vector model data
+					size_t count; // Number of nodes in the source vector model
+					axis_t canvasWidth; // Width of the source vector model in local-space coordinate count
+					axis_t canvasHeight; // Height of the source vector model in local-space coordinate count
+					ufraction8_t thicknessScale;
+					uint8_t inset;
+					// CircleQuadrant operands are center and radius/properties; radius is X, quadrant is Y bits 0..1.
+					// Ring operands are center and radii; outer radius is X and inner radius is Y.
+					// Arc operands are center, radius/properties, and start/end angles; radius is X and angles are X/Y.
+					// ArcFill operands are center, outer/inner radii, and start/end angles.
+
+					bool Validate() const
+					{
+						return data != nullptr
+							&& count > 0
+							&& canvasWidth <= static_cast<axis_t>((1u << (sizeof(axis_t) * 8)) - 1u)
+							&& canvasHeight <= static_cast<axis_t>((1u << (sizeof(axis_t) * 8)) - 1u);
+					}
+				};
+
+				template<typename node_type, typename opcode_type, uint8_t axis_size, uint16_t axis_max>
+				struct template_model_t
+				{
+					using axis_t = uint8_t;
+					using opcode_t = opcode_type;
+
+					static constexpr uint8_t AxisSize = axis_size;
+					static constexpr axis_t AxisMask = static_cast<axis_t>((1u << AxisSize) - 1u);
+					static constexpr axis_t AxisMax = static_cast<axis_t>(axis_max);
+					static constexpr axis_t OpCodeAxis = AxisMask;
+					static constexpr opcode_t OpCodeCount = static_cast<opcode_t>(AxisMask) * 2 + 1;
+
+					struct Node
+					{
+						using packed_t = node_type;
+
+						opcode_t opcode{};
+						axis_t x{};
+						axis_t y{};
+
+						constexpr Node(const opcode_t opcodeValue, const axis_t xValue, const axis_t yValue)
+							: opcode(opcodeValue), x(xValue), y(yValue) {}
+
+						static constexpr Node FromPacked(const packed_t packed)
+						{
+							return Node(
+								((packed >> AxisSize) & AxisMask) == OpCodeAxis
+								? static_cast<opcode_t>(packed & AxisMask)
+								: static_cast<opcode_t>(OpCodeAxis + 1 + ((packed >> AxisSize) & AxisMask)),
+								static_cast<axis_t>((packed >> AxisSize) & AxisMask),
+								static_cast<axis_t>(packed & AxisMask));
+						}
+
+						constexpr bool IsOpCode() const
+						{
+							return x == OpCodeAxis || y == OpCodeAxis;
+						}
+					};
+
+					using source_t = template_source_t<node_type, axis_t>;
+
+				};
 			}
 
-			/// <summary>
-			/// Packs a primitive opcode and 128x128 coordinates into a 16-bit node value.
-			/// </summary>
-			/// <param name="primitive">Primitive opcode.</param>
-			/// <param name="x">Local X coordinate on a 128x128 grid.</param>
-			/// <param name="y">Local Y coordinate on a 128x128 grid.</param>
-			inline constexpr VectorNode128x128::node_t Node128x128(const NodeEnum primitive, const uint8_t x, const uint8_t y)
+			namespace Image15x15
 			{
-				return (static_cast<uint16_t>(primitive) << VectorNode128x128::CoordinatesSize)
-					| ((x & VectorNode128x128::AxisMask) << VectorNode128x128::AxisSize)
-					| (y & VectorNode128x128::AxisMask);
+				using model_t = Detail::template_model_t<uint8_t, uint8_t, 4, 14>;
+				using axis_t = typename model_t::axis_t;
+				using opcode_t = typename model_t::opcode_t;
+				using source_t = typename model_t::source_t;
+					using packed_t = typename model_t::Node::packed_t;
+
+				static constexpr uint8_t AxisSize = model_t::AxisSize;
+				static constexpr axis_t AxisMask = model_t::AxisMask;
+				static constexpr axis_t AxisMax = model_t::AxisMax;
+				static constexpr axis_t OpCodeAxis = model_t::OpCodeAxis;
+				static constexpr opcode_t OpCodeCount = model_t::OpCodeCount;
 			}
+
+			namespace Image255x255
+			{
+				using model_t = Detail::template_model_t<uint16_t, uint16_t, 8, 254>;
+				using axis_t = typename model_t::axis_t;
+				using opcode_t = typename model_t::opcode_t;
+				using source_t = typename model_t::source_t;
+					using packed_t = typename model_t::Node::packed_t;
+
+				static constexpr uint8_t AxisSize = model_t::AxisSize;
+				static constexpr axis_t AxisMask = model_t::AxisMask;
+				static constexpr axis_t AxisMax = model_t::AxisMax;
+				static constexpr axis_t OpCodeAxis = model_t::OpCodeAxis;
+				static constexpr opcode_t OpCodeCount = model_t::OpCodeCount;
+			}
+
+			template<PackedVectorEnum vectorType>
+			struct Format;
+
+			template<>
+			struct Format<PackedVectorEnum::Image15x15>
+			{
+				using model_t = Image15x15::model_t;
+				using node_t = Image15x15::model_t::Node;
+				using packed_t = Image15x15::packed_t;
+			};
+
+			template<>
+			struct Format<PackedVectorEnum::Image255x255>
+			{
+				using model_t = Image255x255::model_t;
+				using node_t = Image255x255::model_t::Node;
+				using packed_t = Image255x255::packed_t;
+			};
 		}
 	}
 }

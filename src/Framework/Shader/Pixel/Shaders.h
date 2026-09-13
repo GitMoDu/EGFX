@@ -3,6 +3,9 @@
 
 #include "Model.h"
 
+#include "../Color/Shaders.h"
+#include "../Transform/Shaders.h"
+
 namespace Egfx
 {
 	namespace Framework
@@ -12,17 +15,14 @@ namespace Egfx
 			namespace Pixel
 			{
 				/// <summary>
-				/// Blend modes for pixel shaders.
-				/// Selects which framebuffer write/blend operation is used when emitting the final shaded color.
+				/// Mock pixel shader that does nothing, used as compile-time option for filling in for a pixel shader when none is needed.
 				/// </summary>
-				enum class BlendModeEnum : uint8_t
+				/// <typeparam name="dimension_t">The shader's intrinsic dimension type.</typeparam>
+				template<typename dimension_t>
+				struct MockShader
 				{
-					Replace,
-					Add,
-					Subtract,
-					Multiply,
-					Screen,
-					BlendHalfAlpha
+					void Prepare(const dimension_t /*originX*/, const dimension_t /*originY*/) {}
+					void Pixel(IFrameBuffer* /*framebuffer*/, const dimension_t /*x*/, const dimension_t /*y*/) {}
 				};
 
 				/// <summary>
@@ -46,6 +46,9 @@ namespace Egfx
 					using color_source_t = ColorSourceType;
 					using color_shader_t = ColorShaderType;
 					using transform_shader_t = TransformShaderType;
+					static constexpr bool IsReplaceBlendMode = BlendMode == BlendModeEnum::Replace;
+
+					static constexpr dimension_t MaxDimension = IntegerSignal::TypeTraits::TypeLimits::type_limits<dimension_t>::Max();
 
 				private:
 					// Compile-time dispatch: skip Transform(...) when TransformShaderType is NoTransform.
@@ -55,35 +58,68 @@ namespace Egfx
 						IntegerSignal::TypeTraits::TypeDispatch::FalseType,
 						IntegerSignal::TypeTraits::TypeDispatch::is_same<TransformShaderType, Shader::Transform::NoTransform<dimension_t>>::value>::type;
 
+					using viewport_t = Shader::viewport_t<dimension_t>;
+
 				public:
 					ColorSourceType ColorSource{};
 					ColorShaderType ColorShader{};
 					TransformShaderType TransformShader{};
 
+				private:
+					viewport_t Viewport;
+
 				protected:
-					// Pixel-space origin added to local-space coordinates when writing to the framebuffer.
+					// Pixel-space origin and translation added to local-space coordinates when writing to the framebuffer.
 					pixel_point_t Origin{ 0, 0 };
 
-					uint8_t BlendAlpha = INT8_MAX;
-
 				public:
-					TemplateShader() = default;
+					TemplateShader(const dimension_t left, const dimension_t top,
+						const dimension_t right, const dimension_t bottom)
+						: Viewport{ left, top, right, bottom, 0, 0 }
+					{}
+
 					~TemplateShader() = default;
+
+					void SetBounds(const dimension_t left, const dimension_t top,
+						const dimension_t right, const dimension_t bottom)
+					{
+						Viewport.BoundsLeft = left;
+						Viewport.BoundsTop = top;
+						Viewport.BoundsRight = right;
+						Viewport.BoundsBottom = bottom;
+					}
+
+					/// <summary>
+					/// Sets the translation offset applied before writing to the framebuffer.
+					/// </summary>
+					/// <param name="x">Translation along the X axis.</param>
+					/// <param name="y">Translation along the Y axis.</param>
+					void SetTranslation(const pixel_t x, const pixel_t y)
+					{
+						Viewport.TranslationX = x;
+						Viewport.TranslationY = y;
+					}
+
+					void SetViewport(const viewport_t viewport)
+					{
+						Viewport = viewport;
+					}
 
 					/// <summary>
 					/// Prepares the shader for a draw cycle.
+					/// Must be called at least once per draw cycle before any Pixel(...) calls to set the pixel-space origin for framebuffer writes.
 					/// Sets the pixel-space origin used for framebuffer writes and forwards preparation to the transform shader.
 					/// </summary>
 					/// <param name="originX">Pixel-space origin X (pixels).</param>
 					/// <param name="originY">Pixel-space origin Y (pixels).</param>
 					void Prepare(const pixel_t originX, const pixel_t originY)
 					{
-						Origin.x = originX;
-						Origin.y = originY;
-						TransformShader.Prepare(originX, originY);
+						Origin.x = originX + Viewport.TranslationX;
+						Origin.y = originY + Viewport.TranslationY;
+						TransformShader.Prepare(Origin.x, Origin.y);
 					}
 
-					inline void Pixel(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y, TypeTraits::TypeDispatch::FalseType)
+					void Pixel(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y, TypeTraits::TypeDispatch::FalseType)
 					{
 						dimension_t coordinatesX = x;
 						dimension_t coordinatesY = y;
@@ -92,16 +128,13 @@ namespace Egfx
 						if (TransformShader.Transform(coordinatesX, coordinatesY))
 						{
 							PixelBlend(framebuffer, ColorShader.Shade(ColorSource.Source(x, y)),
-								static_cast<pixel_t>(coordinatesX),
-								static_cast<pixel_t>(coordinatesY));
+								coordinatesX, coordinatesY);
 						}
 					}
 
-					inline void Pixel(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y, TypeTraits::TypeDispatch::TrueType)
+					void Pixel(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y, TypeTraits::TypeDispatch::TrueType)
 					{
-						PixelBlend(framebuffer, ColorShader.Shade(ColorSource.Source(x, y)),
-							static_cast<pixel_t>(x),
-							static_cast<pixel_t>(y));
+						PixelBlend(framebuffer, ColorShader.Shade(ColorSource.Source(x, y)), x, y);
 					}
 
 					/// <summary>
@@ -111,50 +144,142 @@ namespace Egfx
 					/// <param name="framebuffer">Target framebuffer to draw into.</param>
 					/// <param name="x">Local-space X coordinate.</param>
 					/// <param name="y">Local-space Y coordinate.</param>
-					inline void Pixel(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y)
+					void Pixel(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y)
 					{
 						Pixel(framebuffer, x, y, SkipTransformTag{});
 					}
 
 				protected:
+					bool IsInsideBounds(const dimension_t x, const dimension_t y) const
+					{
+						return Viewport.IsInside(x, y);
+					}
+
+					dimension_t GetBoundsWidth() const
+					{
+						return Viewport.GetWidth();
+					}
+
+					dimension_t GetBoundsHeight() const
+					{
+						return Viewport.GetHeight();
+					}
+
+					dimension_t GetBoundsLeft() const
+					{
+						return Viewport.GetTopLeftX();
+					}
+
+					dimension_t GetBoundsTop() const
+					{
+						return Viewport.GetTopLeftY();
+					}
+
+					dimension_t GetBoundsRight() const
+					{
+						return Viewport.GetBottomRightX();
+					}
+
+					dimension_t GetBoundsBottom() const
+					{
+						return Viewport.GetBottomRightY();
+					}
+
+					/// <summary>
+					/// Shades and writes a pixel without applying the layout clip.
+					/// Higher-level geometry shaders may use this after performing primitive-level culling.
+					/// </summary>
+					void PixelUnclipped(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y)
+					{
+						PixelUnclipped(framebuffer, x, y, SkipTransformTag{});
+					}
+
+					void PixelUnclipped(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y,
+						TypeTraits::TypeDispatch::TrueType)
+					{
+						PixelBlendUnclipped(framebuffer, ColorShader.Shade(ColorSource.Source(x, y)), x, y);
+					}
+
+					void PixelUnclipped(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y,
+						TypeTraits::TypeDispatch::FalseType)
+					{
+						dimension_t coordinatesX = x;
+						dimension_t coordinatesY = y;
+
+						if (TransformShader.Transform(coordinatesX, coordinatesY))
+						{
+							PixelBlend(framebuffer, ColorShader.Shade(ColorSource.Source(x, y)),
+								coordinatesX, coordinatesY);
+						}
+					}
+
+					void PixelBlendUnclipped(IFrameBuffer* framebuffer, const rgb_color_t color, const dimension_t x, const dimension_t y)
+					{
+						const pixel_t targetX = static_cast<pixel_t>(Origin.x) + x;
+						const pixel_t targetY = static_cast<pixel_t>(Origin.y) + y;
+
+						switch (BlendMode)
+						{
+						case BlendModeEnum::BlendHalfAlpha:
+							framebuffer->PixelBlend(color, targetX, targetY);
+							break;
+						case BlendModeEnum::Add:
+							framebuffer->PixelBlendAdd(color, targetX, targetY);
+							break;
+						case BlendModeEnum::Subtract:
+							framebuffer->PixelBlendSubtract(color, targetX, targetY);
+							break;
+						case BlendModeEnum::Multiply:
+							framebuffer->PixelBlendMultiply(color, targetX, targetY);
+							break;
+						case BlendModeEnum::Screen:
+							framebuffer->PixelBlendScreen(color, targetX, targetY);
+							break;
+						case BlendModeEnum::Xor:
+							framebuffer->PixelBlendXor(color, targetX, targetY);
+							break;
+						default:
+						case BlendModeEnum::Replace:
+							framebuffer->Pixel(color, targetX, targetY);
+							break;
+						}
+					}
+
 					/// <summary>
 					/// Writes a pre-shaded color using the selected blend mode.
 					/// Applies the prepared origin offset when addressing the framebuffer.
 					/// </summary>
-					inline void PixelBlend(IFrameBuffer* framebuffer, const rgb_color_t color, const dimension_t x, const dimension_t y)
+					void PixelBlend(IFrameBuffer* framebuffer, const rgb_color_t color, const dimension_t x, const dimension_t y)
 					{
+						if (!IsInsideBounds(x, y))
+							return;
+
+						const pixel_t targetX = static_cast<pixel_t>(Origin.x) + x;
+						const pixel_t targetY = static_cast<pixel_t>(Origin.y) + y;
+
 						switch (BlendMode)
 						{
 						case BlendModeEnum::BlendHalfAlpha:
-							framebuffer->PixelBlend(color,
-								static_cast<pixel_t>(Origin.x + x),
-								static_cast<pixel_t>(Origin.y + y));
+							framebuffer->PixelBlend(color, targetX, targetY);
 							break;
 						case BlendModeEnum::Add:
-							framebuffer->PixelBlendAdd(color,
-								static_cast<pixel_t>(Origin.x + x),
-								static_cast<pixel_t>(Origin.y + y));
+							framebuffer->PixelBlendAdd(color, targetX, targetY);
 							break;
 						case BlendModeEnum::Subtract:
-							framebuffer->PixelBlendSubtract(color,
-								static_cast<pixel_t>(Origin.x + x),
-								static_cast<pixel_t>(Origin.y + y));
+							framebuffer->PixelBlendSubtract(color, targetX, targetY);
 							break;
 						case BlendModeEnum::Multiply:
-							framebuffer->PixelBlendMultiply(color,
-								static_cast<pixel_t>(Origin.x + x),
-								static_cast<pixel_t>(Origin.y + y));
+							framebuffer->PixelBlendMultiply(color, targetX, targetY);
 							break;
 						case BlendModeEnum::Screen:
-							framebuffer->PixelBlendScreen(color,
-								static_cast<pixel_t>(Origin.x + x),
-								static_cast<pixel_t>(Origin.y + y));
+							framebuffer->PixelBlendScreen(color, targetX, targetY);
+							break;
+						case BlendModeEnum::Xor:
+							framebuffer->PixelBlendXor(color, targetX, targetY);
 							break;
 						default:
 						case BlendModeEnum::Replace:
-							framebuffer->Pixel(color,
-								static_cast<pixel_t>(Origin.x + x),
-								static_cast<pixel_t>(Origin.y + y));
+							framebuffer->Pixel(color, targetX, targetY);
 							break;
 						}
 					}

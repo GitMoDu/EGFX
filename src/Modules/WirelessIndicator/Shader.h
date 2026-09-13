@@ -12,65 +12,64 @@ namespace Egfx
 		{
 			namespace Shader
 			{
-				using dimension_t = pixel_t;
-
 				namespace Source
 				{
-					template<bool Monochrome>
-					using Bar = typename TypeTraits::TypeConditional::conditional_type<
+					template<typename dimension_t>
+					using Bar = Framework::Shader::Source::SingleColor<dimension_t, RGB_COLOR_WHITE>;
+
+					template<typename dimension_t, bool Monochrome>
+					using DisabledOverlay = typename TypeTraits::TypeConditional::conditional_type <
 						Framework::Shader::Source::StaticColor<dimension_t, RGB_COLOR_WHITE>,
 						Framework::Shader::Source::SingleColor<dimension_t, RGB_COLOR_WHITE>,
 						Monochrome
 					>::type;
+				}
 
-					using DisabledOverlay = typename TypeTraits::TypeConditional::conditional_type <
-						Framework::Shader::Source::StaticColor<dimension_t, RGB_COLOR_WHITE>,
-						Framework::Shader::Source::SingleColor<dimension_t, RGB_COLOR_WHITE>,
-						false
-					>::type;
+				namespace Color
+				{
+					template<typename dimension_t, bool Monochrome>
+					using Bar = typename TypeTraits::TypeConditional::conditional_type<
+						Framework::Shader::Color::NoShader<dimension_t>,
+						Framework::Shader::Color::NoShader<dimension_t>,
+						Monochrome>::type;
 				}
 
 				namespace Transform
 				{
-					template<dimension_t Width,
+
+					template<typename dimension_t,
+						dimension_t Width,
 						dimension_t Height,
-						bool Monochrome>
+						bool Monochrome,
+						typename BaseTransformType = Framework::Shader::Transform::NoTransform<dimension_t>>
 					using Bar = typename TypeTraits::TypeConditional::conditional_type<
 						Framework::Assets::Shader::Transform::CheckerboardMask<
 						dimension_t,
 						false,
-						Framework::Assets::Shader::Transform::ScaleDownX<dimension_t, Width, Height>
+						Framework::Assets::Shader::Transform::ScaleDownX<dimension_t, Width, Height, BaseTransformType>
 						>,
-						Framework::Assets::Shader::Transform::ScaleDownX<dimension_t, Width, Height>,
+						Framework::Assets::Shader::Transform::ScaleDownX<dimension_t, Width, Height, BaseTransformType>,
 						Monochrome
 					>::type;
 				}
 
 				namespace Pixel
 				{
-					template<dimension_t Width,
+					template<typename dimension_t,
+						dimension_t Width,
 						dimension_t Height,
-						bool Monochrome>
+						bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
 					using Bar = Framework::Shader::Pixel::TemplateShader<dimension_t,
-						Source::Bar<Monochrome>,
-						Framework::Shader::Color::NoShader<dimension_t>,
-						Transform::Bar<Width, Height, Monochrome>
+						Source::Bar<dimension_t>,
+						ColorShaderType,
+						Transform::Bar<dimension_t, Width, Height, Monochrome, TransformShaderType>,
+						BlendMode
 					>;
-
-					using DisabledOverlay = Framework::Shader::Pixel::TemplateShader<dimension_t, Source::DisabledOverlay>;
 				}
 
-				namespace Primitive
-				{
-					template<dimension_t Width,
-						dimension_t Height,
-						bool Monochrome>
-					using Bar = Framework::Shader::Primitive::TemplateShader<dimension_t,
-						Pixel::Bar<Width, Height, Monochrome>
-					>;
-
-					using DisabledOverlay = Framework::Shader::Primitive::TemplateShader<dimension_t, Pixel::DisabledOverlay>;
-				}
 			}
 		}
 	}

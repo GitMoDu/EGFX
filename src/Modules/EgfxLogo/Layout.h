@@ -11,209 +11,187 @@ namespace Egfx
 		{
 			namespace Layout
 			{
-
-				/*template<int16_t FontWidth, int16_t FontHeight>
-				struct FontLayout
-				{
-					static constexpr uint8_t Margin() { return 1; }
-
-					static constexpr int16_t RowHeight()
-					{
-						return FontHeight / Dimensions::LineCount;
-					}
-
-					static constexpr int16_t EffectiveHeight()
-					{
-						return RowHeight() * (Dimensions::LineCount - 1);
-					}
-
-					static constexpr uint8_t LinesPerRow() { return RowHeight() >= (3 + Margin()) ? 2 : 1; }
-				};*/
-
-				template<int16_t FontWidth, int16_t FontHeight>
-				struct RetroLinesLayout
-				{
-					static constexpr int16_t RowHeight()
-					{
-						return FontHeight / Dimensions::LineCount;
-					}
-
-					static constexpr uint8_t ScanlineMargin() { return 1 + (FontWidth / 3 / 3); }
-					static constexpr uint8_t ExtraMargin() { return 0; }
-					static constexpr uint8_t Margin() { return Dimensions::FontLayoutMargin(); }
-
-					static constexpr uint8_t LinesPerRow() { return RowHeight() >= (3 + Margin()) ? 2 : 1; }
-
-					static constexpr int16_t LineHeight()
-					{
-						return RowHeight() / LinesPerRow();
-					}
-
-					static constexpr int16_t LineMargin()
-					{
-						return 1 + (LineHeight() / 3);
-					}
-
-					static constexpr int16_t GetLineYOffset(const uint8_t lineIndex)
-					{
-						return static_cast<int16_t>(int16_t(lineIndex) * LineHeight());
-					}
-				};
-
-				template<int16_t FontWidth, int16_t FontHeight>
-				struct DotMatrixLayout
-				{
-					static constexpr uint8_t Margin() { return Dimensions::FontLayoutMargin(); }
-
-					static constexpr int16_t RowHeight()
-					{
-						return FontHeight / Dimensions::LineCount;
-					}
-
-					static constexpr uint8_t SquaresPerRow() { return RowHeight() >= (3 + Margin()) ? 2 : 1; }
-
-
-					static constexpr int16_t SquareSize()
-					{
-						return (FontWidth / Dimensions::ColumnCount);
-					}
-
-					static constexpr int16_t SquareVisibleSize()
-					{
-						return SquareSize() - (Margin() * 2);
-					}
-
-					static constexpr uint8_t SquaresPerColumn()
-					{
-						return Dimensions::LineCount / 2;
-					}
-
-					static constexpr uint8_t LinesPerRow() { return RowHeight() >= (3 + Margin()) ? 2 : 1; }
-					//static constexpr uint8_t LinesPerRow() { return Dimensions::FontLayout<FontWidth, FontHeight>::LinesPerRow(); }
-
-
-					static constexpr pixel_point_t GetSquareOffset(const uint8_t squareX, const uint8_t squareY)
-					{
-						return pixel_point_t{
-							static_cast<int16_t>(int16_t(squareX) * SquareSize()),
-							static_cast<int16_t>(int16_t(squareY) * SquareSize())
-						};
-					}
-				};
-
-
 				template<typename ParentLayout>
-				struct LogoLayout
+				struct Calc
 				{
 					static constexpr int16_t MinDimension() { return MinValue(ParentLayout::Width(), ParentLayout::Height()); }
-					static constexpr int16_t MaxDimension() { return MaxValue(ParentLayout::Width(), ParentLayout::Height()); }
-
-					static constexpr int16_t Kerning()
-					{
-						return 0 +
-							((uint32_t(Dimensions::KerningRatio()) * ParentLayout::Width()) / UINT8_MAX);
-					}
-
-					static constexpr int16_t MarginRaw()
-					{
-						return MinDimension() / 12;
-					}
 
 					static constexpr int16_t Margin()
 					{
-						return (MinDimension() > MarginRaw()) ? MarginRaw() : 0;
+						return 1 + (MinDimension() / Dimensions::MarginDivisor());
+					}
+
+					using Margined = Framework::Layout::Margin<ParentLayout, Margin(), Margin(), Margin(), Margin()>;
+
+					using Constrained = Framework::Layout::ConstrainedRatio<Margined, Dimensions::AspectWidth(), Dimensions::AspectHeight()>;
+
+					using LogoLayout = Framework::Layout::Align<ParentLayout, Constrained>;
+
+					static constexpr int16_t Kerning()
+					{
+						return 1 +
+							((uint32_t(Dimensions::KerningRatio()) * Constrained::Width()) / UINT8_MAX);
 					}
 
 					static constexpr int16_t Padding()
 					{
-						return (MinDimension() / 32) | 0b1;
+						return 1 + (Constrained::Height() / Dimensions::PaddingDivisor());
 					}
 
-					using ScreenRatio = Framework::Layout::Align<ParentLayout, Framework::Layout::ConstrainedRatio<ParentLayout, Dimensions::LogoAspectWidth(), Dimensions::LogoAspectHeight()>>;
-					using ScreenMargin = Framework::Layout::Margin<ScreenRatio, Margin(), Margin(), Margin(), Margin()>;
-					using LogoPadding = Framework::Layout::Margin<ScreenMargin, Padding(), Padding(), Padding(), Padding()>;
+					using PaddedLayout = Framework::Layout::Margin<LogoLayout, Padding(), Padding(), Padding(), Padding()>;
 
-					struct Logo
+					static constexpr int16_t FontWidth()
 					{
-						static constexpr int16_t FontWidth()
-						{
-							return ((LogoPadding::Width() - Padding() * 2) - (Kerning() * (Dimensions::LetterCount() - 1))) / Dimensions::LetterCount();
-						}
+						return (PaddedLayout::Width() - (Kerning() * (Dimensions::LetterCount() - 1))) / Dimensions::LetterCount();
+					}
 
-						static constexpr int16_t FontHeight()
-						{
-							return LogoPadding::Height();
-						}
-
-						static constexpr int16_t RowHeight()
-						{
-							return FontHeight() / Dimensions::LineCount;
-						}
-
-						static constexpr int16_t Height()
-						{
-							return RowHeight() * Dimensions::LineCount;
-						}
-
-						static constexpr int16_t Width()
-						{
-							return (uint32_t(FontWidth()) * (Dimensions::LetterCount()))
-								+ (uint32_t(Kerning()) * (Dimensions::LetterCount() - 1));
-						}
-
-						static constexpr int16_t X()
-						{
-							return LogoPadding::X() + ((LogoPadding::Width() - Width()) / 2);
-						}
-
-						static constexpr int16_t Y()
-						{
-							return LogoPadding::Y() + ((LogoPadding::Height() - Height()) / 2);
-						}
-					};
-
-					struct LetterE
+					static constexpr int16_t FontHeight()
 					{
-						static constexpr int16_t X() { return Logo::X(); }
-						static constexpr int16_t Y() { return Logo::Y(); }
-						static constexpr int16_t Width() { return Logo::FontWidth(); }
-						static constexpr int16_t Height() { return Logo::FontHeight(); }
-					};
+						return PaddedLayout::Height();
+					}
 
-					struct LetterG
-					{
-						static constexpr int16_t X() { return LetterE::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr int16_t Y() { return Logo::Y(); }
-						static constexpr int16_t Width() { return Logo::FontWidth(); }
-						static constexpr int16_t Height() { return Logo::FontHeight(); }
-					};
+					using LettersLayout = Framework::Layout::Align<ParentLayout, PaddedLayout>;
 
-					struct LetterF
-					{
-						static constexpr int16_t X() { return LetterG::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr int16_t Y() { return Logo::Y(); }
-						static constexpr int16_t Width() { return Logo::FontWidth(); }
-						static constexpr int16_t Height() { return Logo::FontHeight(); }
+					using SingleLetterLayout = Framework::Layout::Align<LettersLayout,
+						Framework::Layout::ConstrainedDimensions<PaddedLayout, 1, FontWidth(), 1, FontHeight()>,
+						Framework::Layout::AlignmentEnum::MiddleLeft
+					>;
 
-						static constexpr int16_t SquareSize()
-						{
-							return (Width() / Dimensions::ColumnCount);
-						}
-					};
-
-					struct LetterX
-					{
-						static constexpr int16_t X() { return LetterF::X() + Logo::FontWidth() + Kerning(); }
-						static constexpr int16_t Y() { return Logo::Y(); }
-						static constexpr int16_t Width() { return Logo::FontWidth(); }
-						static constexpr int16_t Height() { return Logo::FontHeight(); }
-
-						static constexpr int16_t SquareSize()
-						{
-							return (Width() / Dimensions::ColumnCount);
-						}
-					};
+					template<uint8_t LetterIndex>
+					using LetterLayout = Framework::Layout::Translate<SingleLetterLayout,
+						(FontWidth() + Kerning())* LetterIndex
+						, 0>;
 				};
+
+				template<typename ParentLayout>
+				using LetterE = typename Calc<ParentLayout>::template LetterLayout<0>;
+
+				template<typename ParentLayout>
+				using LetterG = typename Calc<ParentLayout>::template LetterLayout<1>;
+
+				template<typename ParentLayout>
+				using LettersEG = Framework::Layout::Combine<LetterE<ParentLayout>, LetterG<ParentLayout>>;
+
+				template<typename ParentLayout>
+				using LetterF = typename Calc<ParentLayout>::template LetterLayout<2>;
+
+				template<typename ParentLayout>
+				using LetterX = typename Calc<ParentLayout>::template LetterLayout<3>;
+
+				template<typename ParentLayout>
+				using LettersFX = Framework::Layout::Combine<LetterF<ParentLayout>, LetterX<ParentLayout>>;
+
+				namespace Letters
+				{
+
+					struct ScanLine
+					{
+						pixel_rectangle_t Line;
+						pixel_rectangle_t Overscan;
+					};
+
+					template<int16_t FontWidth, int16_t FontHeight>
+					struct SquareLetterLayout
+					{
+						static constexpr int16_t LineHeight = 1 + ((FontHeight / Dimensions::LineCount) / Dimensions::ScanlineDivisor());
+						static constexpr int16_t OverscanMargin = FontWidth / Dimensions::ScanlineOverscanDivisor();
+						static constexpr int16_t OverscanHeight = FontHeight / Dimensions::ScanlineOverscanHeightDivisor();
+
+						static constexpr Egfx::pixel_rectangle_t Row(const uint8_t rowIndex)
+						{
+							return Egfx::pixel_rectangle_t{
+								{0, (rowIndex * FontHeight) / Dimensions::LineCount},
+								{FontWidth, ((rowIndex + 1) * FontHeight) / Dimensions::LineCount}
+							};
+						}
+
+						static constexpr Egfx::pixel_rectangle_t Row(const uint8_t rowIndex, const uint8_t columnStartIndex, const uint8_t columnEndIndex)
+						{
+							return Egfx::pixel_rectangle_t{
+								Egfx::pixel_point_t{
+									static_cast<pixel_t>((columnStartIndex * FontWidth) / Dimensions::ColumnCount),
+									static_cast<pixel_t>((rowIndex * FontHeight) / Dimensions::LineCount)},
+								Egfx::pixel_point_t{
+									static_cast<pixel_t>(((columnEndIndex + 1) * FontWidth) / Dimensions::ColumnCount),
+									static_cast<pixel_t>(((rowIndex + 1) * FontHeight) / Dimensions::LineCount)}
+							};
+						}
+
+						static constexpr Egfx::pixel_rectangle_t Square(const uint8_t rowIndex, const uint8_t columnIndex)
+						{
+							return Row(rowIndex, columnIndex, columnIndex + 1);
+						}
+					};
+
+
+					template<int16_t FontWidth, int16_t FontHeight>
+					struct ScanLineLetterLayout : SquareLetterLayout<FontWidth, FontHeight>
+					{
+						using Base = SquareLetterLayout<FontWidth, FontHeight>;
+						static constexpr int16_t SquareHeight() { return Base::Square(0, 0).bottomRight.y - Base::Square(0, 0).topLeft.y; }
+
+						static ScanLine Row(const uint8_t rowIndex, const uint8_t columnStartIndex, const uint8_t columnEndIndex, const int16_t offsetX)
+						{
+							const int8_t offsetY = rowIndex > 0 ? 1 * (rowIndex - 1) : 0;
+
+							const auto square = Base::Row(rowIndex, columnStartIndex, columnEndIndex);
+							return ScanLine{
+									{
+										square.topLeft.x + offsetX,
+										square.topLeft.y + offsetY,
+										square.bottomRight.x + offsetX - 1,
+										square.topLeft.y + offsetY + Base::LineHeight - 1
+									},
+									{
+										square.topLeft.x + Base::OverscanMargin + offsetX,
+										square.topLeft.y + offsetY + Base::LineHeight,
+										square.bottomRight.x - Base::OverscanMargin + offsetX - 1,
+										square.topLeft.y + offsetY + Base::LineHeight + Base::OverscanHeight - 1
+									}
+							};
+						}
+					};
+
+
+					template<int16_t FontWidth, int16_t FontHeight>
+					struct SquareDotLetterLayout : SquareLetterLayout<FontWidth, FontHeight>
+					{
+						using Base = SquareLetterLayout<FontWidth, FontHeight>;
+						static constexpr int16_t LineHeight = (FontHeight / Dimensions::LineCount) / 7;
+
+						static pixel_rectangle_t Cell(const uint8_t rowIndex, const uint8_t columnIndex, const int16_t offsetX)
+						{
+							const int8_t offsetY = rowIndex > 0 ? 1 * (rowIndex - 1) : 0;
+
+							const auto square = Base::Square(rowIndex, columnIndex);
+
+							return pixel_rectangle_t{
+									{square.topLeft.x + offsetX, square.topLeft.y + offsetY},
+									{square.bottomRight.x + offsetX, square.bottomRight.y + offsetY}
+							};
+						}
+
+						static constexpr int16_t CellSize()
+						{
+							return (Base::Square(0, 0).bottomRight.x - Base::Square(0, 0).topLeft.x);
+						}
+
+						static constexpr uint8_t DotCount()
+						{
+							return CellSize() >= 3 ? 2 : 1;
+						}
+
+						static constexpr int16_t DotSize()
+						{
+							return DotCount() > 1 ? ((CellSize() / 3) - 0) : 1;
+						}
+
+						static constexpr int16_t DotOffset()
+						{
+							return (CellSize() / 2) + 1;
+						}
+					};
+				}
 			}
 		}
 	}

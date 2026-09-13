@@ -1,7 +1,6 @@
 #ifndef _LOGO_SPLASH_DEMO_h
 #define _LOGO_SPLASH_DEMO_h
 
-#include <EgfxFramework.h>
 #include <EgfxModules.h>
 
 // Logo splash screen demo with custom renderer and auto-layout.
@@ -10,11 +9,12 @@ namespace LogoSplashDemo
 	using namespace Egfx;
 
 	template<typename ParentLayout, bool Monochrome,
-		uint32_t AnimationDuration = 4000000,
-		bool AutoStart = true>
-	struct StaticFrame : Framework::View::FrameAdapter
-		<Modules::EgfxLogo::View::Splash<ParentLayout, Monochrome>>
+		uint32_t AnimationDuration = 4000000>
+	struct StaticView : Modules::EgfxLogo::View::Logo<ParentLayout, Monochrome>
 	{
+		StaticView() : Modules::EgfxLogo::View::Logo<ParentLayout, Monochrome>() {}
+		~StaticView() = default;
+
 #if defined(SERIAL_LOG)
 		void PrintDescription() const
 		{
@@ -24,11 +24,14 @@ namespace LogoSplashDemo
 	};
 
 	template<typename ParentLayout, bool Monochrome,
-		uint32_t AnimationDuration = 4000000,
-		bool AutoStart = true>
-	struct AnimatedFrame : Framework::View::FrameAdapter
-		<Modules::EgfxLogo::View::AnimatedSplash<ParentLayout, Monochrome, AnimationDuration, AutoStart>>
+		uint32_t AnimationDuration = 8000000,
+		bool AutoStart = true,
+		bool Loop = true>
+	struct AnimatedView : Modules::EgfxLogo::View::SplashLogo<ParentLayout, Monochrome, AnimationDuration, AutoStart, Loop>
 	{
+		AnimatedView() : Modules::EgfxLogo::View::SplashLogo<ParentLayout, Monochrome, AnimationDuration, AutoStart, Loop>() {}
+		~AnimatedView() = default;
+
 #if defined(SERIAL_LOG)
 		void PrintDescription() const
 		{

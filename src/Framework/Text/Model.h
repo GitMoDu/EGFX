@@ -7,30 +7,6 @@ namespace Egfx
 {
 	namespace Framework
 	{
-		enum class TextAlignmentEnum : uint8_t
-		{
-			Left,
-			Center,
-			Right
-		};
-
-		namespace FontText
-		{
-			static constexpr uint32_t PowerOfTen[]
-			{
-				1,
-				10,
-				100,
-				1000,
-				10000,
-				100000,
-				1000000,
-				10000000,
-				100000000,
-				1000000000
-			};
-		}
-
 		namespace AsciiDefinition
 		{
 			// Control characters (0..31, 127)
@@ -74,113 +50,127 @@ namespace Egfx
 			// Printable ASCII (32..126).
 			enum class Printable : uint8_t
 			{
-				Space = ' ',
-				Exclamation = '!',
-				DoubleQuote = '"',
-				NumberSign = '#',
-				Dollar = '$',
-				Percent = '%',
-				Ampersand = '&',
-				Apostrophe = '\'',
-				ParenthesisOpen = '(',
-				ParenthesisClose = ')',
-				Asterisk = '*',
-				Plus = '+',
-				Comma = ',',
-				Minus = '-',
-				Period = '.',
-				ForwardSlash = '/',
+				Space = 32,             // Space
+				Exclamation = 33,       // !
+				DoubleQuote = 34,       // "
+				NumberSign = 35,        // #
+				Dollar = 36,            // $
+				Percent = 37,           // %
+				Ampersand = 38,         // &
+				Apostrophe = 39,        // '
+				ParenthesisOpen = 40,   // (
+				ParenthesisClose = 41,  // )
+				Asterisk = 42,           // *
+				Plus = 43,               // +
+				Comma = 44,              // ,
+				Minus = 45,              // -
+				Period = 46,             // .
+				ForwardSlash = 47,       // Forward Slash
 
-				Digit0 = '0',
-				Digit1 = '1',
-				Digit2 = '2',
-				Digit3 = '3',
-				Digit4 = '4',
-				Digit5 = '5',
-				Digit6 = '6',
-				Digit7 = '7',
-				Digit8 = '8',
-				Digit9 = '9',
+				Digit0 = 48,             // 0
+				Digit1 = 49,             // 1
+				Digit2 = 50,             // 2
+				Digit3 = 51,             // 3
+				Digit4 = 52,             // 4
+				Digit5 = 53,             // 5
+				Digit6 = 54,             // 6
+				Digit7 = 55,             // 7
+				Digit8 = 56,             // 8
+				Digit9 = 57,             // 9
 
-				Colon = ':',
-				Semicolon = ';',
-				LessThan = '<',
-				Equals = '=',
-				GreaterThan = '>',
-				Question = '?',
-				At = '@',
+				Colon = 58,              // :
+				Semicolon = 59,          // ;
+				LessThan = 60,           // <
+				Equals = 61,             // =
+				GreaterThan = 62,        // >
+				Question = 63,            // ?
+				At = 64,                  // @
 
-				A = 'A',
-				B = 'B',
-				C = 'C',
-				D = 'D',
-				E = 'E',
-				F = 'F',
-				G = 'G',
-				H = 'H',
-				I = 'I',
-				J = 'J',
-				K = 'K',
-				L = 'L',
-				M = 'M',
-				N = 'N',
-				O = 'O',
-				P = 'P',
-				Q = 'Q',
-				R = 'R',
-				S = 'S',
-				T = 'T',
-				U = 'U',
-				V = 'V',
-				W = 'W',
-				X = 'X',
-				Y = 'Y',
-				Z = 'Z',
+				A = 65,                   // A
+				B = 66,                   // B
+				C = 67,                   // C
+				D = 68,                   // D
+				E = 69,                   // E
+				F = 70,                   // F
+				G = 71,                   // G
+				H = 72,                   // H
+				I = 73,                   // I
+				J = 74,                   // J
+				K = 75,                   // K
+				L = 76,                   // L
+				M = 77,                   // M
+				N = 78,                   // N
+				O = 79,                   // O
+				P = 80,                   // P
+				Q = 81,                   // Q
+				R = 82,                   // R
+				S = 83,                   // S
+				T = 84,                   // T
+				U = 85,                   // U
+				V = 86,                   // V
+				W = 87,                   // W
+				X = 88,                   // X
+				Y = 89,                   // Y
+				Z = 90,                   // Z
 
-				BracketOpen = '[',
-				Backslash = '\\',
-				BracketClose = ']',
-				Caret = '^',
-				Underscore = '_',
-				GraveAccent = '`',
+				BracketOpen = 91,        // [
+				Backslash = 92,          // Backslash
+				BracketClose = 93,       // ]
+				Caret = 94,              // ^
+				Underscore = 95,         // _
+				GraveAccent = 96,        // `
 
-				a = 'a',
-				b = 'b',
-				c = 'c',
-				d = 'd',
-				e = 'e',
-				f = 'f',
-				g = 'g',
-				h = 'h',
-				i = 'i',
-				j = 'j',
-				k = 'k',
-				l = 'l',
-				m = 'm',
-				n = 'n',
-				o = 'o',
-				p = 'p',
-				q = 'q',
-				r = 'r',
-				s = 's',
-				t = 't',
-				u = 'u',
-				v = 'v',
-				w = 'w',
-				x = 'x',
-				y = 'y',
-				z = 'z',
+				a = 97,                   // a
+				b = 98,                   // b
+				c = 99,                   // c
+				d = 100,                  // d
+				e = 101,                  // e
+				f = 102,                  // f
+				g = 103,                  // g
+				h = 104,                  // h
+				i = 105,                  // i
+				j = 106,                  // j
+				k = 107,                  // k
+				l = 108,                  // l
+				m = 109,                  // m
+				n = 110,                  // n
+				o = 111,                  // o
+				p = 112,                  // p
+				q = 113,                  // q
+				r = 114,                  // r
+				s = 115,                  // s
+				t = 116,                  // t
+				u = 117,                  // u
+				v = 118,                  // v
+				w = 119,                  // w
+				x = 120,                  // x
+				y = 121,                  // y
+				z = 122,                  // z
 
-				LeftBrace = '{',
-				VerticalBar = '|',
-				RightBrace = '}',
-				Tilde = '~'
+				LeftBrace = 123,         // {
+				VerticalBar = 124,       // |
+				RightBrace = 125,        // }
+				Tilde = 126              // ~
 			};
 
 			static constexpr uint8_t PrintableStart = static_cast<int8_t>(Printable::Space);
 			static constexpr uint8_t PrintableEnd = static_cast<int8_t>(Printable::Tilde) + 1;
 
 			static constexpr uint8_t NumbersStart = '0';
+
+			static constexpr uint32_t PowerOfTen[]
+			{
+				1,
+				10,
+				100,
+				1000,
+				10000,
+				100000,
+				1000000,
+				10000000,
+				100000000,
+				1000000000
+			};
 		}
 	}
 }

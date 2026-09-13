@@ -1,8 +1,8 @@
 #ifndef _EGFX_MODULES_EGFX_LOGO_CONSTANT_h
 #define _EGFX_MODULES_EGFX_LOGO_CONSTANT_h
 
-#include <EgfxFramework.h>
-#include <EgfxAssets.h>
+#include "../../EgfxFramework.h"
+#include "../../EgfxAssets.h"
 
 namespace Egfx
 {
@@ -32,13 +32,18 @@ namespace Egfx
 
 				// Layout dimensions.
 				static constexpr uint8_t LetterCount() { return 4; }
-				static constexpr uint8_t KerningRatio() { return 12+2; }
-				static constexpr uint8_t LogoAspectWidth() { return UINT8_MAX; }
-				static constexpr uint8_t LogoAspectHeight() { return 100; }
-				static constexpr uint8_t FontLayoutMargin() { return 1; }
+				static constexpr uint8_t KerningRatio() { return 12; }
+				static constexpr uint8_t MarginDivisor() { return 18; }
+				static constexpr uint8_t PaddingDivisor() { return 9; }
 
 				// Screen outline shimmering effect. Controls the max Screen effect alpha.
 				static constexpr ufraction8_t ScreenAlphaScale = UFraction8::GetScalar<uint8_t>(9, 10);
+
+				static constexpr uint8_t AspectHeight() { return 13; }
+				static constexpr uint8_t AspectWidth() { return 32; }
+				static constexpr uint8_t ScanlineDivisor() { return 33; }
+				static constexpr uint8_t ScanlineOverscanDivisor() { return 15; }
+				static constexpr uint8_t ScanlineOverscanHeightDivisor() { return 33; }
 			}
 		}
 	}

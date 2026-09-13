@@ -6,6 +6,7 @@
 #include "../Shader.h"
 
 #include "../Assets.h"
+#include "../../../Framework/Image/Bitmask/Drawable.h"
 
 namespace Egfx
 {
@@ -17,197 +18,231 @@ namespace Egfx
 			{
 				namespace Bitmask
 				{
-					using dimension_t = pixel_t;
-
 					static constexpr uint8_t OverscaleX = 1;
 
-					template<typename ParentLayout,
+					template<typename dimension_t,
+						typename ParentLayout,
 						dimension_t BitmaskWidth,
 						dimension_t BitmaskHeight,
-						bool Monochrome
-					>
-					class AbstractBarsSlice : public Framework::Bitmask::BitmaskDrawable<
-						ParentLayout,
+						bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class AbstractBarsSlice : public ::Egfx::Framework::Shader::Image::Bitmask::Scaled<
 						dimension_t,
-						BitmaskWidth,
-						BitmaskHeight,
-						Framework::Bitmask::Reader::Flash,
-						(OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
-						MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight),
-						Shader::Primitive::Bar<
-						BitmaskWidth* (OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
-						BitmaskHeight* MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight),
-						Monochrome
-						>
-					>
+						static_cast<uint8_t>(OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
+						static_cast<uint8_t>(MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight)),
+						::Egfx::Framework::DataSourceTypeEnum::Flash,
+						true,
+						RGB_COLOR_BLACK,
+						Framework::Image::ScaledTransformOrderEnum::TransformThenScale,
+						ColorShaderType,
+						Shader::Transform::Bar<dimension_t, BitmaskWidth, BitmaskHeight, Monochrome, TransformShaderType>,
+						BlendMode,
+						Shader::Source::Bar<dimension_t>>
 					{
 					private:
-						using Base = Framework::Bitmask::BitmaskDrawable<
-							ParentLayout,
+						using Base = ::Egfx::Framework::Shader::Image::Bitmask::Scaled<
 							dimension_t,
-							BitmaskWidth,
-							BitmaskHeight,
-							Framework::Bitmask::Reader::Flash,
-							(OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
-							MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight),
-							Shader::Primitive::Bar<
-							BitmaskWidth* (OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
-							BitmaskHeight* MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight),
-							Monochrome
-							>
-						>;
+							static_cast<uint8_t>(OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
+							static_cast<uint8_t>(MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight)),
+							::Egfx::Framework::DataSourceTypeEnum::Flash,
+							true,
+							RGB_COLOR_BLACK,
+							Framework::Image::ScaledTransformOrderEnum::TransformThenScale,
+							ColorShaderType,
+							Shader::Transform::Bar<dimension_t, BitmaskWidth, BitmaskHeight, Monochrome, TransformShaderType>,
+							BlendMode,
+							Shader::Source::Bar<dimension_t>>;
+
+						const uint8_t* BitmaskData;
 
 					public:
-						static constexpr dimension_t Width = BitmaskWidth * (OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth));
-						static constexpr dimension_t Height = BitmaskHeight * MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight);
+						static constexpr dimension_t ScaleX = static_cast<dimension_t>(OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth));
+						static constexpr dimension_t ScaleY = static_cast<dimension_t>(MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight));
+						static constexpr dimension_t TransformWidth = static_cast<dimension_t>(ParentLayout::Width() / ScaleX);
+						static constexpr dimension_t Width = TransformWidth * ScaleX;
+						static constexpr dimension_t Height = BitmaskHeight * ScaleY;
 
-					public:
 						explicit AbstractBarsSlice(const uint8_t* bitmask)
-							: Base(bitmask)
+							: Base(0, 0, ParentLayout::Width(), ParentLayout::Height()), BitmaskData(bitmask)
 						{
-							Base::TransformShader.SetWidth(ParentLayout::Width());
+							Base::TransformShader.SetWidth(TransformWidth);
 						}
 
 						~AbstractBarsSlice() = default;
+
+						void SetColor(const rgb_color_t color)
+						{
+							SetColor(color, typename TypeTraits::TypeConditional::conditional_type<
+								TypeTraits::TypeDispatch::FalseType,
+								TypeTraits::TypeDispatch::TrueType,
+								Monochrome>::type{});
+						}
+
+						void Draw(IFrameBuffer* framebuffer)
+						{
+							Base::Prepare(ParentLayout::X(), ParentLayout::Y());
+							Base::Draw(framebuffer, BitmaskData, BitmaskWidth, BitmaskHeight, 0, 0);
+						}
+
+					private:
+						void SetColor(const rgb_color_t, TypeTraits::TypeDispatch::TrueType)
+						{}
+
+						void SetColor(const rgb_color_t color, TypeTraits::TypeDispatch::FalseType)
+						{
+							Base::ColorSource.Color = color;
+						}
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars22x16Slice0 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice0Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars22x16Slice0 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice0Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars22x16Slice0() : AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice0Height, Monochrome>
-							(Assets::Bitmask22x16::Slice_0_22x4) {
-						}
+						Bars22x16Slice0() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice0Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask22x16::Slice_0_22x4) {}
 						~Bars22x16Slice0() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars22x16Slice1 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice1Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars22x16Slice1 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice1Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars22x16Slice1() : AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice1Height, Monochrome>
-							(Assets::Bitmask22x16::Slice_1_22x4) {
-						}
+						Bars22x16Slice1() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice1Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask22x16::Slice_1_22x4) {}
 						~Bars22x16Slice1() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars22x16Slice2 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice2Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars22x16Slice2 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice2Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars22x16Slice2() : AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice2Height, Monochrome>
-							(Assets::Bitmask22x16::Slice_2_22x5) {
-						}
+						Bars22x16Slice2() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice2Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask22x16::Slice_2_22x5) {}
 						~Bars22x16Slice2() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars22x16Slice3 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice3Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars22x16Slice3 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice3Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars22x16Slice3() : AbstractBarsSlice<ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice3Height, Monochrome>
-							(Assets::Bitmask22x16::Slice_3_22x6) {
-						}
+						Bars22x16Slice3() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask22x16::Width, Assets::Bitmask22x16::Slice3Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask22x16::Slice_3_22x6) {}
 						~Bars22x16Slice3() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars24x16Slice0 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice0Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars24x16Slice0 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice0Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars24x16Slice0() : AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice0Height, Monochrome>
-							(Assets::Bitmask24x16::Slice_0_24x4) {
-						}
+						Bars24x16Slice0() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice0Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask24x16::Slice_0_24x4) {}
 						~Bars24x16Slice0() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars24x16Slice1 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice1Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars24x16Slice1 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice1Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars24x16Slice1() : AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice1Height, Monochrome>
-							(Assets::Bitmask24x16::Slice_1_24x5) {
-						}
+						Bars24x16Slice1() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice1Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask24x16::Slice_1_24x5) {}
 						~Bars24x16Slice1() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars24x16Slice2 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice2Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars24x16Slice2 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice2Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars24x16Slice2() : AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice2Height, Monochrome>
-							(Assets::Bitmask24x16::Slice_2_24x6) {
-						}
+						Bars24x16Slice2() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice2Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask24x16::Slice_2_24x6) {}
 						~Bars24x16Slice2() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars24x16Slice3 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice3Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars24x16Slice3 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice3Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars24x16Slice3() : AbstractBarsSlice<ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice3Height, Monochrome>
-							(Assets::Bitmask24x16::Slice_3_24x7) {
-						}
+						Bars24x16Slice3() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask24x16::Width, Assets::Bitmask24x16::Slice3Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask24x16::Slice_3_24x7) {}
 						~Bars24x16Slice3() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars42x30Slice0 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice0Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars42x30Slice0 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice0Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars42x30Slice0() : AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice0Height, Monochrome>
-							(Assets::Bitmask42x30::Slice_0_42x7) {
-						}
+						Bars42x30Slice0() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice0Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask42x30::Slice_0_42x7) {}
 						~Bars42x30Slice0() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars42x30Slice1 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice1Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars42x30Slice1 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice1Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars42x30Slice1() : AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice1Height, Monochrome>
-							(Assets::Bitmask42x30::Slice_1_42x7) {
-						}
+						Bars42x30Slice1() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice1Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask42x30::Slice_1_42x7) {}
 						~Bars42x30Slice1() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars42x30Slice2 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice2Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars42x30Slice2 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice2Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars42x30Slice2() : AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice2Height, Monochrome>
-							(Assets::Bitmask42x30::Slice_2_42x10) {
-						}
+						Bars42x30Slice2() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice2Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask42x30::Slice_2_42x10) {}
 						~Bars42x30Slice2() = default;
 					};
 
-					template<typename ParentLayout,
-						bool Monochrome>
-					class Bars42x30Slice3 : public AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice3Height, Monochrome>
+					template<typename dimension_t, typename ParentLayout, bool Monochrome,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>, typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>, Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class Bars42x30Slice3 : public AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice3Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					public:
-						Bars42x30Slice3() : AbstractBarsSlice<ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice3Height, Monochrome>
-							(Assets::Bitmask42x30::Slice_3_42x12) {
-						}
+						Bars42x30Slice3() : AbstractBarsSlice<dimension_t, ParentLayout, Assets::Bitmask42x30::Width, Assets::Bitmask42x30::Slice3Height, Monochrome, ColorShaderType, TransformShaderType, BlendMode>
+							(Assets::Bitmask42x30::Slice_3_42x12) {}
 						~Bars42x30Slice3() = default;
 					};
 
-					template<typename ParentLayout>
-					class DisabledOverlay : Shader::Primitive::DisabledOverlay
+
+
+					template<typename dimension_t,
+						typename ParentLayout,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					class DisabledOverlay : public Framework::Shader::Geometry::TriangleShader<
+						dimension_t,
+						Framework::Shader::Pixel::TemplateShader<
+						dimension_t,
+						Framework::Shader::Source::SingleColor<dimension_t>,
+						ColorShaderType,
+						TransformShaderType,
+						BlendMode>
+					>
 					{
 					private:
-						using Base = Shader::Primitive::DisabledOverlay;
+						using Base = Framework::Shader::Geometry::TriangleShader<
+							dimension_t,
+							Framework::Shader::Pixel::TemplateShader<
+							dimension_t,
+							Framework::Shader::Source::SingleColor<dimension_t>,
+							ColorShaderType,
+							TransformShaderType,
+							BlendMode>
+						>;
 
 						using ParallelogramLayout = Layout::ParallelogramLayout<ParentLayout>;
 
@@ -222,10 +257,8 @@ namespace Egfx
 						bool Visible = true;
 
 					public:
-						DisabledOverlay() : Base()
-						{
-							Base::Prepare(ParentLayout::X(), ParentLayout::Y());
-						}
+						DisabledOverlay() : Base(0, 0, ParentLayout::Width(), ParentLayout::Height())
+						{}
 
 						~DisabledOverlay() = default;
 
@@ -237,6 +270,7 @@ namespace Egfx
 
 						void Draw(IFrameBuffer* frame)
 						{
+							Base::Prepare(ParentLayout::X(), ParentLayout::Y());
 							if (!Visible)
 								return;
 

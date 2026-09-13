@@ -5,6 +5,10 @@
 
 namespace Egfx
 {
+	/// <summary>
+	/// A lookup table for bit masks corresponding to each bit position in a byte.
+	/// </summary>
+	static constexpr uint8_t BitMaskBits[8] = { 1 << 0, 1 << 1, 1 << 2, 1 << 3, 1 << 4, 1 << 5, 1 << 6, 1 << 7 };
 
 	/// <summary>
 	/// A template class for painting binary (1-bit per pixel) framebuffer, providing low-level pixel drawing operations.
@@ -22,6 +26,25 @@ namespace Egfx
 	private:
 		using Base = AbstractFramePainter<BinaryColorConverter1<colorThreshold>, frameWidth, frameHeight, rotated>;
 
+		static constexpr int16_t MaximumDimension()
+		{
+			return MaxValue<int16_t>(frameWidth, frameHeight);
+		}
+
+		// Optimized axis iterator type based on max frame dimension.
+		using axis_t = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
+			uint_fast8_t,
+			uint_fast16_t,
+			(MaximumDimension() <= UINT8_MAX)
+		>::type;
+
+		using offset_t = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type <
+			uint_fast16_t,
+			size_t,
+			(Base::BufferSize <= UINT16_MAX)
+		>::type;
+
+
 	protected:
 		using Base::Buffer;
 
@@ -36,42 +59,31 @@ namespace Egfx
 		BinaryFramePainter(uint8_t* buffer = nullptr) : Base(buffer) {}
 
 	protected:
-		inline void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y)
+		void PixelRaw(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const pixel_t yByte = y / 8;
-			const uint8_t yBit = y % 8;
-
-			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
+			const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+			const uint8_t mask = BitMaskBits[y & 7];
 
 			if (rawColor > 0)
 			{
-				Buffer[offset] |= uint8_t(1) << yBit;
+				Buffer[offset] |= mask;
 			}
 			else
 			{
-				Buffer[offset] &= ~(uint8_t(1) << yBit);
+				Buffer[offset] &= ~mask;
 			}
 		}
 
 		void PixelRawBlend(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const bool currentPixel = GetPixelRaw(x, y);
-			const bool newPixel = rawColor > 0;
-
-			// If pixels are already the same, no change needed
-			if (currentPixel == newPixel)
-				return;
-
-			// Use 50/50 dithering to decide whether to draw the pixel
-			if (Dither(INT8_MAX))
-			{
-				PixelRaw(rawColor, x, y);
-			}
+			PixelRawBlendAlpha(rawColor, x, y, UINT8_MAX / 2); // Use 50% alpha for blending
 		}
 
 		void PixelRawBlendAlpha(const color_t rawColor, const pixel_t x, const pixel_t y, const uint8_t alpha)
 		{
-			const bool currentPixel = GetPixelRaw(x, y);
+			const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+			const uint8_t mask = BitMaskBits[y & 7];
+			const bool currentPixel = Buffer[offset] & mask;
 			const bool newPixel = rawColor > 0;
 
 			// If pixels are already the same, no change needed
@@ -81,152 +93,201 @@ namespace Egfx
 			// Use dithering to decide whether to draw the pixel based on alpha
 			if (Dither(alpha))
 			{
-				PixelRaw(rawColor, x, y);
+				if (newPixel)
+				{
+					Buffer[offset] |= mask;
+				}
+				else
+				{
+					Buffer[offset] &= ~mask;
+				}
 			}
 		}
 
 		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const bool currentPixel = GetPixelRaw(x, y);
+			if (rawColor == 0)
+				return;
+
+			const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+			const uint8_t mask = BitMaskBits[y & 7];
+			const bool currentPixel = Buffer[offset] & mask;
 
 			// In add mode, if current pixel is already white, it stays white
 			if (currentPixel)
 				return;
 
-			// If new pixel is white, chance to turn current pixel white
-			if (rawColor > 0 && Dither(INT8_MAX))
-			{
-				PixelRaw(1, x, y);
-			}
+			Buffer[offset] |= mask;
 		}
 
 		void PixelRawBlendSubtract(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
+			if (rawColor == 0)
+				return;
+
 			const bool currentPixel = GetPixelRaw(x, y);
 
 			// In subtract mode, if current pixel is already black, it stays black
-			if (!currentPixel)
+			if (currentPixel)
 				return;
 
-			// If new pixel is white, chance to turn current pixel black
-			if (rawColor > 0 && Dither(INT8_MAX))
-			{
-				PixelRaw(0, x, y);
-			}
+			const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+			const uint8_t mask = BitMaskBits[y & 7];
+			Buffer[offset] &= ~mask;
 		}
 
 		void PixelRawBlendMultiply(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const bool currentPixel = GetPixelRaw(x, y);
+			const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+			const uint8_t mask = BitMaskBits[y & 7];
+			const bool currentPixel = Buffer[offset] & mask;
 			const bool newPixel = rawColor > 0;
 
 			// In multiply mode, result is white only if both are white
 			if (currentPixel && !newPixel)
 			{
-				PixelRaw(0, x, y); // Change from white to black
+				Buffer[offset] |= mask;
+			}
+			else
+			{
+				Buffer[offset] &= ~mask;
 			}
 		}
 
 		void PixelRawBlendScreen(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
-			const bool currentPixel = GetPixelRaw(x, y);
+			const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+			const uint8_t mask = BitMaskBits[y & 7];
+			const bool currentPixel = Buffer[offset] & mask;
 			const bool newPixel = rawColor > 0;
 
 			// In screen mode, result is black only if both are black
 			if (!currentPixel && newPixel)
 			{
-				PixelRaw(1, x, y); // Change from black to white
+				Buffer[offset] |= mask;
+			}
+			else
+			{
+				Buffer[offset] &= ~mask;
+			}
+		}
+
+		void PixelRawBlendXor(const color_t rawColor, const pixel_t x, const pixel_t y)
+		{
+			if (rawColor > 0)
+			{
+				const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+				const uint8_t mask = BitMaskBits[y & 7];
+				Buffer[offset] ^= mask;
 			}
 		}
 
 		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
 		{
-			const pixel_t yStart = (y1 <= y2) ? y1 : y2;
-			const pixel_t yEnd = (y1 <= y2) ? y2 : y1;
-			const pixel_t startByte = yStart / 8;
-			const pixel_t endByte = yEnd / 8;
-			const pixel_t xOffset = x;
+			const axis_t yStart = (y1 <= y2) ? y1 : y2;
+			const axis_t yEnd = (y1 <= y2) ? y2 : y1;
+			const axis_t startByte = yStart >> 3;
+			const axis_t endByte = yEnd >> 3;
+			const offset_t rowStride = static_cast<offset_t>(sizeof(color_t)) * frameWidth;
+			const offset_t baseOffset = (rowStride * startByte) + x;
+
+			const uint8_t startBit = yStart & 7;
+			const uint8_t endBit = yEnd & 7;
 
 			if (startByte == endByte)
 			{
-				// Single byte case
-				const uint8_t startBit = yStart % 8;
-				const uint8_t endBit = yEnd % 8;
 				const uint8_t mask = ((uint8_t(0xFF) << startBit) & (uint8_t(0xFF) >> (7 - endBit)));
-				const size_t offset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
-
-				if (rawColor > 0)
-					Buffer[offset] |= mask;
-				else
-					Buffer[offset] &= ~mask;
-
+				uint8_t& target = Buffer[baseOffset];
+				if (rawColor > 0) target |= mask;
+				else target &= ~mask;
 				return;
 			}
 
 			// First byte - partial
-			const uint8_t startBit = yStart % 8;
-			const size_t startOffset = (sizeof(color_t) * frameWidth * startByte) + xOffset;
-
+			uint8_t* ptr = &Buffer[baseOffset];
 			if (startBit > 0)
 			{
 				const uint8_t firstByteMask = uint8_t(0xFF) << startBit;
-				if (rawColor > 0)
-					Buffer[startOffset] |= firstByteMask;
-				else
-					Buffer[startOffset] &= ~firstByteMask;
+				if (rawColor > 0) *ptr |= firstByteMask;
+				else *ptr &= ~firstByteMask;
+				ptr += rowStride;
 			}
 			else
 			{
-				Buffer[startOffset] = (rawColor > 0) ? 0xFF : 0x00;
+				*ptr = (rawColor > 0) ? 0xFF : 0x00;
+				ptr += rowStride;
 			}
 
 			// Middle bytes - full bytes
-			for (pixel_t byteIndex = startByte + 1; byteIndex < endByte; byteIndex++)
+			const uint8_t fillByte = rawColor > 0 ? 0xFF : 0x00;
+			for (axis_t byteIndex = startByte + 1; byteIndex < endByte; byteIndex++, ptr += rowStride)
 			{
-				const size_t midOffset = (sizeof(color_t) * frameWidth * byteIndex) + xOffset;
-				Buffer[midOffset] = (rawColor > 0) ? 0xFF : 0x00;
+				*ptr = fillByte;
 			}
 
 			// Last byte - partial
-			const uint8_t endBit = yEnd % 8;
 			const uint8_t lastByteMask = uint8_t(0xFF) >> (7 - endBit);
-			const size_t endOffset = (sizeof(color_t) * frameWidth * endByte) + xOffset;
-
-			if (rawColor > 0)
-				Buffer[endOffset] |= lastByteMask;
-			else
-				Buffer[endOffset] &= ~lastByteMask;
+			if (rawColor > 0) *ptr |= lastByteMask;
+			else *ptr &= ~lastByteMask;
 		}
 
 		void LineHorizontalRaw(const color_t rawColor, const pixel_t x1, const pixel_t y, const pixel_t x2)
 		{
-			const uint8_t yByte = y / 8;
-			const uint8_t yBit = y % 8;
-			const int8_t sign = (x2 >= x1) ? 1 : -1;
-			const pixel_t width = (pixel_t(sign) * (x2 - x1));
-			size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x1;
+			const axis_t xStart = (x1 <= x2) ? x1 : x2;
+			const axis_t xEnd = (x1 <= x2) ? x2 : x1;
+			const axis_t width = static_cast<axis_t>(xEnd - xStart) + 1;
+
+			const offset_t rowOffset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + xStart;
+			const uint8_t mask = BitMaskBits[y & 7];
+			uint8_t* ptr = &Buffer[rowOffset];
 
 			if (rawColor > 0)
 			{
-				for (pixel_t i = 0; i <= width; i++, offset += sign)
-				{
-					Buffer[offset] |= 1 << yBit;
-				}
+				for (axis_t i = 0; i < width; i++) *ptr++ |= mask;
 			}
 			else
 			{
-				for (pixel_t i = 0; i <= width; i++, offset += sign)
-				{
-					Buffer[offset] &= ~(1 << yBit);
-				}
+				for (axis_t i = 0; i < width; i++) *ptr++ &= ~mask;
 			}
 		}
 
 		void RectangleFillRaw(const color_t rawColor, const pixel_t x1, const pixel_t y1, const pixel_t x2, const pixel_t y2)
 		{
-			for (pixel_t y = y1; y <= y2; y++)
+			const axis_t xStart = (x1 <= x2) ? x1 : x2;
+			const axis_t xEnd = (x1 <= x2) ? x2 : x1;
+			const axis_t yStart = (y1 <= y2) ? y1 : y2;
+			const axis_t yEnd = (y1 <= y2) ? y2 : y1;
+			const axis_t startPage = yStart >> 3;
+			const axis_t endPage = yEnd >> 3;
+			const offset_t rowStride = static_cast<offset_t>(sizeof(color_t)) * frameWidth;
+			const axis_t width = static_cast<axis_t>(xEnd - xStart) + 1;
+			const uint8_t fillByte = rawColor > 0 ? UINT8_MAX : 0;
+
+			for (axis_t page = startPage; ; page++)
 			{
-				LineHorizontalRaw(rawColor, x1, y, x2);
+				const uint8_t firstBit = (page == startPage) ? (yStart & 7) : 0;
+				const uint8_t lastBit = (page == endPage) ? (yEnd & 7) : 7;
+				const offset_t pageOffset = static_cast<offset_t>(page) * rowStride + xStart;
+
+				if (firstBit == 0 && lastBit == 7)
+				{
+					memset(&Buffer[pageOffset], fillByte, width);
+				}
+				else
+				{
+					const uint8_t mask = (uint8_t(0xFF) << firstBit) & (uint8_t(0xFF) >> (7 - lastBit));
+					for (axis_t x = 0; x < width; x++)
+					{
+						uint8_t& target = Buffer[pageOffset + x];
+						if (rawColor > 0)
+							target |= mask;
+						else
+							target &= static_cast<uint8_t>(~mask);
+					}
+				}
+
+				if (page == endPage)
+					break;
 			}
 		}
 
@@ -238,26 +299,26 @@ namespace Egfx
 		template<bool inverted, uint8_t Sections>
 		void ClearRaw(const uint8_t section)
 		{
-			static constexpr size_t sectionSize = BufferSize / Sections;
-			const size_t sectionOffset = sectionSize * section;
+			static constexpr offset_t SectionSize = BufferSize / Sections;
+
+			const offset_t sectionOffset = SectionSize * section;
 			if (inverted)
 			{
-				memset(&Buffer[sectionOffset], UINT8_MAX, sectionSize);
+				memset(&Buffer[sectionOffset], UINT8_MAX, SectionSize);
 			}
 			else
 			{
-				memset(&Buffer[sectionOffset], 0, sectionSize);
+				memset(&Buffer[sectionOffset], 0, SectionSize);
 			}
 		}
 
 	private:
 		bool GetPixelRaw(const pixel_t x, const pixel_t y) const
 		{
-			const pixel_t yByte = y / 8;
-			const uint8_t yBit = y % 8;
-			const size_t offset = ((sizeof(color_t) * frameWidth) * yByte) + x;
+			const offset_t offset = (static_cast<offset_t>(sizeof(color_t)) * frameWidth * (y >> 3)) + x;
+			const uint8_t mask = BitMaskBits[y & 7];
 
-			return (Buffer[offset] & (uint8_t(1) << yBit)) != 0;
+			return (Buffer[offset] & mask) != 0;
 		}
 
 		bool Dither(const uint8_t alpha)

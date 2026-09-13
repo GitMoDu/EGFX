@@ -11,56 +11,87 @@ namespace Egfx
 	{
 		namespace TimecodeText
 		{
-			namespace View
+			template<typename ParentLayout,
+				typename FontType = TimecodeText::DefaultFont,
+				typename ColorShaderType = Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
+				typename TransformShaderType = Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>
+			>
+			class View : public Egfx::Framework::View::AbstractView
 			{
-				template<typename ParentLayout, bool Monochrome>
-				class TimecodeView : public Egfx::Framework::View::DrawablesView<
-					Drawable::Timecode<Framework::Layout::Align<ParentLayout,
+			private:
+				using Base = Egfx::Framework::View::AbstractView;
+				using dimension_t = typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t;
+				using DrawableLayout = Framework::Layout::Align<ParentLayout,
 					Layout::Time<ParentLayout>,
-					Framework::Layout::AlignmentEnum::MiddleCenter>>
-					>
+					Framework::Layout::AlignmentEnum::MiddleCenter>;
+				using DrawableType = Drawable::Timecode<dimension_t, DrawableLayout,
+					FontType, ColorShaderType, TransformShaderType>;
+
+				DrawableType TimecodeDrawable{};
+
+			public:
+				View() : Base() {}
+				~View() = default;
+
+				DrawableType& Drawable()
+				{
+					return TimecodeDrawable;
+				}
+
+				void SetTextColor(const Egfx::rgb_color_t color)
+				{
+					Drawable().GetTextDrawer().ColorSource.Color = color;
+				}
+
+				void SetMinutes(const uint32_t totalMilliseconds)
+				{
+					Drawable().SetMinutes(totalMilliseconds);
+				}
+
+				void SetHours(const uint32_t totalSeconds)
+				{
+					Drawable().SetHours(totalSeconds);
+				}
+
+				void SetMode(const PresentModeEnum mode)
+				{
+					Drawable().CurrentMode = mode;
+				}
+
+				void SetBounds(const pixel_t left, const pixel_t top,
+					const pixel_t right, const pixel_t bottom)
+				{
+					Drawable().SetBounds(left, top, right, bottom);
+				}
+
+				void SetTranslation(const int16_t x, const int16_t y)
+				{
+					Drawable().SetTranslation(x, y);
+				}
+
+			protected:
+				bool ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) override
+				{
+					return Drawable().CurrentMode != PresentModeEnum::Invisible;
+				}
+
+				bool Draw(IFrameBuffer* frame) override
+				{
+					return Drawable().Draw(frame);
+				}
+			};
+
+			namespace Demo
+			{
+				template<typename ParentLayout,
+					bool UseHours = false,
+					typename ColorShaderType = Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
+					typename TransformShaderType = Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>
+				>
+				class DemoView : public View<ParentLayout, TimecodeText::DefaultFont, ColorShaderType, TransformShaderType>
 				{
 				private:
-					using Base = Egfx::Framework::View::DrawablesView<
-						Drawable::Timecode<Framework::Layout::Align<ParentLayout,
-						Layout::Time<ParentLayout>,
-						Framework::Layout::AlignmentEnum::MiddleCenter>>
-						>;
-
-				public:
-					TimecodeView() : Base() {}
-					~TimecodeView() = default;
-
-					void SetTextColor(const Egfx::rgb_color_t color)
-					{
-						auto& timecodeDrawable = this->template drawable<0>();
-						timecodeDrawable.GetTextDrawer().SetColor(color);
-					}
-
-					void SetMinutes(const uint32_t totalMilliseconds)
-					{
-						auto& timecodeDrawable = this->template drawable<0>();
-						timecodeDrawable.SetMinutes(totalMilliseconds);
-					}
-
-					void SetHours(const uint32_t totalSeconds)
-					{
-						auto& timecodeDrawable = this->template drawable<0>();
-						timecodeDrawable.SetHours(totalSeconds);
-					}
-
-					void SetMode(const PresentModeEnum mode)
-					{
-						auto& timecodeDrawable = this->template drawable<0>();
-						timecodeDrawable.CurrentMode = mode;
-					}
-				};
-
-				template<typename ParentLayout, bool Monochrome, bool UseHours = false>
-				class TimecodeDemoView : public TimecodeView<ParentLayout, Monochrome>
-				{
-				private:
-					using Base = TimecodeView<ParentLayout, Monochrome>;
+					using Base = View<ParentLayout, TimecodeText::DefaultFont, ColorShaderType, TransformShaderType>;
 
 					enum class DemoStateEnum : uint8_t
 					{
@@ -83,18 +114,18 @@ namespace Egfx
 					DemoStateEnum State = DemoStateEnum::StartAnimation;
 
 				public:
-					TimecodeDemoView() : Base()
+					DemoView() : Base()
 					{
-						auto& timecodeDrawable = this->template drawable<0>();
+						auto& timecodeDrawable = this->Drawable();
 						timecodeDrawable.CurrentMode = PresentModeEnum::NoDuration;
 					}
 
-					~TimecodeDemoView() = default;
+					~DemoView() = default;
 
 				protected:
 					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 					{
-						auto& timecodeDrawable = this->template drawable<0>();
+						auto& timecodeDrawable = this->Drawable();
 
 						switch (State)
 						{

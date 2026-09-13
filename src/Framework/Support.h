@@ -7,6 +7,47 @@ namespace Egfx
 {
 	namespace Framework
 	{
+		enum class DataSourceTypeEnum
+		{
+			Ram,
+			Flash,
+			EnumCount
+		};
+
+		namespace AutoDimension
+		{
+			static constexpr uint8_t DIMENSION_LIMIT = INT8_MAX;
+
+			template<typename dimension_t>
+			struct ByDimension
+			{
+				using signed_t = typename IntegerSignal::TypeTraits::TypeSign::make_signed<dimension_t>::type;
+				using wide_t = typename IntegerSignal::TypeTraits::TypeNext::next_uint_type<dimension_t>::type;
+				using signed_wide_t = typename IntegerSignal::TypeTraits::TypeNext::next_int_type<dimension_t>::type;
+			};
+
+			template<int32_t Value>
+			struct ByValue
+			{
+				using dimension_t = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
+					uint8_t,
+					uint16_t,
+					(Value <= DIMENSION_LIMIT)
+				>::type;
+
+				using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
+				using wide_t = typename AutoDimension::ByDimension<dimension_t>::wide_t;
+				using signed_wide_t = typename AutoDimension::ByDimension<dimension_t>::signed_wide_t;
+			};
+
+			template<int32_t Width, int32_t Height>
+			using BySize = ByValue<MaxValue<int32_t>(Width, Height)>;
+
+			template<typename ParentLayout>
+			using ByLayout = BySize<ParentLayout::Width(), ParentLayout::Height()>;
+
+		}
+
 		namespace Support
 		{
 			/// <summary>
@@ -46,8 +87,7 @@ namespace Egfx
 					template<typename TArg, typename... RestArgs>
 					ElementPack(TArg&& f, RestArgs&&... r)
 						: first(static_cast<TArg&&>(f)), rest(static_cast<RestArgs&&>(r)...)
-					{
-					}
+					{}
 
 					template<uint8_t Index>
 					typename GetHelper<Index, T, Rest...>::type& Get()

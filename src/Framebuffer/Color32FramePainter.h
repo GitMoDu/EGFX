@@ -96,6 +96,14 @@ namespace Egfx
 			Buffer[offset] = 255 - ((uint16_t(255 - Buffer[offset + 0]) * uint16_t(255 - Rgb::B(rawColor))) >> 8);
 		}
 
+		void PixelRawBlendXor(const color_t rawColor, const pixel_t x, const pixel_t y)
+		{
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			Buffer[offset + 2] ^= Rgb::R(rawColor);
+			Buffer[offset + 1] ^= Rgb::G(rawColor);
+			Buffer[offset] ^= Rgb::B(rawColor);
+		}
+
 		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
 		{
 			const int8_t sign = (y2 >= y1) ? 1 : -1;

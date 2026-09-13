@@ -67,6 +67,15 @@ namespace Egfx
 			Buffer[offset + 1] = uint8_t(blendedColor);
 		}
 
+		void PixelRawBlendXor(const color_t rawColor, const pixel_t x, const pixel_t y)
+		{
+			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);
+			const color_t existingColor = (color_t)Buffer[offset] << 8 | Buffer[offset + 1];
+			const color_t blendedColor = existingColor ^ rawColor;
+			Buffer[offset] = uint8_t(blendedColor >> 8);
+			Buffer[offset + 1] = uint8_t(blendedColor);
+		}
+
 		void PixelRawBlendAdd(const color_t rawColor, const pixel_t x, const pixel_t y)
 		{
 			const size_t offset = ((sizeof(color_t) * frameWidth) * y) + (sizeof(color_t) * x);

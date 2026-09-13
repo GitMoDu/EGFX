@@ -1,7 +1,7 @@
 #ifndef _EGFX_MODULES_WIRELESS_INDICATOR_CONSTANT_h
 #define _EGFX_MODULES_WIRELESS_INDICATOR_CONSTANT_h
 
-#include <EgfxFramework.h>
+#include "../../EgfxFramework.h"
 #include "Assets.h"
 
 namespace Egfx

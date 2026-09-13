@@ -84,6 +84,13 @@ namespace Egfx
 		virtual void PixelBlendScreen(const rgb_color_t color, const pixel_point_t point) = 0;
 
 		/// <summary>
+		/// Blend a pixel color using bitwise exclusive-or with the existing pixel.
+		/// </summary>
+		/// <param name="color">The color to XOR with the pixel.</param>
+		virtual void PixelBlendXor(const rgb_color_t color, const pixel_t x, const pixel_t y) = 0;
+		virtual void PixelBlendXor(const rgb_color_t color, const pixel_point_t point) = 0;
+
+		/// <summary>
 		/// Draw a horizontal line between two points.
 		/// </summary>
 		/// <param name="color">The pixel color.</param>

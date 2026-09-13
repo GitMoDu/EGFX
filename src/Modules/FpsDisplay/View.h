@@ -12,7 +12,6 @@ namespace Egfx
 			namespace View
 			{
 				template<typename Layout
-					, typename FontDrawerType = typename Definitions::AutoFontSelector<Layout>::Drawer
 					, FpsDrawerPosition fpsDrawerPosition = FpsDrawerPosition::TopRight
 					, uint8_t AveragingSampleCount = 5>
 				class FpsText : public Framework::View::AbstractView
@@ -21,7 +20,7 @@ namespace Egfx
 					using Base = Framework::View::AbstractView;
 
 				public:
-					using DrawableType = Drawable::FpsText<Layout, FontDrawerType, fpsDrawerPosition>;
+					using DrawableType = Drawable::FpsText<Layout, fpsDrawerPosition>;
 
 				private:
 					enum class StateEnum : uint8_t
@@ -36,7 +35,7 @@ namespace Egfx
 					static constexpr uint32_t MaxSampleDuration = UINT32_MAX / AveragingSampleCount;
 
 				private:
-					DrawableType Drawable{};
+					DrawableType FpsDrawable{};
 
 				private:
 					uint32_t LastFrametime = 0;
@@ -50,10 +49,9 @@ namespace Egfx
 					FpsText() : Base() {}
 					~FpsText() = default;
 
-					// Expose underlying font drawer for configuration.
-					FontDrawerType& FontDrawer()
+					DrawableType& Drawable()
 					{
-						return Drawable.TextDrawer;
+						return FpsDrawable;
 					}
 
 				protected:
@@ -94,7 +92,7 @@ namespace Egfx
 							break;
 						};
 
-						Drawable.FrameRate = LastFrameRate;
+						FpsDrawable.SetFrameRate(LastFrameRate);
 						return true;
 					}
 
@@ -106,7 +104,7 @@ namespace Egfx
 						case StateEnum::WaitingFirstFrame:
 							break;
 						default:
-							Drawable.Draw(frame);
+							FpsDrawable.Draw(frame);
 							break;
 						}
 
@@ -116,13 +114,14 @@ namespace Egfx
 
 				template<
 					typename Layout,
+					FpsDrawerPosition fpsDrawerPosition = FpsDrawerPosition::TopRight,
 					typename... ViewTypes>
 				class CompositeWithFps : public Framework::View::CompositeView<
 					ViewTypes...,
-					FpsText<Layout>>
+					FpsText<Layout, fpsDrawerPosition>>
 				{
 				private:
-					using FpsViewType = FpsText<Layout>;
+					using FpsViewType = FpsText<Layout, fpsDrawerPosition>;
 					using Base = Framework::View::CompositeView<ViewTypes..., FpsViewType>;
 
 				public:

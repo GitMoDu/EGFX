@@ -9,7 +9,12 @@
 #define SERIAL_BAUD_RATE 115200
 
 //#define USE_DYNAMIC_FRAME_BUFFER // Enable dynamic allocation of framebuffer.
-//#define USE_DOUBLE_FRAME_BUFFER // Enable double framebuffer.
+
+#if !defined(ARDUINO_ARCH_AVR)
+#define USE_DOUBLE_FRAME_BUFFER // Enable double framebuffer.
+#endif
+
+//#define USE_FPS_DISPLAY // Enable FPS display module.
 //#define USE_PERFORMANCE_LOG_TASK // Enable performance logging task.
 
 //#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
@@ -25,17 +30,8 @@
 // platform and display configuration.
 #include "DisplayConfiguration.h"
 
-
-// Automatic demo cycler task.
-#include "DemoCyclerTask.h"
-
-
-// Include demos.
+// Logo splash demo with custom renderer and auto-layout.
 #include "LogoSplashDemo.h"
-#include "PrimitiveDemo.h"
-#include "VectorTextDemo.h"
-#include "BitmaskTextDemo.h"
-#include "ImageDemo.h"
 
 // Process scheduler.
 TS::Scheduler SchedulerBase{};
@@ -73,31 +69,37 @@ Egfx::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
 // The layout of the demos within the screen area.
 struct Layout
 {
-	static constexpr uint8_t MarginX = 0;
-	static constexpr uint8_t MarginY = 0;
-	static constexpr Egfx::pixel_t X() { return MarginX; }
-	static constexpr Egfx::pixel_t Y() { return MarginY; }
-	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth - (MarginX * 2); }
-	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight - (MarginY * 2); }
+	static constexpr Egfx::pixel_t X() { return 0; }
+	static constexpr Egfx::pixel_t Y() { return 0; }
+	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth; }
+	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight; }
 };
+
 
 // Is the framebuffer monochrome? Will affect demo rendering.
 static constexpr bool Monochrome = FramebufferType::ColorDepth == 1;
 
-// Demo Cycler task. Auto-magic vararg template listing all demo tasks to cycle through.
-static constexpr uint32_t CycleDurationMicros = 10000000; // 10 seconds per demo.
-EngineDemo::DynamicDemoCyclerTask < CycleDurationMicros,
-	LogoSplashDemo::AnimatedFrame<Layout, Monochrome, CycleDurationMicros>
-	, PrimitiveDemo::Frame<Layout, Monochrome>
-	, ImageDemo::Frame<Layout, Monochrome>
-#if !defined(ARDUINO_ARCH_AVR) // Excluded on Arduino AVR due to memory constraints.
-	, BitmaskTextDemo::Frame<Layout, Monochrome>
-	, VectorTextDemo::Frame<Layout, Monochrome>
+// Animated splash logo as demo view, with default parameters for animation duration, auto-start, and loop.
+using DemoViewType = LogoSplashDemo::AnimatedView<Layout, Monochrome>;
+
+#if defined(USE_FPS_DISPLAY)
+// Wrap the demo view with FPS display, using the specified layout and demo view type.
+using FpsCompositeViewType = Egfx::Modules::FpsDisplay::View::CompositeWithFps<
+	Layout,
+	Egfx::Modules::FpsDisplay::FpsDrawerPosition::TopRight,
+	DemoViewType>;
+#else
+using FpsCompositeViewType = DemoViewType;
 #endif
-> DemoCycler(&SchedulerBase, &DisplayEngine);
+
+// View adapter for the display engine, using the FPS composite view type.
+using EngineViewType = Egfx::Framework::View::ViewAdapter<FpsCompositeViewType>;
+
+// View instance for the display engine, using the FPS composite view type.
+EngineViewType DemoView{};
 
 #if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task.
-Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine);
+Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine, Serial);
 #endif
 
 void halt()
@@ -123,7 +125,6 @@ void setup()
 	while (!Serial)
 		;
 	delay(1000);
-	Serial.println(F("DemoCycler setup..."));
 #endif
 
 
@@ -139,14 +140,8 @@ void setup()
 	// Static buffer - nothing to do.
 #endif
 
-	// Setup demos.
-	if (!DemoCycler.Setup())
-	{
-#if defined(SERIAL_LOG)
-		Serial.println(F("DemoCycler setup failed."));
-#endif
-		halt();
-	}
+	// Set the demo view as the drawer for the display engine.
+	DisplayEngine.SetDrawer(&DemoView);
 
 	// Initialize backlight pin, if defined.
 	if (DisplayConfig::BACKLIGHT != UINT8_MAX)
@@ -179,8 +174,13 @@ void setup()
 #if defined(USE_PERFORMANCE_LOG_TASK) // Start performance logging task.
 	EngineLog.Start();
 #endif
+	
+#if defined(EGFX_PLATFORM_32BIT)
+	Serial.println(F("EGFX_PLATFORM_32BIT "));
+#else
+	Serial.println(F("EGFX_PLATFORM_8BIT "));
+#endif
 
-	Serial.println(F("Graphics Engine Demo Start."));
 	Serial.print(FramebufferType::FrameWidth);
 	Serial.print(F("x"));
 	Serial.println(FramebufferType::FrameHeight);
@@ -195,17 +195,7 @@ void setup()
 		Serial.println(F(" bit color screen."));
 	}
 
-#if defined(EGFX_PLATFORM_32BIT)
-	Serial.println(F("EGFX_PLATFORM_32BIT "));
-#else
-	Serial.println(F("EGFX_PLATFORM_8BIT "));
-#endif
-
-#if defined(EGFX_PLATFORM_HDR)
-	Serial.println(F("EGFX_PLATFORM_HDR "));
-#else
-	Serial.println(F("EGFX_PLATFORM_NO_HDR "));
-#endif
+	Serial.println(F("Graphics Engine Start."));
 #endif
 }
 

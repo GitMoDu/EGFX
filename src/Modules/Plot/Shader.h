@@ -11,41 +11,17 @@ namespace Egfx
 		{
 			namespace Shader
 			{
-				namespace Source
-				{
-					template<typename dimension_t>
-					using PlotSeries = Framework::Shader::Source::SingleColor<dimension_t, RGB_COLOR_WHITE>;
-				}
-
-				namespace Color
-				{
-					template<typename dimension_t>
-					using PlotSeries = Framework::Shader::Color::NoShader<dimension_t>;
-				}
-
-				namespace Transform
-				{
-				}
-
 				namespace Pixel
 				{
-					template<typename dimension_t>
-					using PlotSeries = Framework::Shader::Pixel::TemplateShader<dimension_t,
-						Source::PlotSeries<dimension_t>,
-						Color::PlotSeries<dimension_t>,
-						Framework::Shader::Transform::NoTransform<dimension_t>
-					>;
-
-					template<typename dimension_t>
-					using PlotDither = Framework::Shader::Pixel::TemplateShader<dimension_t,
-						Source::PlotSeries<dimension_t>,
-						Color::PlotSeries<dimension_t>,
-						Framework::Assets::Shader::Transform::CheckerboardMask<dimension_t>
-					>;
+					template<typename dimension_t,
+						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
+						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
+					using Line = Framework::Shader::Pixel::TemplateShader<dimension_t,
+						Framework::Shader::Source::SingleColor<dimension_t>, ColorShaderType, TransformShaderType, BlendMode>;
 				}
 			}
 		}
 	}
 }
-
 #endif

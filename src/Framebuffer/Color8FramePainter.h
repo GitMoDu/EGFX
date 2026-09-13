@@ -94,6 +94,12 @@ namespace Egfx
 				MinValue<int16_t>(int16_t(Rgb::B2(existingColor)) + Rgb::B2(rawColor) - ((Rgb::B2(existingColor) * Rgb::B2(rawColor)) / 3), 3));
 		}
 
+		void PixelRawBlendXor(const color_t rawColor, const pixel_t x, const pixel_t y)
+		{
+			const size_t offset = (sizeof(color_t) * y * frameWidth) + x;
+			Buffer[offset] ^= rawColor;
+		}
+
 		void LineVerticalRaw(const color_t rawColor, const pixel_t x, const pixel_t y1, const pixel_t y2)
 		{
 			const int8_t sign = (y2 >= y1) ? 1 : -1;

@@ -13,7 +13,7 @@ namespace Egfx
 			namespace View
 			{
 				template<typename ParentLayout, bool Monochrome>
-				class Splash : public Egfx::Framework::View::DrawablesView<
+				class Logo : public Egfx::Framework::View::DrawablesView<
 					Drawable::Screen<ParentLayout, Monochrome>,
 					Drawable::LettersEG<ParentLayout, Monochrome>,
 					Drawable::LettersFX<ParentLayout, Monochrome>
@@ -30,12 +30,12 @@ namespace Egfx
 					static constexpr uint32_t ColorDuration = 1000000;
 					static constexpr uint32_t ColorCycle = ColorDuration * 3u;
 
-				public:
-					Splash() : Base()
-					{
-					}
+					bool logged = false;
 
-					~Splash() = default;
+				public:
+					Logo() : Base() {}
+
+					~Logo() = default;
 
 				public:
 					Drawable::Screen<ParentLayout, Monochrome>& GetScreen() { return this->template drawable<0>(); }
@@ -46,15 +46,14 @@ namespace Egfx
 					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 					{
 						auto& lettersFX = GetLetterFX();
-						lettersFX.FontDrawer.ColorSource.FrameCounter = frameCounter;
-						lettersFX.FontDrawer.ColorSource.FrameTime = frameTime;
+						lettersFX.ColorSource.FrameCounter = frameCounter;
+						lettersFX.ColorSource.FrameTime = frameTime;
 
 						if (Monochrome)
 						{
 							return true;
 						}
 
-						auto& lettersEG = GetLettersEG();
 
 						const uint32_t cycleTime = frameTime % ColorCycle;
 
@@ -64,35 +63,36 @@ namespace Egfx
 
 						const uint8_t colorPhase = static_cast<uint8_t>(cycleTime / ColorDuration);
 
+						auto& lettersEG = GetLettersEG();
 						switch (colorPhase)
 						{
 						case 0:
-							lettersEG.FontDrawer.ColorSource.Color1 = Rgb::Interpolate(
+							lettersEG.ColorSource.Color1 = Rgb::Interpolate(
 								colorProgress,
 								Colors::Color1,
 								Colors::Color2);
-							lettersEG.FontDrawer.ColorSource.Color2 = Rgb::Interpolate(
+							lettersEG.ColorSource.Color2 = Rgb::Interpolate(
 								colorProgress,
 								Colors::Color2,
 								Colors::Color3);
 							break;
 						case 1:
-							lettersEG.FontDrawer.ColorSource.Color1 = Rgb::Interpolate(
+							lettersEG.ColorSource.Color1 = Rgb::Interpolate(
 								colorProgress,
 								Colors::Color2,
 								Colors::Color3);
-							lettersEG.FontDrawer.ColorSource.Color2 = Rgb::Interpolate(
+							lettersEG.ColorSource.Color2 = Rgb::Interpolate(
 								colorProgress,
 								Colors::Color3,
 								Colors::Color1);
 							break;
 						case 2:
 						default:
-							lettersEG.FontDrawer.ColorSource.Color1 = Rgb::Interpolate(
+							lettersEG.ColorSource.Color1 = Rgb::Interpolate(
 								colorProgress,
 								Colors::Color3,
 								Colors::Color1);
-							lettersEG.FontDrawer.ColorSource.Color2 = Rgb::Interpolate(
+							lettersEG.ColorSource.Color2 = Rgb::Interpolate(
 								colorProgress,
 								Colors::Color1,
 								Colors::Color2);
@@ -111,11 +111,12 @@ namespace Egfx
 				/// <typeparam name="AutoStart">Boolean flag indicating whether the animation should start automatically. Defaults to true.</typeparam>
 				template<typename ParentLayout, bool Monochrome,
 					uint32_t AnimationDuration = 4000000,
-					bool AutoStart = true>
-				class AnimatedSplash : public Splash<ParentLayout, Monochrome>
+					bool AutoStart = true,
+					bool Loop = false>
+				class SplashLogo : public Logo<ParentLayout, Monochrome>
 				{
 				private:
-					using Base = Splash<ParentLayout, Monochrome>;
+					using Base = Logo<ParentLayout, Monochrome>;
 
 				private:
 					enum class AnimationEnum : uint8_t
@@ -143,11 +144,10 @@ namespace Egfx
 					AnimationEnum State = AutoStart ? AnimationEnum::AnimationStart : AnimationEnum::AnimationEnd;
 
 				public:
-					AnimatedSplash() : Base()
-					{
-					}
+					SplashLogo() : Base()
+					{}
 
-					~AnimatedSplash() = default;
+					~SplashLogo() = default;
 
 					void Start()
 					{
@@ -163,12 +163,12 @@ namespace Egfx
 					void SetTranslationY(const pixel_t y)
 					{
 						auto& screen = Base::GetScreen();
-						screen.TransformShader.SetTranslation(0, y);
+						screen.SetTranslation(0, y);
 						auto& lettersEG = Base::GetLettersEG();
 						auto& lettersFX = Base::GetLetterFX();
 
-						lettersEG.FontDrawer.TransformShader.SetTranslation(0, y);
-						lettersFX.FontDrawer.TransformShader.SetTranslation(0, y);
+						lettersEG.SetTranslation(0, y);
+						lettersFX.SetTranslation(0, y);
 					}
 
 					void SetAlpha(const uint8_t alpha)
@@ -176,10 +176,10 @@ namespace Egfx
 						auto& screen = Base::GetScreen();
 						auto& lettersEG = Base::GetLettersEG();
 						auto& lettersFX = Base::GetLetterFX();
-						
+
 						screen.ColorShader.Alpha = alpha;
-						lettersEG.FontDrawer.ColorSource.Alpha = alpha;
-						lettersFX.FontDrawer.ColorSource.Alpha = alpha;
+						lettersEG.ColorSource.Alpha = alpha;
+						lettersFX.ColorSource.Alpha = alpha;
 					}
 
 					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
@@ -208,8 +208,7 @@ namespace Egfx
 							{
 								const uint16_t progress = ProgressScaler::GetProgress<Durations::SlideIn>(elapsed);
 								const uint8_t rootProgress = IntegerSignal::SquareRoot16(progress);
-								const uint8_t curvedProgress = IntegerSignal::Curves::Root2U8<>::Get(rootProgress);
-								const pixel_t offset = VerticalShift - ((VerticalShift * curvedProgress) / UINT8_MAX);
+								const pixel_t offset = VerticalShift - ((VerticalShift * rootProgress) / UINT8_MAX);
 								SetTranslationY(offset);
 
 								const auto raw = static_cast<uint8_t>((elapsed * UINT8_MAX) / Durations::SlideIn);
@@ -235,7 +234,14 @@ namespace Egfx
 							{
 								SetTranslationY(0);
 								SetAlpha(0);
-								State = AnimationEnum::AnimationEnd;
+								if (Loop)
+								{
+									State = AnimationEnum::AnimationStart;
+								}
+								else
+								{
+									State = AnimationEnum::AnimationEnd;
+								}
 								AnimationStart = micros();
 							}
 							else

@@ -34,20 +34,18 @@ namespace Egfx
 					using Base::TransformShader;
 
 				private:
-					using signed_t = int16_t;
-
-				private:
 					// Extract shader types for compile-time optimizations.
 					using ColorSourceType = typename PixelShaderType::color_source_t;
 					using ColorShaderType = typename PixelShaderType::color_shader_t;
 					using TransformShaderType = typename PixelShaderType::transform_shader_t;
 
 				private:
-					// Compile-time dispatch: skip per-pixel source sampling when the source is constant.
+					// Compile-time dispatch: skip per-pixel source sampling only when the source is constant
+					// and the selected blend mode is compatible with replacement-only bulk operations.
 					using SkipSourceTag = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
 						IntegerSignal::TypeTraits::TypeDispatch::TrueType,
 						IntegerSignal::TypeTraits::TypeDispatch::FalseType,
-						Shader::Source::ConstantColorFlag<ColorSourceType>::value>::type;
+						Shader::Source::ConstantColorFlag<ColorSourceType>::value && PixelShaderType::IsReplaceBlendMode>::type;
 
 					using SkipShadeTag =
 						typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
@@ -72,7 +70,9 @@ namespace Egfx
 						IntegerSignal::TypeTraits::TypeDispatch::is_same<TransformShaderType, Shader::Transform::NoTransform<dimension_t>>::value>::type;
 
 				public:
-					RectangleShader() : Base() {}
+					RectangleShader(const dimension_t left, const dimension_t top,
+						const dimension_t right, const dimension_t bottom)
+						: Base(left, top, right, bottom) {}
 					~RectangleShader() = default;
 
 					/// <summary>
@@ -92,7 +92,7 @@ namespace Egfx
 
 				private:
 					// SkipSource=False, SkipTransform=False: emit scanlines via full pixel shader path.
-					inline void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
+					void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
 						const dimension_t x2, const dimension_t y2,
 						TypeTraits::TypeDispatch::FalseType, TypeTraits::TypeDispatch::FalseType)
 					{
@@ -102,7 +102,8 @@ namespace Egfx
 						dimension_t y = startY;
 						while (true)
 						{
-							LineHorizontal(framebuffer, x1, x2, y, TypeTraits::TypeDispatch::FalseType{}, TypeTraits::TypeDispatch::FalseType{});
+							Base::LineHorizontal(framebuffer, x1, x2, y,
+								TypeTraits::TypeDispatch::FalseType{}, TypeTraits::TypeDispatch::FalseType{});
 
 							if (y == endY)
 							{
@@ -113,19 +114,28 @@ namespace Egfx
 					}
 
 					// SkipSource=False, SkipTransform=True: shade per pixel, no transform.
-					inline void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
+					void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
 						const dimension_t x2, const dimension_t y2,
 						TypeTraits::TypeDispatch::FalseType, TypeTraits::TypeDispatch::TrueType)
 					{
 						const dimension_t startY = MinValue(y1, y2);
 						const dimension_t endY = MaxValue(y1, y2);
+						const dimension_t clippedStartY = MaxValue(startY, Base::GetBoundsTop());
+						const dimension_t clippedEndY = MinValue(endY, Base::GetBoundsBottom());
+						if (clippedStartY > clippedEndY)
+							return;
 
-						dimension_t y = startY;
+						const dimension_t clippedStartX = MaxValue(MinValue(x1, x2), Base::GetBoundsLeft());
+						const dimension_t clippedEndX = MinValue(MaxValue(x1, x2), Base::GetBoundsRight());
+						if (clippedStartX > clippedEndX)
+							return;
+
+						dimension_t y = clippedStartY;
 						while (true)
 						{
-							LineHorizontal(framebuffer, x1, x2, y, TypeTraits::TypeDispatch::FalseType{}, TypeTraits::TypeDispatch::TrueType{});
+							Base::LineHorizontalUnclipped(framebuffer, clippedStartX, clippedEndX, y);
 
-							if (y == endY)
+							if (y == clippedEndY)
 							{
 								break;
 							}
@@ -134,7 +144,7 @@ namespace Egfx
 					}
 
 					// SkipSource=True, SkipTransform=False: constant shade once, transform per pixel.
-					inline void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
+					void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
 						const dimension_t x2, const dimension_t y2,
 						TypeTraits::TypeDispatch::TrueType, TypeTraits::TypeDispatch::FalseType)
 					{
@@ -157,7 +167,7 @@ namespace Egfx
 								fy = y;
 								if (TransformShader.Transform(fx, fy))
 								{
-									PixelBlend(framebuffer, color, fx, fy);
+									Base::PixelBlend(framebuffer, color, fx, fy);
 								}
 
 								if (x == endX)
@@ -176,20 +186,23 @@ namespace Egfx
 					}
 
 					// SkipSource=True, SkipTransform=True: constant shade once, no transform; use the framebuffer optimized rectangle fill.
-					inline void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
+					void RectangleFill(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t y1,
 						const dimension_t x2, const dimension_t y2,
 						TypeTraits::TypeDispatch::TrueType, TypeTraits::TypeDispatch::TrueType)
 					{
-						const signed_t ox1 = static_cast<signed_t>(Base::Origin.x) + x1;
-						const signed_t oy1 = static_cast<signed_t>(Base::Origin.y) + y1;
-						const signed_t ox2 = static_cast<signed_t>(Base::Origin.x) + x2;
-						const signed_t oy2 = static_cast<signed_t>(Base::Origin.y) + y2;
+						const dimension_t left = MaxValue<dimension_t>(MinValue(x1, x2), Base::GetBoundsLeft());
+						const dimension_t top = MaxValue<dimension_t>(MinValue(y1, y2), Base::GetBoundsTop());
+						const dimension_t right = MinValue<dimension_t>(MaxValue(x1, x2), Base::GetBoundsRight());
+						const dimension_t bottom = MinValue<dimension_t>(MaxValue(y1, y2), Base::GetBoundsBottom());
+
+						if (left > right || top > bottom)
+							return;
 
 						framebuffer->RectangleFill(ColorShader.Shade(ColorSource.Source(0, 0)),
-							static_cast<pixel_t>(MaxValue<signed_t>(ox1, 0)),
-							static_cast<pixel_t>(MaxValue<signed_t>(oy1, 0)),
-							static_cast<pixel_t>(MaxValue<signed_t>(ox2, 0)),
-							static_cast<pixel_t>(MaxValue<signed_t>(oy2, 0)));
+							static_cast<pixel_t>(Base::Origin.x + left),
+							static_cast<pixel_t>(Base::Origin.y + top),
+							static_cast<pixel_t>(Base::Origin.x + right),
+							static_cast<pixel_t>(Base::Origin.y + bottom));
 					}
 				};
 			}

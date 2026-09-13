@@ -73,7 +73,7 @@ The Framework provides several View types:
 
 | View Type | Purpose |
 |-----------|---------|
-| **`FrameAdapter`** | Wraps a View into the engine's `IFrameDraw` interface with enable/disable control |
+| **`ViewAdapter`** | Adapts a view to the engine's `IFrameDraw` interface; the view controls skip/completion through its draw-call result |
 | **`AbstractView`** | Base view with overridable `ViewStep()` for animation and sequential drawable dispatch |
 | **`DrawablesView`** | Manages a compile-time pack of Drawables, rendering them sequentially across draw calls |
 | **`CompositeView`** | Composes multiple child Views, advancing them sequentially within a single frame cycle |
@@ -103,6 +103,8 @@ The shader pipeline provides composable, template-driven effects:
 | **Pixel Shaders** | Per-pixel effects applied during rendering |
 | **Primitive Shaders** | Effects applied to shape primitives |
 
+Vector images, icons, and vector text use a shared pipeline: packed nodes are read by the vector decoder, scaled into signed local coordinates, and dispatched to the vector image shader for primitive rasterization. Geometry is clipped to the drawable bounds before coordinates enter the unsigned pixel and framebuffer APIs, preventing partially off-screen shapes from wrapping across the display.
+
 ### Graphics Subsystems
 
 Each subsystem provides its own Model, Drawer, and Drawable templates:
@@ -111,7 +113,7 @@ Each subsystem provides its own Model, Drawer, and Drawable templates:
 |-----------|-------------|
 | **Bitmask** | 1-bit sprites with template drawer and drawable; supports both Flash (ROM) and RAM sources |
 | **Bitmap** | Multi-color-mode bitmaps with template drawer and drawable; supports both Flash (ROM) and RAM sources |
-| **Vector** | Encoded vector shapes with template drawer |
+| **Vector** | Encoded vector shapes decoded into shared image, icon, and text drawables; supports compact packed assets and bounded primitive rasterization |
 | **Code** | Hard-coded vector drawing with cached intermediates |
 
 ### Fonts & Text
@@ -121,8 +123,9 @@ Fonts are built on top of graphics subsystems. The text system is a **generic wr
 | Font Type | Family | Description |
 |-----------|--------|-------------|
 | **Vector Font** | Epoxy (Full, Numbers) | Dynamically scalable, compact encoded vector format, configurable width/height/kerning |
+| **Vector Icons** | Silkscreen | Compact encoded icon set rendered through the shared vector image shader |
 | **Code Font** | RawBot | Hard-coded vector drawing with cached intermediates, configurable dimensions |
-| **Bitmask Font** | Plastic (3×5, 5×5), Micron (1×5, 2×5) | Fixed-size pixel-perfect fonts with optional integer scaling, low memory footprint |
+| **Bitmask Font** | Contact (3×5, 5×5), Cyanoacrylate (1×5, 2×5) | Fixed-size pixel-perfect fonts with optional integer scaling, low memory footprint |
 
 ### Modules
 
@@ -296,11 +299,13 @@ src/
 ├── PlatformPresets/        # Ready-to-use platform configurations
 ├── Framework/
 │   ├── Layout/             # Compile-time layouts (Grid, Weighted, Margin, Align, Constrained)
-│   ├── View/               # View system (FrameAdapter, AbstractView, DrawablesView, CompositeView)
+│   ├── View/               # View system (ViewAdapter, AbstractView, DrawablesView, CompositeView)
 │   ├── Shader/             # Shader pipeline (Source, Color, Transform, Pixel, Primitive)
 │   ├── Bitmask/            # Bitmask graphics and font subsystem
 │   ├── Bitmap/             # Bitmap graphics subsystem
-│   ├── Vector/             # Vector graphics and font subsystem
+│   ├── Vector/             # Packed vector reader, decoder, scaling, and coordinate contracts
+│   ├── Image/Vector/       # Vector image drawable and view integration
+│   ├── Icon/Vector/        # Vector icon drawable and view integration
 │   ├── Code/               # Code graphics and font subsystem
 │   ├── Text/               # Generic text writer (templated on any font drawer)
 │   └── Assets/             # Built-in assets (Drawables, Fonts, Shaders)

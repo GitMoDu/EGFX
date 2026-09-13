@@ -20,18 +20,10 @@ namespace Egfx
 			template<typename... ViewTypes>
 			class CompositeView
 			{
-			private:
-				Support::ParameterPack::ElementPack<ViewTypes...> InnerViews;
-				uint8_t CurrentView = 0;
-				bool Stepped = false;
+			public:
 				static constexpr uint8_t ViewCount = static_cast<uint8_t>(sizeof...(ViewTypes));
 
-				template<uint8_t Index>
-				bool DrawViewAt(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
-				{
-					return InnerViews.template Get<Index>().DrawCall(frame, frameTime, frameCounter);
-				}
-
+			private:
 				template<uint8_t Index, uint8_t N>
 				struct Dispatcher
 				{
@@ -55,6 +47,11 @@ namespace Egfx
 					}
 				};
 
+			private:
+				Support::ParameterPack::ElementPack<ViewTypes...> InnerViews;
+				uint8_t CurrentView = 0;
+				bool Stepped = false;
+
 			protected:
 				/// <summary>
 				/// Composite-level animation step invoked once per cycle before any child view renders.
@@ -70,8 +67,7 @@ namespace Egfx
 
 				template<typename... Args>
 				explicit CompositeView(Args&&... args)
-					: InnerViews(static_cast<Args&&>(args)...) {
-				}
+					: InnerViews(static_cast<Args&&>(args)...) {}
 
 				virtual ~CompositeView() = default;
 
@@ -145,6 +141,14 @@ namespace Egfx
 
 					return false;
 				}
+
+			private:
+				template<uint8_t Index>
+				bool DrawViewAt(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter)
+				{
+					return InnerViews.template Get<Index>().DrawCall(frame, frameTime, frameCounter);
+				}
+
 			};
 		}
 	}

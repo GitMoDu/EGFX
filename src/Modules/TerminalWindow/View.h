@@ -1,9 +1,9 @@
 #ifndef _EGFX_MODULES_TERMINAL_WINDOW_VIEW_h
 #define _EGFX_MODULES_TERMINAL_WINDOW_VIEW_h
 
-#include "Constant.h"
+#include <EgfxFramework.h>
 #include "Drawable.h"
-#include "Layout.h"
+#include "Buffer.h"
 
 namespace Egfx
 {
@@ -13,88 +13,215 @@ namespace Egfx
 		{
 			namespace View
 			{
-				/// <summary>
-				/// A view component that displays serial text output using a specified layout and font drawer.
-				/// </summary>
-				/// <typeparam name="ParentLayout">The layout type that defines how the text view is positioned and sized.</typeparam>
-				/// <typeparam name="FontDrawerType">The type responsible for rendering font glyphs. Defaults to Definitions::DefaultFontDrawer.</typeparam>
-				/// <typeparam name="FontHeight">The height of the font in pixels. Fixed-height fonts must specify their native height here. Defaults to Definitions::DefaultFont::Height.</typeparam>
-				/// <typeparam name="FontWidth">The width of the font in pixels. Fixed-width fonts must specify their native width here. Defaults to Definitions::DefaultFont::Width.</typeparam>
-				/// <typeparam name="Kerning">The horizontal spacing between characters in pixels. Defaults to 1.</typeparam>
-				/// <typeparam name="LineSpacing">The vertical spacing between lines in pixels. Defaults to 1.</typeparam>
-				template<typename ParentLayout
-					, typename FontDrawerType = Definitions::DefaultFontDrawer
-					, pixel_t FontWidth = Definitions::DefaultFont::Width
-					, pixel_t FontHeight = Definitions::DefaultFont::Height
-					, uint8_t Kerning = 1
-					, uint8_t LineSpacing = 1>
-				class SerialText : public Framework::View::AbstractView
+				template<typename ParentLayout,
+					typename TextViewType,
+					typename Config>
+				class Terminal : public Egfx::Framework::View::AbstractView
 				{
-				public:
-					using DrawableType = Drawable::SerialText<ParentLayout, FontDrawerType, FontWidth, FontHeight, Kerning, LineSpacing>;
+				private:
+					static constexpr uint16_t FontWidth = Config::FontWidth;
+					static constexpr uint16_t FontHeight = Config::FontHeight;
+					static constexpr uint16_t Kerning = Config::Kerning;
+					static constexpr uint16_t LineSpacing = Config::LineSpacing;
+					static constexpr uint32_t NewLineAnimationDuration = Config::NewLineAnimationDuration;
+					static constexpr uint32_t CharacterRevealInterval = Config::CharacterRevealInterval;
+					static constexpr uint32_t CursorBlinkPeriod = Config::CursorBlinkPeriod;
+					using dimension_t = typename Egfx::Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t;
+					using signed_t = typename Egfx::Framework::AutoDimension::ByLayout<ParentLayout>::signed_t;
+					static constexpr dimension_t SpaceWidth = static_cast<dimension_t>(FontWidth);
+					static constexpr dimension_t LineStride = static_cast<dimension_t>(FontHeight + LineSpacing);
+					static constexpr size_t LineLengthValue = (static_cast<size_t>(ParentLayout::Width()) + Kerning) / (FontWidth + Kerning);
+					static constexpr size_t LineCountValue = (static_cast<size_t>(ParentLayout::Height()) + LineSpacing) / LineStride;
+					static constexpr size_t BufferCharacterCountValue = LineLengthValue * (LineCountValue + 1);
+					using count_t = typename Egfx::Modules::TerminalWindow::Definitions::CountType<
+						BufferCharacterCountValue>::type;
+					static constexpr count_t LineLength = static_cast<count_t>(LineLengthValue);
+					static constexpr count_t LineCount = static_cast<count_t>(LineCountValue);
+					static constexpr count_t BufferLineCount = LineCount + 1;
+					static constexpr size_t ScreenCharacterCount = size_t(LineLength) * size_t(LineCount);
+					static constexpr size_t QuarterScreenCharacterCount = ScreenCharacterCount / 4 > 0 ? ScreenCharacterCount / 4 : 1;
+					static constexpr size_t HalfScreenCharacterCount = ScreenCharacterCount / 2 > 0 ? ScreenCharacterCount / 2 : 1;
 
-					static constexpr auto CharactersPerLine = DrawableType::CharactersPerLine;
-					static constexpr auto Lines = DrawableType::Lines;
-
 				public:
-					uint32_t AnimationDuration = 125000; // Animation duration in microseconds.
+					using BufferType = Egfx::Modules::TerminalWindow::Buffer::TerminalBuffer<
+						count_t, LineLength, LineCount>;
 
 				private:
-					DrawableType Drawable{};
-
-				private:
-					uint8_t CallIndex = 0;
+					char RenderBuffer[LineLength + 1]{};
+					BufferType BufferInstance{};
+					using RenderBufferType = Egfx::Modules::TerminalWindow::Buffer::RenderBuffer<
+						BufferType, Config::DoubleBuffered>;
+					RenderBufferType RenderBufferInstance{ BufferInstance };
+					TextViewType TextViewInstance{};
+					using CursorDrawableType = Egfx::Modules::TerminalWindow::Drawable::Cursor<
+						dimension_t, ParentLayout, FontHeight>;
+					CursorDrawableType CursorInstance{};
+					count_t CallIndex = 0;
+					count_t CursorX = 0;
+					bool NewLineAnimating = false;
+					uint32_t NewLineAnimationStart = 0;
+					dimension_t AnimationOffset = 0;
+					uint32_t LastFrameTime = 0;
+					uint32_t LastCursorTime = 0;
+					uint32_t LastRevealTime = 0;
+					count_t VirtualCursorLine = LineCount - 1;
+					count_t VirtualCursorColumn = 0;
 
 				public:
-					SerialText() : Framework::View::AbstractView() {}
+					static constexpr size_t CharactersPerLine = LineLength;
+					static constexpr size_t Lines = LineCount;
+					static_assert(FontWidth > 0 && FontHeight > 0, "Terminal font dimensions must be positive.");
+					static_assert(LineLength > 0, "Terminal layout must fit at least one character.");
+					static_assert(LineCount > 0, "Terminal layout must fit at least one line.");
+					static_assert(NewLineAnimationDuration > 0, "New-line animation duration must be positive.");
+					static_assert(CharacterRevealInterval > 0, "Character reveal interval must be positive.");
 
-					~SerialText() = default;
-
-					// Expose Print interface for external writing.
-					Print& Serial()
+				public:
+					Terminal()
 					{
-						return Drawable;
+						TextViewInstance.SetFontSize(static_cast<dimension_t>(FontWidth), static_cast<dimension_t>(FontHeight));
+						TextViewInstance.SetKerningWidth(static_cast<dimension_t>(Kerning));
+						TextViewInstance.SetSpaceWidth(static_cast<dimension_t>(SpaceWidth));
+						TextViewInstance.SetLineSpacing(LineSpacing);
 					}
 
-					// Expose underlying font drawer for configuration.
-					FontDrawerType& FontDrawer()
+					BufferType& Buffer() { return BufferInstance; }
+
+					void Clear()
 					{
-						return Drawable.TextWriter;
+						BufferInstance.Clear();
+						NewLineAnimating = false;
+						AnimationOffset = 0;
+						LastCursorTime = LastFrameTime;
+						LastRevealTime = LastFrameTime;
+						VirtualCursorLine = LineCount - 1;
+						VirtualCursorColumn = 0;
 					}
 
 				protected:
-					bool ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) override
+					bool ViewStep(const uint32_t frameTime, const uint16_t /*frameCounter*/) override
 					{
-						const uint32_t elapsed = Drawable.GetNewLineElapsedTime();
+						LastFrameTime = frameTime;
+						if (BufferInstance.ConsumeChanged())
+						{
+							LastRevealTime = frameTime;
+							LastCursorTime = frameTime;
+						}
+						const bool newLineStarted = BufferInstance.ConsumeNewLine();
+						if (newLineStarted)
+						{
+							NewLineAnimating = true;
+							NewLineAnimationStart = frameTime;
+							AnimationOffset = 0;
+						}
+						else if (NewLineAnimating)
+						{
+							const uint32_t elapsed = frameTime - NewLineAnimationStart;
+							if (elapsed >= NewLineAnimationDuration)
+							{
+								AnimationOffset = LineStride;
+								NewLineAnimating = false;
+							}
+							else
+							{
+								AnimationOffset = (elapsed * LineStride) / NewLineAnimationDuration;
+							}
+						}
 
-						if (AnimationDuration > 0 && elapsed < AnimationDuration)
+						const count_t pendingCharacters = BufferInstance.PendingRevealLength();
+					const uint8_t catchupFactor = pendingCharacters >= HalfScreenCharacterCount
+							? 4
+							: pendingCharacters >= QuarterScreenCharacterCount ? 2 : 1;
+						const uint32_t revealInterval = static_cast<uint32_t>(
+							CharacterRevealInterval / catchupFactor > 0
+							? CharacterRevealInterval / catchupFactor : 1);
+						count_t revealBudget = static_cast<count_t>((frameTime - LastRevealTime) / revealInterval);
+						while (revealBudget > 0)
 						{
-							// Animate offset Y for smooth line scroll.
-							Drawable.OffsetY = FontHeight - static_cast<int16_t>((elapsed * FontHeight) / AnimationDuration);
+							count_t line = 0;
+							for (; line < BufferLineCount; ++line)
+							{
+								if (BufferInstance.GetRevealedLength(line) < BufferInstance.GetLineLength(line))
+									break;
+							}
+
+							if (line >= BufferLineCount)
+								break;
+
+							const count_t remaining = BufferInstance.GetLineLength(line) - BufferInstance.GetRevealedLength(line);
+							const count_t revealCount = remaining < revealBudget ? remaining : revealBudget;
+							BufferInstance.Reveal(line, revealCount);
+							revealBudget -= revealCount;
+							LastRevealTime += static_cast<uint32_t>(revealCount * revealInterval);
 						}
-						else
+
+						bool revealPending = false;
+						for (count_t line = 0; line < BufferLineCount; ++line)
 						{
-							// Animation complete - reset offset Y.
-							Drawable.OffsetY = 0;
+							if (BufferInstance.GetRevealedLength(line) < BufferInstance.GetLineLength(line))
+							{
+								VirtualCursorLine = line;
+								VirtualCursorColumn = BufferInstance.GetRevealedLength(line);
+								revealPending = true;
+								break;
+							}
 						}
+
+						if (!revealPending)
+						{
+							VirtualCursorLine = BufferInstance.IsCurrentLineExtra() ? LineCount : LineCount - 1;
+							VirtualCursorColumn = BufferInstance.GetLineLength(VirtualCursorLine);
+						}
+
+						const bool cursorBlinkVisible = (frameTime - LastCursorTime)
+							% CursorBlinkPeriod
+							<= CursorBlinkPeriod / 2;
+						CursorInstance.Visible = revealPending || NewLineAnimating || cursorBlinkVisible;
+						RenderBufferInstance.Capture();
+
 						return true;
 					}
 
-					bool Draw(IFrameBuffer* frame) override
+					bool Draw(Egfx::IFrameBuffer* frame) override
 					{
-						// Draw a text line from buffer each draw call.
-						Drawable.Draw(frame, CallIndex);
-						CallIndex++; // Advance call index and determine if cycle is complete.
-						if (CallIndex >= Drawable.Lines + 1)
+						auto& text = TextViewInstance.Drawable();
+						const count_t lineLength = RenderBufferInstance.GetLineLength(CallIndex);
+						if (RenderBufferInstance.GetRevealedLength(CallIndex) < lineLength)
 						{
-							CallIndex = 0;
-							return true;
+							memcpy(RenderBuffer, RenderBufferInstance.GetLine(CallIndex), RenderBufferInstance.GetRevealedLength(CallIndex));
+							RenderBuffer[RenderBufferInstance.GetRevealedLength(CallIndex)] = 0;
+							text.SetText(RenderBuffer);
 						}
-						return false;
+						else
+						{
+							text.SetText(RenderBufferInstance.GetLine(CallIndex));
+						}
+						const dimension_t animationOffset = RenderBufferInstance.HasPendingNewLine() ? 0 : AnimationOffset;
+						const signed_t lineOffset = static_cast<signed_t>(CallIndex * LineStride);
+						const signed_t animatedOffset = lineOffset - static_cast<signed_t>(animationOffset);
+						text.SetOffset(0, static_cast<dimension_t>(animatedOffset));
+						text.Draw(frame);
+
+						if (++CallIndex < BufferLineCount)
+							return false;
+
+						const dimension_t cursorOffset = static_cast<dimension_t>(VirtualCursorColumn * FontWidth)
+							+ (VirtualCursorColumn > 0 ? (VirtualCursorColumn - 1) * Kerning : 0);
+						CursorInstance.SetOffsetX(static_cast<dimension_t>(cursorOffset));
+						const signed_t cursorTop = static_cast<signed_t>(VirtualCursorLine * LineStride)
+							- static_cast<signed_t>(RenderBufferInstance.HasPendingNewLine() ? 0 : AnimationOffset);
+						const signed_t defaultCursorTop = static_cast<signed_t>(ParentLayout::Height() - FontHeight);
+						CursorInstance.SetOffsetY(cursorTop - defaultCursorTop);
+						CursorInstance.Draw(frame);
+
+						CallIndex = 0;
+						return true;
 					}
+
 				};
 			}
 		}
 	}
 }
+
 #endif

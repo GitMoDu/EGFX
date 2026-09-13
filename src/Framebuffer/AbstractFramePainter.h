@@ -49,8 +49,7 @@ namespace Egfx
 		AbstractFramePainter(uint8_t* buffer = nullptr)
 			: IFrameBuffer()
 			, Buffer(buffer)
-		{
-		}
+		{}
 
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -87,17 +86,17 @@ namespace Egfx
 		{
 			if ((topLeft.x < 0 && bottomRight.x < 0)
 				|| (topLeft.y < 0 && bottomRight.y < 0)
-				|| (topLeft.x >= FrameWidth && bottomRight.x >= FrameWidth)
-				|| (topLeft.y >= FrameHeight && bottomRight.y >= FrameHeight)
+				|| (topLeft.x >= static_cast<pixel_t>(FrameWidth) && bottomRight.x >= static_cast<pixel_t>(FrameWidth))
+				|| (topLeft.y >= static_cast<pixel_t>(FrameHeight) && bottomRight.y >= static_cast<pixel_t>(FrameHeight))
 				|| (topLeft.x > bottomRight.x || topLeft.y > bottomRight.y))
 			{
 				return false; // Invalid rectangle
 			}
 
-			topLeft.x = LimitValue<pixel_t>(topLeft.x, 0, FrameWidth - 1);
-			topLeft.y = LimitValue<pixel_t>(topLeft.y, 0, FrameHeight - 1);
-			bottomRight.x = LimitValue<pixel_t>(bottomRight.x, 0, FrameWidth - 1);
-			bottomRight.y = LimitValue<pixel_t>(bottomRight.y, 0, FrameHeight - 1);
+			topLeft.x = LimitValue<pixel_t>(topLeft.x, 0, static_cast<pixel_t>(FrameWidth) - 1);
+			topLeft.y = LimitValue<pixel_t>(topLeft.y, 0, static_cast<pixel_t>(FrameHeight) - 1);
+			bottomRight.x = LimitValue<pixel_t>(bottomRight.x, 0, static_cast<pixel_t>(FrameWidth) - 1);
+			bottomRight.y = LimitValue<pixel_t>(bottomRight.y, 0, static_cast<pixel_t>(FrameHeight) - 1);
 
 			return true;
 		}

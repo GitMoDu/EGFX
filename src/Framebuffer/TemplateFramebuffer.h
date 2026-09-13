@@ -104,8 +104,7 @@ namespace Egfx
 	public:
 		TemplateFramebuffer(uint8_t buffer[BufferSize] = nullptr)
 			: FramePainter(buffer)
-		{
-		}
+		{}
 
 	public:
 		virtual bool Flip()
@@ -147,15 +146,15 @@ namespace Egfx
 			Buffer = buffer;
 		}
 
-		inline void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		void Pixel(const rgb_color_t color, const pixel_t x, const pixel_t y) final
 		{
 			Pixel(color, pixel_point_t{ x, y });
 		}
 
-		inline void Pixel(const rgb_color_t color, const pixel_point_t point) final
+		void Pixel(const rgb_color_t color, const pixel_point_t point) final
 		{
-			if (point.x >= 0 && point.x < FrameWidth &&
-				point.y >= 0 && point.y < FrameHeight)
+			if (point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
 			{
 				const pixel_point_t transformed = TransformCoordinates(point);
 				FramePainter::PixelRaw(GetRawColor(color), transformed.x, transformed.y);
@@ -169,8 +168,8 @@ namespace Egfx
 
 		void PixelBlend(const rgb_color_t color, const pixel_point_t point) final
 		{
-			if (point.x >= 0 && point.x < FrameWidth &&
-				point.y >= 0 && point.y < FrameHeight)
+			if (point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
 			{
 				const pixel_point_t transformed = TransformCoordinates(point);
 				FramePainter::PixelRawBlend(GetRawColor(color), transformed.x, transformed.y);
@@ -189,8 +188,8 @@ namespace Egfx
 				PixelBlend(color, point);
 			}
 			else if (alpha > 0 &&
-				point.x >= 0 && point.x < FrameWidth &&
-				point.y >= 0 && point.y < FrameHeight)
+				point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
 			{
 				// Use the same GetRawColor (which applies inversion correctly for the configured color depth)
 				const color_t rawColor = GetRawColor(color);
@@ -207,8 +206,8 @@ namespace Egfx
 
 		void PixelBlendAdd(const rgb_color_t color, const pixel_point_t point) final
 		{
-			if (point.x >= 0 && point.x < FrameWidth &&
-				point.y >= 0 && point.y < FrameHeight)
+			if (point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
 			{
 				const pixel_point_t transformed = TransformCoordinates(point);
 				FramePainter::PixelRawBlendAdd(GetRawColor(color), transformed.x, transformed.y);
@@ -222,8 +221,8 @@ namespace Egfx
 
 		void PixelBlendSubtract(const rgb_color_t color, const pixel_point_t point) final
 		{
-			if (point.x >= 0 && point.x < FrameWidth &&
-				point.y >= 0 && point.y < FrameHeight)
+			if (point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
 			{
 				const pixel_point_t transformed = TransformCoordinates(point);
 				FramePainter::PixelRawBlendSubtract(GetRawColor(color), transformed.x, transformed.y);
@@ -237,8 +236,8 @@ namespace Egfx
 
 		void PixelBlendMultiply(const rgb_color_t color, const pixel_point_t point) final
 		{
-			if (point.x >= 0 && point.x < FrameWidth &&
-				point.y >= 0 && point.y < FrameHeight)
+			if (point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
 			{
 				const pixel_point_t transformed = TransformCoordinates(point);
 				FramePainter::PixelRawBlendMultiply(GetRawColor(color), transformed.x, transformed.y);
@@ -252,17 +251,32 @@ namespace Egfx
 
 		void PixelBlendScreen(const rgb_color_t color, const pixel_point_t point) final
 		{
-			if (point.x >= 0 && point.x < FrameWidth &&
-				point.y >= 0 && point.y < FrameHeight)
+			if (point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
 			{
 				const pixel_point_t transformed = TransformCoordinates(point);
 				FramePainter::PixelRawBlendScreen(GetRawColor(color), transformed.x, transformed.y);
 			}
 		}
 
+		void PixelBlendXor(const rgb_color_t color, const pixel_t x, const pixel_t y) final
+		{
+			PixelBlendXor(color, pixel_point_t{ x, y });
+		}
+
+		void PixelBlendXor(const rgb_color_t color, const pixel_point_t point) final
+		{
+			if (point.x >= 0 && point.x < static_cast<pixel_t>(FrameWidth) &&
+				point.y >= 0 && point.y < static_cast<pixel_t>(FrameHeight))
+			{
+				const pixel_point_t transformed = TransformCoordinates(point);
+				FramePainter::PixelRawBlendXor(GetRawColor(color), transformed.x, transformed.y);
+			}
+		}
+
 		void LineHorizontal(const rgb_color_t color, const pixel_t x1, const pixel_t x2, const pixel_t y) final
 		{
-			if (y < 0 || y >= FrameHeight)
+			if (y < 0 || y >= static_cast<pixel_t>(FrameHeight) || (x2 == x1))
 			{
 				return;
 			}
@@ -278,14 +292,14 @@ namespace Egfx
 			}
 
 			// If the line is completely outside the horizontal bounds of the frame, skip drawing.
-			if (fx2 < 0 || fx1 >= FrameWidth)
+			if (fx2 < 0 || fx1 >= static_cast<pixel_t>(FrameWidth))
 			{
 				return;
 			}
 
 			// Clip to framebuffer bounds to keep raw painters in-range.
 			fx1 = MaxValue<pixel_t>(fx1, 0);
-			fx2 = MinValue<pixel_t>(fx2, FrameWidth - 1);
+			fx2 = MinValue<pixel_t>(fx2, static_cast<pixel_t>(FrameWidth) - 1);
 
 			const color_t rawColor = GetRawColor(color);
 
@@ -305,7 +319,7 @@ namespace Egfx
 
 		void LineVertical(const rgb_color_t color, const pixel_t x, const pixel_t y1, const pixel_t y2) final
 		{
-			if (x < 0 || x >= FrameWidth)
+			if (x < 0 || x >= static_cast<pixel_t>(FrameWidth) || (y2 == y1))
 			{
 				return;
 			}
@@ -321,14 +335,14 @@ namespace Egfx
 			}
 
 			// If the line is completely outside the vertical bounds of the frame, skip drawing.
-			if (fy2 < 0 || fy1 >= FrameHeight)
+			if (fy2 < 0 || fy1 >= static_cast<pixel_t>(FrameHeight))
 			{
 				return;
 			}
 
 			// Clip to framebuffer bounds to keep raw painters in-range.
 			fy1 = MaxValue<pixel_t>(fy1, 0);
-			fy2 = MinValue<pixel_t>(fy2, FrameHeight - 1);
+			fy2 = MinValue<pixel_t>(fy2, static_cast<pixel_t>(FrameHeight) - 1);
 
 			const color_t rawColor = GetRawColor(color);
 
@@ -518,7 +532,7 @@ namespace Egfx
 		{
 			// Get the inversion aware, native raw color from the underlying frame painter.
 			return displayOptions::Inverted ?
-				static_cast<color_t>(FramePainter::GetRawColor(rgb_color_t(~color | ColorMask))) : // Mask to the number of valid bits for the color depth and invert only those bits.
+				FramePainter::GetRawColor(static_cast<rgb_color_t>(~color)) :
 				FramePainter::GetRawColor(color); 	// If inversion is not enabled at compile-time, return raw unchanged.
 		}
 

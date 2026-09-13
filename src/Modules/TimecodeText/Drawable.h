@@ -1,10 +1,11 @@
 #ifndef _EGFX_MODULES_TIMECODE_TEXT_DRAWABLE_h
 #define _EGFX_MODULES_TIMECODE_TEXT_DRAWABLE_h
 
-#include <EgfxAssets.h>
-
 #include "Constant.h"
 #include "Layout.h"
+
+#include "../../EgfxAssets.h"
+#include "../../Framework/Text/Vector/Drawable.h"
 
 namespace Egfx
 {
@@ -14,13 +15,20 @@ namespace Egfx
 		{
 			namespace Drawable
 			{
-				/// Timecode (fixed 6-digit) drawable (HH:MM:SS or MM:SS:cs).
-				template<typename ParentLayout,
-					typename CodeFontDrawerType = Framework::Assets::Font::Code::RawBot<>
+				/// Timecode drawable (HH:MM:SS or MM:SS:cs).
+				template<typename dimension_t,
+					typename ParentLayout,
+					typename GlyphSourceType = TimecodeText::DefaultFont,
+					typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
+					typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>
 				>
 				struct Timecode
 				{
 				private:
+					using GlyphStyle = Framework::Image::TemplateImageStyle<
+						Framework::Layout::AlignmentEnum::MiddleLeft
+					>;
+
 					using Digit1Layout = Layout::Digit1<ParentLayout>;
 					using Digit2Layout = Layout::Digit2<ParentLayout>;
 					using MinutesDigit1Layout = Layout::Digit3<ParentLayout>;
@@ -31,7 +39,10 @@ namespace Egfx
 					using Separator2Layout = Layout::Separator2<ParentLayout>;
 
 				private:
-					Framework::Text::TemplateWriter<ParentLayout, CodeFontDrawerType> TextDrawer{};
+					using TextDrawerType = Framework::Text::Vector::Drawable::Text<
+						dimension_t, ParentLayout, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType>;
+
+					TextDrawerType TextDrawer{};
 
 					uint8_t Digit1 = 0;
 					uint8_t Digit2 = 0;
@@ -46,10 +57,13 @@ namespace Egfx
 				public:
 					Timecode()
 					{
-						TextDrawer.SetFontDimensions(Digit1Layout::Width(), Digit1Layout::Height());
+						TextDrawer.SetFontSize(
+							Digit1Layout::Width(),
+							Digit1Layout::Height(), false);
 					}
+					~Timecode() = default;
 
-					Framework::Text::TemplateWriter<ParentLayout, CodeFontDrawerType>& GetTextDrawer()
+					TextDrawerType& GetTextDrawer()
 					{
 						return TextDrawer;
 					}
@@ -108,53 +122,59 @@ namespace Egfx
 						}
 					}
 
-					void Draw(IFrameBuffer* frame)
+				public:
+					bool Draw(IFrameBuffer* frame)
 					{
-						switch (CurrentMode)
+						if (CurrentMode == PresentModeEnum::Invisible)
+							return false;
+
+						if (CurrentMode == PresentModeEnum::NoDuration)
 						{
-						case PresentModeEnum::Invisible:
-							return;
-						case PresentModeEnum::NoDuration:
-							TextDrawer.Write(frame, Digit1Layout::X(), Digit1Layout::Y(), Texts::UnknownChar);
-							TextDrawer.Write(frame, Digit2Layout::X(), Digit2Layout::Y(), Texts::UnknownChar);
-							TextDrawer.Write(frame, MinutesDigit1Layout::X(), MinutesDigit1Layout::Y(), Texts::UnknownChar);
-							TextDrawer.Write(frame, MinutesDigit2Layout::X(), MinutesDigit2Layout::Y(), Texts::UnknownChar);
-							TextDrawer.Write(frame, SecondsDigit1Layout::X(), SecondsDigit1Layout::Y(), Texts::UnknownChar);
-							TextDrawer.Write(frame, SecondsDigit2Layout::X(), SecondsDigit2Layout::Y(), Texts::UnknownChar);
-							break;
-						case PresentModeEnum::Duration:
-							TextDrawer.Write(frame, Digit1Layout::X(), Digit1Layout::Y(), Digit1);
-							TextDrawer.Write(frame, Digit2Layout::X(), Digit2Layout::Y(), Digit2);
-							TextDrawer.Write(frame, MinutesDigit1Layout::X(), MinutesDigit1Layout::Y(), Digit3);
-							TextDrawer.Write(frame, MinutesDigit2Layout::X(), MinutesDigit2Layout::Y(), Digit4);
-							TextDrawer.Write(frame, SecondsDigit1Layout::X(), SecondsDigit1Layout::Y(), Digit5);
-							TextDrawer.Write(frame, SecondsDigit2Layout::X(), SecondsDigit2Layout::Y(), Digit6);
-							break;
-						default:
-							break;
+							DrawCharacter(frame, Digit1Layout{}, Texts::UnknownChar);
+							DrawCharacter(frame, Digit2Layout{}, Texts::UnknownChar);
+							DrawCharacter(frame, MinutesDigit1Layout{}, Texts::UnknownChar);
+							DrawCharacter(frame, MinutesDigit2Layout{}, Texts::UnknownChar);
+							DrawCharacter(frame, SecondsDigit1Layout{}, Texts::UnknownChar);
+							DrawCharacter(frame, SecondsDigit2Layout{}, Texts::UnknownChar);
+						}
+						else
+						{
+							DrawCharacter(frame, Digit1Layout{}, static_cast<char>('0' + Digit1));
+							DrawCharacter(frame, Digit2Layout{}, static_cast<char>('0' + Digit2));
+							DrawCharacter(frame, MinutesDigit1Layout{}, static_cast<char>('0' + Digit3));
+							DrawCharacter(frame, MinutesDigit2Layout{}, static_cast<char>('0' + Digit4));
+							DrawCharacter(frame, SecondsDigit1Layout{}, static_cast<char>('0' + Digit5));
+							DrawCharacter(frame, SecondsDigit2Layout{}, static_cast<char>('0' + Digit6));
 						}
 
-						DrawSeparator(frame, Separator1Layout::X());
-						DrawSeparator(frame, Separator2Layout::X());
+						DrawCharacter(frame, Separator1Layout{}, ':');
+						DrawCharacter(frame, Separator2Layout{}, ':');
+
+						return true;
+					}
+
+					void SetBounds(const pixel_t left, const pixel_t top,
+						const pixel_t right, const pixel_t bottom)
+					{
+						TextDrawer.SetBounds(left, top, right, bottom);
+					}
+
+					void SetTranslation(const int16_t x, const int16_t y)
+					{
+						TextDrawer.SetTranslation(x, y);
 					}
 
 				private:
-					void DrawSeparator(IFrameBuffer* frame, const pixel_t x)
+					template<typename CharacterLayout>
+					void DrawCharacter(IFrameBuffer* frame, CharacterLayout, const char character)
 					{
-						static constexpr pixel_t padX = Separator1Layout::Width() / 3;
-						static constexpr pixel_t dotWidth = (Separator1Layout::Width() * 3) / 4 - padX;
-						static constexpr pixel_t thickness = 2;
-
-						static constexpr pixel_t y1 = Separator1Layout::Y() + (Separator1Layout::Height() / 4);
-						static constexpr pixel_t y2 = Separator1Layout::Y() + ((Separator1Layout::Height() * 5) / 8);
-
-						const pixel_t x1 = x + padX;
-						const pixel_t x2 = x + padX + dotWidth;
-
-						const rgb_color_t color = TextDrawer.ColorSource.Source(0, 0);
-						frame->RectangleFill(color, x1, y1, x2, y1 + thickness);
-						frame->RectangleFill(color, x1, y2, x2, y2 + thickness);
+						TextDrawer.SetOffset(
+							static_cast<pixel_t>(CharacterLayout::X() - ParentLayout::X()),
+							static_cast<pixel_t>(CharacterLayout::Y() - ParentLayout::Y()), false);
+						TextDrawer.SetText(character, true);
+						TextDrawer.Draw(frame);
 					}
+
 				};
 			}
 		}

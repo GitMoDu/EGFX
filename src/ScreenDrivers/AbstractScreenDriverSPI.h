@@ -64,8 +64,8 @@ namespace Egfx
 
 		~AbstractScreenDriverSPI() = default;
 
-		virtual void BufferTaskCallback(void* parameter) {}
-		virtual void SetBufferTaskCallback(void (*taskCallback)(void* parameter)) {}
+		virtual void BufferTaskCallback(void* /*parameter*/) {}
+		virtual void SetBufferTaskCallback(void (*/*taskCallback*/)(void* /*parameter*/)) {}
 
 		virtual bool Start()
 		{
@@ -109,7 +109,7 @@ namespace Egfx
 			return 0;
 		}
 
-		virtual bool PushingBuffer(const uint8_t* frameBuffer)
+		virtual bool PushingBuffer(const uint8_t* /*frameBuffer*/)
 		{
 			return false;
 		}

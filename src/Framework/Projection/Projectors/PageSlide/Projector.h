@@ -90,10 +90,10 @@ namespace Egfx
 							const int16_t viewHeight = static_cast<int16_t>(ItemLayouter::ViewLayout::Height());
 							const int16_t left = ParentLayout::X() - viewX - translationX;
 							const int16_t top = ParentLayout::Y() - viewY - translationY;
-							const int16_t right = ParentLayout::X() + ParentLayout::Width() - 1 - viewX - translationX;
-							const int16_t bottom = ParentLayout::Y() + ParentLayout::Height() - 1 - viewY - translationY;
-							const int16_t localRight = viewWidth - 1;
-							const int16_t localBottom = viewHeight - 1;
+							const int16_t right = ParentLayout::X() + ParentLayout::Width() - viewX - translationX;
+							const int16_t bottom = ParentLayout::Y() + ParentLayout::Height() - viewY - translationY;
+							const int16_t localRight = viewWidth;
+							const int16_t localBottom = viewHeight;
 							const int16_t clipLeft = MaxValue<int16_t>(0, left);
 							const int16_t clipTop = MaxValue<int16_t>(0, top);
 							const int16_t clipRight = MinValue<int16_t>(localRight, right);

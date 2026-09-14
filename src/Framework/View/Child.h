@@ -18,25 +18,34 @@ namespace Egfx
 					static void Apply(ChildType& child, const int16_t left, const int16_t top,
 						const int16_t right, const int16_t bottom)
 					{
-						const int16_t ownerLeft = OwnerLayout::X();
-						const int16_t ownerTop = OwnerLayout::Y();
-						const int16_t ownerRight = ownerLeft + OwnerLayout::Width() - 1;
-						const int16_t ownerBottom = ownerTop + OwnerLayout::Height() - 1;
-						const int16_t parentLeft = ParentLayout::X();
-						const int16_t parentTop = ParentLayout::Y();
-						const int16_t parentRight = parentLeft + ParentLayout::Width() - 1;
-						const int16_t parentBottom = parentTop + ParentLayout::Height() - 1;
+						const int16_t childOriginX = ParentLayout::X() - OwnerLayout::X();
+						const int16_t childOriginY = ParentLayout::Y() - OwnerLayout::Y();
+						const int16_t childRight = childOriginX + ParentLayout::Width();
+						const int16_t childBottom = childOriginY + ParentLayout::Height();
 
-						const int16_t clippedLeft = left > ownerLeft ? left : ownerLeft;
-						const int16_t clippedTop = top > ownerTop ? top : ownerTop;
-						const int16_t clippedRight = right < ownerRight ? right : ownerRight;
-						const int16_t clippedBottom = bottom < ownerBottom ? bottom : ownerBottom;
-						const int16_t childLeft = clippedLeft > parentLeft ? clippedLeft : parentLeft;
-						const int16_t childTop = clippedTop > parentTop ? clippedTop : parentTop;
-						const int16_t childRight = clippedRight < parentRight ? clippedRight : parentRight;
-						const int16_t childBottom = clippedBottom < parentBottom ? clippedBottom : parentBottom;
+						if (left >= right || top >= bottom)
+						{
+							child.SetBounds(0, 0, 0, 0);
+							return;
+						}
 
-						child.SetBounds(childLeft, childTop, childRight, childBottom);
+						const int16_t clippedLeft = left > childOriginX ? left : childOriginX;
+						const int16_t clippedTop = top > childOriginY ? top : childOriginY;
+						const int16_t clippedRight = right < childRight ? right : childRight;
+						const int16_t clippedBottom = bottom < childBottom ? bottom : childBottom;
+
+						if (clippedLeft >= clippedRight || clippedTop >= clippedBottom)
+						{
+							child.SetBounds(0, 0, 0, 0);
+							return;
+						}
+
+						const int16_t childLeft = clippedLeft - childOriginX;
+						const int16_t childTop = clippedTop - childOriginY;
+						const int16_t childBoundsRight = clippedRight - childOriginX;
+						const int16_t childBoundsBottom = clippedBottom - childOriginY;
+
+						child.SetBounds(childLeft, childTop, childBoundsRight, childBoundsBottom);
 					}
 				};
 

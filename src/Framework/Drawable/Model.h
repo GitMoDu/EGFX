@@ -47,8 +47,8 @@ namespace Egfx
 					/// </summary>
 					/// <param name="left">Inclusive left edge in local coordinates.</param>
 					/// <param name="top">Inclusive top edge in local coordinates.</param>
-					/// <param name="right">Inclusive right edge in local coordinates.</param>
-					/// <param name="bottom">Inclusive bottom edge in local coordinates.</param>
+					/// <param name="right">Exclusive right edge in local coordinates.</param>
+					/// <param name="bottom">Exclusive bottom edge in local coordinates.</param>
 					void SetBounds(const dimensiont_t /*left*/, const dimensiont_t /*top*/,
 						const dimensiont_t /*right*/, const dimensiont_t /*bottom*/) {}
 

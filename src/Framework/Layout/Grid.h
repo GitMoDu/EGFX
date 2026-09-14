@@ -13,8 +13,8 @@ namespace Egfx
 			/// Splits a parent layout into a grid of equally sized cells.
 			///
 			/// Behavior:
-			/// - Cell size is computed using integer division.
-			/// - Any remainder pixels (from division) are not redistributed.
+			/// - Cell boundaries are computed from proportional integer division.
+			/// - Remainder pixels are distributed across the later cells.
 			/// - The grid area is top-left anchored to the parent (X/Y match the parent).
 			/// </summary>
 			/// <typeparam name="ParentLayout">Parent layout providing X/Y/Width/Height.</typeparam>
@@ -29,17 +29,17 @@ namespace Egfx
 				static_assert(Rows > 0, "GridLayout Rows must be > 0.");
 				static_assert(Columns > 0, "GridLayout Columns must be > 0.");
 
-				/// <summary>Width of an individual cell (integer division).</summary>
+				/// <summary>Width of the first grid cell (integer division).</summary>
 				static constexpr int16_t CellWidth() { return ParentLayout::Width() / Columns; }
 
-				/// <summary>Height of an individual cell (integer division).</summary>
+				/// <summary>Height of the first grid cell (integer division).</summary>
 				static constexpr int16_t CellHeight() { return ParentLayout::Height() / Rows; }
 
-				/// <summary>Total width of the grid area (<= parent width).</summary>
-				static constexpr int16_t GridWidth() { return CellWidth() * Columns; }
+				/// <summary>Total width of the grid area.</summary>
+				static constexpr int16_t GridWidth() { return ParentLayout::Width(); }
 
-				/// <summary>Total height of the grid area (<= parent height).</summary>
-				static constexpr int16_t GridHeight() { return CellHeight() * Rows; }
+				/// <summary>Total height of the grid area.</summary>
+				static constexpr int16_t GridHeight() { return ParentLayout::Height(); }
 
 				/// <summary>Top-left anchor of the grid area.</summary>
 				static constexpr int16_t X() { return ParentLayout::X(); }
@@ -58,10 +58,10 @@ namespace Egfx
 					static_assert(RowIndex < Rows, "GridLayout Cell RowIndex out of range.");
 					static_assert(ColIndex < Columns, "GridLayout Cell ColIndex out of range.");
 
-					static constexpr int16_t X() { return Grid::X() + (int16_t(CellWidth()) * ColIndex); }
-					static constexpr int16_t Y() { return Grid::Y() + (int16_t(CellHeight()) * RowIndex); }
-					static constexpr int16_t Width() { return CellWidth(); }
-					static constexpr int16_t Height() { return CellHeight(); }
+					static constexpr int16_t X() { return Grid::X() + (ParentLayout::Width() * ColIndex) / Columns; }
+					static constexpr int16_t Y() { return Grid::Y() + (ParentLayout::Height() * RowIndex) / Rows; }
+					static constexpr int16_t Width() { return (ParentLayout::Width() * (ColIndex + 1)) / Columns - (ParentLayout::Width() * ColIndex) / Columns; }
+					static constexpr int16_t Height() { return (ParentLayout::Height() * (RowIndex + 1)) / Rows - (ParentLayout::Height() * RowIndex) / Rows; }
 				};
 			};
 		}

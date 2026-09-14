@@ -201,7 +201,7 @@ namespace Egfx
 
 				bool IsVisible() const
 				{
-					return VisibilityChecker<0, DrawableCount>::Check(this);
+					return Viewport.IsValid() && VisibilityChecker<0, DrawableCount>::Check(this);
 				}
 
 			protected:

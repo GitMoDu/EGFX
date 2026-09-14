@@ -15,18 +15,19 @@ namespace Egfx
 					typename ParentLayout,
 					typename GlyphSourceType,
 					typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
+					typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 				>
 				class TextView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Text<dimension_t, ParentLayout, GlyphSourceType, GlyphStyle,
-					ColorShaderType, TransformShaderType, BlendMode>
+					SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>
 				>
 				{
 				public:
 					using DrawableType = Drawable::Text<dimension_t, ParentLayout, GlyphSourceType,
-						GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>;
+						GlyphStyle, SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 
 					using ViewLayout = ParentLayout;
 
@@ -54,6 +55,7 @@ namespace Egfx
 					typename number_t,
 					typename GlyphSourceType,
 					typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
+					typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
@@ -61,12 +63,12 @@ namespace Egfx
 				class NumberView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::Number<dimension_t, ParentLayout, number_t,
 					GlyphSourceType, GlyphStyle,
-					ColorShaderType, TransformShaderType, BlendMode>
+					SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>
 				>
 				{
 				public:
 					using DrawableType = Drawable::Number<dimension_t, ParentLayout, number_t,
-						GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType, BlendMode>;
+						GlyphSourceType, GlyphStyle, SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 
 					using ViewLayout = ParentLayout;
 

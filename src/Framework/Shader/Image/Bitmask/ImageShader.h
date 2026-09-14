@@ -22,13 +22,14 @@ namespace Egfx
 						uint8_t ScaleX = 1,
 						uint8_t ScaleY = 1,
 						Framework::Image::ScaledTransformOrderEnum TransformOrder = Framework::Image::ScaledTransformOrderEnum::TransformThenScale,
+						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					using ImageShader = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-						Scaled<dimension_t, ScaleX, ScaleY, DataSourceType, UseTransparency, TransparentColor, TransformOrder, ColorShaderType, TransformShaderType, BlendMode>,
-						Unscaled<dimension_t, DataSourceType, UseTransparency, TransparentColor, ColorShaderType, TransformShaderType, BlendMode>,
+						Scaled<dimension_t, ScaleX, ScaleY, DataSourceType, UseTransparency, TransparentColor, TransformOrder, SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>,
+						Unscaled<dimension_t, DataSourceType, UseTransparency, TransparentColor, SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>,
 						(ScaleX > 1 || ScaleY > 1)>::type;
 				}
 			}

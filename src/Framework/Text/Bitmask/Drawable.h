@@ -19,6 +19,7 @@ namespace Egfx
 						typename ParentLayout,
 						typename GlyphSourceType,
 						typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
+						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
@@ -29,7 +30,7 @@ namespace Egfx
 						GlyphStyle::UseTransparency, GlyphStyle::TransparentColor,
 						GlyphStyle::ScaleX, GlyphStyle::ScaleY,
 						GlyphStyle::TransformOrder,
-						ColorShaderType, TransformShaderType, BlendMode>
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					private:
 						using Base = Shader::Image::Bitmask::ImageShader<
@@ -37,7 +38,7 @@ namespace Egfx
 							GlyphSourceType::DataSourceType,
 							GlyphStyle::UseTransparency, GlyphStyle::TransparentColor,
 							GlyphStyle::ScaleX, GlyphStyle::ScaleY, GlyphStyle::TransformOrder,
-							ColorShaderType, TransformShaderType, BlendMode>;
+							SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 						using Walker = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
 							TemplateTextMonospaceWalker,
 							TemplateTextWalker,
@@ -303,6 +304,7 @@ namespace Egfx
 						typename number_t,
 						typename GlyphSourceType,
 						typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
+						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
@@ -313,7 +315,7 @@ namespace Egfx
 						GlyphStyle::UseTransparency, GlyphStyle::TransparentColor,
 						GlyphStyle::ScaleX, GlyphStyle::ScaleY,
 						GlyphStyle::TransformOrder,
-						ColorShaderType, TransformShaderType, BlendMode>
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>
 
 					{
 					private:
@@ -321,8 +323,8 @@ namespace Egfx
 							dimension_t,
 							GlyphSourceType::DataSourceType,
 							GlyphStyle::UseTransparency, GlyphStyle::TransparentColor,
-							GlyphStyle::ScaleX, GlyphStyle::ScaleY, GlyphStyle::TransformOrder,
-							ColorShaderType, TransformShaderType, BlendMode>;
+						GlyphStyle::ScaleX, GlyphStyle::ScaleY, GlyphStyle::TransformOrder,
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 						using Walker = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
 							TemplateTextMonospaceWalker,
 							TemplateTextWalker,

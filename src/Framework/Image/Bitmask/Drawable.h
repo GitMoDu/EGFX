@@ -17,6 +17,7 @@ namespace Egfx
 						typename ParentLayout,
 						typename ImageSourceType, // Contract::StaticBitmaskSource,
 						typename Style = Framework::Image::TemplateImageStyle<>,
+						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
@@ -27,7 +28,7 @@ namespace Egfx
 						Style::UseTransparency, Style::TransparentColor,
 						Style::ScaleX, Style::ScaleY,
 						Style::TransformOrder,
-						ColorShaderType, TransformShaderType, BlendMode>
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					private:
 						using Base = Shader::Image::Bitmask::ImageShader<
@@ -35,8 +36,8 @@ namespace Egfx
 							ImageSourceType::DataSourceType,
 							Style::UseTransparency, Style::TransparentColor,
 							Style::ScaleX, Style::ScaleY,
-							Style::TransformOrder,
-							ColorShaderType, TransformShaderType, BlendMode>;
+						Style::TransformOrder,
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 
 					public:
 						using DrawableLayout = ParentLayout;
@@ -92,6 +93,7 @@ namespace Egfx
 						typename ParentLayout,
 						Framework::DataSourceTypeEnum DataSourceType = Framework::DataSourceTypeEnum::Ram,
 						typename Style = Framework::Image::TemplateImageStyle<>,
+						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
@@ -102,7 +104,7 @@ namespace Egfx
 						Style::UseTransparency, Style::TransparentColor,
 						Style::ScaleX, Style::ScaleY,
 						Style::TransformOrder,
-						ColorShaderType, TransformShaderType, BlendMode>
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					private:
 						using Base = Shader::Image::Bitmask::ImageShader<
@@ -110,8 +112,8 @@ namespace Egfx
 							DataSourceType,
 							Style::UseTransparency, Style::TransparentColor,
 							Style::ScaleX, Style::ScaleY,
-							Style::TransformOrder,
-							ColorShaderType, TransformShaderType, BlendMode>;
+						Style::TransformOrder,
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 
 					public:
 						using DrawableLayout = ParentLayout;

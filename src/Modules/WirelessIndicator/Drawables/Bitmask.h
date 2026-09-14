@@ -36,10 +36,10 @@ namespace Egfx
 						true,
 						RGB_COLOR_BLACK,
 						Framework::Image::ScaledTransformOrderEnum::TransformThenScale,
+						Shader::Source::Bar<dimension_t>,
 						ColorShaderType,
 						Shader::Transform::Bar<dimension_t, BitmaskWidth, BitmaskHeight, Monochrome, TransformShaderType>,
-						BlendMode,
-						Shader::Source::Bar<dimension_t>>
+						BlendMode>
 					{
 					private:
 						using Base = ::Egfx::Framework::Shader::Image::Bitmask::Scaled<
@@ -50,10 +50,10 @@ namespace Egfx
 							true,
 							RGB_COLOR_BLACK,
 							Framework::Image::ScaledTransformOrderEnum::TransformThenScale,
+							Shader::Source::Bar<dimension_t>,
 							ColorShaderType,
 							Shader::Transform::Bar<dimension_t, BitmaskWidth, BitmaskHeight, Monochrome, TransformShaderType>,
-							BlendMode,
-							Shader::Source::Bar<dimension_t>>;
+							BlendMode>;
 
 						const uint8_t* BitmaskData;
 

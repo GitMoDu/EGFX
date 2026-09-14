@@ -15,19 +15,20 @@ namespace Egfx
 					typename ParentLayout,
 					typename ImageSourceType, // Contract::StaticBitmaskSource,
 					typename Style = Framework::Image::TemplateImageStyle<>,
+					typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 				>
 				class StaticImageView : public Framework::View::DrawablesView<ParentLayout,
-					Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, ColorShaderType, TransformShaderType, BlendMode>
+					Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>
 				>
 				{
 				public:
 					using ViewLayout = ParentLayout;
 
 				private:
-					using DrawableType = Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, ColorShaderType, TransformShaderType, BlendMode>;
+					using DrawableType = Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:

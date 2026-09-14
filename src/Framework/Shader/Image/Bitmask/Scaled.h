@@ -20,10 +20,10 @@ namespace Egfx
 						bool UseTransparency = true,
 						rgb_color_t TransparentColor = RGB_COLOR_BLACK,
 						Framework::Image::ScaledTransformOrderEnum TransformOrder = Framework::Image::ScaledTransformOrderEnum::TransformThenScale,
+						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
-						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace,
-						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					class Scaled : public Framework::Shader::Pixel::TemplateShader<dimension_t,
 						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>

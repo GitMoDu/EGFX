@@ -20,19 +20,18 @@ namespace Egfx
 						Framework::DataSourceTypeEnum dataSourceType = Framework::DataSourceTypeEnum::Ram,
 						bool UseTransparency = true,
 						rgb_color_t TransparentColor = RGB_COLOR_BLACK,
+						typename SourceShaderType = Shader::Source::StaticColor<dimension_t>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
 						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					class Unscaled : public Framework::Shader::Pixel::TemplateShader<dimension_t,
-						Shader::Source::StaticColor<dimension_t>,
-						ColorShaderType, TransformShaderType
+						SourceShaderType, ColorShaderType, TransformShaderType, BlendMode
 					>
 					{
 					private:
 						using Base = Framework::Shader::Pixel::TemplateShader<dimension_t,
-							Shader::Source::StaticColor<dimension_t>,
-							ColorShaderType, TransformShaderType>;
+							SourceShaderType, ColorShaderType, TransformShaderType, BlendMode>;
 
 					private:
 						using InvertTransparentColor = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<

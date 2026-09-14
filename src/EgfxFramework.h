@@ -18,6 +18,14 @@
 #include "Framework/Layout/Translate.h"
 #include "Framework/Layout/Combine.h"
 
+// Dynamic motion layout framework.
+#include "Framework/Projection/Model.h"
+#include "Framework/Projection/Layout.h"
+#include "Framework/Projection/Control/Scroll.h"
+#include "Framework/Projection/View/CompositeListView.h"
+#include "Framework/Projection/Effect/Model.h"
+#include "Framework/Projection/Effect/Adapter.h"
+
 // Drawable contract.
 #include "Framework/Drawable/Model.h"
 
@@ -116,5 +124,8 @@
 #include "Framework/Icon/Vector/Model.h"
 #include "Framework/Icon/Vector/Drawable.h"
 #include "Framework/Icon/Vector/View.h"
+
+// Projectors and views.
+#include "Framework/Projection/Projectors/PageSlide/View.h"
 
 #endif

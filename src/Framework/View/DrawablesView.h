@@ -112,6 +112,27 @@ namespace Egfx
 					static void Dispatch(DrawablesView*, IFrameBuffer*, const uint8_t) {}
 				};
 
+				template<uint8_t Index, uint8_t N, typename Visitor>
+				struct RuntimeDrawableDispatcher
+				{
+					static bool Dispatch(DrawablesView* self, const uint8_t target, Visitor& visitor)
+					{
+						if (Index == target)
+						{
+							visitor(self->drawables_.template Get<Index>());
+							return true;
+						}
+
+						return RuntimeDrawableDispatcher<Index + 1, N, Visitor>::Dispatch(self, target, visitor);
+					}
+				};
+
+				template<uint8_t N, typename Visitor>
+				struct RuntimeDrawableDispatcher<N, N, Visitor>
+				{
+					static bool Dispatch(DrawablesView*, const uint8_t, Visitor&) { return false; }
+				};
+
 				template<uint8_t Index, uint8_t N>
 				struct VisibilityChecker
 				{
@@ -182,6 +203,16 @@ namespace Egfx
 
 				template<uint8_t Index>
 				auto colorShader() const -> const decltype(drawable<Index>().ColorShader)& { return drawable<Index>().ColorShader; }
+
+				/// <summary>
+				/// Visits a drawable selected by a runtime index.
+				/// The visitor may be a lambda accepting the selected drawable by reference.
+				/// </summary>
+				template<typename Visitor>
+				bool VisitDrawable(const uint8_t index, Visitor&& visitor)
+				{
+					return RuntimeDrawableDispatcher<0, DrawableCount, Visitor>::Dispatch(this, index, visitor);
+				}
 
 				template<uint8_t Index>
 				auto transformShader() -> decltype(drawable<Index>().TransformShader)& { return drawable<Index>().TransformShader; }

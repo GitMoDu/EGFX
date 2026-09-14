@@ -166,6 +166,16 @@ namespace Egfx
 				}
 
 				/// <summary>
+				/// Visits a child selected by a runtime index.
+				/// The visitor must provide a templated call operator accepting the selected child.
+				/// </summary>
+				template<typename Visitor>
+				bool VisitView(const uint8_t index, Visitor&& visitor)
+				{
+					return RuntimeViewDispatcher<0, ViewCount, Visitor>::Dispatch(this, index, visitor);
+				}
+
+				/// <summary>
 				/// Advances the current child view and completes when all child views have completed.
 				/// If ViewStep() returns false, the cycle is skipped and completed immediately.
 				/// </summary>
@@ -216,6 +226,27 @@ namespace Egfx
 				}
 
 			private:
+				template<uint8_t Index, uint8_t N, typename Visitor>
+				struct RuntimeViewDispatcher
+				{
+					static bool Dispatch(CompositeView* self, const uint8_t target, Visitor& visitor)
+					{
+						if (Index == target)
+						{
+							visitor(self->InnerViews.template Get<Index>());
+							return true;
+						}
+
+						return RuntimeViewDispatcher<Index + 1, N, Visitor>::Dispatch(self, target, visitor);
+					}
+				};
+
+				template<uint8_t N, typename Visitor>
+				struct RuntimeViewDispatcher<N, N, Visitor>
+				{
+					static bool Dispatch(CompositeView*, const uint8_t, Visitor&) { return false; }
+				};
+
 				template<uint8_t Index, uint8_t N>
 				struct BoundsDispatcher
 				{

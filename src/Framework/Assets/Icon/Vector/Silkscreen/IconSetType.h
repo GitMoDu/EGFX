@@ -194,7 +194,7 @@ namespace Egfx
 								Warning = uint32_t(IconEnum::Warning),
 							};
 
-							static constexpr IconSource GetIcon(const Egfx::Framework::Icon::IconEnum icon)
+							static IconSource GetIcon(const Egfx::Framework::Icon::IconEnum icon)
 							{
 								switch (icon)
 								{

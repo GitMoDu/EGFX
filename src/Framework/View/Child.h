@@ -58,6 +58,46 @@ namespace Egfx
 					{
 						ChildType::SetTranslation(x, y);
 					}
+
+					int16_t GetBoundsWidth() const
+					{
+						return ChildType::GetBoundsWidth();
+					}
+
+					int16_t GetBoundsHeight() const
+					{
+						return ChildType::GetBoundsHeight();
+					}
+
+					int16_t GetBoundsLeft() const
+					{
+						return ChildType::GetBoundsLeft();
+					}
+
+					int16_t GetBoundsTop() const
+					{
+						return ChildType::GetBoundsTop();
+					}
+
+					int16_t GetBoundsRight() const
+					{
+						return ChildType::GetBoundsRight();
+					}
+
+					int16_t GetBoundsBottom() const
+					{
+						return ChildType::GetBoundsBottom();
+					}
+
+					int16_t GetTranslationX() const
+					{
+						return ChildType::GetTranslationX();
+					}
+
+					int16_t GetTranslationY() const
+					{
+						return ChildType::GetTranslationY();
+					}
 				};
 			}
 		}

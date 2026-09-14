@@ -3,6 +3,7 @@
 
 #include "Model.h"
 #include "Child.h"
+#include "../Shader/Model.h"
 
 namespace Egfx
 {
@@ -51,6 +52,26 @@ namespace Egfx
 					}
 				};
 
+				template<uint8_t Index, uint8_t N>
+				struct VisibilityChecker
+				{
+					static bool Check(const CompositeView* self)
+					{
+						if (self->InnerViews.template Get<Index>().IsVisible())
+						{
+							return true;
+						}
+
+						return VisibilityChecker<Index + 1, N>::Check(self);
+					}
+				};
+
+				template<uint8_t N>
+				struct VisibilityChecker<N, N>
+				{
+					static bool Check(const CompositeView*) { return false; }
+				};
+
 				template<uint8_t N>
 				struct Dispatcher<N, N>
 				{
@@ -62,6 +83,12 @@ namespace Egfx
 
 			private:
 				Support::ParameterPack::ElementPack<ChildType<ViewTypes>...> InnerViews;
+				Shader::viewport_t<int16_t> Viewport{
+					static_cast<int16_t>(0),
+					static_cast<int16_t>(0),
+					static_cast<int16_t>(ParentLayout::Width()),
+					static_cast<int16_t>(ParentLayout::Height()),
+					0, 0 };
 				uint8_t CurrentView = 0;
 				bool Stepped = false;
 
@@ -87,13 +114,34 @@ namespace Egfx
 				void SetBounds(const int16_t left, const int16_t top,
 					const int16_t right, const int16_t bottom)
 				{
+					Viewport.BoundsLeft = left;
+					Viewport.BoundsTop = top;
+					Viewport.BoundsRight = right;
+					Viewport.BoundsBottom = bottom;
 					BoundsDispatcher<0, ViewCount>::Dispatch(this, left, top, right, bottom);
 				}
 
-				bool IsVisible() const { return true; }
+				bool IsVisible() const
+				{
+					return Viewport.IsValid() && VisibilityChecker<0, ViewCount>::Check(this);
+				}
+
+			protected:
+				int16_t GetBoundsWidth() const { return Viewport.GetWidth(); }
+				int16_t GetBoundsHeight() const { return Viewport.GetHeight(); }
+				int16_t GetBoundsLeft() const { return Viewport.GetTopLeftX(); }
+				int16_t GetBoundsTop() const { return Viewport.GetTopLeftY(); }
+				int16_t GetBoundsRight() const { return Viewport.GetBottomRightX(); }
+				int16_t GetBoundsBottom() const { return Viewport.GetBottomRightY(); }
+				int16_t GetTranslationX() const { return Viewport.TranslationX; }
+				int16_t GetTranslationY() const { return Viewport.TranslationY; }
+
+			public:
 
 				void SetTranslation(const int16_t x, const int16_t y)
 				{
+					Viewport.TranslationX = x;
+					Viewport.TranslationY = y;
 					TranslationDispatcher<0, ViewCount>::Dispatch(this, x, y);
 				}
 

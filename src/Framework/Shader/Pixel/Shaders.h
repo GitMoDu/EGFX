@@ -185,6 +185,16 @@ namespace Egfx
 						return Viewport.GetBottomRightY();
 					}
 
+					pixel_t GetTranslationX() const
+					{
+						return Viewport.TranslationX;
+					}
+
+					pixel_t GetTranslationY() const
+					{
+						return Viewport.TranslationY;
+					}
+
 					/// <summary>
 					/// Shades and writes a pixel without applying the layout clip.
 					/// Higher-level geometry shaders may use this after performing primitive-level culling.

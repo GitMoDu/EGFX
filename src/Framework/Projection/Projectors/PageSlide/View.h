@@ -3,6 +3,7 @@
 
 #include "Projector.h"
 #include "../../View/CompositeListView.h"
+#include "../../../Animation/Animator.h"
 
 namespace Egfx
 {
@@ -36,12 +37,7 @@ namespace Egfx
 						using Base = Projection::View::CompositeListView<ParentLayout,
 							Projectors::PageSlide::Projector<ParentLayout, Style>, ViewTypes...>;
 
-						scroll_t AnimationStart = 0;
-						scroll_t AnimationTarget = 0;
-						uint32_t AnimationStartTime = 0;
-						uint32_t AnimationDuration = 0;
-						bool AnimationActive = false;
-						bool AnimationStarted = false;
+						Framework::Animation::Animator<scroll_t> ScrollAnimator{};
 
 					public:
 						View() : Base() {}
@@ -49,38 +45,45 @@ namespace Egfx
 
 						void SetScroll(const scroll_t scroll)
 						{
-							AnimationActive = false;
+							ScrollAnimator.Cancel();
 							Base::ControllerState().SetScroll(scroll);
 						}
 
-						void AnimateScroll(const scroll_t target, const uint32_t duration)
+						void SetAnimationCurve(const Framework::Animation::Interpolator::IInterpolator& interpolator)
 						{
-							AnimationStart = Base::ControllerState().GetScroll();
-							AnimationTarget = target;
-							AnimationDuration = duration;
-							AnimationActive = duration != 0;
-							AnimationStarted = false;
+							ScrollAnimator.SetInterpolator(interpolator);
+						}
 
-							if (duration == 0)
-							{
-								Base::ControllerState().SetScroll(target);
-							}
+						void SetAnimationCurve(const Framework::Animation::Interpolator::IInterpolator* interpolator)
+						{
+							ScrollAnimator.SetInterpolator(interpolator);
+						}
+
+						void AnimateToPage(const uint8_t index, const uint32_t duration)
+						{
+							const scroll_t target = static_cast<scroll_t>(index) * UFraction16::SCALAR_UNIT;
+							AnimateToScroll(target, duration);
+						}
+
+						void AnimateToScroll(const scroll_t target, const uint32_t duration)
+						{
+							ScrollAnimator.Start(Base::ControllerState().GetScroll(), target, duration);
 						}
 
 						bool IsScrollAnimating() const
 						{
-							return AnimationActive;
+							return ScrollAnimator.IsAnimating();
 						}
 
 						void SetPagePosition(const uint8_t index, const scalar_t offset)
 						{
-							AnimationActive = false;
+							ScrollAnimator.Cancel();
 							Base::ControllerState().SetPagePosition(index, offset);
 						}
 
 						void SetPageStartOverscroll(const scalar_t offset)
 						{
-							AnimationActive = false;
+							ScrollAnimator.Cancel();
 							Base::ControllerState().SetPageStartOverscroll(offset);
 						}
 
@@ -97,29 +100,10 @@ namespace Egfx
 					protected:
 						bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 						{
-							if (AnimationActive)
+							if (ScrollAnimator.IsAnimating())
 							{
-								if (!AnimationStarted)
-								{
-									AnimationStartTime = frameTime;
-									AnimationStarted = true;
-								}
-
-								const uint32_t elapsed = frameTime - AnimationStartTime;
-								if (elapsed >= AnimationDuration)
-								{
-									this->ControllerState().SetScroll(AnimationTarget);
-									AnimationActive = false;
-									AnimationStarted = false;
-								}
-								else
-								{
-									const int64_t delta = static_cast<int64_t>(AnimationTarget) - AnimationStart;
-									const scroll_t scroll = static_cast<scroll_t>(
-										static_cast<int64_t>(AnimationStart) +
-										(delta * elapsed) / AnimationDuration);
-									Base::ControllerState().SetScroll(scroll);
-								}
+								const auto state = ScrollAnimator.Step(frameTime);
+								Base::ControllerState().SetScroll(state.Value);
 							}
 
 							return Base::ViewStep(frameTime, frameCounter);

@@ -488,9 +488,9 @@ namespace Egfx
 					typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 				>
 				using BorderRectRounded = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-					Framework::Assets::Shape::Drawable::RoundedRectangle<dimension_t, ParentLayout,
+					Framework::Assets::Drawable::Shape::RoundedRectangle<dimension_t, ParentLayout,
 					Style::CornerRadius, Layout::Linear<ParentLayout, Style>::EffectiveStrokeWidth(), PixelShaderType>,
-					Framework::Assets::Shape::Drawable::Rectangle<dimension_t, ParentLayout,
+					Framework::Assets::Drawable::Shape::Rectangle<dimension_t, ParentLayout,
 					Layout::Linear<ParentLayout, Style>::EffectiveStrokeWidth(), PixelShaderType>,
 					Layout::Linear<ParentLayout, Style>::HasRoundedCorners()
 				>::type;

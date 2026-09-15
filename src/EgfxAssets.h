@@ -43,8 +43,8 @@
 // Vector icons.
 #include "Framework/Assets/Icon/Vector/Silkscreen/IconSetType.h" // Rich icon set in outline style.
 
-// Shape drawables.
-#include "Framework/Assets/Shape/Drawable/Rectangle.h"
-#include "Framework/Assets/Shape/Drawable/RoundedRectangle.h"
+// Shape drawables. Ready-to-use shape drawables for common geometric shapes.
+#include "Framework/Assets/Drawable/Shape/Rectangle.h"
+#include "Framework/Assets/Drawable/Shape/RoundedRectangle.h"
 
 #endif

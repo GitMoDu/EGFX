@@ -1,5 +1,5 @@
-#ifndef _EGFX_FRAMEWORK_ASSETS_SHAPE_DRAWABLE_RECTANGLE_h
-#define _EGFX_FRAMEWORK_ASSETS_SHAPE_DRAWABLE_RECTANGLE_h
+#ifndef _EGFX_FRAMEWORK_ASSETS_DRAWABLE_SHAPE_RECTANGLE_h
+#define _EGFX_FRAMEWORK_ASSETS_DRAWABLE_SHAPE_RECTANGLE_h
 
 #include "../../../../EgfxFramework.h"
 
@@ -9,9 +9,9 @@ namespace Egfx
 	{
 		namespace Assets
 		{
-			namespace Shape
+			namespace Drawable
 			{
-				namespace Drawable
+				namespace Shape
 				{
 					/// <summary>
 					/// Fills a static rectangle using a provided pixel shader.

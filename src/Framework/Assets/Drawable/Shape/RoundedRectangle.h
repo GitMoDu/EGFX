@@ -1,5 +1,5 @@
-#ifndef _EGFX_FRAMEWORK_ASSETS_SHAPE_DRAWABLE_ROUNDED_RECTANGLE_h
-#define _EGFX_FRAMEWORK_ASSETS_SHAPE_DRAWABLE_ROUNDED_RECTANGLE_h
+#ifndef _EGFX_FRAMEWORK_ASSETS_DRAWABLE_SHAPE_ROUNDED_RECTANGLE_h
+#define _EGFX_FRAMEWORK_ASSETS_DRAWABLE_SHAPE_ROUNDED_RECTANGLE_h
 
 #include <EgfxFramework.h>
 
@@ -9,9 +9,9 @@ namespace Egfx
 	{
 		namespace Assets
 		{
-			namespace Shape
+			namespace Drawable
 			{
-				namespace Drawable
+				namespace Shape
 				{
 					/// <summary>
 					/// Draws a rounded rectangle outline using configurable layout and primitive shader.

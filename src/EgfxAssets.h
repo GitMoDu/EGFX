@@ -21,6 +21,11 @@
 #include "Framework/Assets/Shader/Transform/Rotate.h"
 #include "Framework/Assets/Shader/Transform/DitherMask.h"
 
+// Animation Interpolators.
+#include "Framework/Assets/Animation/Interpolator/EaseInOut.h"
+#include "Framework/Assets/Animation/Interpolator/AntecipateOvershoot.h"
+#include "Framework/Assets/Animation/Interpolator/Bounce.h"
+
 // Bitmask fonts.
 #include "Framework/Assets/Font/Bitmask/Contact/FontType.h" // Simple small font 5X6 with full ASCII set.
 #include "Framework/Assets/Font/Bitmask/Sealant/FontType.h" // Reduced character set of uppercase letters (F, P, S) and numbers for FPS counters.

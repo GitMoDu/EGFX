@@ -18,6 +18,11 @@
 #include "Framework/Layout/Translate.h"
 #include "Framework/Layout/Combine.h"
 
+// Animation framework.
+#include "Framework/Animation/Model.h"
+#include "Framework/Animation/Interpolator.h"
+#include "Framework/Animation/Animator.h"
+
 // Dynamic motion layout framework.
 #include "Framework/Projection/Model.h"
 #include "Framework/Projection/Layout.h"

@@ -1,0 +1,147 @@
+#ifndef _EGFX_FRAMEWORK_ANIMATION_ANIMATOR_h
+#define _EGFX_FRAMEWORK_ANIMATION_ANIMATOR_h
+
+#include "Model.h"
+#include "Interpolator.h"
+
+namespace Egfx
+{
+	namespace Framework
+	{
+		namespace Animation
+		{
+			template<typename value_t>
+			class Animator
+			{
+			public:
+				using animation_state_t = Animation::animation_state_t<value_t>;
+
+			private:
+				using calculation_t = typename IntegerSignal::TypeTraits::TypeNext::next_int_type<value_t>::type;
+				const Interpolator::IInterpolator* Interpolator = &Interpolator::NoInterpolator;
+
+				uint32_t StartTime = 0;
+				uint32_t Duration = 0;
+				value_t StartValue{};
+				value_t TargetValue{};
+				bool IsActive = false;
+				bool IsStarted = false;
+
+				static value_t InterpolateValue(const progress_wide_t curveProgress,
+					const value_t startValue, const value_t targetValue)
+				{
+					const calculation_t scalarUnit = UFraction16::SCALAR_UNIT;
+					calculation_t whole = curveProgress / scalarUnit;
+					calculation_t remainder = curveProgress % scalarUnit;
+
+					if (remainder < 0)
+					{
+						--whole;
+						remainder += scalarUnit;
+					}
+
+					const calculation_t start = static_cast<calculation_t>(startValue);
+					const calculation_t delta = static_cast<calculation_t>(targetValue) - start;
+					const calculation_t interpolated = start + delta * whole +
+						(delta * remainder) / scalarUnit;
+					const calculation_t minimum = static_cast<calculation_t>(
+						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Min());
+					const calculation_t maximum = static_cast<calculation_t>(
+						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Max());
+
+					return static_cast<value_t>(interpolated < minimum
+						? minimum
+						: interpolated > maximum
+							? maximum
+							: interpolated);
+				}
+
+			public:
+				void Start(const uint32_t startTime, const uint32_t duration)
+				{
+					StartTime = startTime;
+					Duration = duration;
+					IsActive = true;
+					IsStarted = true;
+				}
+
+				void Start(const uint32_t duration)
+				{
+					StartTime = 0;
+					Duration = duration;
+					IsActive = true;
+					IsStarted = false;
+				}
+
+				void Start(const value_t startValue, const value_t targetValue, const uint32_t duration)
+				{
+					StartValue = startValue;
+					TargetValue = targetValue;
+					Start(duration);
+				}
+
+				void Start(const uint32_t startTime, const value_t startValue,
+					const value_t targetValue, const uint32_t duration)
+				{
+					StartValue = startValue;
+					TargetValue = targetValue;
+					Start(startTime, duration);
+				}
+
+				void SetDuration(const uint32_t duration)
+				{
+					Duration = duration;
+				}
+
+				void Cancel()
+				{
+					IsActive = false;
+					IsStarted = false;
+				}
+
+				bool IsAnimating() const
+				{
+					return IsActive;
+				}
+
+				void SetInterpolator(const Interpolator::IInterpolator& interpolator)
+				{
+					Interpolator = &interpolator;
+				}
+
+				void SetInterpolator(const Interpolator::IInterpolator* interpolator)
+				{
+					Interpolator = interpolator != nullptr ? interpolator : &Interpolator::NoInterpolator;
+				}
+
+				animation_state_t Step(const uint32_t currentTime)
+				{
+					if (!IsActive || Interpolator == nullptr)
+						return { UFraction16::SCALAR_UNIT, UFraction16::SCALAR_UNIT, TargetValue };
+
+					if (!IsStarted)
+					{
+						StartTime = currentTime;
+						IsStarted = true;
+					}
+
+					const uint32_t elapsed = currentTime - StartTime;
+					if (elapsed >= Duration)
+					{
+						IsActive = false;
+						return { UFraction16::SCALAR_UNIT, UFraction16::SCALAR_UNIT, TargetValue };
+					}
+
+					const progress_t progress = UFraction16::GetScalar<uint32_t>(elapsed, Duration);
+					const progress_wide_t curveProgress = Interpolator->Get(progress);
+
+
+					const value_t value = InterpolateValue(curveProgress, StartValue, TargetValue);
+
+					return { progress, curveProgress, value };
+				}
+			};
+		}
+	}
+}
+#endif

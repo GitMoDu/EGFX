@@ -21,10 +21,12 @@
 #include "Framework/Assets/Shader/Transform/Rotate.h"
 #include "Framework/Assets/Shader/Transform/DitherMask.h"
 
-// Animation Interpolators.
+// Animation Interpolators. Commonly used interpolators for animation curves.
 #include "Framework/Assets/Animation/Interpolator/EaseInOut.h"
 #include "Framework/Assets/Animation/Interpolator/AntecipateOvershoot.h"
 #include "Framework/Assets/Animation/Interpolator/Bounce.h"
+#include "Framework/Assets/Animation/Interpolator/Triangle.h"
+#include "Framework/Assets/Animation/Interpolator/Sine.h"
 
 // Bitmask fonts.
 #include "Framework/Assets/Font/Bitmask/Contact/FontType.h" // Simple small font 5X6 with full ASCII set.

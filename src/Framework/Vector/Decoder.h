@@ -57,10 +57,10 @@ namespace Egfx
 					const dimension_t drawWidth = width - static_cast<dimension_t>(insetX * 2);
 					const dimension_t drawHeight = height - static_cast<dimension_t>(insetY * 2);
 
-					const Scale16::factor_t scaleX = Scale16::GetFactor<dimension_t>(drawWidth - 1, canvasWidth - 1);
-					const Scale16::factor_t scaleY = Scale16::GetFactor<dimension_t>(drawHeight - 1, canvasHeight - 1);
+					const Scale16::factor_t scaleX = Scale16::GetFactor<dimension_t>(drawWidth, canvasWidth);
+					const Scale16::factor_t scaleY = Scale16::GetFactor<dimension_t>(drawHeight, canvasHeight);
 
-					const Scale16::factor_t renderScale = MaxValue(scaleX, scaleY);
+					const Scale16::factor_t renderScale = MinValue(scaleX, scaleY);
 					dimension_t runtimeThickness = GetScaledThickness(renderScale, thicknessScale, 0);
 
 					coordinates_t previous{};

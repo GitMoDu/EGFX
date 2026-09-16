@@ -175,6 +175,17 @@ namespace Egfx
 					return RuntimeViewDispatcher<0, ViewCount, Visitor>::Dispatch(this, index, visitor);
 				}
 
+			/// <summary>
+			/// Visits a child selected by a runtime index through a shared interface.
+			/// This overload supports ordinary C++11 lambdas for heterogeneous child views.
+			/// Every child type must derive from Interface.
+			/// </summary>
+			template<typename Interface, typename Visitor>
+			bool VisitView(const uint8_t index, Visitor&& visitor)
+			{
+				return InterfaceViewDispatcher<Interface, 0, ViewCount, Visitor>::Dispatch(this, index, visitor);
+			}
+
 				/// <summary>
 				/// Advances the current child view and completes when all child views have completed.
 				/// If ViewStep() returns false, the cycle is skipped and completed immediately.
@@ -246,6 +257,27 @@ namespace Egfx
 				{
 					static bool Dispatch(CompositeView*, const uint8_t, Visitor&) { return false; }
 				};
+
+			template<typename Interface, uint8_t Index, uint8_t N, typename Visitor>
+			struct InterfaceViewDispatcher
+			{
+				static bool Dispatch(CompositeView* self, const uint8_t target, Visitor& visitor)
+				{
+					if (Index == target)
+					{
+						visitor(static_cast<Interface&>(self->InnerViews.template Get<Index>()));
+						return true;
+					}
+
+					return InterfaceViewDispatcher<Interface, Index + 1, N, Visitor>::Dispatch(self, target, visitor);
+				}
+			};
+
+			template<typename Interface, uint8_t N, typename Visitor>
+			struct InterfaceViewDispatcher<Interface, N, N, Visitor>
+			{
+				static bool Dispatch(CompositeView*, const uint8_t, Visitor&) { return false; }
+			};
 
 				template<uint8_t Index, uint8_t N>
 				struct BoundsDispatcher

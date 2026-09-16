@@ -194,7 +194,7 @@ namespace Egfx
 						dimension_t GetOffsetY() const { return OffsetY; }
 
 					private:
-						static constexpr dimension_t GetAlignmentOffset(const dimension_t content, const dimension_t layout, const bool horizontal)
+						static dimension_t GetAlignmentOffset(const dimension_t content, const dimension_t layout, const bool horizontal)
 						{
 							if (horizontal)
 								return Style::Alignment == Framework::Layout::AlignmentEnum::TopRight

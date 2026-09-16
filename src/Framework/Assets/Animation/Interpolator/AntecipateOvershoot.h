@@ -22,7 +22,7 @@ namespace Egfx
 						static constexpr int32_t StrengthValue = static_cast<int32_t>(CURVE_SCALAR_UNIT) +
 							(static_cast<int32_t>(Strength) * CURVE_SCALAR_UNIT) / UINT8_MAX;
 
-						static constexpr progress_wide_t Get(const progress_t value)
+						static progress_wide_t Get(const progress_t value)
 						{
 							if (value <= 0)
 								return 0;
@@ -47,7 +47,7 @@ namespace Egfx
 							(static_cast<int32_t>(Strength) * CURVE_SCALAR_UNIT) / UINT8_MAX;
 
 
-						static constexpr progress_wide_t Get(const progress_t value)
+						static progress_wide_t Get(const progress_t value)
 						{
 							if (value <= 0)
 								return 0;

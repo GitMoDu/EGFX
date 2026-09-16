@@ -16,7 +16,7 @@ namespace Egfx
 					namespace Silkscreen
 					{
 						// Generated unified packed vector IconSet
-						// IconAtlas: CanvasWidth: 15 CanvasHeight: 14 EdgeInset: 0 Columns: 8
+						// IconAtlas: CanvasWidth: 15 CanvasHeight: 15 EdgeInset: 0 Columns: 8
 
 						static constexpr uint8_t Atlas[] PROGMEM
 						{

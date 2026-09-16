@@ -31,9 +31,9 @@ namespace Egfx
 			/// while leaving interpretation to the wrapped view.
 			/// </summary>
 
+				// Used by effect adapters and layout styles to define axis and direction of travel.
 			enum class OrientationEnum
 			{
-				// Used by effect adapters and layout styles to define axis and direction of travel.
 				LeftToRight,
 				RightToLeft,
 				TopToBottom,

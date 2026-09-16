@@ -19,7 +19,7 @@ namespace Egfx
 					typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-				class StaticImageView : public Framework::View::DrawablesView<ParentLayout,
+					class StaticImageView : public Framework::View::DrawablesView<ParentLayout,
 					Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, PaletteType, ColorShaderType, TransformShaderType>>
 				{
 				public:
@@ -69,16 +69,18 @@ namespace Egfx
 
 					void SetImage(const Image15x15::packed_t* data, const size_t count,
 						const dimension_t canvasWidth, const dimension_t canvasHeight,
-						const ufraction8_t thicknessScale, const dimension_t inset = 0)
+						const ufraction8_t thicknessScale, const dimension_t inset = 0,
+						const Framework::DataSourceTypeEnum dataSource = Framework::DataSourceTypeEnum::Ram)
 					{
-						Drawable().SetImage(data, count, canvasWidth, canvasHeight, thicknessScale, inset);
+						Drawable().SetImage(data, count, canvasWidth, canvasHeight, thicknessScale, inset, dataSource);
 					}
 
 					void SetImage(const Image255x255::packed_t* data, const size_t count,
 						const dimension_t canvasWidth, const dimension_t canvasHeight,
-						const ufraction8_t thicknessScale, const dimension_t inset = 0)
+						const ufraction8_t thicknessScale, const dimension_t inset = 0,
+						const Framework::DataSourceTypeEnum dataSource = Framework::DataSourceTypeEnum::Ram)
 					{
-						Drawable().SetImage(data, count, canvasWidth, canvasHeight, thicknessScale, inset);
+						Drawable().SetImage(data, count, canvasWidth, canvasHeight, thicknessScale, inset, dataSource);
 					}
 
 					void SetOffset(const dimension_t x, const dimension_t y)

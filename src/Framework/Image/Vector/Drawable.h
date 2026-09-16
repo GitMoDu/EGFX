@@ -112,6 +112,7 @@ namespace Egfx
 						dimension_t OffsetX = 0;
 						dimension_t OffsetY = 0;
 						dimension_t Inset = 0;
+						Framework::DataSourceTypeEnum DataSource = Framework::DataSourceTypeEnum::Ram;
 
 					public:
 						using DrawableLayout = ParentLayout;
@@ -127,14 +128,14 @@ namespace Egfx
 							Base::Prepare(ParentLayout::X(), ParentLayout::Y());
 							if (Type == SourceType::Image15x15)
 							{
-								Base::template Draw<Framework::Vector::PackedVectorEnum::Image15x15>(frame,
+								Base::template Draw<Framework::Vector::PackedVectorEnum::Image15x15, Framework::DataSourceTypeEnum::Flash>(frame,
 									static_cast<const void*>(Data), Count,
 									CanvasWidth, CanvasHeight, ThicknessScale, Width, Height,
 									static_cast<signed_t>(OffsetX), static_cast<signed_t>(OffsetY), Inset);
 							}
 							else
 							{
-								Base::template Draw<Framework::Vector::PackedVectorEnum::Image255x255>(frame,
+								Base::template Draw<Framework::Vector::PackedVectorEnum::Image255x255, Framework::DataSourceTypeEnum::Flash>(frame,
 									static_cast<const void*>(Data), Count,
 									CanvasWidth, CanvasHeight, ThicknessScale, Width, Height,
 									static_cast<signed_t>(OffsetX), static_cast<signed_t>(OffsetY), Inset);
@@ -143,7 +144,8 @@ namespace Egfx
 
 						void SetImage(const Image15x15::packed_t* data, const size_t count,
 							const dimension_t canvasWidth, const dimension_t canvasHeight,
-							const ufraction8_t thicknessScale, const dimension_t inset = 0)
+							const ufraction8_t thicknessScale, const dimension_t inset = 0,
+							const Framework::DataSourceTypeEnum dataSource = Framework::DataSourceTypeEnum::Ram)
 						{
 							Data = data;
 							Count = count;
@@ -152,12 +154,14 @@ namespace Egfx
 							ThicknessScale = thicknessScale;
 							Inset = inset;
 							Type = SourceType::Image15x15;
+							DataSource = dataSource;
 							RefreshOffset();
 						}
 
 						void SetImage(const Image255x255::packed_t* data, const size_t count,
 							const dimension_t canvasWidth, const dimension_t canvasHeight,
-							const ufraction8_t thicknessScale, const dimension_t inset = 0)
+							const ufraction8_t thicknessScale, const dimension_t inset = 0,
+							const Framework::DataSourceTypeEnum dataSource = Framework::DataSourceTypeEnum::Ram)
 						{
 							Data = data;
 							Count = count;
@@ -166,6 +170,7 @@ namespace Egfx
 							ThicknessScale = thicknessScale;
 							Inset = inset;
 							Type = SourceType::Image255x255;
+							DataSource = dataSource;
 							RefreshOffset();
 						}
 

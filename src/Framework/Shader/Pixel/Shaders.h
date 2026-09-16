@@ -67,6 +67,7 @@ namespace Egfx
 
 				private:
 					viewport_t Viewport;
+					uint8_t Alpha = UINT8_MAX;
 
 				protected:
 					// Pixel-space origin and translation added to local-space coordinates when writing to the framebuffer.
@@ -98,6 +99,15 @@ namespace Egfx
 					{
 						Viewport.TranslationX = x;
 						Viewport.TranslationY = y;
+					}
+
+					/// <summary>
+					/// Sets the alpha used by the BlendAlpha pixel blend mode.
+					/// </summary>
+					/// <param name="alpha">The source-color alpha from transparent (0) to opaque (255).</param>
+					void SetAlpha(const uint8_t alpha)
+					{
+						Alpha = alpha;
 					}
 
 					bool IsVisible() const
@@ -233,6 +243,9 @@ namespace Egfx
 						case BlendModeEnum::BlendHalfAlpha:
 							framebuffer->PixelBlend(color, targetX, targetY);
 							break;
+						case BlendModeEnum::BlendAlpha:
+							framebuffer->PixelBlendAlpha(color, targetX, targetY, Alpha);
+							break;
 						case BlendModeEnum::Add:
 							framebuffer->PixelBlendAdd(color, targetX, targetY);
 							break;
@@ -271,6 +284,9 @@ namespace Egfx
 						{
 						case BlendModeEnum::BlendHalfAlpha:
 							framebuffer->PixelBlend(color, targetX, targetY);
+							break;
+						case BlendModeEnum::BlendAlpha:
+							framebuffer->PixelBlendAlpha(color, targetX, targetY, Alpha);
 							break;
 						case BlendModeEnum::Add:
 							framebuffer->PixelBlendAdd(color, targetX, targetY);

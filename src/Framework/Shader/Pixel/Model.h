@@ -37,7 +37,10 @@ namespace Egfx
 					Xor,
 
 					// Blend the shader's output color with the framebuffer pixel using half alpha.
-					BlendHalfAlpha
+					BlendHalfAlpha,
+
+					// Blend the shader's output color with the framebuffer pixel using the configured alpha.
+					BlendAlpha
 				};
 
 				namespace Contract

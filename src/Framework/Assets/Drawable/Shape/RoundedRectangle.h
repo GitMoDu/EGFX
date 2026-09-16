@@ -25,6 +25,9 @@ namespace Egfx
 					class RoundedRectangle : public Framework::Shader::Geometry::CircleRingShader<dimension_t,
 						Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>
 					{
+					public:
+						using DrawableLayout = ParentLayout;
+
 					private:
 						using Base = Framework::Shader::Geometry::CircleRingShader<dimension_t,
 							Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>;
@@ -209,6 +212,9 @@ namespace Egfx
 					class RoundedRectangleFill : public Framework::Shader::Geometry::CircleArcShader<dimension_t,
 						Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>
 					{
+					public:
+						using DrawableLayout = ParentLayout;
+
 					private:
 						using Base = Framework::Shader::Geometry::CircleArcShader<dimension_t,
 							Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>>;

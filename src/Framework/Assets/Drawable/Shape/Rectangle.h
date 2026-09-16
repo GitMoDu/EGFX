@@ -25,6 +25,9 @@ namespace Egfx
 					>
 					class RectangleFill : public Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>
 					{
+					public:
+						using DrawableLayout = ParentLayout;
+
 					private:
 						using Base = Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>;
 
@@ -63,6 +66,9 @@ namespace Egfx
 					>
 					class Rectangle : public Framework::Shader::Geometry::RectangleShader<dimension_t, PixelShaderType>
 					{
+					public:
+						using DrawableLayout = ParentLayout;
+
 					private:
 						static_assert(StrokeWidth > 0, "Stroke width must be greater than 0.");
 

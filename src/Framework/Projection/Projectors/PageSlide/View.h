@@ -38,9 +38,15 @@ namespace Egfx
 							Projectors::PageSlide::Projector<ParentLayout, Style>, ViewTypes...>;
 
 						Framework::Animation::Animator<scroll_t> ScrollAnimator{};
+						scroll_t PendingTarget = 0;
+						uint32_t PendingDuration = 0;
+						bool AnimationPending = false;
 
 					public:
-						View() : Base() {}
+						View() : Base()
+						{
+							ScrollAnimator.SetDuration(PendingDuration);
+						}
 						~View() = default;
 
 						void SetScroll(const scroll_t scroll)
@@ -62,28 +68,34 @@ namespace Egfx
 						void AnimateToPage(const uint8_t index, const uint32_t duration)
 						{
 							const scroll_t target = static_cast<scroll_t>(index) * UFraction16::SCALAR_UNIT;
-							AnimateToScroll(target, duration);
+							PendingTarget = target;
+							PendingDuration = duration;
+							AnimationPending = true;
 						}
 
 						void AnimateToScroll(const scroll_t target, const uint32_t duration)
 						{
-							ScrollAnimator.Start(Base::ControllerState().GetScroll(), target, duration);
+							PendingTarget = target;
+							PendingDuration = duration;
+							AnimationPending = true;
 						}
 
 						bool IsScrollAnimating() const
 						{
-							return ScrollAnimator.IsAnimating();
+							return AnimationPending || ScrollAnimator.IsAnimating();
 						}
 
 						void SetPagePosition(const uint8_t index, const scalar_t offset)
 						{
 							ScrollAnimator.Cancel();
+							AnimationPending = false;
 							Base::ControllerState().SetPagePosition(index, offset);
 						}
 
 						void SetPageStartOverscroll(const scalar_t offset)
 						{
 							ScrollAnimator.Cancel();
+							AnimationPending = false;
 							Base::ControllerState().SetPageStartOverscroll(offset);
 						}
 
@@ -100,6 +112,13 @@ namespace Egfx
 					protected:
 						bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 						{
+							if (AnimationPending)
+							{
+								ScrollAnimator.SetDuration(PendingDuration);
+								ScrollAnimator.Start(Base::ControllerState().GetScroll(), PendingTarget);
+								AnimationPending = false;
+							}
+
 							if (ScrollAnimator.IsAnimating())
 							{
 								const auto state = ScrollAnimator.Step(frameTime);

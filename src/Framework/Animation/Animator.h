@@ -26,71 +26,45 @@ namespace Egfx
 				value_t TargetValue{};
 				bool IsActive = false;
 				bool IsStarted = false;
-
-				static value_t InterpolateValue(const progress_wide_t curveProgress,
-					const value_t startValue, const value_t targetValue)
-				{
-					const calculation_t scalarUnit = UFraction16::SCALAR_UNIT;
-					calculation_t whole = curveProgress / scalarUnit;
-					calculation_t remainder = curveProgress % scalarUnit;
-
-					if (remainder < 0)
-					{
-						--whole;
-						remainder += scalarUnit;
-					}
-
-					const calculation_t start = static_cast<calculation_t>(startValue);
-					const calculation_t delta = static_cast<calculation_t>(targetValue) - start;
-					const calculation_t interpolated = start + delta * whole +
-						(delta * remainder) / scalarUnit;
-					const calculation_t minimum = static_cast<calculation_t>(
-						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Min());
-					const calculation_t maximum = static_cast<calculation_t>(
-						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Max());
-
-					return static_cast<value_t>(interpolated < minimum
-						? minimum
-						: interpolated > maximum
-							? maximum
-							: interpolated);
-				}
+				bool Loop = false;
 
 			public:
-				void Start(const uint32_t startTime, const uint32_t duration)
+				void Start(const value_t startValue, const value_t targetValue,
+					const uint32_t duration)
 				{
-					StartTime = startTime;
-					Duration = duration;
-					IsActive = true;
-					IsStarted = true;
-				}
-
-				void Start(const uint32_t duration)
-				{
-					StartTime = 0;
+					StartValue = startValue;
+					TargetValue = targetValue;
 					Duration = duration;
 					IsActive = true;
 					IsStarted = false;
 				}
 
-				void Start(const value_t startValue, const value_t targetValue, const uint32_t duration)
+				void Start(const value_t startValue, const value_t targetValue)
 				{
 					StartValue = startValue;
 					TargetValue = targetValue;
-					Start(duration);
-				}
-
-				void Start(const uint32_t startTime, const value_t startValue,
-					const value_t targetValue, const uint32_t duration)
-				{
-					StartValue = startValue;
-					TargetValue = targetValue;
-					Start(startTime, duration);
+					IsActive = true;
+					IsStarted = false;
 				}
 
 				void SetDuration(const uint32_t duration)
 				{
 					Duration = duration;
+				}
+
+				void SetLoop(const bool loop)
+				{
+					Loop = loop;
+				}
+
+				bool IsLooping() const
+				{
+					return Loop;
+				}
+
+				uint32_t GetDuration() const
+				{
+					return Duration;
 				}
 
 				void Cancel()
@@ -128,7 +102,14 @@ namespace Egfx
 					const uint32_t elapsed = currentTime - StartTime;
 					if (elapsed >= Duration)
 					{
-						IsActive = false;
+						if (Loop)
+						{
+							StartTime = currentTime;
+						}
+						else
+						{
+							IsActive = false;
+						}
 						return { UFraction16::SCALAR_UNIT, UFraction16::SCALAR_UNIT, TargetValue };
 					}
 
@@ -139,6 +120,36 @@ namespace Egfx
 					const value_t value = InterpolateValue(curveProgress, StartValue, TargetValue);
 
 					return { progress, curveProgress, value };
+				}
+
+			private:
+				static value_t InterpolateValue(const progress_wide_t curveProgress,
+					const value_t startValue, const value_t targetValue)
+				{
+					const calculation_t scalarUnit = UFraction16::SCALAR_UNIT;
+					calculation_t whole = curveProgress / scalarUnit;
+					calculation_t remainder = curveProgress % scalarUnit;
+
+					if (remainder < 0)
+					{
+						--whole;
+						remainder += scalarUnit;
+					}
+
+					const calculation_t start = static_cast<calculation_t>(startValue);
+					const calculation_t delta = static_cast<calculation_t>(targetValue) - start;
+					const calculation_t interpolated = start + delta * whole +
+						(delta * remainder) / scalarUnit;
+					const calculation_t minimum = static_cast<calculation_t>(
+						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Min());
+					const calculation_t maximum = static_cast<calculation_t>(
+						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Max());
+
+					return static_cast<value_t>(interpolated < minimum
+						? minimum
+						: interpolated > maximum
+						? maximum
+						: interpolated);
 				}
 			};
 		}

@@ -105,6 +105,7 @@ namespace Egfx
 						if (Loop)
 						{
 							StartTime = currentTime;
+							return { 0, Interpolator->Get(0), StartValue };
 						}
 						else
 						{

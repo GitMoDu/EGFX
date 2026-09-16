@@ -121,12 +121,12 @@ namespace Egfx
 						const dimension_t startY = MinValue(y1, y2);
 						const dimension_t endY = MaxValue(y1, y2);
 						const dimension_t clippedStartY = MaxValue(startY, Base::GetBoundsTop());
-						const dimension_t clippedEndY = MinValue(endY, Base::GetBoundsBottom());
+						const dimension_t clippedEndY = MinValue(endY, static_cast<dimension_t>(Base::GetBoundsBottom() - 1));
 						if (clippedStartY > clippedEndY)
 							return;
 
 						const dimension_t clippedStartX = MaxValue(MinValue(x1, x2), Base::GetBoundsLeft());
-						const dimension_t clippedEndX = MinValue(MaxValue(x1, x2), Base::GetBoundsRight());
+						const dimension_t clippedEndX = MinValue(MaxValue(x1, x2), static_cast<dimension_t>(Base::GetBoundsRight() - 1));
 						if (clippedStartX > clippedEndX)
 							return;
 
@@ -192,8 +192,8 @@ namespace Egfx
 					{
 						const dimension_t left = MaxValue<dimension_t>(MinValue(x1, x2), Base::GetBoundsLeft());
 						const dimension_t top = MaxValue<dimension_t>(MinValue(y1, y2), Base::GetBoundsTop());
-						const dimension_t right = MinValue<dimension_t>(MaxValue(x1, x2), Base::GetBoundsRight());
-						const dimension_t bottom = MinValue<dimension_t>(MaxValue(y1, y2), Base::GetBoundsBottom());
+						const dimension_t right = MinValue<dimension_t>(MaxValue(x1, x2), static_cast<dimension_t>(Base::GetBoundsRight() - 1));
+						const dimension_t bottom = MinValue<dimension_t>(MaxValue(y1, y2), static_cast<dimension_t>(Base::GetBoundsBottom() - 1));
 
 						if (left > right || top > bottom)
 							return;

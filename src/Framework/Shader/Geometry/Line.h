@@ -363,11 +363,11 @@ namespace Egfx
 					void LineHorizontal(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t x2, const dimension_t y,
 						TypeTraits::TypeDispatch::TrueType, TypeTraits::TypeDispatch::TrueType)
 					{
-						if (y < Base::GetBoundsTop() || y > Base::GetBoundsBottom())
+						if (y < Base::GetBoundsTop() || y >= Base::GetBoundsBottom())
 							return;
 
 						const dimension_t startX = MaxValue(MinValue(x1, x2), Base::GetBoundsLeft());
-						const dimension_t endX = MinValue(MaxValue(x1, x2), Base::GetBoundsRight());
+						const dimension_t endX = MinValue(MaxValue(x1, x2), static_cast<dimension_t>(Base::GetBoundsRight() - 1));
 						if (startX > endX)
 							return;
 
@@ -406,11 +406,11 @@ namespace Egfx
 					void LineHorizontal(IFrameBuffer* framebuffer, const dimension_t x1, const dimension_t x2, const dimension_t y,
 						TypeTraits::TypeDispatch::FalseType, TypeTraits::TypeDispatch::TrueType)
 					{
-						if (y < Base::GetBoundsTop() || y > Base::GetBoundsBottom())
+						if (y < Base::GetBoundsTop() || y >= Base::GetBoundsBottom())
 							return;
 
 						const dimension_t startX = MaxValue(MinValue(x1, x2), Base::GetBoundsLeft());
-						const dimension_t endX = MinValue(MaxValue(x1, x2), Base::GetBoundsRight());
+						const dimension_t endX = MinValue(MaxValue(x1, x2), static_cast<dimension_t>(Base::GetBoundsRight() - 1));
 						if (startX > endX)
 							return;
 
@@ -452,11 +452,11 @@ namespace Egfx
 					void LineVertical(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y1, const dimension_t y2,
 						TypeTraits::TypeDispatch::TrueType, TypeTraits::TypeDispatch::TrueType)
 					{
-						if (x < Base::GetBoundsLeft() || x > Base::GetBoundsRight())
+						if (x < Base::GetBoundsLeft() || x >= Base::GetBoundsRight())
 							return;
 
 						const dimension_t startY = MaxValue(MinValue(y1, y2), Base::GetBoundsTop());
-						const dimension_t endY = MinValue(MaxValue(y1, y2), Base::GetBoundsBottom());
+						const dimension_t endY = MinValue(MaxValue(y1, y2), static_cast<dimension_t>(Base::GetBoundsBottom() - 1));
 						if (startY > endY)
 							return;
 
@@ -495,11 +495,11 @@ namespace Egfx
 					void LineVertical(IFrameBuffer* framebuffer, const dimension_t x, const dimension_t y1, const dimension_t y2,
 						TypeTraits::TypeDispatch::FalseType, TypeTraits::TypeDispatch::TrueType)
 					{
-						if (x < Base::GetBoundsLeft() || x > Base::GetBoundsRight())
+						if (x < Base::GetBoundsLeft() || x >= Base::GetBoundsRight())
 							return;
 
 						const dimension_t startY = MaxValue(MinValue(y1, y2), Base::GetBoundsTop());
-						const dimension_t endY = MinValue(MaxValue(y1, y2), Base::GetBoundsBottom());
+						const dimension_t endY = MinValue(MaxValue(y1, y2), static_cast<dimension_t>(Base::GetBoundsBottom() - 1));
 						if (startY > endY)
 							return;
 
@@ -540,11 +540,9 @@ namespace Egfx
 						const bresenham_t dx = static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX);
 						const bresenham_t dy = AbsValue(static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY));
 
-						const bresenham_t scaledWidth = dx << 1;
-						const bresenham_t slopeMagnitude = dy << 1;
 						const int8_t slopeUnit = (endY >= startY) ? 1 : -1;
 
-						bresenham_t slopeError = slopeMagnitude - dx;
+						bresenham_t slopeError = SignedRightShift(dx, 1);
 						signed_t y = static_cast<signed_t>(startY);
 
 						const bool includeStart = boundaryMode != LineBoundaryModeEnum::ExcludeStart &&
@@ -554,11 +552,11 @@ namespace Egfx
 							if (includeStart || x != startX)
 								BresenhamEmit(framebuffer, x, static_cast<dimension_t>(y), TypeTraits::TypeDispatch::FalseType{}, SkipTransformT{});
 
-							slopeError += slopeMagnitude;
-							if (slopeError >= 0)
+							slopeError -= dy;
+							if (slopeError < 0)
 							{
 								y += slopeUnit;
-								slopeError -= scaledWidth;
+								slopeError += dx;
 							}
 						}
 
@@ -581,11 +579,9 @@ namespace Egfx
 						const bresenham_t dx = static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX);
 						const bresenham_t dy = AbsValue(static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY));
 
-						const bresenham_t scaledWidth = dx << 1;
-						const bresenham_t slopeMagnitude = dy << 1;
 						const int8_t slopeUnit = (endY >= startY) ? 1 : -1;
 
-						bresenham_t slopeError = slopeMagnitude - dx;
+						bresenham_t slopeError = SignedRightShift(dx, 1);
 						signed_t y = static_cast<signed_t>(startY);
 
 						const bool includeStart = boundaryMode != LineBoundaryModeEnum::ExcludeStart &&
@@ -595,11 +591,11 @@ namespace Egfx
 							if (includeStart || x != startX)
 								BresenhamEmit(framebuffer, x, static_cast<dimension_t>(y), color, TypeTraits::TypeDispatch::TrueType{}, SkipTransformT{});
 
-							slopeError += slopeMagnitude;
-							if (slopeError >= 0)
+							slopeError -= dy;
+							if (slopeError < 0)
 							{
 								y += slopeUnit;
-								slopeError -= scaledWidth;
+								slopeError += dx;
 							}
 						}
 
@@ -633,11 +629,9 @@ namespace Egfx
 						const bresenham_t dy = static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY);
 						const bresenham_t dx = AbsValue(static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX));
 
-						const bresenham_t scaledHeight = dy << 1;
-						const bresenham_t slopeMagnitude = dx << 1;
 						const int8_t slopeUnit = (endX >= startX) ? 1 : -1;
 
-						bresenham_t slopeError = slopeMagnitude - dy;
+						bresenham_t slopeError = SignedRightShift(dy, 1);
 						signed_t x = static_cast<signed_t>(startX);
 
 						const bool includeStart = boundaryMode != LineBoundaryModeEnum::ExcludeStart &&
@@ -647,11 +641,11 @@ namespace Egfx
 							if (includeStart || y != startY)
 								BresenhamEmit(framebuffer, static_cast<dimension_t>(x), y, TypeTraits::TypeDispatch::FalseType{}, SkipTransformT{});
 
-							slopeError += slopeMagnitude;
-							if (slopeError >= 0)
+							slopeError -= dx;
+							if (slopeError < 0)
 							{
 								x += slopeUnit;
-								slopeError -= scaledHeight;
+								slopeError += dy;
 							}
 						}
 
@@ -674,11 +668,9 @@ namespace Egfx
 						const bresenham_t dy = static_cast<bresenham_t>(endY) - static_cast<bresenham_t>(startY);
 						const bresenham_t dx = AbsValue(static_cast<bresenham_t>(endX) - static_cast<bresenham_t>(startX));
 
-						const bresenham_t scaledHeight = dy << 1;
-						const bresenham_t slopeMagnitude = dx << 1;
 						const int8_t slopeUnit = (endX >= startX) ? 1 : -1;
 
-						bresenham_t slopeError = slopeMagnitude - dy;
+						bresenham_t slopeError = SignedRightShift(dy, 1);
 						signed_t x = static_cast<signed_t>(startX);
 
 						const bool includeStart = boundaryMode != LineBoundaryModeEnum::ExcludeStart &&
@@ -690,11 +682,11 @@ namespace Egfx
 							if (includeStart || y != startY)
 								BresenhamEmit(framebuffer, static_cast<dimension_t>(x), y, color, TypeTraits::TypeDispatch::TrueType{}, SkipTransformT{});
 
-							slopeError += slopeMagnitude;
-							if (slopeError >= 0)
+							slopeError -= dx;
+							if (slopeError < 0)
 							{
 								x += slopeUnit;
-								slopeError -= scaledHeight;
+								slopeError += dy;
 							}
 						}
 

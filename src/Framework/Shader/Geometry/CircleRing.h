@@ -280,9 +280,9 @@ namespace Egfx
 						const wide_signed_t left = MaxValue<wide_signed_t>(
 							MinValue(first, last), static_cast<wide_signed_t>(Base::GetBoundsLeft()));
 						const wide_signed_t right = MinValue<wide_signed_t>(
-							MaxValue(first, last), static_cast<wide_signed_t>(Base::GetBoundsRight()));
+							MaxValue(first, last), static_cast<wide_signed_t>(Base::GetBoundsRight() - 1));
 						if (left > right || row < static_cast<wide_signed_t>(Base::GetBoundsTop()) ||
-							row > static_cast<wide_signed_t>(Base::GetBoundsBottom()))
+							row >= static_cast<wide_signed_t>(Base::GetBoundsBottom()))
 							return;
 
 						Base::RectangleFill(framebuffer,
@@ -296,9 +296,9 @@ namespace Egfx
 						const wide_signed_t top = MaxValue<wide_signed_t>(
 							MinValue(first, last), static_cast<wide_signed_t>(Base::GetBoundsTop()));
 						const wide_signed_t bottom = MinValue<wide_signed_t>(
-							MaxValue(first, last), static_cast<wide_signed_t>(Base::GetBoundsBottom()));
+							MaxValue(first, last), static_cast<wide_signed_t>(Base::GetBoundsBottom() - 1));
 						const wide_signed_t left = static_cast<wide_signed_t>(Base::GetBoundsLeft());
-						const wide_signed_t right = static_cast<wide_signed_t>(Base::GetBoundsRight());
+						const wide_signed_t right = static_cast<wide_signed_t>(Base::GetBoundsRight() - 1);
 						if (top > bottom || column < left || column > right)
 							return;
 

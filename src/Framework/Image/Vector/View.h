@@ -54,6 +54,8 @@ namespace Egfx
 					using DrawableType = Drawable::Image<dimension_t, ParentLayout, Style, PaletteType, ColorShaderType, TransformShaderType>;
 					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
+					using signed_t = typename DrawableType::signed_t;
+
 				public:
 					ImageView() : Base() {}
 					~ImageView() = default;
@@ -83,7 +85,7 @@ namespace Egfx
 						Drawable().SetImage(data, count, canvasWidth, canvasHeight, thicknessScale, inset, dataSource);
 					}
 
-					void SetOffset(const dimension_t x, const dimension_t y)
+					void SetOffset(const signed_t x, const signed_t y)
 					{
 						Drawable().SetOffset(x, y);
 					}

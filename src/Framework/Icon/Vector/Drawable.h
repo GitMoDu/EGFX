@@ -91,23 +91,25 @@ namespace Egfx
 						dimension_t GetInset() const { return Inset; }
 
 					private:
-						static dimension_t GetAlignmentOffset(const dimension_t content, const dimension_t layout, const bool horizontal)
+						static signed_t GetAlignmentOffset(const dimension_t content, const dimension_t layout, const bool horizontal)
 						{
+							const signed_t difference = static_cast<signed_t>(layout) - static_cast<signed_t>(content);
+
 							if (horizontal)
 								return Style::Alignment == Framework::Layout::AlignmentEnum::TopRight
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleRight
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::BottomRight
-								? layout - content : (Style::Alignment == Framework::Layout::AlignmentEnum::TopCenter
+								? difference : (Style::Alignment == Framework::Layout::AlignmentEnum::TopCenter
 									|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleCenter
-									? SignedRightShift(layout - content + 1, 1) : 0);
+									? SignedRightShift(difference + 1, 1) : 0);
 
 							return Style::Alignment == Framework::Layout::AlignmentEnum::BottomLeft
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::BottomCenter
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::BottomRight
-								? layout - content : (Style::Alignment == Framework::Layout::AlignmentEnum::MiddleLeft
+								? difference : (Style::Alignment == Framework::Layout::AlignmentEnum::MiddleLeft
 									|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleCenter
 									|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleRight
-									? SignedRightShift(layout - content + 1, 1) : 0);
+									? SignedRightShift(difference + 1, 1) : 0);
 						}
 
 						void RefreshOffset()

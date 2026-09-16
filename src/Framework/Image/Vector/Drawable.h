@@ -75,8 +75,8 @@ namespace Egfx
 					private:
 						void RefreshOffset()
 						{
-							OffsetX = static_cast<signed_t>(ParentLayout::X());
-							OffsetY = static_cast<signed_t>(ParentLayout::Y());
+							OffsetX = GetAlignmentOffset(Width, ParentLayout::Width(), true);
+							OffsetY = GetAlignmentOffset(Height, ParentLayout::Height(), false);
 						}
 					};
 
@@ -90,9 +90,12 @@ namespace Egfx
 					{
 					private:
 						using Base = Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType>;
+
+					public:
 						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
 						using canvas_t = Framework::Vector::canvas_t;
 
+					private:
 						enum class SourceType : uint8_t
 						{
 							None,
@@ -109,8 +112,8 @@ namespace Egfx
 
 						dimension_t Width = ParentLayout::Width();
 						dimension_t Height = ParentLayout::Height();
-						dimension_t OffsetX = 0;
-						dimension_t OffsetY = 0;
+						signed_t OffsetX = 0;
+						signed_t OffsetY = 0;
 						dimension_t Inset = 0;
 						Framework::DataSourceTypeEnum DataSource = Framework::DataSourceTypeEnum::Ram;
 
@@ -128,17 +131,11 @@ namespace Egfx
 							Base::Prepare(ParentLayout::X(), ParentLayout::Y());
 							if (Type == SourceType::Image15x15)
 							{
-								Base::template Draw<Framework::Vector::PackedVectorEnum::Image15x15, Framework::DataSourceTypeEnum::Flash>(frame,
-									static_cast<const void*>(Data), Count,
-									CanvasWidth, CanvasHeight, ThicknessScale, Width, Height,
-									static_cast<signed_t>(OffsetX), static_cast<signed_t>(OffsetY), Inset);
+								DrawImage<Framework::Vector::PackedVectorEnum::Image15x15>(frame);
 							}
 							else
 							{
-								Base::template Draw<Framework::Vector::PackedVectorEnum::Image255x255, Framework::DataSourceTypeEnum::Flash>(frame,
-									static_cast<const void*>(Data), Count,
-									CanvasWidth, CanvasHeight, ThicknessScale, Width, Height,
-									static_cast<signed_t>(OffsetX), static_cast<signed_t>(OffsetY), Inset);
+								DrawImage<Framework::Vector::PackedVectorEnum::Image255x255>(frame);
 							}
 						}
 
@@ -184,7 +181,7 @@ namespace Egfx
 						dimension_t GetWidth() const { return Width; }
 						dimension_t GetHeight() const { return Height; }
 
-						void SetOffset(const dimension_t offsetX, const dimension_t offsetY)
+						void SetOffset(const signed_t offsetX, const signed_t offsetY)
 						{
 							OffsetX = offsetX;
 							OffsetY = offsetY;
@@ -195,28 +192,55 @@ namespace Egfx
 							Inset = inset;
 						}
 
-						dimension_t GetOffsetX() const { return OffsetX; }
-						dimension_t GetOffsetY() const { return OffsetY; }
+						signed_t GetOffsetX() const { return OffsetX; }
+						signed_t GetOffsetY() const { return OffsetY; }
 
 					private:
-						static dimension_t GetAlignmentOffset(const dimension_t content, const dimension_t layout, const bool horizontal)
+						template<Framework::Vector::PackedVectorEnum vectorType>
+						void DrawImage(IFrameBuffer* frame)
 						{
+							DrawImage<vectorType>(frame, DataSource);
+						}
+
+						template<Framework::Vector::PackedVectorEnum vectorType>
+						void DrawImage(IFrameBuffer* frame, const Framework::DataSourceTypeEnum dataSource)
+						{
+							if (dataSource == Framework::DataSourceTypeEnum::Flash)
+							{
+								Base::template Draw<vectorType, Framework::DataSourceTypeEnum::Flash>(frame,
+									static_cast<const void*>(Data), Count,
+									CanvasWidth, CanvasHeight, ThicknessScale, Width, Height,
+									static_cast<signed_t>(OffsetX), static_cast<signed_t>(OffsetY), Inset);
+							}
+							else
+							{
+								Base::template Draw<vectorType, Framework::DataSourceTypeEnum::Ram>(frame,
+									static_cast<const void*>(Data), Count,
+									CanvasWidth, CanvasHeight, ThicknessScale, Width, Height,
+									static_cast<signed_t>(OffsetX), static_cast<signed_t>(OffsetY), Inset);
+							}
+						}
+
+						static signed_t GetAlignmentOffset(const dimension_t content, const dimension_t layout, const bool horizontal)
+						{
+							const signed_t difference = static_cast<signed_t>(layout) - static_cast<signed_t>(content);
+
 							if (horizontal)
 								return Style::Alignment == Framework::Layout::AlignmentEnum::TopRight
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleRight
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::BottomRight
-								? layout - content : (Style::Alignment == Framework::Layout::AlignmentEnum::TopCenter
+								? difference : (Style::Alignment == Framework::Layout::AlignmentEnum::TopCenter
 									|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleCenter
 									|| Style::Alignment == Framework::Layout::AlignmentEnum::BottomCenter
-									? SignedRightShift(layout - content + 1, 1) : 0);
+									? SignedRightShift(difference + 1, 1) : 0);
 
 							return Style::Alignment == Framework::Layout::AlignmentEnum::BottomLeft
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::BottomCenter
 								|| Style::Alignment == Framework::Layout::AlignmentEnum::BottomRight
-								? layout - content : (Style::Alignment == Framework::Layout::AlignmentEnum::MiddleLeft
+								? difference : (Style::Alignment == Framework::Layout::AlignmentEnum::MiddleLeft
 									|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleCenter
 									|| Style::Alignment == Framework::Layout::AlignmentEnum::MiddleRight
-									? SignedRightShift(layout - content + 1, 1) : 0);
+									? SignedRightShift(difference + 1, 1) : 0);
 						}
 
 						void RefreshOffset()

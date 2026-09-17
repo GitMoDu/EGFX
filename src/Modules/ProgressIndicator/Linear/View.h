@@ -75,7 +75,7 @@ namespace Egfx
 						}
 
 						using IndicatorPixelShaderColor = Framework::Shader::Pixel::TemplateShader<dimension_t,
-							Framework::Assets::Shader::Source::GradientY<dimension_t, ParentLayout::Height(), true>>;
+							Modules::Kit::Shader::Source::GradientY<dimension_t, ParentLayout::Height(), true>>;
 
 						using IndicatorPixelShaderMonochrome = Framework::Shader::Pixel::TemplateShader<dimension_t>;
 
@@ -93,7 +93,7 @@ namespace Egfx
 							dimension_t
 							, Framework::Shader::Source::StaticColor<dimension_t>
 							, Framework::Shader::Color::NoShader<dimension_t>
-							, Framework::Assets::Shader::Transform::CheckerboardMask<dimension_t, true>
+							, Modules::Kit::Shader::Transform::CheckerboardMask<dimension_t, true>
 						>;
 
 						using DemoStyle = TemplateLinearProgressStyle<OrientationEnum::LeftToRight, 1, 1, CornerRadius()>;

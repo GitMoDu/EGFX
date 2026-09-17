@@ -110,7 +110,7 @@ namespace Egfx
 					template<typename ParentLayout>
 					using IndicatorPixelShaderColor = Framework::Shader::Pixel::TemplateShader<
 						typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t
-						, Framework::Assets::Shader::Source::GradientAngular<
+						, Modules::Kit::Shader::Source::GradientAngular<
 						typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t,
 						ParentLayout::Width(), ParentLayout::Height(), true>
 					>;

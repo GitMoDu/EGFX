@@ -19,7 +19,7 @@ namespace Egfx
 					>
 					using BatteryBarsLast = typename TypeTraits::TypeConditional::conditional_type<
 						ColorShaderType,
-						Framework::Assets::Shader::Color::Brightness<dimension_t>,
+						Modules::Kit::Shader::Color::Brightness<dimension_t>,
 						Monochrome
 					>::type;
 				}
@@ -31,7 +31,7 @@ namespace Egfx
 						typename Base = Framework::Shader::Transform::NoTransform<dimension_t>
 					>
 					using BatteryBarsLast = typename TypeTraits::TypeConditional::conditional_type<
-						Framework::Assets::Shader::Transform::DitherMask<dimension_t>,
+						Modules::Kit::Shader::Transform::DitherMask<dimension_t>,
 						Base,
 						Monochrome
 					>::type;

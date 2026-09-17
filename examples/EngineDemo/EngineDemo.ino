@@ -25,7 +25,7 @@
 
 // EGFX display engine and modules.
 #include <EgfxDisplayEngine.h>
-#include <EgfxAssets.h>
+#include <EgfxModules.h>
 
 // platform and display configuration.
 #include "DisplayConfiguration.h"

@@ -4,7 +4,7 @@
 #include "Constant.h"
 #include "Layout.h"
 
-#include "../../EgfxAssets.h"
+#include "../../Modules/Kit/Include.h"
 #include "../../Framework/Text/Vector/Drawable.h"
 
 namespace Egfx

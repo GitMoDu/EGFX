@@ -3,7 +3,7 @@
 
 #include "Constant.h"
 #include "Layout.h"
-#include "../../../EgfxAssets.h"
+#include "../../../Modules/Kit/Include.h"
 
 namespace Egfx
 {
@@ -488,9 +488,9 @@ namespace Egfx
 					typename PixelShaderType = Framework::Shader::Pixel::TemplateShader<dimension_t>
 				>
 				using BorderRectRounded = typename IntegerSignal::TypeTraits::TypeConditional::conditional_type<
-					Framework::Assets::Drawable::Shape::RoundedRectangle<dimension_t, ParentLayout,
+					Modules::Kit::Drawable::Shape::RoundedRectangle<dimension_t, ParentLayout,
 					Style::CornerRadius, Layout::Linear<ParentLayout, Style>::EffectiveStrokeWidth(), PixelShaderType>,
-					Framework::Assets::Drawable::Shape::Rectangle<dimension_t, ParentLayout,
+					Modules::Kit::Drawable::Shape::Rectangle<dimension_t, ParentLayout,
 					Layout::Linear<ParentLayout, Style>::EffectiveStrokeWidth(), PixelShaderType>,
 					Layout::Linear<ParentLayout, Style>::HasRoundedCorners()
 				>::type;

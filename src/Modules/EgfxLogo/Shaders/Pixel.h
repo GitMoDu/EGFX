@@ -22,7 +22,7 @@ namespace Egfx
 						dimension_t,
 						Framework::Shader::Source::StaticColor<dimension_t>,
 						Color::ScreenDitherAlpha,
-						Framework::Assets::Shader::Transform::Translate<dimension_t>
+						Modules::Kit::Shader::Transform::Translate<dimension_t>
 					>;
 
 					/// <summary>
@@ -32,7 +32,7 @@ namespace Egfx
 						dimension_t,
 						Framework::Shader::Source::SingleColor<dimension_t>,
 						Color::ScreenColorAlpha,
-						Framework::Assets::Shader::Transform::Translate<dimension_t>
+						Modules::Kit::Shader::Transform::Translate<dimension_t>
 					>;
 
 					/// <summary>

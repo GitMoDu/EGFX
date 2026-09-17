@@ -2,7 +2,7 @@
 #define _EGFX_MODULES_TIMECODE_TEXT_CONSTANT_h
 
 #include "../../EgfxFramework.h"
-#include "../../Framework/Assets/Font/Vector/Epoxy/FontType.h"
+#include "../../Modules/Kit/Font/Vector/Epoxy/FontType.h"
 
 namespace Egfx
 {
@@ -10,7 +10,7 @@ namespace Egfx
 	{
 		namespace TimecodeText
 		{
-			using DefaultFont = Framework::Assets::Font::Vector::Epoxy::FontType8x8;
+			using DefaultFont = Modules::Kit::Font::Vector::Epoxy::FontType8x8;
 
 			namespace Dimensions
 			{

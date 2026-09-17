@@ -2,7 +2,7 @@
 #define _EGFX_MODULES_TERMINAL_WINDOW_CONSTANT_h
 
 #include "../../EgfxFramework.h"
-#include "../../Framework/Assets/Font/Bitmask/Contact/FontType.h"
+#include "../../Modules/Kit/Font/Bitmask/Contact/FontType.h"
 
 namespace Egfx
 {
@@ -19,7 +19,7 @@ namespace Egfx
 						uint8_t, uint16_t, (MaximumValue <= UINT8_MAX)>::type;
 				};
 
-				using DefaultFont = Framework::Assets::Font::Bitmask::Contact::FontType5x6;
+				using DefaultFont = Modules::Kit::Font::Bitmask::Contact::FontType5x6;
 
 				using DefaultGlyphStyle = Framework::Image::TemplateImageStyle<
 					Framework::Layout::AlignmentEnum::TopLeft,

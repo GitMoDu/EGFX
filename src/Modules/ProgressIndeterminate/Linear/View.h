@@ -3,7 +3,7 @@
 
 #include "Constant.h"
 #include "Drawable.h"
-#include <EgfxAssets.h>
+#include <Modules/Kit/Include.h>
 
 namespace Egfx
 {

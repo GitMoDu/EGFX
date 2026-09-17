@@ -43,12 +43,12 @@ namespace Egfx
 						bool Monochrome,
 						typename BaseTransformType = Framework::Shader::Transform::NoTransform<dimension_t>>
 					using Bar = typename TypeTraits::TypeConditional::conditional_type<
-						Framework::Assets::Shader::Transform::CheckerboardMask<
+						Modules::Kit::Shader::Transform::CheckerboardMask<
 						dimension_t,
 						false,
-						Framework::Assets::Shader::Transform::ScaleDownX<dimension_t, Width, Height, BaseTransformType>
+						Modules::Kit::Shader::Transform::ScaleDownX<dimension_t, Width, Height, BaseTransformType>
 						>,
-						Framework::Assets::Shader::Transform::ScaleDownX<dimension_t, Width, Height, BaseTransformType>,
+						Modules::Kit::Shader::Transform::ScaleDownX<dimension_t, Width, Height, BaseTransformType>,
 						Monochrome
 					>::type;
 				}

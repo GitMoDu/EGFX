@@ -22,7 +22,7 @@ namespace Egfx
 				/// Rectangle outline with custom Pixel shader.
 				/// </summary>
 				template<typename ParentLayout, bool Monochrome>
-				using Screen = Framework::Assets::Drawable::Shape::Rectangle<
+				using Screen = Modules::Kit::Drawable::Shape::Rectangle<
 					dimension_t,
 					typename Layout::Calc<ParentLayout>::LogoLayout,
 					1,

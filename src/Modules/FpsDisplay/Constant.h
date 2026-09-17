@@ -2,7 +2,7 @@
 #define _EGFX_MODULES_FPS_DISPLAY_CONSTANT_h
 
 #include "../../EgfxFramework.h"
-#include "../../EgfxAssets.h"
+#include "../../Modules/Kit/Include.h"
 
 namespace Egfx
 {

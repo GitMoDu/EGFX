@@ -52,7 +52,7 @@ namespace Egfx
 
 					using MarginLayout = Framework::Layout::Margin<Layout, Margin, Margin, Margin, Margin>;
 
-					using FontType = Framework::Assets::Font::Bitmask::Sealant::FontType4x5;
+					using FontType = Modules::Kit::Font::Bitmask::Sealant::FontType4x5;
 					using GlyphStyle = Framework::Image::TemplateImageStyle<
 						TextStyle<fpsDrawerPosition>::Alignment,
 						false,

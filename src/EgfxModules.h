@@ -1,6 +1,12 @@
 #ifndef _EGFX_MODULES_INCLUDE_h
 #define _EGFX_MODULES_INCLUDE_h
 
+// Framework Kit module. Reusable higher-level utilities built on the framework.
+#include "Modules/Kit/Include.h"
+
+// Example images module, bitmasks, bitmaps, and vector graphics.
+#include "Modules/ExampleImages/Assets.h"
+
 // FPS Display module.
 #include "Modules/FpsDisplay/View.h"
 
@@ -29,8 +35,6 @@
 #include "Modules/ProgressIndeterminate/Circular/View.h"
 #include "Modules/ProgressIndeterminate/Linear/View.h"
 
-// Example images module, bitmasks, bitmaps, and vector graphics.
-#include "Modules/ExampleImages/Assets.h"
 
 
 

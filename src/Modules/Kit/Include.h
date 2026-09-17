@@ -48,5 +48,9 @@
 #include "Drawable/Shape/Rectangle.h"
 #include "Drawable/Shape/RoundedRectangle.h"
 
+// Shadow drawables. Gradients with configurable color and opacity for use as drop shadows, glows, or other effects.
+#include "Drawable/Shadow/CardinalGradient.h"
+#include "Drawable/Shadow/AxisGradient.h"
+#include "Drawable/Shadow/CornerGradient.h"
 
 #endif

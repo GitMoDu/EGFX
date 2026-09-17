@@ -22,7 +22,7 @@
 // Configure display in this header.
 #include "DisplayConfiguration.h"
 #include <EgfxDisplayEngine.h>
-#include <EgfxAssets.h>
+#include <Modules/Kit/Include.h>
 
 #include <EgfxModules.h>
 
@@ -70,7 +70,7 @@ struct Layout
 };
 
 // Terminal font type. Must be a monospace font for terminal display. 
-using TerminalFontType = Egfx::Framework::Assets::Font::Bitmask::Resin::FontType6x6;
+using TerminalFontType = Egfx::Modules::Kit::Font::Bitmask::Resin::FontType6x6;
 
 // Scaled font size based on screen width.
 static constexpr uint8_t TerminalFontScale = 1 + (Layout::Width() / TerminalFontType::GetFontWidth()) / 24;

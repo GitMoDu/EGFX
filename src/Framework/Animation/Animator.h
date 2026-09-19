@@ -18,12 +18,21 @@ namespace Egfx
 
 			private:
 				using calculation_t = typename IntegerSignal::TypeTraits::TypeNext::next_int_type<value_t>::type;
+
+				static constexpr calculation_t ValueMinimum = static_cast<calculation_t>(
+					IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Min());
+
+				static constexpr calculation_t ValueMaximum = static_cast<calculation_t>(
+					IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Max());
+
 				const Interpolator::IInterpolator* Interpolator = &Interpolator::NoInterpolator;
 
 				uint32_t StartTime = 0;
 				uint32_t Duration = 0;
+
 				value_t StartValue{};
 				value_t TargetValue{};
+
 				bool IsActive = false;
 				bool IsStarted = false;
 				bool Loop = false;
@@ -140,17 +149,9 @@ namespace Egfx
 					const calculation_t start = static_cast<calculation_t>(startValue);
 					const calculation_t delta = static_cast<calculation_t>(targetValue) - start;
 					const calculation_t interpolated = start + delta * whole +
-						(delta * remainder) / scalarUnit;
-					const calculation_t minimum = static_cast<calculation_t>(
-						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Min());
-					const calculation_t maximum = static_cast<calculation_t>(
-						IntegerSignal::TypeTraits::TypeLimits::type_limits<value_t>::Max());
+						Fraction<calculation_t>(static_cast<progress_t>(remainder), delta);
 
-					return static_cast<value_t>(interpolated < minimum
-						? minimum
-						: interpolated > maximum
-						? maximum
-						: interpolated);
+					return static_cast<value_t>(LimitValue<calculation_t, ValueMinimum, ValueMaximum>(interpolated));
 				}
 			};
 		}

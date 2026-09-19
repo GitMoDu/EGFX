@@ -169,6 +169,7 @@ namespace Egfx
 						TrackMock() {}
 						~TrackMock() = default;
 
+						static constexpr bool IsVisible() { return false; }
 						static constexpr void Draw(IFrameBuffer* /*frame*/) {}
 						void SetSegments(const SegmentPair<dimension_t> /*segments*/) {}
 						static constexpr void SetBounds(const dimension_t /*left*/, const dimension_t /*top*/,

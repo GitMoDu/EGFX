@@ -111,6 +111,7 @@ namespace Egfx
 						TrackMock() {}
 						~TrackMock() = default;
 
+						static constexpr bool IsVisible() { return false; }
 						static constexpr void Draw(IFrameBuffer* /*frame*/) {}
 						static constexpr void SetFilledAngles(const angle_t /*angleStart*/, const angle_t /*angleEnd*/) {}
 						static constexpr void SetBounds(const dimension_t /*left*/, const dimension_t /*top*/,

@@ -153,7 +153,7 @@ namespace Egfx
 						}
 
 						const count_t pendingCharacters = BufferInstance.PendingRevealLength();
-					const uint8_t catchupFactor = pendingCharacters >= HalfScreenCharacterCount
+						const uint8_t catchupFactor = pendingCharacters >= HalfScreenCharacterCount
 							? 4
 							: pendingCharacters >= QuarterScreenCharacterCount ? 2 : 1;
 						const uint32_t revealInterval = static_cast<uint32_t>(
@@ -231,11 +231,11 @@ namespace Egfx
 
 						const dimension_t cursorOffset = static_cast<dimension_t>(VirtualCursorColumn * FontWidth)
 							+ (VirtualCursorColumn > 0 ? (VirtualCursorColumn - 1) * Kerning : 0);
-						CursorInstance.SetOffsetX(static_cast<dimension_t>(cursorOffset));
+						CursorInstance.SetOffsetX(static_cast<dimension_t>(cursorOffset + GetTranslationX()));
 						const signed_t cursorTop = static_cast<signed_t>(VirtualCursorLine * LineStride)
 							- static_cast<signed_t>(RenderBufferInstance.HasPendingNewLine() ? 0 : AnimationOffset);
 						const signed_t defaultCursorTop = static_cast<signed_t>(ParentLayout::Height() - FontHeight);
-						CursorInstance.SetOffsetY(cursorTop - defaultCursorTop);
+						CursorInstance.SetOffsetY(cursorTop - defaultCursorTop + GetTranslationY());
 						CursorInstance.Draw(frame);
 
 						CallIndex = 0;

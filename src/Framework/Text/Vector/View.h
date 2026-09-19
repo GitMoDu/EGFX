@@ -31,6 +31,15 @@ namespace Egfx
 					TextView() : Base() {}
 					~TextView() = default;
 
+					using Base::GetBoundsWidth;
+					using Base::GetBoundsHeight;
+					using Base::GetBoundsLeft;
+					using Base::GetBoundsTop;
+					using Base::GetBoundsRight;
+					using Base::GetBoundsBottom;
+					using Base::GetTranslationX;
+					using Base::GetTranslationY;
+
 					DrawableType& Drawable() { return Base::template drawable<0>(); }
 
 					PaletteType& GetPalette() { return Drawable().GetPalette(); }
@@ -64,6 +73,15 @@ namespace Egfx
 				public:
 					NumberView() : Base() {}
 					~NumberView() = default;
+
+					using Base::GetBoundsWidth;
+					using Base::GetBoundsHeight;
+					using Base::GetBoundsLeft;
+					using Base::GetBoundsTop;
+					using Base::GetBoundsRight;
+					using Base::GetBoundsBottom;
+					using Base::GetTranslationX;
+					using Base::GetTranslationY;
 
 					DrawableType& Drawable()
 					{

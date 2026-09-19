@@ -46,6 +46,8 @@ namespace Egfx
 					using BufferType = Egfx::Modules::TerminalWindow::Buffer::TerminalBuffer<
 						count_t, LineLength, LineCount>;
 
+					using ViewLayout = ParentLayout;
+
 				private:
 					char RenderBuffer[LineLength + 1]{};
 					BufferType BufferInstance{};
@@ -84,6 +86,28 @@ namespace Egfx
 						TextViewInstance.SetSpaceWidth(static_cast<dimension_t>(SpaceWidth));
 						TextViewInstance.SetLineSpacing(LineSpacing);
 					}
+
+					void SetBounds(const int16_t left, const int16_t top,
+						const int16_t right, const int16_t bottom)
+					{
+						TextViewInstance.SetBounds(left, top, right, bottom);
+					}
+
+					bool IsVisible() const { return TextViewInstance.IsVisible(); }
+
+					void SetTranslation(const int16_t x, const int16_t y)
+					{
+						TextViewInstance.SetTranslation(x, y);
+					}
+
+					int16_t GetBoundsWidth() const { return TextViewInstance.GetBoundsWidth(); }
+					int16_t GetBoundsHeight() const { return TextViewInstance.GetBoundsHeight(); }
+					int16_t GetBoundsLeft() const { return TextViewInstance.GetBoundsLeft(); }
+					int16_t GetBoundsTop() const { return TextViewInstance.GetBoundsTop(); }
+					int16_t GetBoundsRight() const { return TextViewInstance.GetBoundsRight(); }
+					int16_t GetBoundsBottom() const { return TextViewInstance.GetBoundsBottom(); }
+					int16_t GetTranslationX() const { return TextViewInstance.GetTranslationX(); }
+					int16_t GetTranslationY() const { return TextViewInstance.GetTranslationY(); }
 
 					BufferType& Buffer() { return BufferInstance; }
 

@@ -135,8 +135,7 @@ namespace Egfx
 					}
 				}
 
-				template<typename ParentLayout,
-					typename Style = TemplateBatteryStyle<>
+				template<typename ParentLayout, typename Style = TemplateBatteryStyle<>
 				>
 				struct Battery
 				{
@@ -147,12 +146,16 @@ namespace Egfx
 
 					static constexpr int16_t EffectiveWidth()
 					{
-						return IsVertical() ? ParentLayout::Height() : ParentLayout::Width();
+						return IsVertical()
+							? ParentLayout::Height()
+							: ParentLayout::Width();
 					}
 
 					static constexpr int16_t EffectiveHeight()
 					{
-						return IsVertical() ? ParentLayout::Width() : ParentLayout::Height();
+						return IsVertical()
+							? ParentLayout::Width()
+							: ParentLayout::Height();
 					}
 
 					static constexpr int16_t StrokeWidth()
@@ -173,6 +176,16 @@ namespace Egfx
 					static constexpr int16_t HeadMarginTop()
 					{
 						return MaxValue<int16_t>(0, (EffectiveHeight() - HeadHeight()) / 2);
+					}
+
+					static constexpr int16_t AlignmentOffsetX()
+					{
+						return 0;
+					}
+
+					static constexpr int16_t AlignmentOffsetY()
+					{
+						return 0;
 					}
 
 				private:
@@ -216,6 +229,20 @@ namespace Egfx
 						};
 					}
 
+					static constexpr pixel_rectangle_t ApplyAlignment(const pixel_rectangle_t r)
+					{
+						return pixel_rectangle_t{
+							pixel_point_t{
+								static_cast<int16_t>(r.topLeft.x + AlignmentOffsetX()),
+								static_cast<int16_t>(r.topLeft.y + AlignmentOffsetY())
+							},
+							pixel_point_t{
+								static_cast<int16_t>(r.bottomRight.x + AlignmentOffsetX()),
+								static_cast<int16_t>(r.bottomRight.y + AlignmentOffsetY())
+							}
+						};
+					}
+
 					static constexpr pixel_rectangle_t OutsideLeftCanonical()
 					{
 						return pixel_rectangle_t{
@@ -241,44 +268,49 @@ namespace Egfx
 					}
 
 				public:
+					static constexpr pixel_rectangle_t ApplyAligned(const pixel_rectangle_t r)
+					{
+						return ApplyAlignment(r);
+					}
+
 					static constexpr pixel_rectangle_t HeadTop()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(HeadTopCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(HeadTopCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t HeadBottom()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(HeadBottomCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(HeadBottomCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t HeadRight()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(HeadRightCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(HeadRightCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t HeadLeftTop()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(HeadLeftTopCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(HeadLeftTopCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t HeadLeftBottom()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(HeadLeftBottomCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(HeadLeftBottomCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t OutsideLeft()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(OutsideLeftCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(OutsideLeftCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t OutsideTop()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(OutsideTopCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(OutsideTopCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t OutsideBottom()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(OutsideBottomCanonical());
+						return ApplyAlignment(Orient::Apply<ParentLayout, Style::Orientation>(OutsideBottomCanonical()));
 					}
 
 					static constexpr pixel_rectangle_t HeadTopUnoriented()
@@ -313,7 +345,7 @@ namespace Egfx
 
 					static constexpr int16_t BarWidth()
 					{
-						return (Battery::EffectiveWidth() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2)) / Style::BarCount;
+						return ((Battery::EffectiveWidth() - (Battery::StrokeWidth() * 2) - (InnerMargin() * 2)) / Style::BarCount);
 					}
 
 					static constexpr int16_t BarRemainder()
@@ -322,26 +354,26 @@ namespace Egfx
 					}
 					static constexpr pixel_rectangle_t BarN(const uint8_t index)
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
-							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * index) + 1), static_cast<pixel_t>(InnerLayout::Y()) },
+						return Battery::ApplyAligned(Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
+							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * index) + MinValue<int16_t>(1, InnerMargin())), static_cast<pixel_t>(InnerLayout::Y()) },
 							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * (index + 1)) - 1 - InnerMargin()), static_cast<pixel_t>(InnerLayout::Y() + InnerLayout::Height() - 1) }
-							});
+							}));
 					}
 
 					static constexpr pixel_rectangle_t BarLastBody()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
-							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * (Style::BarCount - 1)) + 1), static_cast<pixel_t>(InnerLayout::Y()) },
+						return Battery::ApplyAligned(Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
+							{ static_cast<pixel_t>(InnerLayout::X() + (BarWidth() * (Style::BarCount - 1)) + MinValue<int16_t>(1, InnerMargin())), static_cast<pixel_t>(InnerLayout::Y()) },
 							{ static_cast<pixel_t>(Battery::HeadTopUnoriented().topLeft.x - 1 - InnerMargin()), static_cast<pixel_t>(InnerLayout::Y() + InnerLayout::Height() - 1) }
-							});
+							}));
 					}
 
 					static constexpr pixel_rectangle_t BarLastHead()
 					{
-						return Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
+						return Battery::ApplyAligned(Orient::Apply<ParentLayout, Style::Orientation>(pixel_rectangle_t{
 							{ static_cast<pixel_t>(Battery::HeadTopUnoriented().topLeft.x - InnerMargin()), static_cast<pixel_t>(Battery::HeadTopUnoriented().topLeft.y + Battery::StrokeWidth() + InnerMargin()) },
 							{ static_cast<pixel_t>(Battery::HeadTopUnoriented().bottomRight.x - 1 - Battery::StrokeWidth() - InnerMargin()), static_cast<pixel_t>(Battery::HeadBottomUnoriented().topLeft.y - Battery::StrokeWidth() - InnerMargin()) }
-							});
+							}));
 					}
 
 					static constexpr int16_t X() { return ParentLayout::X(); }

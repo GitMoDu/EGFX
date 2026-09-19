@@ -21,7 +21,7 @@ namespace Egfx
 				typename LastColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
 				typename LastTransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
 				Framework::Shader::Pixel::BlendModeEnum WholeBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace,
-				Framework::Shader::Pixel::BlendModeEnum LastBlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace
+				Framework::Shader::Pixel::BlendModeEnum LastBlendMode = Framework::Shader::Pixel::BlendModeEnum::Add
 			>
 			class View : public Framework::View::DrawablesView<ParentLayout,
 				Drawable::Outside<dimension_t, ParentLayout, BatteryStyle, OutsideColorShaderType, OutsideTransformShaderType>,
@@ -172,11 +172,12 @@ namespace Egfx
 			namespace Demo
 			{
 				template<typename ParentLayout,
-					bool Monochrome = true>
-				class DemoView : public View<pixel_t, ParentLayout, TemplateBatteryStyle<Monochrome>>
+					bool Monochrome = true,
+					typename BatteryStyle = TemplateBatteryStyle<Monochrome>>
+				class DemoView : public View<pixel_t, ParentLayout, BatteryStyle>
 				{
 				private:
-					using Base = View<pixel_t, ParentLayout, TemplateBatteryStyle<Monochrome>>;
+					using Base = View<pixel_t, ParentLayout, BatteryStyle>;
 
 				private:
 					static constexpr uint32_t CyclePeriod = 10000000;

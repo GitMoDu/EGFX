@@ -5,6 +5,7 @@
 #include "Layout.h"
 #include "Shader.h"
 
+
 namespace Egfx
 {
 	namespace Modules
@@ -107,6 +108,11 @@ namespace Egfx
 					{
 						WholeShader.SetTranslation(x, y);
 						LastShader.SetTranslation(x, y);
+					}
+
+					bool IsVisible() const
+					{
+						return WholeShader.IsVisible() || LastShader.IsVisible();
 					}
 
 					void SetFullCount(const uint8_t index)

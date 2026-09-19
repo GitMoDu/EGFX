@@ -281,8 +281,8 @@ namespace Egfx
 
 					const dimension_t maximum = static_cast<dimension_t>((output - 1) / 2);
 					const auto scale = MaxValue(
-						Scale16::GetFactor<dimension_t>(output - 1, source - 1),
-						Scale16::GetFactor<dimension_t>(otherOutput - 1, otherSource - 1));
+						Scale16::GetFactor<dimension_t>(output, source),
+						Scale16::GetFactor<dimension_t>(otherOutput, otherSource));
 					const dimension_t effectiveThickness = GetScaledThickness(
 						scale, thicknessScale, static_cast<uint8_t>(edgeWeight - 1));
 					const dimension_t requiredRadius = effectiveThickness > 1

@@ -128,6 +128,7 @@ namespace Egfx
 					struct ScanLineLetterLayout : SquareLetterLayout<FontWidth, FontHeight>
 					{
 						using Base = SquareLetterLayout<FontWidth, FontHeight>;
+						using signed_wide_t = typename Framework::AutoDimension::ByDimension<pixel_t>::signed_wide_t;
 						static constexpr int16_t SquareHeight() { return Base::Square(0, 0).bottomRight.y - Base::Square(0, 0).topLeft.y; }
 
 						static ScanLine Row(const uint8_t rowIndex, const uint8_t columnStartIndex, const uint8_t columnEndIndex, const int16_t offsetX)
@@ -137,16 +138,16 @@ namespace Egfx
 							const auto square = Base::Row(rowIndex, columnStartIndex, columnEndIndex);
 							return ScanLine{
 									{
-										square.topLeft.x + offsetX,
-										square.topLeft.y + offsetY,
-										square.bottomRight.x + offsetX - 1,
-										square.topLeft.y + offsetY + Base::LineHeight - 1
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.x) + offsetX),
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.y) + offsetY),
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.bottomRight.x) + offsetX - 1),
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.y) + offsetY + Base::LineHeight - 1)
 									},
 									{
-										square.topLeft.x + Base::OverscanMargin + offsetX,
-										square.topLeft.y + offsetY + Base::LineHeight,
-										square.bottomRight.x - Base::OverscanMargin + offsetX - 1,
-										square.topLeft.y + offsetY + Base::LineHeight + Base::OverscanHeight - 1
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.x) + Base::OverscanMargin + offsetX),
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.y) + offsetY + Base::LineHeight),
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.bottomRight.x) - Base::OverscanMargin + offsetX - 1),
+										static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.y) + offsetY + Base::LineHeight + Base::OverscanHeight - 1)
 									}
 							};
 						}
@@ -157,6 +158,7 @@ namespace Egfx
 					struct SquareDotLetterLayout : SquareLetterLayout<FontWidth, FontHeight>
 					{
 						using Base = SquareLetterLayout<FontWidth, FontHeight>;
+						using signed_wide_t = typename Framework::AutoDimension::ByDimension<pixel_t>::signed_wide_t;
 						static constexpr int16_t LineHeight = (FontHeight / Dimensions::LineCount) / 7;
 
 						static pixel_rectangle_t Cell(const uint8_t rowIndex, const uint8_t columnIndex, const int16_t offsetX)
@@ -166,8 +168,10 @@ namespace Egfx
 							const auto square = Base::Square(rowIndex, columnIndex);
 
 							return pixel_rectangle_t{
-									{square.topLeft.x + offsetX, square.topLeft.y + offsetY},
-									{square.bottomRight.x + offsetX, square.bottomRight.y + offsetY}
+									{static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.x) + offsetX),
+									 static_cast<pixel_t>(static_cast<signed_wide_t>(square.topLeft.y) + offsetY)},
+									{static_cast<pixel_t>(static_cast<signed_wide_t>(square.bottomRight.x) + offsetX),
+									 static_cast<pixel_t>(static_cast<signed_wide_t>(square.bottomRight.y) + offsetY)}
 							};
 						}
 

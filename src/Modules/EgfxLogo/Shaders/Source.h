@@ -25,7 +25,7 @@ namespace Egfx
 					class RetroLinesColorAlpha
 					{
 					public:
-						static constexpr bool IsConstantColor = true;
+						static constexpr bool IsConstantColor = false;
 
 					private:
 						static constexpr dimension_t LineHeight = (FontHeight / Dimensions::LineCount);
@@ -80,7 +80,7 @@ namespace Egfx
 					class DotMatrixRgbAlpha
 					{
 					public:
-						static constexpr bool IsConstantColor = true;
+						static constexpr bool IsConstantColor = false;
 
 					private:
 						static constexpr dimension_t SquareSize = (FontWidth / Dimensions::ColumnCount);

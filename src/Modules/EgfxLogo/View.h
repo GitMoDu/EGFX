@@ -145,7 +145,9 @@ namespace Egfx
 
 				public:
 					SplashLogo() : Base()
-					{}
+					{
+						SetAlpha(0);
+					}
 
 					~SplashLogo() = default;
 
@@ -157,6 +159,11 @@ namespace Egfx
 					void Stop()
 					{
 						State = AnimationEnum::AnimationEnd;
+					}
+
+					bool IsFinished() const
+					{
+						return State == AnimationEnum::AnimationEnd;
 					}
 
 				protected:
@@ -184,7 +191,7 @@ namespace Egfx
 
 					bool ViewStep(const uint32_t frameTime, const uint16_t frameCounter) override
 					{
-						Base::ViewStep(frameTime, frameCounter);
+						
 
 						switch (State)
 						{
@@ -192,17 +199,17 @@ namespace Egfx
 							SetTranslationY(VerticalShift);
 							SetAlpha(0);
 							State = AnimationEnum::SlideIn;
-							AnimationStart = micros();
+							AnimationStart = frameTime;
 							break;
 						case AnimationEnum::SlideIn:
 						{
-							const uint32_t elapsed = micros() - AnimationStart;
+							const uint32_t elapsed = frameTime - AnimationStart;
 							if (elapsed >= Durations::SlideIn)
 							{
 								SetTranslationY(0);
 								SetAlpha(UINT8_MAX);
 								State = AnimationEnum::Hold;
-								AnimationStart = micros();
+								AnimationStart = frameTime;
 							}
 							else
 							{
@@ -219,17 +226,17 @@ namespace Egfx
 						break;
 						case AnimationEnum::Hold:
 						{
-							const uint32_t elapsed = micros() - AnimationStart;
+							const uint32_t elapsed = frameTime - AnimationStart;
 							if (elapsed >= Durations::Hold)
 							{
 								State = AnimationEnum::FadeOut;
-								AnimationStart = micros();
+								AnimationStart = frameTime;
 							}
 						}
 						break;
 						case AnimationEnum::FadeOut:
 						{
-							const uint32_t elapsed = micros() - AnimationStart;
+							const uint32_t elapsed = frameTime - AnimationStart;
 							if (elapsed >= Durations::FadeOut)
 							{
 								SetTranslationY(0);
@@ -242,7 +249,7 @@ namespace Egfx
 								{
 									State = AnimationEnum::AnimationEnd;
 								}
-								AnimationStart = micros();
+								AnimationStart = frameTime;
 							}
 							else
 							{
@@ -255,7 +262,8 @@ namespace Egfx
 						default:
 							break;
 						}
-						return true;
+						
+						return Base::ViewStep(frameTime, frameCounter);;
 					}
 				};
 			}

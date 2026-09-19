@@ -53,8 +53,8 @@ namespace Egfx
 						signed_t LineStartX = 0;
 						signed_t LineStartY = 0;
 
-						dimension_t OffsetX = 0;
-						dimension_t OffsetY = 0;
+						signed_t OffsetX = 0;
+						signed_t OffsetY = 0;
 
 					public:
 						using DrawableLayout = ParentLayout;
@@ -153,7 +153,7 @@ namespace Egfx
 							}
 						}
 
-						void SetOffset(const dimension_t offsetX, const dimension_t offsetY, const bool refreshLayout = true)
+						void SetOffset(const signed_t offsetX, const signed_t offsetY, const bool refreshLayout = true)
 						{
 							OffsetX = offsetX;
 							OffsetY = offsetY;
@@ -163,8 +163,8 @@ namespace Egfx
 							}
 						}
 
-						dimension_t GetOffsetX() const { return OffsetX; }
-						dimension_t GetOffsetY() const { return OffsetY; }
+						signed_t GetOffsetX() const { return OffsetX; }
+						signed_t GetOffsetY() const { return OffsetY; }
 
 						void Draw(IFrameBuffer* frame)
 						{

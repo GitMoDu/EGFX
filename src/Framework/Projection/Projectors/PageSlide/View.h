@@ -85,6 +85,11 @@ namespace Egfx
 							return AnimationPending || ScrollAnimator.IsAnimating();
 						}
 
+						bool IsVisible() const
+						{
+							return IsScrollAnimating() || Base::IsVisible();
+						}
+
 						void SetPagePosition(const uint8_t index, const scalar_t offset)
 						{
 							ScrollAnimator.Cancel();

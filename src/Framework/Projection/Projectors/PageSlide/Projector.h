@@ -57,7 +57,7 @@ namespace Egfx
 								return viewport_t{ 1, 1, 0, 0, 0, 0 };
 
 							static constexpr scroll_t pageStride = UFraction16::SCALAR_UNIT;
-							static constexpr scroll_t overscroll = UFraction16::SCALAR_UNIT / 2;
+							static constexpr scroll_t overscroll = UFraction16::SCALAR_UNIT;
 
 							const scroll_t maxScroll = static_cast<scroll_t>(pageCount - 1) * pageStride;
 							const scroll_t boundedScroll = LimitValue<scroll_t>(scroll, -overscroll, maxScroll + overscroll);

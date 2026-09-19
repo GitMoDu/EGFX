@@ -398,6 +398,7 @@ namespace Egfx
 					static constexpr void SetBounds(const dimension_t /*left*/, const dimension_t /*top*/,
 						const dimension_t /*right*/, const dimension_t /*bottom*/) {}
 					static constexpr void SetTranslation(const int16_t /*x*/, const int16_t /*y*/) {}
+					static constexpr bool IsVisible() { return false; }
 				};
 
 

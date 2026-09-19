@@ -19,22 +19,23 @@ namespace Egfx
 					template<typename dimension_t,
 						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>
+						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					class Image : public Framework::Vector::Decoder<dimension_t,
-						VectorShader<dimension_t, PaletteType, ColorShaderType, TransformShaderType>>
+						VectorShader<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>>
 					{
 					private:
 						using Base = Framework::Vector::Decoder<dimension_t,
-							VectorShader<dimension_t, PaletteType, ColorShaderType, TransformShaderType>>;
+							VectorShader<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>>;
 						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
 
 					public:
 						using Base::Base;
 						using Base::GetPalette;
 
-					template<Framework::Vector::PackedVectorEnum vectorType,
-						Framework::DataSourceTypeEnum dataSourceType = Framework::DataSourceTypeEnum::Ram>
+						template<Framework::Vector::PackedVectorEnum vectorType,
+							Framework::DataSourceTypeEnum dataSourceType = Framework::DataSourceTypeEnum::Ram>
 						void Draw(IFrameBuffer* frame, const void* data, const size_t count,
 							const dimension_t canvasWidth, const dimension_t canvasHeight,
 							const ufraction8_t thicknessScale, const dimension_t width, const dimension_t height,
@@ -45,7 +46,7 @@ namespace Egfx
 								thicknessScale, width, height, inset);
 						}
 
-							template<Framework::DataSourceTypeEnum dataSourceType = Framework::DataSourceTypeEnum::Ram>
+						template<Framework::DataSourceTypeEnum dataSourceType = Framework::DataSourceTypeEnum::Ram>
 						void Draw(IFrameBuffer* frame, const Framework::Vector::PackedVectorEnum vectorType,
 							const void* data, const size_t count,
 							const dimension_t canvasWidth, const dimension_t canvasHeight,

@@ -25,16 +25,17 @@ namespace Egfx
 					template<typename dimension_t,
 						typename PaletteType,
 						typename ColorShaderType,
-						typename TransformShaderType
+						typename TransformShaderType,
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					class VectorShader : public Geometry::CircleArcShader<dimension_t,
 						Geometry::TriangleShader<dimension_t, Shader::Pixel::TemplateShader<dimension_t,
-						Vector::ColorSource<dimension_t>, ColorShaderType, TransformShaderType>>>
+						Vector::ColorSource<dimension_t>, ColorShaderType, TransformShaderType, BlendMode>>>
 					{
 					private:
 						using Base = Geometry::CircleArcShader<dimension_t,
 							Geometry::TriangleShader<dimension_t, Shader::Pixel::TemplateShader<dimension_t,
-							Vector::ColorSource<dimension_t>, ColorShaderType, TransformShaderType>>>;
+							Vector::ColorSource<dimension_t>, ColorShaderType, TransformShaderType, BlendMode>>>;
 						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
 						using signed_wide_t = typename AutoDimension::ByDimension<dimension_t>::signed_wide_t;
 

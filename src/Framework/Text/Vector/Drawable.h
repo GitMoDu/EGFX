@@ -23,17 +23,18 @@ namespace Egfx
 						typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
 						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
-						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>
+						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					class Text : public Framework::Shader::Image::Vector::Image<dimension_t,
 						PaletteType,
-						ColorShaderType, TransformShaderType
+						ColorShaderType, TransformShaderType, BlendMode
 					>
 					{
 					private:
 						using Base = Framework::Shader::Image::Vector::Image<dimension_t,
 							PaletteType,
-							ColorShaderType, TransformShaderType>;
+							ColorShaderType, TransformShaderType, BlendMode>;
 
 						using Source = FontType;
 
@@ -270,13 +271,14 @@ namespace Egfx
 						typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
-						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>
+						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					class Number
 					{
 					private:
 						using TextDrawerType = Text<dimension_t, ParentLayout, FontType, GlyphStyle,
-							ColorShaderType, TransformShaderType, PaletteType>;
+							ColorShaderType, TransformShaderType, PaletteType, BlendMode>;
 						using unsigned_number_t = typename IntegerSignal::TypeTraits::TypeSign::make_unsigned<number_t>::type;
 
 						static constexpr size_t MaxCharacters =

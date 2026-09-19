@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_TIMECODE_TEXT_DRAWABLE_h
-#define _EGFX_MODULES_TIMECODE_TEXT_DRAWABLE_h
+#ifndef _EGFX_MODULES_TIMECODE_DRAWABLE_h
+#define _EGFX_MODULES_TIMECODE_DRAWABLE_h
 
 #include "Constant.h"
 #include "Layout.h"
@@ -11,14 +11,14 @@ namespace Egfx
 {
 	namespace Modules
 	{
-		namespace TimecodeText
+		namespace Timecode
 		{
 			namespace Drawable
 			{
 				/// Timecode drawable (HH:MM:SS or MM:SS:cs).
 				template<typename dimension_t,
 					typename ParentLayout,
-					typename GlyphSourceType = TimecodeText::DefaultFont,
+					typename GlyphSourceType = Timecode::DefaultFont,
 					typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>
 				>
@@ -26,8 +26,9 @@ namespace Egfx
 				{
 				private:
 					using GlyphStyle = Framework::Image::TemplateImageStyle<
-						Framework::Layout::AlignmentEnum::MiddleLeft
+						Framework::Layout::AlignmentEnum::MiddleCenter
 					>;
+					using DigitLayout = Layout::Digit<ParentLayout>;
 
 					using Digit1Layout = Layout::Digit1<ParentLayout>;
 					using Digit2Layout = Layout::Digit2<ParentLayout>;
@@ -40,7 +41,7 @@ namespace Egfx
 
 				private:
 					using TextDrawerType = Framework::Text::Vector::Drawable::Text<
-						dimension_t, ParentLayout, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType>;
+						dimension_t, DigitLayout, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType>;
 
 					TextDrawerType TextDrawer{};
 
@@ -58,8 +59,9 @@ namespace Egfx
 					Timecode()
 					{
 						TextDrawer.SetFontSize(
-							Digit1Layout::Width(),
-							Digit1Layout::Height(), false);
+							DigitLayout::Width(),
+							DigitLayout::Height(), false);
+						TextDrawer.SetKerningWidth(0, false);
 					}
 					~Timecode() = default;
 
@@ -122,11 +124,16 @@ namespace Egfx
 						}
 					}
 
-				public:
+					bool IsVisible() const
+					{
+						return TextDrawer.IsVisible();
+					}
+
+
 					bool Draw(IFrameBuffer* frame)
 					{
 						if (CurrentMode == PresentModeEnum::Invisible)
-							return false;
+							return true;
 
 						if (CurrentMode == PresentModeEnum::NoDuration)
 						{
@@ -164,13 +171,19 @@ namespace Egfx
 						TextDrawer.SetTranslation(x, y);
 					}
 
+				protected:
+					dimension_t GetBoundsLeft() const { return TextDrawer.GetBoundsLeft(); }
+					dimension_t GetBoundsTop() const { return TextDrawer.GetBoundsTop(); }
+					dimension_t GetBoundsRight() const { return TextDrawer.GetBoundsRight(); }
+					dimension_t GetBoundsBottom() const { return TextDrawer.GetBoundsBottom(); }
+
 				private:
 					template<typename CharacterLayout>
 					void DrawCharacter(IFrameBuffer* frame, CharacterLayout, const char character)
 					{
 						TextDrawer.SetOffset(
-							static_cast<pixel_t>(CharacterLayout::X() - ParentLayout::X()),
-							static_cast<pixel_t>(CharacterLayout::Y() - ParentLayout::Y()), false);
+							static_cast<int16_t>(CharacterLayout::X() - ParentLayout::X()),
+							static_cast<int16_t>(CharacterLayout::Y() - ParentLayout::Y()), false);
 						TextDrawer.SetText(character, true);
 						TextDrawer.Draw(frame);
 					}

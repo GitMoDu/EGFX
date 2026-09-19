@@ -1,6 +1,9 @@
 #ifndef _EGFX_MODULES_INCLUDE_h
 #define _EGFX_MODULES_INCLUDE_h
 
+// Modules depend on the framework.
+#include "EgfxFramework.h"
+
 // Framework Kit module. Reusable higher-level utilities built on the framework.
 #include "Modules/Kit/Include.h"
 
@@ -24,7 +27,7 @@
 #include "Modules/WirelessIndicator/View.h"
 
 // Timecode text module.
-#include "Modules/TimecodeText/View.h"
+#include "Modules/Timecode/View.h"
 
 // Plot module.
 #include "Modules/Plot/View.h"

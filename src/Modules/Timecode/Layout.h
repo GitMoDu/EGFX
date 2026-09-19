@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_TIMECODE_TEXT_LAYOUT_h
-#define _EGFX_MODULES_TIMECODE_TEXT_LAYOUT_h
+#ifndef _EGFX_MODULES_TIMECODE_LAYOUT_h
+#define _EGFX_MODULES_TIMECODE_LAYOUT_h
 
 #include "Constant.h"
 
@@ -7,51 +7,48 @@ namespace Egfx
 {
 	namespace Modules
 	{
-		namespace TimecodeText
+		namespace Timecode
 		{
 			namespace Layout
 			{
 				template<typename ParentLayout>
 				using Time =
 					Framework::Layout::HorizontalWeighted<ParentLayout,
-					Dimensions::DigitLayoutWeight, // 0
-					Dimensions::KerningLayoutWeight,
-					Dimensions::DigitLayoutWeight, // 2
+					Dimensions::DigitLayoutWeight,
+					Dimensions::DigitLayoutWeight,
 
-					Dimensions::KerningLayoutWeight,
-					Dimensions::SeparatorLayoutWeight, // 4
-					Dimensions::KerningLayoutWeight,
+					Dimensions::SeparatorLayoutWeight,
 
-					Dimensions::DigitLayoutWeight, // 6
-					Dimensions::KerningLayoutWeight,
-					Dimensions::DigitLayoutWeight, // 8
+					Dimensions::DigitLayoutWeight,
+					Dimensions::DigitLayoutWeight,
 
-					Dimensions::KerningLayoutWeight,
-					Dimensions::SeparatorLayoutWeight, // 10
-					Dimensions::KerningLayoutWeight,
+					Dimensions::SeparatorLayoutWeight,
 
-					Dimensions::DigitLayoutWeight, // 12
-					Dimensions::KerningLayoutWeight,
-					Dimensions::DigitLayoutWeight // 14
+					Dimensions::DigitLayoutWeight,
+					Dimensions::DigitLayoutWeight
 					>;
 
-
 				static constexpr uint8_t Digi1Index = 0;
-				static constexpr uint8_t Digi2Index = 2;
-				static constexpr uint8_t Sep1Index = 4;
-				static constexpr uint8_t Digi3Index = 6;
-				static constexpr uint8_t Digi4Index = 8;
-				static constexpr uint8_t Sep2Index = 10;
-				static constexpr uint8_t Digi5Index = 12;
-				static constexpr uint8_t Digi6Index = 14;
+				static constexpr uint8_t Digi2Index = 1;
+				static constexpr uint8_t Sep1Index = 2;
+				static constexpr uint8_t Digi3Index = 3;
+				static constexpr uint8_t Digi4Index = 4;
+				static constexpr uint8_t Sep2Index = 5;
+				static constexpr uint8_t Digi5Index = 6;
+				static constexpr uint8_t Digi6Index = 7;
+
 
 				template<typename ParentLayout>
-				using Digit1 =
+				using Digit =
 					Framework::TemplateLayout<
 					Time<ParentLayout>::template Cell<Digi1Index>::X(),
 					Time<ParentLayout>::template Cell<Digi1Index>::Y(),
 					Time<ParentLayout>::template Cell<Digi1Index>::Width(),
 					Time<ParentLayout>::template Cell<Digi1Index>::Height()>;
+
+				template<typename ParentLayout>
+				using Digit1 = Digit<ParentLayout>;
+
 
 				template<typename ParentLayout>
 				using Digit2 =
@@ -96,7 +93,7 @@ namespace Egfx
 				template<typename ParentLayout>
 				using Separator1 =
 					Framework::TemplateLayout<
-					Time<ParentLayout>::template Cell<Sep1Index>::X(),
+					Time<ParentLayout>::template Cell<Sep1Index>::X() - (Digit<ParentLayout>::Width() / 2),
 					Time<ParentLayout>::template Cell<Sep1Index>::Y(),
 					Time<ParentLayout>::template Cell<Sep1Index>::Width(),
 					Time<ParentLayout>::template Cell<Sep1Index>::Height()>;
@@ -104,7 +101,7 @@ namespace Egfx
 				template<typename ParentLayout>
 				using Separator2 =
 					Framework::TemplateLayout<
-					Time<ParentLayout>::template Cell<Sep2Index>::X(),
+					Time<ParentLayout>::template Cell<Sep2Index>::X() - (Digit<ParentLayout>::Width() / 2),
 					Time<ParentLayout>::template Cell<Sep2Index>::Y(),
 					Time<ParentLayout>::template Cell<Sep2Index>::Width(),
 					Time<ParentLayout>::template Cell<Sep2Index>::Height()>;

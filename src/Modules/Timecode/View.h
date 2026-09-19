@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_TIMECODE_TEXT_VIEW_h
-#define _EGFX_MODULES_TIMECODE_TEXT_VIEW_h
+#ifndef _EGFX_MODULES_TIMECODE_VIEW_h
+#define _EGFX_MODULES_TIMECODE_VIEW_h
 
 #include "Constant.h"
 #include "Layout.h"
@@ -9,35 +9,40 @@ namespace Egfx
 {
 	namespace Modules
 	{
-		namespace TimecodeText
+		namespace Timecode
 		{
 			template<typename ParentLayout,
-				typename FontType = TimecodeText::DefaultFont,
+				typename FontType = Timecode::DefaultFont,
 				typename ColorShaderType = Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
 				typename TransformShaderType = Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>
 			>
-			class View : public Egfx::Framework::View::AbstractView
+			class View : public Egfx::Framework::View::DrawablesView<ParentLayout,
+				Drawable::Timecode<
+					typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t,
+					Framework::Layout::Align<ParentLayout,
+						Layout::Time<ParentLayout>,
+						Framework::Layout::AlignmentEnum::MiddleCenter>,
+					FontType, ColorShaderType, TransformShaderType>>
 			{
+			public:
+				using ViewLayout = ParentLayout;
+
 			private:
-				using Base = Egfx::Framework::View::AbstractView;
 				using dimension_t = typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t;
 				using DrawableLayout = Framework::Layout::Align<ParentLayout,
 					Layout::Time<ParentLayout>,
 					Framework::Layout::AlignmentEnum::MiddleCenter>;
 				using DrawableType = Drawable::Timecode<dimension_t, DrawableLayout,
 					FontType, ColorShaderType, TransformShaderType>;
-
-				DrawableType TimecodeDrawable{};
+				using Base = Egfx::Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 			public:
-				using ViewLayout = ParentLayout;
-
 				View() : Base() {}
 				~View() = default;
 
 				DrawableType& Drawable()
 				{
-					return TimecodeDrawable;
+					return Base::template drawable<0>();
 				}
 
 				void SetTextColor(const Egfx::rgb_color_t color)
@@ -60,26 +65,10 @@ namespace Egfx
 					Drawable().CurrentMode = mode;
 				}
 
-				void SetBounds(const pixel_t left, const pixel_t top,
-					const pixel_t right, const pixel_t bottom)
-				{
-					Drawable().SetBounds(left, top, right, bottom);
-				}
-
-				void SetTranslation(const int16_t x, const int16_t y)
-				{
-					Drawable().SetTranslation(x, y);
-				}
-
 			protected:
 				bool ViewStep(const uint32_t /*frameTime*/, const uint16_t /*frameCounter*/) override
 				{
 					return Drawable().CurrentMode != PresentModeEnum::Invisible;
-				}
-
-				bool Draw(IFrameBuffer* frame) override
-				{
-					return Drawable().Draw(frame);
 				}
 			};
 
@@ -90,10 +79,10 @@ namespace Egfx
 					typename ColorShaderType = Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
 					typename TransformShaderType = Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>
 				>
-				class DemoView : public View<ParentLayout, TimecodeText::DefaultFont, ColorShaderType, TransformShaderType>
+				class DemoView : public View<ParentLayout, Timecode::DefaultFont, ColorShaderType, TransformShaderType>
 				{
 				private:
-					using Base = View<ParentLayout, TimecodeText::DefaultFont, ColorShaderType, TransformShaderType>;
+					using Base = View<ParentLayout, Timecode::DefaultFont, ColorShaderType, TransformShaderType>;
 
 					enum class DemoStateEnum : uint8_t
 					{

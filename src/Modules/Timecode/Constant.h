@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_TIMECODE_TEXT_CONSTANT_h
-#define _EGFX_MODULES_TIMECODE_TEXT_CONSTANT_h
+#ifndef _EGFX_MODULES_TIMECODE_CONSTANT_h
+#define _EGFX_MODULES_TIMECODE_CONSTANT_h
 
 #include "../../EgfxFramework.h"
 #include "../../Modules/Kit/Font/Vector/Epoxy/FontType.h"
@@ -8,7 +8,7 @@ namespace Egfx
 {
 	namespace Modules
 	{
-		namespace TimecodeText
+		namespace Timecode
 		{
 			using DefaultFont = Modules::Kit::Font::Vector::Epoxy::FontType8x8;
 
@@ -17,9 +17,9 @@ namespace Egfx
 				static constexpr uint8_t TimeDigitCount = 6;
 				static constexpr uint8_t TimeSeparatorCount = 2;
 				static constexpr uint8_t TimeElementCount = TimeDigitCount + TimeSeparatorCount;
-				static constexpr uint8_t DigitLayoutWeight = 5;
+				static constexpr uint8_t DigitLayoutWeight = 8;
 				static constexpr uint8_t KerningLayoutWeight = 1;
-				static constexpr uint8_t SeparatorLayoutWeight = 2;
+				static constexpr uint8_t SeparatorLayoutWeight = 1;
 			}
 
 			namespace Texts

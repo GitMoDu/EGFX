@@ -112,7 +112,10 @@ namespace Egfx
 						typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t
 						, Modules::Kit::Shader::Source::GradientAngular<
 						typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t,
-						ParentLayout::Width(), ParentLayout::Height(), true>
+						ParentLayout::Width(), ParentLayout::Height(), true>,
+						Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
+						Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
+						::Egfx::Framework::Shader::Pixel::BlendModeEnum::Add
 					>;
 
 					template<typename ParentLayout>
@@ -180,7 +183,7 @@ namespace Egfx
 					public:
 						DemoCircularColor() : Base()
 						{
-							auto& fill = Base::template drawable<1>().ColorSource;
+							auto& fill = Base::template colorSource<1>();
 							fill.SetStartAngle(Demo::DemoStyle<ParentLayout>::StartAngle);
 							fill.SetEndAngle(Demo::DemoStyle<ParentLayout>::EndAngle);
 							fill.SetColors(Rgb::Color(uint32_t(0x4E4E4E)), Rgb::Color(uint32_t(0xFFFFFF)));

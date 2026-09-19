@@ -23,11 +23,13 @@ namespace Egfx
 						typename Style = Framework::Image::TemplateImageStyle<>,
 						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-						class StaticImage : public Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType>
+						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
+					>
+					class StaticImage : public Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					private:
-						using Base = Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType>;
+						using Base = Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>;
 						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
 						using canvas_t = Framework::Vector::canvas_t;
 
@@ -85,11 +87,13 @@ namespace Egfx
 						typename Style = Framework::Image::TemplateImageStyle<>,
 						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-						class Image : public Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType>
+						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
+					>
+					class Image : public Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					private:
-						using Base = Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType>;
+						using Base = Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>;
 
 					public:
 						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;

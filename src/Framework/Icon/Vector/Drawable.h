@@ -20,11 +20,13 @@ namespace Egfx
 						typename Style = Framework::Image::TemplateImageStyle<>,
 						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-						class Icon : public Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType>
+						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
+					>
+					class Icon : public Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>
 					{
 					private:
-						using Base = Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType>;
+						using Base = Shader::Image::Vector::Image<dimension_t, PaletteType, ColorShaderType, TransformShaderType, BlendMode>;
 						using icon_enum_t = Framework::Icon::IconEnum;
 						using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
 

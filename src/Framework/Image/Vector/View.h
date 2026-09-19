@@ -18,15 +18,17 @@ namespace Egfx
 					typename Style = Framework::Image::TemplateImageStyle<>,
 					typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-					class StaticImageView : public Framework::View::DrawablesView<ParentLayout,
-					Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, PaletteType, ColorShaderType, TransformShaderType>>
+					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
+				>
+				class StaticImageView : public Framework::View::DrawablesView<ParentLayout,
+					Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, PaletteType, ColorShaderType, TransformShaderType, BlendMode>>
 				{
 				public:
 					using ViewLayout = ParentLayout;
 
 				private:
-					using DrawableType = Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, PaletteType, ColorShaderType, TransformShaderType>;
+					using DrawableType = Drawable::StaticImage<dimension_t, ParentLayout, ImageSourceType, Style, PaletteType, ColorShaderType, TransformShaderType, BlendMode>;
 					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:
@@ -43,15 +45,17 @@ namespace Egfx
 					typename Style = Framework::Image::TemplateImageStyle<>,
 					typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
-					class ImageView : public Framework::View::DrawablesView<ParentLayout,
-					Drawable::Image<dimension_t, ParentLayout, Style, PaletteType, ColorShaderType, TransformShaderType>>
+					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
+				>
+				class ImageView : public Framework::View::DrawablesView<ParentLayout,
+					Drawable::Image<dimension_t, ParentLayout, Style, PaletteType, ColorShaderType, TransformShaderType, BlendMode>>
 				{
 				public:
 					using ViewLayout = ParentLayout;
 
 				private:
-					using DrawableType = Drawable::Image<dimension_t, ParentLayout, Style, PaletteType, ColorShaderType, TransformShaderType>;
+					using DrawableType = Drawable::Image<dimension_t, ParentLayout, Style, PaletteType, ColorShaderType, TransformShaderType, BlendMode>;
 					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 					using signed_t = typename DrawableType::signed_t;

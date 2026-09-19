@@ -21,9 +21,9 @@ namespace Egfx
 						typename ParentLayout,
 						typename FontType,
 						typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
+						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
-						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 						Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
 					>
 					class Text : public Framework::Shader::Image::Vector::Image<dimension_t,
@@ -277,8 +277,9 @@ namespace Egfx
 					class Number
 					{
 					private:
-						using TextDrawerType = Text<dimension_t, ParentLayout, FontType, GlyphStyle,
-							ColorShaderType, TransformShaderType, PaletteType, BlendMode>;
+						using TextDrawerType = Text<dimension_t, ParentLayout,
+							FontType, GlyphStyle, PaletteType,
+							ColorShaderType, TransformShaderType, BlendMode>;
 						using unsigned_number_t = typename IntegerSignal::TypeTraits::TypeSign::make_unsigned<number_t>::type;
 
 						static constexpr size_t MaxCharacters =

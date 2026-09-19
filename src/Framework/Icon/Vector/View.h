@@ -15,12 +15,14 @@ namespace Egfx
 					typename Style = Framework::Image::TemplateImageStyle<>,
 					typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
 					typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>>
+					typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+					Shader::Pixel::BlendModeEnum BlendMode = Shader::Pixel::BlendModeEnum::Replace
+				>
 				class IconView : public Framework::View::DrawablesView<ParentLayout,
-					Drawable::Icon<dimension_t, ParentLayout, IconSetType, Style, PaletteType, ColorShaderType, TransformShaderType>>
+					Drawable::Icon<dimension_t, ParentLayout, IconSetType, Style, PaletteType, ColorShaderType, TransformShaderType, BlendMode>>
 				{
 				private:
-					using DrawableType = Drawable::Icon<dimension_t, ParentLayout, IconSetType, Style, PaletteType, ColorShaderType, TransformShaderType>;
+					using DrawableType = Drawable::Icon<dimension_t, ParentLayout, IconSetType, Style, PaletteType, ColorShaderType, TransformShaderType, BlendMode>;
 					using Base = Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 				public:

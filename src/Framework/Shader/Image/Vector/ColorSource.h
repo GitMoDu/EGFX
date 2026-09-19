@@ -56,6 +56,11 @@ namespace Egfx
 						{
 							return Palette[colorIndex % PaletteSize];
 						}
+
+						void SetColor(const uint8_t colorIndex, const rgb_color_t color)
+						{
+							Palette[colorIndex % PaletteSize] = color;
+						}
 					};
 				}
 			}

@@ -22,16 +22,17 @@ namespace Egfx
 						typename FontType,
 						typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
 						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
-						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>
+						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
+						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>
 					>
 					class Text : public Framework::Shader::Image::Vector::Image<dimension_t,
-						Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
+						PaletteType,
 						ColorShaderType, TransformShaderType
 					>
 					{
 					private:
 						using Base = Framework::Shader::Image::Vector::Image<dimension_t,
-							Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
+							PaletteType,
 							ColorShaderType, TransformShaderType>;
 
 						using Source = FontType;
@@ -53,11 +54,12 @@ namespace Egfx
 
 						signed_t LineStartX = 0;
 						signed_t LineStartY = 0;
-						dimension_t OffsetX = 0;
-						dimension_t OffsetY = 0;
+						signed_t OffsetX = 0;
+						signed_t OffsetY = 0;
 
 					public:
 						using DrawableLayout = ParentLayout;
+						using ColorPaletteType = PaletteType;
 
 						Text()
 							: Base(0, 0, ParentLayout::Width() - 1, ParentLayout::Height() - 1)
@@ -73,6 +75,13 @@ namespace Egfx
 							RefreshLayout();
 						}
 						~Text() = default;
+
+						PaletteType& GetPalette() { return Base::GetPalette(); }
+
+						void SetPaletteColor(const uint8_t colorIndex, const rgb_color_t color)
+						{
+							Base::SetPaletteColor(colorIndex, color);
+						}
 
 						void SetFontWidth(const dimension_t width, const bool refreshLayout = true)
 						{
@@ -149,7 +158,7 @@ namespace Egfx
 							if (refreshLayout)
 								RefreshLayout();
 						}
-						void SetOffset(const dimension_t x, const dimension_t y, const bool refreshLayout = true)
+						void SetOffset(const signed_t x, const signed_t y, const bool refreshLayout = true)
 						{
 							OffsetX = x;
 							OffsetY = y;
@@ -174,8 +183,8 @@ namespace Egfx
 						dimension_t GetSpaceWidth() const { return WalkerMetrics.SpaceWidth; }
 						dimension_t GetKerningWidth() const { return WalkerMetrics.KerningWidth; }
 						dimension_t GetLineSpacing() const { return WalkerMetrics.LineSpacing; }
-						dimension_t GetOffsetX() const { return OffsetX; }
-						dimension_t GetOffsetY() const { return OffsetY; }
+						signed_t GetOffsetX() const { return OffsetX; }
+						signed_t GetOffsetY() const { return OffsetY; }
 
 
 						void Draw(IFrameBuffer* frame)
@@ -260,13 +269,14 @@ namespace Egfx
 					template<typename dimension_t, typename ParentLayout, typename number_t, typename FontType,
 						typename GlyphStyle = Framework::Image::TemplateImageStyle<>,
 						typename ColorShaderType = Shader::Color::NoShader<dimension_t>,
-						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>
+						typename TransformShaderType = Shader::Transform::NoTransform<dimension_t>,
+						typename PaletteType = Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>
 					>
 					class Number
 					{
 					private:
 						using TextDrawerType = Text<dimension_t, ParentLayout, FontType, GlyphStyle,
-							ColorShaderType, TransformShaderType>;
+							ColorShaderType, TransformShaderType, PaletteType>;
 						using unsigned_number_t = typename IntegerSignal::TypeTraits::TypeSign::make_unsigned<number_t>::type;
 
 						static constexpr size_t MaxCharacters =
@@ -290,6 +300,11 @@ namespace Egfx
 						TextDrawerType& GetTextDrawer()
 						{
 							return TextDrawer;
+						}
+
+						PaletteType& GetPalette()
+						{
+							return TextDrawer.GetPalette();
 						}
 
 						void SetNumber(const number_t number)

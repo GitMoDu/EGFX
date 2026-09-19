@@ -18,7 +18,7 @@ namespace Egfx
 				/// Timecode drawable (HH:MM:SS or MM:SS:cs).
 				template<typename dimension_t,
 					typename ParentLayout,
-					typename GlyphSourceType = Timecode::DefaultFont,
+					typename GlyphSourceType = Styles::DefaultFont,
 					typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
 					typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>
 				>
@@ -41,7 +41,9 @@ namespace Egfx
 
 				private:
 					using TextDrawerType = Framework::Text::Vector::Drawable::Text<
-						dimension_t, DigitLayout, GlyphSourceType, GlyphStyle, ColorShaderType, TransformShaderType>;
+						dimension_t, DigitLayout, GlyphSourceType, GlyphStyle,
+						Framework::Shader::Image::Vector::StaticColorPalette<RGB_COLOR_WHITE>,
+						ColorShaderType, TransformShaderType>;
 
 					TextDrawerType TextDrawer{};
 

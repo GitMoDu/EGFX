@@ -10,7 +10,10 @@ namespace Egfx
 	{
 		namespace Timecode
 		{
-			using DefaultFont = Modules::Kit::Font::Vector::Epoxy::FontType8x8;
+			namespace Styles
+			{
+				using DefaultFont = Modules::Kit::Font::Vector::Epoxy::FontType8x8;
+			}
 
 			namespace Dimensions
 			{

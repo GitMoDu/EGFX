@@ -12,7 +12,7 @@ namespace Egfx
 		namespace Timecode
 		{
 			template<typename ParentLayout,
-				typename FontType = Timecode::DefaultFont,
+				typename FontType = Styles::DefaultFont,
 				typename ColorShaderType = Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
 				typename TransformShaderType = Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>
 			>
@@ -79,10 +79,10 @@ namespace Egfx
 					typename ColorShaderType = Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
 					typename TransformShaderType = Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>
 				>
-				class DemoView : public View<ParentLayout, Timecode::DefaultFont, ColorShaderType, TransformShaderType>
+				class DemoView : public View<ParentLayout, Timecode::Styles::DefaultFont, ColorShaderType, TransformShaderType>
 				{
 				private:
-					using Base = View<ParentLayout, Timecode::DefaultFont, ColorShaderType, TransformShaderType>;
+					using Base = View<ParentLayout, Timecode::Styles::DefaultFont, ColorShaderType, TransformShaderType>;
 
 					enum class DemoStateEnum : uint8_t
 					{
@@ -94,9 +94,9 @@ namespace Egfx
 					};
 
 				private:
-					static constexpr uint32_t StartDelay = 2500000;
+					static constexpr uint32_t StartDelay = 1000000;
 					static constexpr uint32_t FlashDuration = 200000;
-					static constexpr uint32_t FlashDelay = 3000000;
+					static constexpr uint32_t FlashDelay = 1000000;
 
 				private:
 					uint32_t StartAnimation = 0;

@@ -42,9 +42,14 @@ namespace Egfx
 						{
 							const viewport_t viewport = self->Projector.GetViewport(Index, state);
 							auto& view = self->template view<Index>();
+							const int16_t childOriginX = static_cast<int16_t>(ProjectorType::ItemLayouter::ViewLayout::X() - ParentLayout::X());
+							const int16_t childOriginY = static_cast<int16_t>(ProjectorType::ItemLayouter::ViewLayout::Y() - ParentLayout::Y());
 							view.SetTranslation(viewport.TranslationX, viewport.TranslationY);
-							view.SetBounds(viewport.BoundsLeft, viewport.BoundsTop,
-								viewport.BoundsRight, viewport.BoundsBottom);
+							view.SetBounds(
+								static_cast<int16_t>(viewport.BoundsLeft + childOriginX),
+								static_cast<int16_t>(viewport.BoundsTop + childOriginY),
+								static_cast<int16_t>(viewport.BoundsRight + childOriginX),
+								static_cast<int16_t>(viewport.BoundsBottom + childOriginY));
 							ProjectionDispatcher<Index + 1, Count>::Project(self, state);
 						}
 					};

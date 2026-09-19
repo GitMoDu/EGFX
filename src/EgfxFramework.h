@@ -39,6 +39,7 @@
 #include "Framework/View/AbstractView.h"
 #include "Framework/View/DrawablesView.h"
 #include "Framework/View/CompositeView.h"
+#include "Framework/View/SelectorView.h"
 
 // Shader chain framework.
 #include "Framework/Shader/Model.h"

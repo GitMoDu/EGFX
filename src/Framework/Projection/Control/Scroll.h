@@ -100,9 +100,7 @@ namespace Egfx
 
 						void SetPageStartOverscroll(const UFraction16::scalar_t offset)
 						{
-							const UFraction16::scalar_t limitedOffset = MinValue<UFraction16::scalar_t>(
-								offset, static_cast<UFraction16::scalar_t>(UFraction16::SCALAR_UNIT / 2));
-							SetScroll(-static_cast<scroll_t>(limitedOffset));
+							SetScroll(-static_cast<scroll_t>(offset));
 						}
 
 						PagedScrollState GetState() const

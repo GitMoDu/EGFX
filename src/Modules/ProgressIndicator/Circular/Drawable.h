@@ -24,6 +24,7 @@ namespace Egfx
 							EmptyProgressArc() {}
 							~EmptyProgressArc() = default;
 
+							static constexpr bool IsVisible() { return false; }
 							static constexpr void Draw(IFrameBuffer* /*frame*/) {}
 							static constexpr void SetFilledAngleSweep(const angle_t /*angleSweep*/) {}
 							static constexpr void SetBounds(const dimension_t /*left*/, const dimension_t /*top*/,

@@ -139,6 +139,9 @@ namespace Egfx
 									LayoutFill::VerticalStartCapRight().x, startY,
 									LayoutCalc::FillRoundedDimension(), QuadrantEnum::BottomRight,
 									arcBoundaryMode, ringBoundaryMode);
+								Base::RectangleFill(frame,
+									LayoutFill::VerticalStartCapLeft().x, startY,
+									LayoutFill::VerticalStartCapRight().x, startY + LayoutCalc::FillRoundedDimension());
 								if (LayoutFill::HasFill())
 									Base::RectangleFill(frame,
 										LayoutFill::VerticalMiddle().topLeft.x, endY,
@@ -151,6 +154,9 @@ namespace Egfx
 									LayoutFill::VerticalTopCapRight().x, endY,
 									LayoutCalc::FillRoundedDimension(), QuadrantEnum::TopRight,
 									arcBoundaryMode, ringBoundaryMode);
+								Base::RectangleFill(frame,
+									LayoutFill::VerticalTopCapLeft().x, endY - LayoutCalc::FillRoundedDimension(),
+									LayoutFill::VerticalTopCapRight().x, endY);
 							}
 							else
 							{
@@ -167,6 +173,9 @@ namespace Egfx
 									LayoutFill::VerticalTopCapRight().x, startY,
 									LayoutCalc::FillRoundedDimension(), QuadrantEnum::TopRight,
 									arcBoundaryMode, ringBoundaryMode);
+								Base::RectangleFill(frame,
+									LayoutFill::VerticalTopCapLeft().x, startY - LayoutCalc::FillRoundedDimension(),
+									LayoutFill::VerticalTopCapRight().x, startY);
 								if (LayoutFill::HasFill())
 									Base::RectangleFill(frame,
 										LayoutFill::VerticalMiddle().topLeft.x, startY,
@@ -179,6 +188,9 @@ namespace Egfx
 									LayoutFill::VerticalStartCapRight().x, endY,
 									LayoutCalc::FillRoundedDimension(), QuadrantEnum::BottomRight,
 									arcBoundaryMode, ringBoundaryMode);
+								Base::RectangleFill(frame,
+									LayoutFill::VerticalStartCapLeft().x, endY,
+									LayoutFill::VerticalStartCapRight().x, endY + LayoutCalc::FillRoundedDimension());
 							}
 						}
 						else
@@ -368,102 +380,9 @@ namespace Egfx
 
 					void Draw(IFrameBuffer* frame)
 					{
-						static constexpr RingBoundaryModeEnum ringBoundaryMode = (Style::FillMargin > 0) ? RingBoundaryModeEnum::ExcludeInner : RingBoundaryModeEnum::ExcludeInnerAndOuter;
-						//static constexpr RingBoundaryModeEnum ringBoundaryMode =RingBoundaryModeEnum::ExcludeInnerAndOuter;
-						static constexpr ArcBoundaryModeEnum arcBoundaryMode = ArcBoundaryModeEnum::ExcludeStartAndEnd;
-
-
 						Base::Prepare(ParentLayout::X(), ParentLayout::Y());
-
-						if (LayoutCalc::IsVertical())
-						{
-							if (LayoutCalc::IsReversed())
-							{
-								//TODO: Implement after basic left-to-right fill is working correctly.
-							}
-							else
-							{
-								//TODO: Implement after basic left-to-right fill is working correctly.
-							}
-						}
-						else
-						{
-							if (LayoutCalc::IsReversed())
-							{
-								//TODO: Implement after basic left-to-right fill is working correctly.
-							}
-							else
-							{
-								// Fill start cap.
-
-								if (FilledDimension == 0)
-								{
-									Base::CircleQuadrantFill(frame,
-										LayoutFill::HorizontalStartCapTop().x, LayoutFill::HorizontalStartCapTop().y,
-										LayoutCalc::FillRoundedDimension(), QuadrantEnum::TopLeft,
-										arcBoundaryMode, ringBoundaryMode);
-									Base::RectangleFill(frame,
-										LayoutFill::HorizontalStartCapMiddle().topLeft.x, LayoutFill::HorizontalStartCapMiddle().topLeft.y,
-										LayoutFill::HorizontalStartCapMiddle().bottomRight.x, LayoutFill::HorizontalStartCapMiddle().bottomRight.y);
-									Base::CircleQuadrantFill(frame,
-										LayoutFill::HorizontalStartCapBottom().x, LayoutFill::HorizontalStartCapBottom().y,
-										LayoutCalc::FillRoundedDimension(), QuadrantEnum::BottomLeft,
-										arcBoundaryMode, ringBoundaryMode);
-								}
-
-
-								// Fill end cap outside of the rectangle area to ensure that the fill is drawn outside of the end cap area.
-								if (FilledDimension < static_cast<dimension_t>(LayoutFill::RangeLength() - (LayoutCalc::FillRoundedDimension() / 2)))
-								{
-									// Fill in center rectangle area.
-									if (LayoutFill::HasFill())
-										Base::RectangleFill(frame,
-											LayoutFill::RectangleFillBounds().topLeft.x + FilledDimension + LayoutCalc::FillRoundedDimension(), LayoutFill::RectangleFillBounds().topLeft.y,
-											LayoutFill::RectangleFillBounds().bottomRight.x, LayoutFill::RectangleFillBounds().bottomRight.y);
-
-									// Fill outside rounded corners.
-									Base::CircleQuadrantFillOutside(frame,
-										LayoutFill::HorizontalEndCapTop().x + FilledDimension, LayoutFill::HorizontalEndCapTop().y,
-										LayoutCalc::FillRoundedDimension(), QuadrantEnum::TopRight,
-										arcBoundaryMode, RingBoundaryModeEnum::ExcludeInnerAndOuter);
-									Base::CircleQuadrantFillOutside(frame,
-										LayoutFill::HorizontalEndCapBottom().x + FilledDimension, LayoutFill::HorizontalEndCapBottom().y,
-										LayoutCalc::FillRoundedDimension(), QuadrantEnum::BottomRight,
-										arcBoundaryMode, RingBoundaryModeEnum::ExcludeInnerAndOuter);
-
-									// Fill end cap.
-									Base::CircleQuadrantFill(frame,
-										LayoutFill::HorizontalEndCapTop().x + LayoutCalc::FillRange(), LayoutFill::HorizontalEndCapTop().y,
-										LayoutCalc::FillRoundedDimension(), QuadrantEnum::TopRight,
-										arcBoundaryMode, ringBoundaryMode);
-									Base::RectangleFill(frame,
-										LayoutFill::HorizontalEndCapMiddle().topLeft.x + LayoutCalc::FillRange(), LayoutFill::HorizontalEndCapMiddle().topLeft.y,
-										LayoutFill::HorizontalEndCapMiddle().bottomRight.x + LayoutCalc::FillRange(), LayoutFill::HorizontalEndCapMiddle().bottomRight.y);
-									Base::CircleQuadrantFill(frame,
-										LayoutFill::HorizontalEndCapBottom().x + LayoutCalc::FillRange(), LayoutFill::HorizontalEndCapBottom().y,
-										LayoutCalc::FillRoundedDimension(), QuadrantEnum::BottomRight,
-										arcBoundaryMode, ringBoundaryMode);
-								}
-								else
-								{
-									// Draw dynamic arc fill for the end cap when the filled dimension is greater than the fill range but less than the total range length.
-									const dimension_t incursion = LayoutCalc::FillRange() - FilledDimension;
-									Base::CircleQuadrantRingFill(frame,
-										LayoutFill::HorizontalEndCapTop().x + LayoutCalc::FillRange(), LayoutFill::HorizontalEndCapTop().y,
-										LayoutCalc::FillRoundedDimension(), LayoutCalc::FillRoundedDimension() - incursion,
-										QuadrantEnum::TopRight,
-										arcBoundaryMode, RingBoundaryModeEnum::ExcludeInnerAndOuter);
-									Base::RectangleFill(frame,
-										LayoutFill::HorizontalEndCapMiddle().topLeft.x + incursion, LayoutFill::HorizontalEndCapMiddle().topLeft.y,
-										LayoutFill::HorizontalEndCapMiddle().bottomRight.x + LayoutCalc::FillRange(), LayoutFill::HorizontalEndCapMiddle().bottomRight.y);
-									Base::CircleQuadrantRingFill(frame,
-										LayoutFill::HorizontalEndCapTop().x + LayoutCalc::FillRange(), LayoutFill::HorizontalEndCapBottom().y,
-										LayoutCalc::FillRoundedDimension(), LayoutCalc::FillRoundedDimension() - incursion,
-										QuadrantEnum::BottomRight,
-										arcBoundaryMode, RingBoundaryModeEnum::ExcludeInnerAndOuter);
-								}
-							}
-						}
+						Base::SetFilledDimension(LayoutFill::RangeLength());
+						Base::Draw(frame);
 					}
 				};
 

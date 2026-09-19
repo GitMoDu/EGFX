@@ -377,8 +377,8 @@ namespace Egfx
 						static constexpr pixel_rectangle_t VerticalMiddle()
 						{
 							return pixel_rectangle_t{
-								{ EffectiveCornerRadius(), EffectiveStrokeWidth() + Style::FillMargin },
-								{ ParentLayout::Width() - 1 - EffectiveCornerRadius(),
+								{ EffectiveStrokeWidth() + Style::FillMargin, EffectiveStrokeWidth() + Style::FillMargin },
+								{ ParentLayout::Width() - 1 - EffectiveStrokeWidth() - Style::FillMargin,
 									ParentLayout::Height() - 1 - EffectiveStrokeWidth() - Style::FillMargin }
 							};
 						}

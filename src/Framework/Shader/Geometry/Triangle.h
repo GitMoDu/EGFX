@@ -28,8 +28,9 @@ namespace Egfx
 					using Base = RectangleShader<dimension_t, PixelShaderType>;
 
 				private:
-					using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
 					using bresenham_t = typename AutoDimension::ByDimension<dimension_t>::signed_wide_t;
+					using signed_t = typename AutoDimension::ByDimension<dimension_t>::signed_t;
+					using clip_t = typename IntegerSignal::TypeTraits::TypeNext::next_int_type<bresenham_t>::type;
 
 				private:
 					// Extract shader types for compile-time optimizations.
@@ -57,6 +58,21 @@ namespace Egfx
 						IntegerSignal::TypeTraits::TypeDispatch::TrueType,
 						IntegerSignal::TypeTraits::TypeDispatch::FalseType,
 						UseOverdraw>::type;
+
+					struct clip_point_t
+					{
+						clip_t x;
+						clip_t y;
+					};
+
+					enum class ClipEdgeEnum : uint8_t
+					{
+						Left,
+						Right,
+						Top,
+						Bottom
+					};
+
 
 				protected:
 					/// <summary>
@@ -99,40 +115,28 @@ namespace Egfx
 
 						{
 							signed_t tmp;
-							if (ay > by)
-							{
-								tmp = ax; ax = bx; bx = tmp;
-								tmp = ay; ay = by; by = tmp;
-							}
-							if (by > cy)
-							{
-								tmp = bx; bx = cx; cx = tmp;
-								tmp = by; by = cy; cy = tmp;
-							}
-							if (ay > by)
-							{
-								tmp = ax; ax = bx; bx = tmp;
-								tmp = ay; ay = by; by = tmp;
-							}
+							if (ay > by) { tmp = ax; ax = bx; bx = tmp; tmp = ay; ay = by; by = tmp; }
+							if (by > cy) { tmp = bx; bx = cx; cx = tmp; tmp = by; by = cy; cy = tmp; }
+							if (ay > by) { tmp = ax; ax = bx; bx = tmp; tmp = ay; ay = by; by = tmp; }
 						}
 
 						// Degenerate (single scanline).
 						if (ay == cy)
 						{
-							const dimension_t xStart = static_cast<dimension_t>(MinValue(ax, MinValue(bx, cx)));
-							const dimension_t xEnd = static_cast<dimension_t>(MaxValue(ax, MaxValue(bx, cx)));
-							Base::Line(framebuffer, xStart, static_cast<dimension_t>(ay), xEnd, static_cast<dimension_t>(ay));
+							Base::Line(framebuffer,
+								static_cast<dimension_t>(MinValue(ax, MinValue(bx, cx))),
+								static_cast<dimension_t>(ay),
+								static_cast<dimension_t>(MaxValue(ax, MaxValue(bx, cx))),
+								static_cast<dimension_t>(ay));
 							return;
 						}
 
 						const signed_t hTop = by - ay;
 						const signed_t hBottom = cy - by;
 						const signed_t hTotal = cy - ay;
-
-						const bresenham_t dxLong = (hTotal != 0) ? (IntToFixed((cx - ax)) / hTotal) : 0;
-						const bresenham_t dxTop = (hTop != 0) ? (IntToFixed((bx - ax)) / hTop) : 0;
-						const bresenham_t dxBottom = (hBottom != 0) ? (IntToFixed((cx - bx)) / hBottom) : 0;
-
+						const bresenham_t dxLong = (hTotal != 0) ? (IntToFixed(static_cast<signed_t>(cx - ax)) / hTotal) : 0;
+						const bresenham_t dxTop = (hTop != 0) ? (IntToFixed(static_cast<signed_t>(bx - ax)) / hTop) : 0;
+						const bresenham_t dxBottom = (hBottom != 0) ? (IntToFixed(static_cast<signed_t>(cx - bx)) / hBottom) : 0;
 						const bresenham_t fxA = IntToFixed(ax);
 						const bresenham_t fxB = IntToFixed(bx);
 
@@ -144,25 +148,12 @@ namespace Egfx
 						{
 							const bresenham_t stepLeft = longEdgeIsLeft ? dxLong : dxTop;
 							const bresenham_t stepRight = longEdgeIsLeft ? dxTop : dxLong;
-
 							if (hBottom > 0)
-							{
-								FillTriangleSegment(framebuffer,
-									ay, by,
-									fxA, fxA,
-									stepLeft, stepRight,
-									OverdrawTag{},
-									TypeTraits::TypeDispatch::FalseType{});
-							}
+								FillTriangleSegment(framebuffer, ay, by, fxA, fxA, stepLeft, stepRight,
+									OverdrawTag{}, TypeTraits::TypeDispatch::FalseType{});
 							else
-							{
-								FillTriangleSegment(framebuffer,
-									ay, by,
-									fxA, fxA,
-									stepLeft, stepRight,
-									OverdrawTag{},
-									TypeTraits::TypeDispatch::TrueType{});
-							}
+								FillTriangleSegment(framebuffer, ay, by, fxA, fxA, stepLeft, stepRight,
+									OverdrawTag{}, TypeTraits::TypeDispatch::TrueType{});
 						}
 
 						// Bottom segment [by, cy) or [by, cy] when overdraw is enabled.
@@ -170,22 +161,114 @@ namespace Egfx
 						{
 							const bresenham_t stepLeft = longEdgeIsLeft ? dxLong : dxBottom;
 							const bresenham_t stepRight = longEdgeIsLeft ? dxBottom : dxLong;
-
 							const bresenham_t fxLongAtB = fxA + dxLong * hTop;
-
 							const bresenham_t fxLeft = longEdgeIsLeft ? fxLongAtB : fxB;
 							const bresenham_t fxRight = longEdgeIsLeft ? fxB : fxLongAtB;
+							FillTriangleSegment(framebuffer, by, cy, fxLeft, fxRight, stepLeft, stepRight,
+								OverdrawTag{}, TypeTraits::TypeDispatch::TrueType{});
+						}
+					}
 
-							FillTriangleSegment(framebuffer,
-								by, cy,
-								fxLeft, fxRight,
-								stepLeft, stepRight,
-								OverdrawTag{},
-								TypeTraits::TypeDispatch::TrueType{});
+					/// <summary>
+					/// Fills a triangle defined by three vertices in widened signed local space coordinates.
+					/// The triangle is clipped to the shader's bounds before rasterization.
+					/// Sorts vertices by Y, splits vertices into top and bottom segments, then emits horizontal scanlines using the underlying line shader.
+					/// </summary>
+					/// <param name="framebuffer">Target framebuffer to draw into.</param>
+					/// <param name="x1">Vertex 1 X coordinate (local space).</param>
+					/// <param name="y1">Vertex 1 Y coordinate (local space).</param>
+					/// <param name="x2">Vertex 2 X coordinate (local space).</param>
+					/// <param name="y2">Vertex 2 Y coordinate (local space).</param>
+					/// <param name="x3">Vertex 3 X coordinate (local space).</param>
+					/// <param name="y3">Vertex 3 Y coordinate (local space).</param>
+					void TriangleFillClipped(IFrameBuffer* framebuffer,
+						const pixel_t x1, const pixel_t y1,
+						const pixel_t x2, const pixel_t y2,
+						const pixel_t x3, const pixel_t y3)
+					{
+						clip_point_t polygonA[7] = {
+							{ static_cast<clip_t>(x1), static_cast<clip_t>(y1) },
+							{ static_cast<clip_t>(x2), static_cast<clip_t>(y2) },
+							{ static_cast<clip_t>(x3), static_cast<clip_t>(y3) }
+						};
+						clip_point_t polygonB[7];
+						uint8_t count = 3;
+
+						count = ClipPolygon(polygonA, count, polygonB, ClipEdgeEnum::Left, static_cast<clip_t>(Base::GetBoundsLeft()));
+						count = ClipPolygon(polygonB, count, polygonA, ClipEdgeEnum::Right, static_cast<clip_t>(Base::GetBoundsRight()) - 1);
+						count = ClipPolygon(polygonA, count, polygonB, ClipEdgeEnum::Top, static_cast<clip_t>(Base::GetBoundsTop()));
+						count = ClipPolygon(polygonB, count, polygonA, ClipEdgeEnum::Bottom, static_cast<clip_t>(Base::GetBoundsBottom()) - 1);
+
+						for (uint8_t index = 1; static_cast<uint8_t>(index + 1) < count; index++)
+						{
+							TriangleFill(framebuffer,
+								static_cast<dimension_t>(polygonA[0].x), static_cast<dimension_t>(polygonA[0].y),
+								static_cast<dimension_t>(polygonA[index].x), static_cast<dimension_t>(polygonA[index].y),
+								static_cast<dimension_t>(polygonA[index + 1].x), static_cast<dimension_t>(polygonA[index + 1].y));
 						}
 					}
 
 				private:
+					static bool IsInsideClipEdge(const clip_point_t point, const ClipEdgeEnum edge, const clip_t boundary)
+					{
+						switch (edge)
+						{
+						case ClipEdgeEnum::Left: return point.x >= boundary;
+						case ClipEdgeEnum::Right: return point.x <= boundary;
+						case ClipEdgeEnum::Top: return point.y >= boundary;
+						default: return point.y <= boundary;
+						}
+					}
+
+					static clip_point_t IntersectClipEdge(const clip_point_t from, const clip_point_t to,
+						const ClipEdgeEnum edge, const clip_t boundary)
+					{
+						if (edge == ClipEdgeEnum::Left || edge == ClipEdgeEnum::Right)
+						{
+							return clip_point_t{
+								boundary,
+								from.y + ((to.y - from.y) * (boundary - from.x)) / (to.x - from.x)
+							};
+						}
+
+						return clip_point_t{
+							from.x + ((to.x - from.x) * (boundary - from.y)) / (to.y - from.y),
+							boundary
+						};
+					}
+
+					static uint8_t ClipPolygon(const clip_point_t* input, const uint8_t inputCount,
+						clip_point_t* output, const ClipEdgeEnum edge, const clip_t boundary)
+					{
+						if (inputCount == 0)
+						{
+							return 0;
+						}
+
+						uint8_t outputCount = 0;
+						clip_point_t previous = input[inputCount - 1];
+						bool previousInside = IsInsideClipEdge(previous, edge, boundary);
+
+						for (uint8_t index = 0; index < inputCount; index++)
+						{
+							const clip_point_t current = input[index];
+							const bool currentInside = IsInsideClipEdge(current, edge, boundary);
+							if (currentInside != previousInside)
+							{
+								output[outputCount++] = IntersectClipEdge(previous, current, edge, boundary);
+							}
+							if (currentInside)
+							{
+								output[outputCount++] = current;
+							}
+
+							previous = current;
+							previousInside = currentInside;
+						}
+
+						return outputCount;
+					}
+
 					/// <summary>
 					/// Fills a horizontal segment of a triangle by drawing scanlines between interpolated left and right edges.
 					/// </summary>
@@ -207,18 +290,23 @@ namespace Egfx
 						TypeTraits::TypeDispatch::FalseType)
 					{
 						yEnd = MaxValue(yStart, yEnd);
+						const signed_t top = static_cast<signed_t>(Base::GetBoundsTop());
+						const signed_t bottom = static_cast<signed_t>(Base::GetBoundsBottom());
+						const signed_t left = static_cast<signed_t>(Base::GetBoundsLeft());
+						const signed_t right = static_cast<signed_t>(Base::GetBoundsRight()) - 1;
 
 						for (signed_t y = yStart; y < yEnd; y++)
 						{
 							const signed_t startX = FixedRoundToInt(fxLeft);
 							const signed_t endX = FixedRoundToInt(fxRight) - 1;
 
-							if (startX <= endX)
+							const signed_t clippedStartX = MaxValue(startX, left);
+							const signed_t clippedEndX = MinValue(endX, right);
+							if (y >= top && y < bottom && clippedStartX <= clippedEndX)
 							{
 								Base::LineHorizontal(framebuffer,
-									startX,
-									endX,
-									y, SkipSourceTag{}, SkipTransformTag{});
+									static_cast<dimension_t>(clippedStartX), static_cast<dimension_t>(clippedEndX),
+									static_cast<dimension_t>(y), SkipSourceTag{}, SkipTransformTag{});
 							}
 
 							fxLeft += stepLeft;
@@ -255,18 +343,23 @@ namespace Egfx
 						TypeTraits::TypeDispatch::FalseType)
 					{
 						yEnd = MaxValue(yStart, yEnd);
+						const signed_t boundsTop = static_cast<signed_t>(Base::GetBoundsTop());
+						const signed_t boundsBottom = static_cast<signed_t>(Base::GetBoundsBottom());
+						const signed_t boundsLeft = static_cast<signed_t>(Base::GetBoundsLeft());
+						const signed_t boundsRight = static_cast<signed_t>(Base::GetBoundsRight()) - 1;
 
 						for (signed_t y = yStart; y < yEnd; y++)
 						{
 							const signed_t startX = FixedRoundToInt(fxLeft);
 							const signed_t endX = FixedRoundToInt(fxRight);
 
-							if (startX <= endX)
+							const signed_t clippedStartX = MaxValue(startX, boundsLeft);
+							const signed_t clippedEndX = MinValue(endX, boundsRight);
+							if (y >= boundsTop && y < boundsBottom && clippedStartX <= clippedEndX)
 							{
 								Base::LineHorizontal(framebuffer,
-									startX,
-									endX,
-									y, SkipSourceTag{}, SkipTransformTag{});
+									static_cast<dimension_t>(clippedStartX), static_cast<dimension_t>(clippedEndX),
+									static_cast<dimension_t>(y), SkipSourceTag{}, SkipTransformTag{});
 							}
 
 							fxLeft += stepLeft;
@@ -288,18 +381,23 @@ namespace Egfx
 						{
 							return;
 						}
+						const signed_t top = static_cast<signed_t>(Base::GetBoundsTop());
+						const signed_t bottom = static_cast<signed_t>(Base::GetBoundsBottom());
+						const signed_t left = static_cast<signed_t>(Base::GetBoundsLeft());
+						const signed_t right = static_cast<signed_t>(Base::GetBoundsRight()) - 1;
 
 						for (signed_t y = yStart; y <= yEnd; y++)
 						{
 							const signed_t startX = FixedRoundToInt(fxLeft);
 							const signed_t endX = FixedRoundToInt(fxRight);
 
-							if (startX <= endX)
+							const signed_t clippedStartX = MaxValue(startX, left);
+							const signed_t clippedEndX = MinValue(endX, right);
+							if (y >= top && y < bottom && clippedStartX <= clippedEndX)
 							{
 								Base::LineHorizontal(framebuffer,
-									startX,
-									endX,
-									y, SkipSourceTag{}, SkipTransformTag{});
+									static_cast<dimension_t>(clippedStartX), static_cast<dimension_t>(clippedEndX),
+									static_cast<dimension_t>(y), SkipSourceTag{}, SkipTransformTag{});
 							}
 
 							fxLeft += stepLeft;
@@ -307,7 +405,7 @@ namespace Egfx
 						}
 					}
 
-				private:
+
 					/// <summary>
 					/// Rounds a fixed-point value to the nearest integer using a signed right shift.
 					/// </summary>
@@ -319,7 +417,7 @@ namespace Egfx
 					/// <summary>
 					/// Converts an integer pixel coordinate to fixed-point representation.
 					/// </summary>
-					static constexpr bresenham_t IntToFixed(const signed_t x)
+					static constexpr bresenham_t IntToFixed(const pixel_t x)
 					{
 						return SignedLeftShift<bresenham_t>(static_cast<bresenham_t>(x), BRESENHAM_SCALE);
 					}

@@ -80,18 +80,14 @@ namespace IntegerGlass
 								BytesLineRemainder = static_cast<uint8_t>(width % Framework::Bitmask::BitsPerByte);
 								LastByteBitCount = (BytesLineRemainder == 0) ? Framework::Bitmask::BitsPerByte : BytesLineRemainder;
 
-								DrawGeneric(frame, bitmask,
-									width, height, offsetX, offsetY);
+								DrawGeneric(frame, width, height, offsetX, offsetY);
 							}
 						}
 
 					private:
 						void DrawGeneric(IFrameBuffer* frame,
-							const uint8_t* bitmask,
-							const dimension_t width,
-							const dimension_t height,
-							const dimension_t offsetX,
-							const dimension_t offsetY)
+							const dimension_t width, const dimension_t height,
+							const dimension_t offsetX, const dimension_t offsetY)
 						{
 							for (dimension_t row = 0; row < height; row++)
 							{

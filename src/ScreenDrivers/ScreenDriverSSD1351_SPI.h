@@ -7,17 +7,17 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "SSD1351/SSD1351.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename pixel_color_t,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverSSD1351_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverSSD1351_SPI : public AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(SSD1351::Width, SSD1351::Height), SSD1351::Width, SSD1351::Height, pinCS, pinDC, pinRST>;
 
 	public:
 		using BaseClass::ScreenWidth;
@@ -34,7 +34,7 @@ namespace Egfx
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverSSD1351_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverSSD1351_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(SSD1351::LimitedSpiSpeed(spiSpeed), MSBFIRST, SPI_MODE0)
 		{
@@ -173,7 +173,7 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverSSD1351_128x128x16_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSSD1351_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+	using ScreenDriverSSD1351_128x128x16_SPI_Rtos = TemplateScreenDriverRtos<IntegerGlass::SpiType, ScreenDriverSSD1351_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif

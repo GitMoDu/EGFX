@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_IMAGE_VECTOR_VIEW_h
-#define _EGFX_FRAMEWORK_IMAGE_VECTOR_VIEW_h
+#ifndef _INTEGERGLASS_FRAMEWORK_IMAGE_VECTOR_VIEW_h
+#define _INTEGERGLASS_FRAMEWORK_IMAGE_VECTOR_VIEW_h
 
 #include "Drawable.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

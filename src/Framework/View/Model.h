@@ -1,14 +1,14 @@
-#ifndef _EGFX_FRAMEWORK_VIEW_MODEL_h
-#define _EGFX_FRAMEWORK_VIEW_MODEL_h
+#ifndef _INTEGERGLASS_FRAMEWORK_VIEW_MODEL_h
+#define _INTEGERGLASS_FRAMEWORK_VIEW_MODEL_h
 
 #include "../../Model/IFrameDraw.h"
 #include "../Layout/Model.h"
 #include "../Support.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
-	/// EGFX Framework is a compile-time toolkit for building drawables and views.
+	/// INTEGERGLASS Framework is a compile-time toolkit for building drawables and views.
 	/// Drawables are passive renderers; views orchestrate animation and composition over time.
 	/// </summary>
 	namespace Framework

@@ -7,7 +7,7 @@
 #include "TemplateScreenDriverI2CAsync.h"
 #include "SH1107/SH1107.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<const uint8_t width,
 		const uint8_t height,
@@ -15,7 +15,7 @@ namespace Egfx
 	class AbstractScreenDriverSH1107_I2C : public AbstractScreenDriverI2C<width, height, i2cAddress>
 	{
 	public:
-		static constexpr size_t BufferSize = Egfx::GetFrameBufferMonochromeSize(width, height);
+		static constexpr size_t BufferSize = IntegerGlass::GetFrameBufferMonochromeSize(width, height);
 
 	private:
 		using BaseClass = AbstractScreenDriverI2C<width, height, i2cAddress>;

@@ -1,5 +1,5 @@
-#ifndef _EGFX_SCREEN_DRIVERS_GC9A01_SPI_h
-#define _EGFX_SCREEN_DRIVERS_GC9A01_SPI_h
+#ifndef _INTEGERGLASS_SCREEN_DRIVERS_GC9A01_SPI_h
+#define _INTEGERGLASS_SCREEN_DRIVERS_GC9A01_SPI_h
 
 #include "AbstractScreenDriverSPI.h"
 #include "TemplateScreenDriverRtos.h"
@@ -7,22 +7,22 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "GC9A01/GC9A01.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename pixel_color_t,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverGC9A01_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(GC9A01::Width, GC9A01::Height), GC9A01::Width, GC9A01::Height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverGC9A01_SPI : public AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(GC9A01::Width, GC9A01::Height), GC9A01::Width, GC9A01::Height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(GC9A01::Width, GC9A01::Height), GC9A01::Width, GC9A01::Height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(GC9A01::Width, GC9A01::Height), GC9A01::Width, GC9A01::Height, pinCS, pinDC, pinRST>;
 
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverGC9A01_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverGC9A01_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(GC9A01::LimitedSpiSpeed(spiSpeed), MSBFIRST, SPI_MODE0)
 		{
@@ -166,7 +166,7 @@ namespace Egfx
 		uint32_t stackHeight = 1500,
 		const UBaseType_t priority = 1
 	>
-	using ScreenDriverGC9A01_240x240x16_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverGC9A01_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority>;
+	using ScreenDriverGC9A01_240x240x16_SPI_Rtos = TemplateScreenDriverRtos<IntegerGlass::SpiType, ScreenDriverGC9A01_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority>;
 #endif
 }
 #endif

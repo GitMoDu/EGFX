@@ -5,7 +5,7 @@
 
 #include <Wire.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Platform I2C type.

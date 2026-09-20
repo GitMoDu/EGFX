@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_EXAMPLE_IMAGES_h
-#define _EGFX_MODULES_EXAMPLE_IMAGES_h
+#ifndef _INTEGERGLASS_MODULES_EXAMPLE_IMAGES_h
+#define _INTEGERGLASS_MODULES_EXAMPLE_IMAGES_h
 
-#include "../../EgfxFramework.h"
+#include "../../IntegerGlassFramework.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
@@ -41,7 +41,7 @@ namespace Egfx
 							static constexpr dimension_t Width = 32;
 							static constexpr dimension_t Height = sizeof(Mask) / (Width / 8);
 
-							static constexpr Egfx::Framework::DataSourceTypeEnum DataSourceType = Egfx::Framework::DataSourceTypeEnum::Flash;
+							static constexpr IntegerGlass::Framework::DataSourceTypeEnum DataSourceType = IntegerGlass::Framework::DataSourceTypeEnum::Flash;
 
 							static const uint8_t* GetBitmask()
 							{
@@ -133,7 +133,7 @@ namespace Egfx
 							static constexpr dimension_t Width = 32;
 							static constexpr dimension_t Height = (sizeof(Bitmap) / Width) / sizeof(color_t);
 
-							static constexpr Egfx::Framework::DataSourceTypeEnum DataSourceType = Egfx::Framework::DataSourceTypeEnum::Flash;
+							static constexpr IntegerGlass::Framework::DataSourceTypeEnum DataSourceType = IntegerGlass::Framework::DataSourceTypeEnum::Flash;
 
 							static const color_t* GetBitmap()
 							{
@@ -152,25 +152,25 @@ namespace Egfx
 						static constexpr uint8_t ThicknessScale = 128;
 						static constexpr uint8_t Inset = 0;
 
-						static constexpr Egfx::rgb_color_t Palette[6]
+						static constexpr IntegerGlass::rgb_color_t Palette[6]
 						{
-							Egfx::Rgb::Color(uint32_t(0xFFCD1A)),
-							Egfx::Rgb::Color(uint32_t(0xFEF5BE)),
-							Egfx::Rgb::Color(uint32_t(0x996900)),
-							Egfx::Rgb::Color(uint32_t(0x39352D)),
-							Egfx::Rgb::Color(uint32_t(0x000000)),
-							Egfx::Rgb::Color(uint32_t(0xFFFFFF))
+							IntegerGlass::Rgb::Color(uint32_t(0xFFCD1A)),
+							IntegerGlass::Rgb::Color(uint32_t(0xFEF5BE)),
+							IntegerGlass::Rgb::Color(uint32_t(0x996900)),
+							IntegerGlass::Rgb::Color(uint32_t(0x39352D)),
+							IntegerGlass::Rgb::Color(uint32_t(0x000000)),
+							IntegerGlass::Rgb::Color(uint32_t(0xFFFFFF))
 						};
 
 						struct PaletteSource
 						{
-							static constexpr Egfx::rgb_color_t GetColor(const uint8_t colorIndex)
+							static constexpr IntegerGlass::rgb_color_t GetColor(const uint8_t colorIndex)
 							{
 								return Palette[colorIndex % 6];
 							}
 						};
 
-						static constexpr Egfx::Framework::Vector::Image255x255::packed_t Data[] PROGMEM
+						static constexpr IntegerGlass::Framework::Vector::Image255x255::packed_t Data[] PROGMEM
 						{
 							0xFF01, 0x0000, 0xFF0C, 0x1213, 0x0C00, 0x388D, 0xFF04, 0x1210, 0x0709,
 							0xFF0C, 0x0C13, 0x0C00, 0x74C1, 0xFF0C, 0x0A13, 0x0A00, 0x72EA, 0xFF0C,
@@ -242,7 +242,7 @@ namespace Egfx
 						static constexpr uint8_t ThicknessScale = 32;
 						static constexpr uint8_t Inset = 1;
 
-						static constexpr Egfx::Framework::Vector::Image15x15::packed_t Data[] PROGMEM
+						static constexpr IntegerGlass::Framework::Vector::Image15x15::packed_t Data[] PROGMEM
 						{
 							0xC5, 0xA2, 0xA0, 0x82, 0x42, 0x20, 0x11, 0x14, 0x14, 0x07, 0xF0, 0x04,
 							0x35, 0x57, 0x77, 0x95, 0xB7, 0xC7, 0xE5, 0x85, 0x35, 0xF0, 0x85, 0x67,

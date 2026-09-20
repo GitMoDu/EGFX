@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_TIMECODE_CONSTANT_h
-#define _EGFX_MODULES_TIMECODE_CONSTANT_h
+#ifndef _INTEGERGLASS_MODULES_TIMECODE_CONSTANT_h
+#define _INTEGERGLASS_MODULES_TIMECODE_CONSTANT_h
 
-#include "../../EgfxFramework.h"
+#include "../../IntegerGlassFramework.h"
 #include "../../Modules/Kit/Font/Vector/Epoxy/FontType.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

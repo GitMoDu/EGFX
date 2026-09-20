@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_KIT_INCLUDE_h
-#define _EGFX_MODULES_KIT_INCLUDE_h
+#ifndef _INTEGERGLASS_MODULES_KIT_INCLUDE_h
+#define _INTEGERGLASS_MODULES_KIT_INCLUDE_h
 
 // Color sources.
 #include "Shader/Source/Checkerboard.h"

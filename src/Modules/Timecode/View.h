@@ -1,11 +1,11 @@
-#ifndef _EGFX_MODULES_TIMECODE_VIEW_h
-#define _EGFX_MODULES_TIMECODE_VIEW_h
+#ifndef _INTEGERGLASS_MODULES_TIMECODE_VIEW_h
+#define _INTEGERGLASS_MODULES_TIMECODE_VIEW_h
 
 #include "Constant.h"
 #include "Layout.h"
 #include "Drawable.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
@@ -16,7 +16,7 @@ namespace Egfx
 				typename ColorShaderType = Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
 				typename TransformShaderType = Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>
 			>
-			class View : public Egfx::Framework::View::DrawablesView<ParentLayout,
+			class View : public IntegerGlass::Framework::View::DrawablesView<ParentLayout,
 				Drawable::Timecode<
 					typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t,
 					Framework::Layout::Align<ParentLayout,
@@ -34,7 +34,7 @@ namespace Egfx
 					Framework::Layout::AlignmentEnum::MiddleCenter>;
 				using DrawableType = Drawable::Timecode<dimension_t, DrawableLayout,
 					FontType, ColorShaderType, TransformShaderType>;
-				using Base = Egfx::Framework::View::DrawablesView<ParentLayout, DrawableType>;
+				using Base = IntegerGlass::Framework::View::DrawablesView<ParentLayout, DrawableType>;
 
 			public:
 				View() : Base() {}
@@ -45,7 +45,7 @@ namespace Egfx
 					return Base::template drawable<0>();
 				}
 
-				void SetTextColor(const Egfx::rgb_color_t color)
+				void SetTextColor(const IntegerGlass::rgb_color_t color)
 				{
 					Drawable().GetTextDrawer().ColorSource.Color = color;
 				}

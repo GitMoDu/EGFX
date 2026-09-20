@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_LAYOUT_MARGIN_h
-#define _EGFX_FRAMEWORK_LAYOUT_MARGIN_h
+#ifndef _INTEGERGLASS_FRAMEWORK_LAYOUT_MARGIN_h
+#define _INTEGERGLASS_FRAMEWORK_LAYOUT_MARGIN_h
 
 #include "Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

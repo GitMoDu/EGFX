@@ -7,7 +7,7 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "ST7789/ST7789.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename pixel_color_t,
 		const uint16_t width,
@@ -18,10 +18,10 @@ namespace Egfx
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverST7789_SPI : public AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>;
 
 	public:
 		using BaseClass::ScreenWidth;
@@ -38,7 +38,7 @@ namespace Egfx
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverST7789_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverST7789_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(ST7789::LimitedSpiSpeed(spiSpeed), MSBFIRST, SPI_MODE0)
 		{
@@ -166,14 +166,14 @@ namespace Egfx
 	>
 	using ScreenDriverST7789_240x240x16_SPI_Rtos =
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,
 		priority,
 		coreAffinity>;
 #else
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverST7789_240x240x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,
@@ -193,14 +193,14 @@ namespace Egfx
 	>
 	using ScreenDriverST7789_172x320x16_SPI_Rtos =
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,
 		priority,
 		coreAffinity>;
 #else
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverST7789_172x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,

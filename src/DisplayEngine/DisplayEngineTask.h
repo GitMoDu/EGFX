@@ -7,7 +7,7 @@
 #include "DisplaySyncType.h"
 #include "AsyncBufferPushTask.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename FramebufferType, typename ScreenDriverType>
 	class DisplayEngineTask : public IFrameEngine, public TS::Task
@@ -27,9 +27,9 @@ namespace Egfx
 
 	private:
 		// Display timing information. Performance objects have a local state and a read-only copy.
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 		uint32_t MeasureTimestamp = 0;
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 		uint32_t StepTimestamp = 0;
 		DisplayPerformanceDetailStruct FrameTiming{};
 		DisplayPerformanceDetailStruct FrameTimingCopy{};
@@ -141,12 +141,12 @@ namespace Egfx
 			timings = FrameTimingCopy;
 		}
 
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 		virtual void GetDisplayPerformance(DisplayPerformanceStruct& timings) const
 		{
 			timings = FrameTimingCopy;
 		}
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 		virtual void GetDisplayPerformanceDetail(DisplayPerformanceDetailStruct& timings) const
 		{
 			timings = FrameTimingCopy;
@@ -164,7 +164,7 @@ namespace Egfx
 				{
 					State = StateEnum::Clear;
 					FrameTiming.FrameCounter = UINT16_MAX; // Clear step will increment to 0.
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					MeasureTimestamp = micros();
 					SyncReference = MeasureTimestamp - FrameTiming.TargetDuration + 1;
 #else
@@ -173,7 +173,7 @@ namespace Egfx
 				}
 				break;
 			case StateEnum::Clear:
-#if defined(EGFX_PERFORMANCE_LOG) && defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG) && defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 				StepTimestamp = micros();
 #endif				
 				if (FrameBuffer.ClearFrameBuffer())
@@ -181,7 +181,7 @@ namespace Egfx
 					State = StateEnum::Render;
 					FrameTiming.FrameCounter++;
 					FrameTiming.FrameTimestamp = micros();
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					FrameTiming.ClearDuration = FrameTiming.FrameTimestamp - MeasureTimestamp;
 #endif
 				}
@@ -191,7 +191,7 @@ namespace Egfx
 					|| Drawer->DrawCall(&FrameBuffer, FrameTiming.FrameTimestamp, FrameTiming.FrameCounter))
 				{
 					State = StateEnum::Sync;
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					MeasureTimestamp = micros();
 					FrameTiming.RenderDuration = MeasureTimestamp - FrameTiming.FrameTimestamp;
 #endif
@@ -201,7 +201,7 @@ namespace Egfx
 				if (Sync(micros()))
 				{
 					State = StateEnum::PushBuffer;
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					FrameTiming.SyncDuration = micros() - MeasureTimestamp;
 #endif
 				}
@@ -209,7 +209,7 @@ namespace Egfx
 			case StateEnum::PushBuffer:
 				if (BufferPusher.CanPushBuffer())
 				{
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					MeasureTimestamp = micros();
 #endif
 					BufferPusher.StartPushBuffer(FrameBuffer.GetFrameBuffer());
@@ -217,7 +217,7 @@ namespace Egfx
 					{
 						// Multi-buffering, ready for next frame drawing.
 						State = StateEnum::FinalizeFrame;
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 						// Use last measured parallel push duration.
 						FrameTiming.PushDuration = BufferPusher.GetPushDuration();
 #endif
@@ -227,7 +227,7 @@ namespace Egfx
 						// Wait for single-buffer push to complete.
 						State = StateEnum::WaitingForPush;
 					}
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					MeasureTimestamp = micros();
 #endif
 				}
@@ -237,14 +237,14 @@ namespace Egfx
 				{
 					// Ready for next frame drawing.
 					State = StateEnum::FinalizeFrame;
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					FrameTiming.PushDuration = micros() - MeasureTimestamp;
 #endif
 				}
 				break;
 			case StateEnum::FinalizeFrame:
 				State = StateEnum::Clear;
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 				// Copy the timings for external read at any time.
 				memcpy(&FrameTimingCopy, &FrameTiming, sizeof(FrameTiming));
 				// Prepare for next frame measurement.

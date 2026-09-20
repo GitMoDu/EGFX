@@ -1,11 +1,11 @@
-#ifndef _EGFX_I_FRAME_BUFFER_h
-#define _EGFX_I_FRAME_BUFFER_h
+#ifndef _INTEGERGLASS_I_FRAME_BUFFER_h
+#define _INTEGERGLASS_I_FRAME_BUFFER_h
 
 #include "../Platform/Platform.h"
 #include "RgbColor.h"
 #include "DisplayOptions.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	class IFrameBuffer
 	{

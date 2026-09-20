@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_LINE_h
-#define _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_LINE_h
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_LINE_h
+#define _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_LINE_h
 
 #include "Rectangle.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

@@ -1,4 +1,4 @@
-﻿const BitmaskAtlasModel = (() => {
+const BitmaskAtlasModel = (() => {
 function pixelCount(width, height) {
   return width * height;
 }

@@ -1,11 +1,11 @@
-#ifndef _EGFX_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_VIEW_h
-#define _EGFX_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_VIEW_h
+#ifndef _INTEGERGLASS_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_VIEW_h
+#define _INTEGERGLASS_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_VIEW_h
 
 #include "Projector.h"
 #include "../../View/CompositeListView.h"
 #include "../../../Animation/Animator.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

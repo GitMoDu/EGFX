@@ -1,9 +1,9 @@
-#ifndef _EGFX_PROGRESS_SCALER_h
-#define _EGFX_PROGRESS_SCALER_h
+#ifndef _INTEGERGLASS_PROGRESS_SCALER_h
+#define _INTEGERGLASS_PROGRESS_SCALER_h
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

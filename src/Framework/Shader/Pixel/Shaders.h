@@ -1,12 +1,12 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_PIXEL_SHADERS_h
-#define _EGFX_FRAMEWORK_SHADER_PIXEL_SHADERS_h
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_PIXEL_SHADERS_h
+#define _INTEGERGLASS_FRAMEWORK_SHADER_PIXEL_SHADERS_h
 
 #include "Model.h"
 
 #include "../Color/Shaders.h"
 #include "../Transform/Shaders.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

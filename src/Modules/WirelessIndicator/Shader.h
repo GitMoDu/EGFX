@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_WIRELESS_INDICATOR_SHADER_h
-#define _EGFX_MODULES_WIRELESS_INDICATOR_SHADER_h
+#ifndef _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_SHADER_h
+#define _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_SHADER_h
 
 #include "Constant.h"
 #include "Assets.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

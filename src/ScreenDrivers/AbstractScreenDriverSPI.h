@@ -11,7 +11,7 @@
 #include <hardware/gpio.h>
 #endif
 
-namespace Egfx
+namespace IntegerGlass
 {
 #if defined(ARDUINO_ARCH_RP2040)
 	/// <summary>

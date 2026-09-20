@@ -1,11 +1,11 @@
-#ifndef _EGFX_FRAMEWORK_DRAWABLE_MODEL_h
-#define _EGFX_FRAMEWORK_DRAWABLE_MODEL_h
+#ifndef _INTEGERGLASS_FRAMEWORK_DRAWABLE_MODEL_h
+#define _INTEGERGLASS_FRAMEWORK_DRAWABLE_MODEL_h
 
 #include "../../Model/IFrameBuffer.h"
 #include "../Layout/Model.h"
 #include "../Support.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

@@ -1,5 +1,5 @@
-#ifndef _EGFX_PLATFORM_h
-#define _EGFX_PLATFORM_h
+#ifndef _INTEGERGLASS_PLATFORM_h
+#define _INTEGERGLASS_PLATFORM_h
 
 #include <stdint.h>
 
@@ -11,10 +11,10 @@
 #endif
 
 /// <summary>
-/// EGFX Platform 32 bit: platform with int size > 2 bytes.
+/// INTEGERGLASS Platform 32 bit: platform with int size > 2 bytes.
 /// </summary>
 #if defined(ARDUINO_ARCH_NRF52) || (defined(__SIZEOF_INT__) && (__SIZEOF_INT__ > 2))
-#define EGFX_PLATFORM_32BIT
+#define INTEGERGLASS_PLATFORM_32BIT
 #endif
 
 /// <summary>
@@ -22,11 +22,11 @@
 /// Disabled: use internal 5-6-5 color for rendering.
 /// Defaults to HDR on 32 bit platforms.
 /// </summary>
-#if !defined(EGFX_PLATFORM_HDR) && (!defined(ARDUINO) || defined(EGFX_PLATFORM_32BIT) ) 
-#define EGFX_PLATFORM_HDR
+#if !defined(INTEGERGLASS_PLATFORM_HDR) && (!defined(ARDUINO) || defined(INTEGERGLASS_PLATFORM_32BIT) ) 
+#define INTEGERGLASS_PLATFORM_HDR
 #endif
 
-namespace Egfx
+namespace IntegerGlass
 {
 	using namespace IntegerSignal;
 	using namespace IntegerSignal::Trigonometry;
@@ -36,15 +36,15 @@ namespace Egfx
 	/// </summary>
 	using pixel_t = int16_t;
 
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 	/// <summary>
-	/// Native EGFX HDR rgb color.
+	/// Native INTEGERGLASS HDR rgb color.
 	/// 8-8-8 24 bit color in a uint32_t wrapper.
 	/// </summary>
 	using rgb_color_t = uint32_t;
 #else
 	/// <summary>
-	/// Native EGFX rgb color.
+	/// Native INTEGERGLASS rgb color.
 	/// 5-6-5 16 bit color in a uint16_t wrapper.
 	/// </summary>
 	using rgb_color_t = uint16_t;

@@ -1,11 +1,11 @@
-#ifndef _EGFX_MODULES_PROGRESS_INDICATOR_CIRCULAR_DRAWABLE_h
-#define _EGFX_MODULES_PROGRESS_INDICATOR_CIRCULAR_DRAWABLE_h
+#ifndef _INTEGERGLASS_MODULES_PROGRESS_INDICATOR_CIRCULAR_DRAWABLE_h
+#define _INTEGERGLASS_MODULES_PROGRESS_INDICATOR_CIRCULAR_DRAWABLE_h
 
 #include "Constant.h"
 #include "Layout.h"
 #include "../../../Modules/Kit/Include.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

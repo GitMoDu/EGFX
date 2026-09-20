@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_KIT_ANIMATION_INTERPOLATOR_BOUNCE_h
-#define _EGFX_MODULES_KIT_ANIMATION_INTERPOLATOR_BOUNCE_h	
+#ifndef _INTEGERGLASS_MODULES_KIT_ANIMATION_INTERPOLATOR_BOUNCE_h
+#define _INTEGERGLASS_MODULES_KIT_ANIMATION_INTERPOLATOR_BOUNCE_h	
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

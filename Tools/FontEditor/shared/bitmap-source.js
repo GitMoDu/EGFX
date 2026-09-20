@@ -1,4 +1,4 @@
-﻿const BitmapAtlasSource = (() => {
+const BitmapAtlasSource = (() => {
   function parse(text) {
 	const dimensions = text.match(/\b(?:Width|MaxWidth)\s*[:=]\s*(\d+)[\s\S]*?\bHeight\s*[:=]\s*(\d+)/i);
 	const space = text.match(/\bSpaceWidth\s*[:=]\s*(\d+)/i);

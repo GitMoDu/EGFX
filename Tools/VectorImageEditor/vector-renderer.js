@@ -81,5 +81,5 @@
     context.drawImage(pixels, 0, 0, width * scale, height * scale);
   }
 
-  window.EgfxVectorRenderer = { render };
+  window.IntegerGlassVectorRenderer = { render };
 })();

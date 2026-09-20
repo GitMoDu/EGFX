@@ -1,10 +1,10 @@
-#ifndef _EGFX_FRAMEWORK_VECTOR_MODEL_h
-#define _EGFX_FRAMEWORK_VECTOR_MODEL_h
+#ifndef _INTEGERGLASS_FRAMEWORK_VECTOR_MODEL_h
+#define _INTEGERGLASS_FRAMEWORK_VECTOR_MODEL_h
 
-#include "../../EgfxCore.h"
+#include "../../IntegerGlassCore.h"
 #include "../Shader/Geometry/Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

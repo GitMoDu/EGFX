@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_PLOT_VIEW_h
-#define _EGFX_MODULES_PLOT_VIEW_h
+#ifndef _INTEGERGLASS_MODULES_PLOT_VIEW_h
+#define _INTEGERGLASS_MODULES_PLOT_VIEW_h
 
 #include "Constant.h"
 #include "Layout.h"
@@ -7,7 +7,7 @@
 #include "Drawable.h"
 #include <IntegerTrigonometry8.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

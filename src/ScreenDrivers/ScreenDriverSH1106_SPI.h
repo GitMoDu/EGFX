@@ -7,7 +7,7 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "SH1106/SH1106.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<const uint16_t width,
 		const uint16_t height,
@@ -16,10 +16,10 @@ namespace Egfx
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverSH1106_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferMonochromeSize(width, height), width, height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverSH1106_SPI : public AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferMonochromeSize(width, height), width, height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferMonochromeSize(width, height), width, height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferMonochromeSize(width, height), width, height, pinCS, pinDC, pinRST>;
 
 	protected:
 		static constexpr uint8_t Pages = (height + 7) / 8;
@@ -44,7 +44,7 @@ namespace Egfx
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverSH1106_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverSH1106_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(spiSpeed, MSBFIRST, SPI_MODE0)
 		{
@@ -116,7 +116,7 @@ namespace Egfx
 		using BaseClass = AbstractScreenDriverSH1106_SPI<SH1106_128x64::Width, SH1106_128x64::Height, SH1106_128x64::PageStartOffset, pinCS, pinDC, pinRST, spiSpeed>;
 
 	public:
-		ScreenDriverSH1106_128x64x1_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
+		ScreenDriverSH1106_128x64x1_SPI(IntegerGlass::SpiType& spi) : BaseClass(spi) {}
 
 		~ScreenDriverSH1106_128x64x1_SPI() override = default;
 
@@ -141,7 +141,7 @@ namespace Egfx
 		using BaseClass = AbstractScreenDriverSH1106_SPI<SH1106_132x64::Width, SH1106_132x64::Height, SH1106_132x64::PageStartOffset, pinCS, pinDC, pinRST, spiSpeed>;
 
 	public:
-		ScreenDriverSH1106_132x64x1_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
+		ScreenDriverSH1106_132x64x1_SPI(IntegerGlass::SpiType& spi) : BaseClass(spi) {}
 
 		~ScreenDriverSH1106_132x64x1_SPI() = default;
 
@@ -179,7 +179,7 @@ namespace Egfx
 		uint8_t PushIndex = 0;
 
 	public:
-		ScreenDriverSH1106_128x64x1_SPI_Async(Egfx::SpiType& spi) : BaseClass(spi) {}
+		ScreenDriverSH1106_128x64x1_SPI_Async(IntegerGlass::SpiType& spi) : BaseClass(spi) {}
 
 		~ScreenDriverSH1106_128x64x1_SPI_Async() override = default;
 
@@ -237,7 +237,7 @@ namespace Egfx
 		uint8_t PushIndex = 0;
 
 	public:
-		ScreenDriverSH1106_132x64x1_SPI_Async(Egfx::SpiType& spi) : BaseClass(spi) {}
+		ScreenDriverSH1106_132x64x1_SPI_Async(IntegerGlass::SpiType& spi) : BaseClass(spi) {}
 
 		~ScreenDriverSH1106_132x64x1_SPI_Async() override = default;
 
@@ -303,7 +303,7 @@ namespace Egfx
 		const uint8_t* FrameBuffer = nullptr;
 
 	public:
-		AbstractScreenDriverSH1106_SPI_DMA(Egfx::SpiType& spi)
+		AbstractScreenDriverSH1106_SPI_DMA(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 		{
 		}
@@ -432,7 +432,7 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverSH1106_128x64x1_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSH1106_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+	using ScreenDriverSH1106_128x64x1_SPI_Rtos = TemplateScreenDriverRtos<IntegerGlass::SpiType, ScreenDriverSH1106_128x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif
@@ -449,7 +449,7 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverSH1106_132x64x1_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverSH1106_132x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+	using ScreenDriverSH1106_132x64x1_SPI_Rtos = TemplateScreenDriverRtos<IntegerGlass::SpiType, ScreenDriverSH1106_132x64x1_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif

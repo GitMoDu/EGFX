@@ -17,15 +17,15 @@
 //#define USE_FPS_DISPLAY // Enable FPS display module.
 //#define USE_PERFORMANCE_LOG_TASK // Enable performance logging task.
 
-//#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
-//#define EGFX_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for EGFX engine.
+//#define INTEGERGLASS_PERFORMANCE_LOG // Enable performance logging for INTEGERGLASS engine.
+//#define INTEGERGLASS_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for INTEGERGLASS engine.
 
 #define _TASK_OO_CALLBACKS
 #include <TScheduler.hpp>
 
-// EGFX display engine and modules.
-#include <EgfxDisplayEngine.h>
-#include <EgfxModules.h>
+// INTEGERGLASS display engine and modules.
+#include <IntegerGlassDisplayEngine.h>
+#include <IntegerGlassModules.h>
 
 // platform and display configuration.
 #include "DisplayConfiguration.h"
@@ -48,7 +48,7 @@ uint8_t* Buffer = nullptr;
 // Frame buffer instance.
 #if defined(USE_DOUBLE_FRAME_BUFFER)
 uint8_t* Buffer2 = nullptr;
-Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer;
+IntegerGlass::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer;
 #else
 FramebufferType Framebuffer;
 #endif
@@ -56,23 +56,23 @@ FramebufferType Framebuffer;
 uint8_t Buffer[FramebufferType::BufferSize]{};
 #if defined(USE_DOUBLE_FRAME_BUFFER)
 uint8_t AltBuffer[FramebufferType::BufferSize]{};
-Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer(Buffer, AltBuffer);
+IntegerGlass::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer(Buffer, AltBuffer);
 #else
 FramebufferType Framebuffer(Buffer);
 #endif
 #endif
 
-// EGFX display engine task.
-Egfx::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
+// INTEGERGLASS display engine task.
+IntegerGlass::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
 	SchedulerBase, Framebuffer, ScreenDriver);
 
 // The layout of the demos within the screen area.
 struct Layout
 {
-	static constexpr Egfx::pixel_t X() { return 0; }
-	static constexpr Egfx::pixel_t Y() { return 0; }
-	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth; }
-	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight; }
+	static constexpr IntegerGlass::pixel_t X() { return 0; }
+	static constexpr IntegerGlass::pixel_t Y() { return 0; }
+	static constexpr IntegerGlass::pixel_t Width() { return FramebufferType::FrameWidth; }
+	static constexpr IntegerGlass::pixel_t Height() { return FramebufferType::FrameHeight; }
 };
 
 
@@ -84,22 +84,22 @@ using DemoViewType = LogoSplashDemo::AnimatedView<Layout, Monochrome>;
 
 #if defined(USE_FPS_DISPLAY)
 // Wrap the demo view with FPS display, using the specified layout and demo view type.
-using FpsCompositeViewType = Egfx::Modules::FpsDisplay::View::CompositeWithFps<
+using FpsCompositeViewType = IntegerGlass::Modules::FpsDisplay::View::CompositeWithFps<
 	Layout,
-	Egfx::Modules::FpsDisplay::FpsDrawerPosition::TopRight,
+	IntegerGlass::Modules::FpsDisplay::FpsDrawerPosition::TopRight,
 	DemoViewType>;
 #else
 using FpsCompositeViewType = DemoViewType;
 #endif
 
 // View adapter for the display engine, using the FPS composite view type.
-using EngineViewType = Egfx::Framework::View::ViewAdapter<FpsCompositeViewType>;
+using EngineViewType = IntegerGlass::Framework::View::ViewAdapter<FpsCompositeViewType>;
 
 // View instance for the display engine, using the FPS composite view type.
 EngineViewType DemoView{};
 
 #if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task.
-Egfx::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine, Serial);
+IntegerGlass::PerformanceLogTask<2000> EngineLog(SchedulerBase, DisplayEngine, Serial);
 #endif
 
 void halt()
@@ -161,24 +161,24 @@ void setup()
 	// Optional callback for RTOS driver variants.
 	DisplayEngine.SetBufferTaskCallback(BufferTaskCallback);
 
-	// Start EGFX display engine.
+	// Start INTEGERGLASS display engine.
 	if (!DisplayEngine.Start())
 	{
 		halt();
 	}
 
 	// Set the Display Sync Type.
-	DisplayEngine.SetSyncType(Egfx::DisplaySyncType::Vrr);
+	DisplayEngine.SetSyncType(IntegerGlass::DisplaySyncType::Vrr);
 
 #if defined(SERIAL_LOG)
 #if defined(USE_PERFORMANCE_LOG_TASK) // Start performance logging task.
 	EngineLog.Start();
 #endif
 	
-#if defined(EGFX_PLATFORM_32BIT)
-	Serial.println(F("EGFX_PLATFORM_32BIT "));
+#if defined(INTEGERGLASS_PLATFORM_32BIT)
+	Serial.println(F("INTEGERGLASS_PLATFORM_32BIT "));
 #else
-	Serial.println(F("EGFX_PLATFORM_8BIT "));
+	Serial.println(F("INTEGERGLASS_PLATFORM_8BIT "));
 #endif
 
 	Serial.print(FramebufferType::FrameWidth);

@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_WIRELESS_INDICATOR_SELECTOR_h
-#define _EGFX_MODULES_WIRELESS_INDICATOR_SELECTOR_h
+#ifndef _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_SELECTOR_h
+#define _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_SELECTOR_h
 
 #include "Constant.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

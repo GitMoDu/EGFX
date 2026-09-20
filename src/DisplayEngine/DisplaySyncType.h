@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	enum class DisplaySyncType : uint8_t
 	{

@@ -1,5 +1,5 @@
-#ifndef _EGFX_TEMPLATE_FRAME_BUFFER_h
-#define _EGFX_TEMPLATE_FRAME_BUFFER_h
+#ifndef _INTEGERGLASS_TEMPLATE_FRAME_BUFFER_h
+#define _INTEGERGLASS_TEMPLATE_FRAME_BUFFER_h
 
 #include "../Model/RgbColor.h"
 #include "../Model/DisplayOptions.h"
@@ -8,12 +8,12 @@
 #include "hardware/dma.h"
 #endif
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Generic framebuffer template providing 2D drawing, blending, and buffer management for any color depth and display configuration.
 	/// Supports mirroring, inversion, anti-aliasing, and partial buffer clearing via template parameters.
-	/// Used as the core implementation for all framebuffer types in Egfx.
+	/// Used as the core implementation for all framebuffer types in IntegerGlass.
 	/// </summary>
 	/// <typeparam name="FramePainter">The base class providing low-level drawing and buffer access functionality.</typeparam>
 	/// <typeparam name="clearDivisorPower">An unsigned 8-bit integer specifying the power-of-two divisor for buffer clearing steps.</typeparam>

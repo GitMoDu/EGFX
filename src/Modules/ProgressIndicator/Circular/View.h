@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_PROGRESS_INDICATOR_CIRCULAR_VIEW_h
-#define _EGFX_MODULES_PROGRESS_INDICATOR_CIRCULAR_VIEW_h
+#ifndef _INTEGERGLASS_MODULES_PROGRESS_INDICATOR_CIRCULAR_VIEW_h
+#define _INTEGERGLASS_MODULES_PROGRESS_INDICATOR_CIRCULAR_VIEW_h
 
 #include "Constant.h"
 #include "Drawable.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
@@ -115,7 +115,7 @@ namespace Egfx
 						ParentLayout::Width(), ParentLayout::Height(), true>,
 						Framework::Shader::Color::NoShader<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
 						Framework::Shader::Transform::NoTransform<typename Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t>,
-						::Egfx::Framework::Shader::Pixel::BlendModeEnum::Add
+						::IntegerGlass::Framework::Shader::Pixel::BlendModeEnum::Add
 					>;
 
 					template<typename ParentLayout>

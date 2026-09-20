@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  window.EgfxVectorFontDefaults = {
+  window.IntegerGlassVectorFontDefaults = {
 	Epoxy8x8: String.raw`
     static constexpr uint8_t Width = 8;
 static constexpr uint8_t Height = 8;

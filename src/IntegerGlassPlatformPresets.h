@@ -1,0 +1,6 @@
+#ifndef _INTEGERGLASS_PLATFORM_PRESETS_INCLUDE_
+#define _INTEGERGLASS_PLATFORM_PRESETS_INCLUDE_
+
+#include "PlatformPresets/Configs.h"
+
+#endif

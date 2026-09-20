@@ -1,9 +1,9 @@
-#ifndef _EGFX_SCREEN_DRIVERS_ST7789T3_h
-#define _EGFX_SCREEN_DRIVERS_ST7789T3_h
+#ifndef _INTEGERGLASS_SCREEN_DRIVERS_ST7789T3_h
+#define _INTEGERGLASS_SCREEN_DRIVERS_ST7789T3_h
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace ST7789T3
 	{

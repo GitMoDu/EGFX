@@ -1,9 +1,9 @@
-#ifndef _EGFX_TEMPLATE_DOUBLE_BUFFERED_FRAME_BUFFER_h
-#define _EGFX_TEMPLATE_DOUBLE_BUFFERED_FRAME_BUFFER_h
+#ifndef _INTEGERGLASS_TEMPLATE_DOUBLE_BUFFERED_FRAME_BUFFER_h
+#define _INTEGERGLASS_TEMPLATE_DOUBLE_BUFFERED_FRAME_BUFFER_h
 
 #include "TemplateFramebuffer.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Template double-buffered framebuffer wrapper: provides double-buffering support for any base framebuffer type.

@@ -7,7 +7,7 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "ST7735/ST7735.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename pixel_color_t,
 		typename panel_t,
@@ -16,14 +16,14 @@ namespace Egfx
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
 	class AbstractScreenDriverST7735S_SPI : public AbstractScreenDriverSPI<
-		Egfx::GetFrameBufferSize<pixel_color_t>(panel_t::Width, panel_t::Height),
+		IntegerGlass::GetFrameBufferSize<pixel_color_t>(panel_t::Width, panel_t::Height),
 		panel_t::Width,
 		panel_t::Height,
 		pinCS, pinDC, pinRST>
 	{
 	private:
 		using BaseClass = AbstractScreenDriverSPI<
-			Egfx::GetFrameBufferSize<pixel_color_t>(panel_t::Width, panel_t::Height),
+			IntegerGlass::GetFrameBufferSize<pixel_color_t>(panel_t::Width, panel_t::Height),
 			panel_t::Width,
 			panel_t::Height,
 			pinCS, pinDC, pinRST>;
@@ -43,7 +43,7 @@ namespace Egfx
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverST7735S_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverST7735S_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(ST7735::LimitedSpiSpeed(spiSpeed), MSBFIRST, SPI_MODE0)
 		{
@@ -353,7 +353,7 @@ namespace Egfx
 #endif
 	>
 	using ScreenDriverST7735S_80x160x16_SPI_Rtos =
-		TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, stackHeight, priority
+		TemplateScreenDriverRtos<IntegerGlass::SpiType, ScreenDriverST7735S_80x160x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif
@@ -370,7 +370,7 @@ namespace Egfx
 #endif
 	>
 	using ScreenDriverST7735S_160x128x16_SPI_Rtos =
-		TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverST7735S_160x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, stackHeight, priority
+		TemplateScreenDriverRtos<IntegerGlass::SpiType, ScreenDriverST7735S_160x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif

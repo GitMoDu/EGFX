@@ -1,5 +1,5 @@
 /*
-* Terminal Display, serial print to screen using EGFX graphics engine.
+* Terminal Display, serial print to screen using INTEGERGLASS graphics engine.
 * Auto layout based on screen dimensions.
 * Includes configurations for multiple screens (DisplayConfiguration.h).
 * Available options for serial logging, dynamic/double frame buffers, and performance logging.
@@ -13,18 +13,17 @@
 //#define USE_DOUBLE_FRAME_BUFFER // Enable double framebuffer.
 #define USE_PERFORMANCE_LOG_TASK // Enable performance logging task.
 
-//#define EGFX_PERFORMANCE_LOG // Enable performance logging for EGFX engine.
-//#define EGFX_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for EGFX engine.
+//#define INTEGERGLASS_PERFORMANCE_LOG // Enable performance logging for INTEGERGLASS engine.
+//#define INTEGERGLASS_PERFORMANCE_LOG_DETAIL // Enable detailed performance logging for INTEGERGLASS engine.
 
 #define _TASK_OO_CALLBACKS
 #include <TScheduler.hpp>
 
 // Configure display in this header.
 #include "DisplayConfiguration.h"
-#include <EgfxDisplayEngine.h>
-#include <Modules/Kit/Include.h>
 
-#include <EgfxModules.h>
+#include <IntegerGlassDisplayEngine.h>
+#include <IntegerGlassModules.h>
 
 // Process scheduler.
 TS::Scheduler SchedulerBase{};
@@ -41,7 +40,7 @@ uint8_t* Buffer = nullptr;
 // Frame buffer instance.
 #if defined(USE_DOUBLE_FRAME_BUFFER)
 uint8_t* Buffer2 = nullptr;
-Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer;
+IntegerGlass::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer;
 #else
 FramebufferType Framebuffer;
 #endif
@@ -49,67 +48,67 @@ FramebufferType Framebuffer;
 uint8_t Buffer[FramebufferType::BufferSize]{};
 #if defined(USE_DOUBLE_FRAME_BUFFER)
 uint8_t AltBuffer[FramebufferType::BufferSize]{};
-Egfx::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer(Buffer, AltBuffer);
+IntegerGlass::TemplateDoubleBufferedFramebuffer<FramebufferType> Framebuffer(Buffer, AltBuffer);
 #else
 FramebufferType Framebuffer(Buffer);
 #endif
 #endif
 
-// EGFX display engine task.
-Egfx::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
+// INTEGERGLASS display engine task.
+IntegerGlass::DisplayEngineTask<FramebufferType, ScreenDriverType> DisplayEngine(
 	SchedulerBase, Framebuffer, ScreenDriver);
 
 // Screen layout for terminal display.
 struct Layout
 {
 	static constexpr int16_t Margin() { return 1; }
-	static constexpr Egfx::pixel_t X() { return Margin(); }
-	static constexpr Egfx::pixel_t Y() { return Margin(); }
-	static constexpr Egfx::pixel_t Width() { return FramebufferType::FrameWidth - 2 * Margin(); }
-	static constexpr Egfx::pixel_t Height() { return FramebufferType::FrameHeight - 2 * Margin(); }
+	static constexpr IntegerGlass::pixel_t X() { return Margin(); }
+	static constexpr IntegerGlass::pixel_t Y() { return Margin(); }
+	static constexpr IntegerGlass::pixel_t Width() { return FramebufferType::FrameWidth - 2 * Margin(); }
+	static constexpr IntegerGlass::pixel_t Height() { return FramebufferType::FrameHeight - 2 * Margin(); }
 };
 
 // Terminal font type. Must be a monospace font for terminal display. 
-using TerminalFontType = Egfx::Modules::Kit::Font::Bitmask::Resin::FontType6x6;
+using TerminalFontType = IntegerGlass::Modules::Kit::Font::Bitmask::Resin::FontType6x6;
 
 // Scaled font size based on screen width.
 static constexpr uint8_t TerminalFontScale = 1 + (Layout::Width() / TerminalFontType::GetFontWidth()) / 24;
 
 // Terminal glyph style for text rendering. Uses standard transparent black color for bitmask font, and auto scaled font size.
-using TerminalGlyphStyle = Egfx::Framework::Image::TemplateImageStyle<
-	Egfx::Framework::Layout::AlignmentEnum::TopLeft,
-	true, Egfx::RGB_COLOR_BLACK,
+using TerminalGlyphStyle = IntegerGlass::Framework::Image::TemplateImageStyle<
+	IntegerGlass::Framework::Layout::AlignmentEnum::TopLeft,
+	true, IntegerGlass::RGB_COLOR_BLACK,
 	IntegerSignal::MaxValue(1, TerminalFontScale / 2), TerminalFontScale
 >;
 
 // Terminal text view type, using the specified layout, font, and glyph style.
-using TerminalTextViewType = Egfx::Framework::Text::Bitmask::TextView<
-	typename Egfx::Framework::AutoDimension::ByLayout<Layout>::dimension_t,
+using TerminalTextViewType = IntegerGlass::Framework::Text::Bitmask::TextView<
+	typename IntegerGlass::Framework::AutoDimension::ByLayout<Layout>::dimension_t,
 	Layout, TerminalFontType, TerminalGlyphStyle>;
 
 // Terminal configuration for text rendering, including font size, kerning, line spacing, and other parameters.
-using TerminalConfig = Egfx::Modules::TerminalWindow::Definitions::TerminalConfig<
+using TerminalConfig = IntegerGlass::Modules::TerminalWindow::Definitions::TerminalConfig<
 	uint16_t(TerminalFontType::GetFontWidth())* TerminalGlyphStyle::ScaleX, uint16_t(TerminalFontType::GetFontHeight())* TerminalGlyphStyle::ScaleY>;
 
 // Terminal view type, combining the layout, text view, and configuration for the terminal display.
-using TerminalViewType = Egfx::Modules::TerminalWindow::View::Terminal<Layout,
+using TerminalViewType = IntegerGlass::Modules::TerminalWindow::View::Terminal<Layout,
 	TerminalTextViewType, TerminalConfig>;
 
 // Terminal buffer type, derived from the terminal view type, used for managing the text content of the terminal display.
 using TerminalBufferType = typename TerminalViewType::BufferType;
 
 // Single terminal display view.
-Egfx::Framework::View::ViewAdapter<TerminalViewType> ViewsView{};
+IntegerGlass::Framework::View::ViewAdapter<TerminalViewType> ViewsView{};
 
 // Reference to terminal buffer instance. Can be used for direct buffer access.
 auto& TerminalBuffer = ViewsView.ViewInstance.Buffer();
 
 // Adapter to allow Print interface to write to terminal buffer.  Can be used as serial output replacement.
-Egfx::Modules::TerminalWindow::Input::PrintAdapter<TerminalBufferType> SerialDisplay(TerminalBuffer);
+IntegerGlass::Modules::TerminalWindow::Input::PrintAdapter<TerminalBufferType> SerialDisplay(TerminalBuffer);
 
 // Optional performance logging task.
 #if defined(USE_PERFORMANCE_LOG_TASK) // Optional performance logging task. Will output to serial display.
-Egfx::PerformanceLogTask<5000> EngineLog(SchedulerBase, DisplayEngine, SerialDisplay);
+IntegerGlass::PerformanceLogTask<5000> EngineLog(SchedulerBase, DisplayEngine, SerialDisplay);
 #endif
 
 void halt()
@@ -171,14 +170,14 @@ void setup()
 
 	DisplayEngine.SetDrawer(&ViewsView);
 
-	// Start EGFX display engine.
+	// Start INTEGERGLASS display engine.
 	if (!DisplayEngine.Start())
 	{
 		halt();
 	}
 
 	// Set the Display Sync Type.
-	DisplayEngine.SetSyncType(Egfx::DisplaySyncType::Vrr);
+	DisplayEngine.SetSyncType(IntegerGlass::DisplaySyncType::Vrr);
 
 #if defined(USE_PERFORMANCE_LOG_TASK) // Start performance logging task.
 	EngineLog.Start();

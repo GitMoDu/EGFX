@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Defines compile-time display options using template parameters for mirroring, rotation, anti-aliasing, and inversion.

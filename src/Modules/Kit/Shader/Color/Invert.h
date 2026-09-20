@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_KIT_SHADER_COLOR_INVERT_h
-#define _EGFX_MODULES_KIT_SHADER_COLOR_INVERT_h
+#ifndef _INTEGERGLASS_MODULES_KIT_SHADER_COLOR_INVERT_h
+#define _INTEGERGLASS_MODULES_KIT_SHADER_COLOR_INVERT_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

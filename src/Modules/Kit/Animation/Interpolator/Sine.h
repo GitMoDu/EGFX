@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_KIT_ANIMATION_INTERPOLATOR_SINE_h
-#define _EGFX_MODULES_KIT_ANIMATION_INTERPOLATOR_SINE_h
+#ifndef _INTEGERGLASS_MODULES_KIT_ANIMATION_INTERPOLATOR_SINE_h
+#define _INTEGERGLASS_MODULES_KIT_ANIMATION_INTERPOLATOR_SINE_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 #include <IntegerTrigonometry16.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

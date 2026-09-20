@@ -1,8 +1,8 @@
-#ifndef _EGFX_DISPLAY_ENGINE_INCLUDE_h
-#define _EGFX_DISPLAY_ENGINE_INCLUDE_h
+#ifndef _INTEGERGLASS_DISPLAY_ENGINE_INCLUDE_h
+#define _INTEGERGLASS_DISPLAY_ENGINE_INCLUDE_h
 
-// Egfx core model and interfaces.
-#include "EgfxCore.h"
+// IntegerGlass core model and interfaces.
+#include "IntegerGlassCore.h"
 
 // Display sync type options.
 #include "DisplayEngine/DisplaySyncType.h"

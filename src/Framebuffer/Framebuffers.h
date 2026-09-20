@@ -1,5 +1,5 @@
-#ifndef _EGFX_FRAMEBUFFERS_h
-#define _EGFX_FRAMEBUFFERS_h
+#ifndef _INTEGERGLASS_FRAMEBUFFERS_h
+#define _INTEGERGLASS_FRAMEBUFFERS_h
 
 #include "BinaryFramePainter.h"
 #include "Color8FramePainter.h"
@@ -9,7 +9,7 @@
 
 #include "TemplateFramebuffer.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// 1 bit color framebuffer.

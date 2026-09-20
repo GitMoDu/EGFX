@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_KIT_FONT_BITMAP_CYANOACRYLATE_h
-#define _EGFX_MODULES_KIT_FONT_BITMAP_CYANOACRYLATE_h
+#ifndef _INTEGERGLASS_MODULES_KIT_FONT_BITMAP_CYANOACRYLATE_h
+#define _INTEGERGLASS_MODULES_KIT_FONT_BITMAP_CYANOACRYLATE_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 #include "Source.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

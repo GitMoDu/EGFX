@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_TERMINAL_WINDOW_PRINT_ADAPTER_h
-#define _EGFX_MODULES_TERMINAL_WINDOW_PRINT_ADAPTER_h
+#ifndef _INTEGERGLASS_MODULES_TERMINAL_WINDOW_PRINT_ADAPTER_h
+#define _INTEGERGLASS_MODULES_TERMINAL_WINDOW_PRINT_ADAPTER_h
 
 #include <Print.h>
 #include "Buffer.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

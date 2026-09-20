@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_BATTERY_INDICATOR_CONSTANT_h
-#define _EGFX_MODULES_BATTERY_INDICATOR_CONSTANT_h
+#ifndef _INTEGERGLASS_MODULES_BATTERY_INDICATOR_CONSTANT_h
+#define _INTEGERGLASS_MODULES_BATTERY_INDICATOR_CONSTANT_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

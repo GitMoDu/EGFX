@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_FPS_DISPLAY_CONSTANT_h
-#define _EGFX_MODULES_FPS_DISPLAY_CONSTANT_h
+#ifndef _INTEGERGLASS_MODULES_FPS_DISPLAY_CONSTANT_h
+#define _INTEGERGLASS_MODULES_FPS_DISPLAY_CONSTANT_h
 
-#include "../../EgfxFramework.h"
+#include "../../IntegerGlassFramework.h"
 #include "../../Modules/Kit/Include.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

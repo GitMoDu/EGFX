@@ -1,4 +1,4 @@
-﻿const BitmapFontModel = (() => {
+const BitmapFontModel = (() => {
   function pixelCount(width, height) {
 	return width * height;
   }

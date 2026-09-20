@@ -3,9 +3,9 @@
 
   const MAX_COORDINATE = 14;
   const OPCODE_COORDINATE = 15;
-	const PRIMITIVES = window.EgfxVectorEditorConfig.PRIMITIVES;
-  const BY_NAME = window.EgfxVectorEditorConfig.PRIMITIVE_BY_NAME;
-  const BY_OPCODE = window.EgfxVectorEditorConfig.PRIMITIVE_BY_OPCODE;
+	const PRIMITIVES = window.IntegerGlassVectorEditorConfig.PRIMITIVES;
+  const BY_NAME = window.IntegerGlassVectorEditorConfig.PRIMITIVE_BY_NAME;
+  const BY_OPCODE = window.IntegerGlassVectorEditorConfig.PRIMITIVE_BY_OPCODE;
 
   function clamp(value) { return Math.max(0, Math.min(MAX_COORDINATE, Number(value) || 0)); }
   function primitive(name) { return BY_NAME.get(name) || PRIMITIVES[0]; }
@@ -44,5 +44,5 @@
 	return nodes;
   }
   function glyph(id, width = 8, nodes = []) { return { id, width: clamp(width), nodes }; }
-  window.EgfxVectorFontModel = { MAX_COORDINATE, PRIMITIVES, BY_NAME, clamp, primitive, point, packGlyph, decode, glyph };
+  window.IntegerGlassVectorFontModel = { MAX_COORDINATE, PRIMITIVES, BY_NAME, clamp, primitive, point, packGlyph, decode, glyph };
 })();

@@ -1,9 +1,9 @@
-#ifndef _EGFX_GRAPHICS_BUFFER_h
-#define _EGFX_GRAPHICS_BUFFER_h
+#ifndef _INTEGERGLASS_GRAPHICS_BUFFER_h
+#define _INTEGERGLASS_GRAPHICS_BUFFER_h
 
 #include "../Platform/Platform.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename color_t>
 	static constexpr size_t GetFrameBufferSize(const uint16_t width, const uint16_t height)

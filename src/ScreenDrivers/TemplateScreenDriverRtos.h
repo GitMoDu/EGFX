@@ -25,7 +25,7 @@
 #else
 #endif
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Wraps an Inline ScreenDriver with threaded buffer push.

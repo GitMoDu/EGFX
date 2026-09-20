@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_KIT_FONT_VECTOR_EPOXY_FONT_TYPE_h
-#define _EGFX_MODULES_KIT_FONT_VECTOR_EPOXY_FONT_TYPE_h
+#ifndef _INTEGERGLASS_MODULES_KIT_FONT_VECTOR_EPOXY_FONT_TYPE_h
+#define _INTEGERGLASS_MODULES_KIT_FONT_VECTOR_EPOXY_FONT_TYPE_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 #include "Source.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
@@ -19,14 +19,14 @@ namespace Egfx
 						struct FontType8x8
 						{
 							using dimension_t = uint8_t;
-							using glyph_t = Egfx::Framework::Text::Vector::Glyph15x15::Glyph;
+							using glyph_t = IntegerGlass::Framework::Text::Vector::Glyph15x15::Glyph;
 
 							static constexpr bool IsMonospace = false;
 							static constexpr dimension_t Width = Source8x8::Width;
 							static constexpr dimension_t Height = Source8x8::Height;
 							static constexpr dimension_t Inset = 1;
-							static constexpr Egfx::Framework::DataSourceTypeEnum DataSourceType = Egfx::Framework::DataSourceTypeEnum::Flash;
-							static constexpr Egfx::Framework::Vector::PackedVectorEnum VectorType = Egfx::Framework::Vector::PackedVectorEnum::Image15x15;
+							static constexpr IntegerGlass::Framework::DataSourceTypeEnum DataSourceType = IntegerGlass::Framework::DataSourceTypeEnum::Flash;
+							static constexpr IntegerGlass::Framework::Vector::PackedVectorEnum VectorType = IntegerGlass::Framework::Vector::PackedVectorEnum::Image15x15;
 
 							static glyph_t GetGlyph(const uint8_t character)
 							{

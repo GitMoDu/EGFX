@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_TIMECODE_DRAWABLE_h
-#define _EGFX_MODULES_TIMECODE_DRAWABLE_h
+#ifndef _INTEGERGLASS_MODULES_TIMECODE_DRAWABLE_h
+#define _INTEGERGLASS_MODULES_TIMECODE_DRAWABLE_h
 
 #include "Constant.h"
 #include "Layout.h"
@@ -7,7 +7,7 @@
 #include "../../Modules/Kit/Include.h"
 #include "../../Framework/Text/Vector/Drawable.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

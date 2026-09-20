@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_FPS_DISPLAY_LAYOUT_VIEW_h
-#define _EGFX_MODULES_FPS_DISPLAY_LAYOUT_VIEW_h
+#ifndef _INTEGERGLASS_MODULES_FPS_DISPLAY_LAYOUT_VIEW_h
+#define _INTEGERGLASS_MODULES_FPS_DISPLAY_LAYOUT_VIEW_h
 
 #include "Drawable.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

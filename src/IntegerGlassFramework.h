@@ -1,8 +1,8 @@
-#ifndef _EGFX_FRAMEWORK_INCLUDE_h
-#define _EGFX_FRAMEWORK_INCLUDE_h
+#ifndef _INTEGERGLASS_FRAMEWORK_INCLUDE_h
+#define _INTEGERGLASS_FRAMEWORK_INCLUDE_h
 
-// Egfx core model and interfaces.
-#include "EgfxCore.h"
+// IntegerGlass core model and interfaces.
+#include "IntegerGlassCore.h"
 
 // Animation support.
 #include "Framework/ProgressScaler.h"
@@ -133,5 +133,10 @@
 
 // Projectors and views.
 #include "Framework/Projection/Projectors/PageSlide/View.h"
+
+
+//TODO
+//#include "Framework/Projection/Projectors/ListSlide/View.h" // For displaying a list of items that can be scrolled horizontally or vertically.
+//#include "Framework/Projection/Projectors/ScrollCropView/View.h" // For displaying views that are larger than the parent layout, with scrollable content.
 
 #endif

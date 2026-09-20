@@ -1,11 +1,11 @@
-#ifndef _EGFX_MODULES_PLOT_DRAWABLE_h
-#define _EGFX_MODULES_PLOT_DRAWABLE_h
+#ifndef _INTEGERGLASS_MODULES_PLOT_DRAWABLE_h
+#define _INTEGERGLASS_MODULES_PLOT_DRAWABLE_h
 
 #include "DrawableBar.h"
 #include "DrawableFill.h"
 #include "DrawableLine.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

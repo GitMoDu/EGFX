@@ -1,12 +1,12 @@
-#ifndef _EGFX_DISPLAY_ENGINE_LOG_TASK_h
-#define _EGFX_DISPLAY_ENGINE_LOG_TASK_h
+#ifndef _INTEGERGLASS_DISPLAY_ENGINE_LOG_TASK_h
+#define _INTEGERGLASS_DISPLAY_ENGINE_LOG_TASK_h
 
 #define _TASK_OO_CALLBACKS
 #include <TSchedulerDeclarations.hpp>
 
-#include <EgfxCore.h>
+#include <IntegerGlassCore.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<const uint32_t LogPeriodMillis = 1000>
 	class PerformanceLogTask : public TS::Task
@@ -14,8 +14,8 @@ namespace Egfx
 	private:
 		IFrameEngine& Engine;
 
-#if defined(EGFX_PERFORMANCE_LOG)
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 		DisplayPerformanceDetailStruct DisplayTimings{};
 #else
 		DisplayPerformanceStruct DisplayTimings{};
@@ -46,8 +46,8 @@ namespace Egfx
 	public:
 		bool Callback() final
 		{
-#if defined(EGFX_PERFORMANCE_LOG)
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 			Engine.GetDisplayPerformanceDetail(DisplayTimings);
 #else
 			Engine.GetDisplayPerformance(DisplayTimings);
@@ -63,7 +63,7 @@ namespace Egfx
 					const uint8_t fpsRemainder = (fpMs % 1000) / 10;
 
 					SerialInstance.println();
-					SerialInstance.print(F("\nEGFX "));
+					SerialInstance.print(F("\nINTEGERGLASS "));
 					SerialInstance.print(fps);
 					SerialInstance.print('.');
 					if (fpsRemainder < 10)
@@ -73,7 +73,7 @@ namespace Egfx
 					SerialInstance.print(fpsRemainder);
 					SerialInstance.print(F(" FPS"));
 				}
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 				{
 					const uint8_t frameLoadPercent = ((uint16_t)DisplayTimings.GetFrameLoad() * 100) / UINT8_MAX;
 					SerialInstance.println();
@@ -96,7 +96,7 @@ namespace Egfx
 					SerialInstance.print(F("%)"));
 				}
 
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 				SerialInstance.println();
 				SerialInstance.print('\t');
 				SerialInstance.print(F(" - Max Step "));
@@ -114,7 +114,7 @@ namespace Egfx
 					SerialInstance.print(F("%)"));
 				}
 
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 				SerialInstance.println();
 				SerialInstance.print('\t');
 				SerialInstance.print(F(" - Max Step "));
@@ -143,7 +143,7 @@ namespace Egfx
 					SerialInstance.print(F("%)"));
 				}
 
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 				SerialInstance.println();
 				SerialInstance.print('\t');
 				SerialInstance.print(F(" - Max Step "));

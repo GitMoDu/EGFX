@@ -1,4 +1,4 @@
-﻿const BitmapFontDeclaration = (() => {
+const BitmapFontDeclaration = (() => {
   function identifier(value, fallback) {
 	return (value || fallback).replace(/[^A-Za-z0-9_]/g, '_');
   }
@@ -23,15 +23,15 @@
 	});
 	const name = identifier(fontName, 'MyBitmapFont');
 	return [
-	  '#include <EgfxFramework.h>',
+	  '#include <IntegerGlassFramework.h>',
 	  '',
 	  'struct ' + name,
 	  '{',
 	  '\tusing dimension_t = uint8_t;',
 	  '\tusing color_t = uint8_t;',
-	  '\tusing glyph_t = Egfx::Framework::Text::Bitmap::GlyphBitmap<dimension_t, color_t>;',
+	  '\tusing glyph_t = IntegerGlass::Framework::Text::Bitmap::GlyphBitmap<dimension_t, color_t>;',
 	  '',
-	  '\tstatic constexpr Egfx::Framework::Image::DataSourceTypeEnum DataSourceType = Egfx::Framework::Image::DataSourceTypeEnum::Flash;',
+	  '\tstatic constexpr IntegerGlass::Framework::Image::DataSourceTypeEnum DataSourceType = IntegerGlass::Framework::Image::DataSourceTypeEnum::Flash;',
 	  '',
 	  '\tvoid SetFontWidth(const dimension_t /*width*/) {}',
 	  '\tvoid SetFontHeight(const dimension_t /*height*/) {}',

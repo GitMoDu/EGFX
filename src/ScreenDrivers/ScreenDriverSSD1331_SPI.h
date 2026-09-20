@@ -7,17 +7,17 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "SSD1331/SSD1331.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename pixel_color_t,
 		const uint8_t pinCS,
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverSSD1331_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(SSD1331::Width, SSD1331::Height), SSD1331::Width, SSD1331::Height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverSSD1331_SPI : public AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(SSD1331::Width, SSD1331::Height), SSD1331::Width, SSD1331::Height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(SSD1331::Width, SSD1331::Height), SSD1331::Width, SSD1331::Height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(SSD1331::Width, SSD1331::Height), SSD1331::Width, SSD1331::Height, pinCS, pinDC, pinRST>;
 
 	public:
 		using BaseClass::ScreenWidth;
@@ -35,7 +35,7 @@ namespace Egfx
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverSSD1331_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverSSD1331_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(spiSpeed, MSBFIRST, SPI_MODE0)
 		{
@@ -79,7 +79,7 @@ namespace Egfx
 		using BaseClass = AbstractScreenDriverSSD1331_SPI<uint8_t, pinCS, pinDC, pinRST, spiSpeed>;
 
 	public:
-		ScreenDriverSSD1331_96x64x8_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
+		ScreenDriverSSD1331_96x64x8_SPI(IntegerGlass::SpiType& spi) : BaseClass(spi) {}
 		
 		~ScreenDriverSSD1331_96x64x8_SPI() override = default;
 
@@ -99,7 +99,7 @@ namespace Egfx
 		using BaseClass = AbstractScreenDriverSSD1331_SPI<uint16_t, pinCS, pinDC, pinRST, spiSpeed>;
 
 	public:
-		ScreenDriverSSD1331_96x64x16_SPI(Egfx::SpiType& spi) : BaseClass(spi) {}
+		ScreenDriverSSD1331_96x64x16_SPI(IntegerGlass::SpiType& spi) : BaseClass(spi) {}
 		~ScreenDriverSSD1331_96x64x16_SPI() override = default;
 
 		virtual bool Start()
@@ -152,14 +152,14 @@ namespace Egfx
 	>
 	using ScreenDriverSSD1331_96x64x8_SPI_Rtos =
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverSSD1331_96x64x8_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,
 		priority,
 		coreAffinity>;
 #else
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverSSD1331_96x64x8_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,
@@ -179,14 +179,14 @@ namespace Egfx
 	>
 	using ScreenDriverSSD1331_96x64x16_SPI_Rtos =
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverSSD1331_96x64x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,
 		priority,
 		coreAffinity>;
 #else
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverSSD1331_96x64x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,

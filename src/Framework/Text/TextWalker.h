@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_TEXT_WALKER_h
-#define _EGFX_FRAMEWORK_TEXT_WALKER_h
+#ifndef _INTEGERGLASS_FRAMEWORK_TEXT_WALKER_h
+#define _INTEGERGLASS_FRAMEWORK_TEXT_WALKER_h
 
 #include "Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

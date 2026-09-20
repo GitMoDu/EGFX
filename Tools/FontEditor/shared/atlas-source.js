@@ -1,4 +1,4 @@
-﻿const BitmaskAtlasSource = (() => {
+const BitmaskAtlasSource = (() => {
   function packedSource(text) {
 	const atlas = text.match(/\bAtlas\s*\[\s*\]\s*[^\{]*\{([\s\S]*?)\}/i);
 	return atlas ? atlas[1] : text;

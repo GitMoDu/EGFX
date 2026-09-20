@@ -1,9 +1,9 @@
-#ifndef _EGFX_GRAYSCALE8_FRAME_PAINTER_h
-#define _EGFX_GRAYSCALE8_FRAME_PAINTER_h
+#ifndef _INTEGERGLASS_GRAYSCALE8_FRAME_PAINTER_h
+#define _INTEGERGLASS_GRAYSCALE8_FRAME_PAINTER_h
 
 #include "AbstractFramePainter.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// A template class for painting 8-bit grayscale framebuffer, providing low-level pixel drawing operations.

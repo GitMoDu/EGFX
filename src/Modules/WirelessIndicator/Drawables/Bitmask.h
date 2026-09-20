@@ -1,5 +1,5 @@
-#ifndef _EGFX_MODULES_WIRELESS_INDICATOR_DRAWABLE_BITMASK_h
-#define _EGFX_MODULES_WIRELESS_INDICATOR_DRAWABLE_BITMASK_h
+#ifndef _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_DRAWABLE_BITMASK_h
+#define _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_DRAWABLE_BITMASK_h
 
 #include "../Constant.h"
 #include "../Layout.h"
@@ -8,7 +8,7 @@
 #include "../Assets.h"
 #include "../../../Framework/Image/Bitmask/Drawable.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
@@ -28,11 +28,11 @@ namespace Egfx
 						typename ColorShaderType = Framework::Shader::Color::NoShader<dimension_t>,
 						typename TransformShaderType = Framework::Shader::Transform::NoTransform<dimension_t>,
 						Framework::Shader::Pixel::BlendModeEnum BlendMode = Framework::Shader::Pixel::BlendModeEnum::Replace>
-					class AbstractBarsSlice : public ::Egfx::Framework::Shader::Image::Bitmask::Scaled<
+					class AbstractBarsSlice : public ::IntegerGlass::Framework::Shader::Image::Bitmask::Scaled<
 						dimension_t,
 						static_cast<uint8_t>(OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
 						static_cast<uint8_t>(MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight)),
-						::Egfx::Framework::DataSourceTypeEnum::Flash,
+						::IntegerGlass::Framework::DataSourceTypeEnum::Flash,
 						true,
 						RGB_COLOR_BLACK,
 						Framework::Image::ScaledTransformOrderEnum::TransformThenScale,
@@ -42,11 +42,11 @@ namespace Egfx
 						BlendMode>
 					{
 					private:
-						using Base = ::Egfx::Framework::Shader::Image::Bitmask::Scaled<
+						using Base = ::IntegerGlass::Framework::Shader::Image::Bitmask::Scaled<
 							dimension_t,
 							static_cast<uint8_t>(OverscaleX + MaxValue<pixel_t>(1, ParentLayout::Width() / BitmaskWidth)),
 							static_cast<uint8_t>(MaxValue<pixel_t>(1, ParentLayout::Height() / BitmaskHeight)),
-							::Egfx::Framework::DataSourceTypeEnum::Flash,
+							::IntegerGlass::Framework::DataSourceTypeEnum::Flash,
 							true,
 							RGB_COLOR_BLACK,
 							Framework::Image::ScaledTransformOrderEnum::TransformThenScale,

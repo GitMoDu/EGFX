@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_PLOT_DRAWABLE_FILL_h
-#define _EGFX_MODULES_PLOT_DRAWABLE_FILL_h
+#ifndef _INTEGERGLASS_MODULES_PLOT_DRAWABLE_FILL_h
+#define _INTEGERGLASS_MODULES_PLOT_DRAWABLE_FILL_h
 
 #include "DrawableBase.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

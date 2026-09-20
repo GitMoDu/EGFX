@@ -1,12 +1,12 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_ARC_h
-#define _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_ARC_h
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_ARC_h
+#define _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_ARC_h
 
 #include "CircleRing.h"
 #include <IntegerTrigonometry8.h>
 #include <IntegerTrigonometry16.h>
 
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

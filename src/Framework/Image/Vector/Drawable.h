@@ -1,10 +1,10 @@
-#ifndef _EGFX_FRAMEWORK_IMAGE_VECTOR_DRAWABLE_h
-#define _EGFX_FRAMEWORK_IMAGE_VECTOR_DRAWABLE_h
+#ifndef _INTEGERGLASS_FRAMEWORK_IMAGE_VECTOR_DRAWABLE_h
+#define _INTEGERGLASS_FRAMEWORK_IMAGE_VECTOR_DRAWABLE_h
 
 #include "Model.h"
 #include "../../Shader/Image/Vector/ImageShader.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

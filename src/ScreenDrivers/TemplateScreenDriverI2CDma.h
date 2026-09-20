@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename InlineI2cScreenDriver>
 	class TemplateScreenDriverI2CDma : public InlineI2cScreenDriver

@@ -1,9 +1,9 @@
-#ifndef _EGFX_COLOR32_FRAME_PAINTER_h
-#define _EGFX_COLOR32_FRAME_PAINTER_h
+#ifndef _INTEGERGLASS_COLOR32_FRAME_PAINTER_h
+#define _INTEGERGLASS_COLOR32_FRAME_PAINTER_h
 
 #include "AbstractFramePainter.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// A template class for painting 32-bit color frames, providing various pixel and blending operations on a frame buffer.

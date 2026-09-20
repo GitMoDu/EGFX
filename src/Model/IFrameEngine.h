@@ -1,9 +1,9 @@
-#ifndef _EGFX_I_FRAME_ENGINE_h
-#define _EGFX_I_FRAME_ENGINE_h
+#ifndef _INTEGERGLASS_I_FRAME_ENGINE_h
+#define _INTEGERGLASS_I_FRAME_ENGINE_h
 
 #include "IFrameDraw.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	struct DisplayTimingsStruct
 	{
@@ -14,7 +14,7 @@ namespace Egfx
 	};
 
 	// Display timing structure.
-	// Only available when EGFX_PERFORMANCE_LOG is defined.
+	// Only available when INTEGERGLASS_PERFORMANCE_LOG is defined.
 	struct DisplayPerformanceStruct : DisplayTimingsStruct
 	{
 		uint32_t ClearDuration = 0;
@@ -90,7 +90,7 @@ namespace Egfx
 	};
 
 	// Detailed display timing structure.
-	// Only available when EGFX_PERFORMANCE_LOG and EGFX_PERFORMANCE_LOG_DETAIL is defined.
+	// Only available when INTEGERGLASS_PERFORMANCE_LOG and INTEGERGLASS_PERFORMANCE_LOG_DETAIL is defined.
 	struct DisplayPerformanceDetailStruct : DisplayPerformanceStruct
 	{
 		uint32_t ClearStepMaxDuration = 0;
@@ -110,10 +110,10 @@ namespace Egfx
 		// Simple display timings retrieval.
 		virtual void GetDisplayTimings(DisplayTimingsStruct& timings) const = 0;
 
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 		// Detailed display performance retrieval.
 		virtual void GetDisplayPerformance(DisplayPerformanceStruct& timings) const = 0;
-#if defined(EGFX_PERFORMANCE_LOG_DETAIL)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG_DETAIL)
 		// Full display performance detail retrieval.
 		virtual void GetDisplayPerformanceDetail(DisplayPerformanceDetailStruct& timings) const = 0;
 #endif

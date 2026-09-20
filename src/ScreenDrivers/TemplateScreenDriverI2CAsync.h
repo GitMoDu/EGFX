@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename InlineI2cScreenDriver,
 		const uint8_t i2cChunkSize = 8>

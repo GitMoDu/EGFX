@@ -1,5 +1,5 @@
-#ifndef _EGFX_ASYNC_BUFFER_PUSH_TASK_h
-#define _EGFX_ASYNC_BUFFER_PUSH_TASK_h
+#ifndef _INTEGERGLASS_ASYNC_BUFFER_PUSH_TASK_h
+#define _INTEGERGLASS_ASYNC_BUFFER_PUSH_TASK_h
 
 #define _TASK_OO_CALLBACKS
 #include <TSchedulerDeclarations.hpp>
@@ -7,7 +7,7 @@
 //#include <ArduinoGraphicsCore.h>
 //#include "DisplaySyncType.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Task that manages asynchronous buffer pushing operations to a screen driver.
@@ -32,7 +32,7 @@ namespace Egfx
 		uint8_t* Buffer = nullptr;
 
 	private:
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 		uint32_t PushStartTimestamp = 0;
 		uint32_t LastPushDuration = 0;
 #endif
@@ -62,7 +62,7 @@ namespace Egfx
 
 		uint32_t GetPushDuration() const
 		{
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 			return LastPushDuration;
 #else
 			return 0;
@@ -90,7 +90,7 @@ namespace Egfx
 			case PushStateEnum::Start:
 				if (ScreenDriver.CanPushBuffer())
 				{
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 					PushStartTimestamp = micros();
 #endif
 					ScreenDriver.StartBuffer();
@@ -115,7 +115,7 @@ namespace Egfx
 				Buffer = nullptr;
 				PushState = PushStateEnum::Idle;
 				TS::Task::disable();
-#if defined(EGFX_PERFORMANCE_LOG)
+#if defined(INTEGERGLASS_PERFORMANCE_LOG)
 				LastPushDuration = micros() - PushStartTimestamp;
 #endif
 				break;

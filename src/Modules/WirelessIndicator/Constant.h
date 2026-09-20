@@ -1,16 +1,16 @@
-#ifndef _EGFX_MODULES_WIRELESS_INDICATOR_CONSTANT_h
-#define _EGFX_MODULES_WIRELESS_INDICATOR_CONSTANT_h
+#ifndef _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_CONSTANT_h
+#define _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_CONSTANT_h
 
-#include "../../EgfxFramework.h"
+#include "../../IntegerGlassFramework.h"
 #include "Assets.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
 		namespace WirelessIndicator
 		{
-			using namespace Egfx;
+			using namespace IntegerGlass;
 
 			enum class IndicatorModeEnum : uint8_t
 			{

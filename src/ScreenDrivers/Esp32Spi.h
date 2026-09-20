@@ -1,5 +1,5 @@
-#ifndef _EGFX_ESP32_SPI_H
-#define _EGFX_ESP32_SPI_H
+#ifndef _INTEGERGLASS_ESP32_SPI_H
+#define _INTEGERGLASS_ESP32_SPI_H
 
 #if defined(ARDUINO_ARCH_ESP32)
 
@@ -7,19 +7,19 @@
 #include <SPI.h>
 #include <driver/spi_master.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// ESP32-specific SPI helper that extends Arduino `SPIClass` with an optional ESP-IDF `spi_master` DMA path.
 	/// 
 	/// Design goals:
-	/// - Keep compatibility with existing EGFX inline SPI drivers (they still see a `SPIClass`-like interface).
+	/// - Keep compatibility with existing INTEGERGLASS inline SPI drivers (they still see a `SPIClass`-like interface).
 	/// - Provide a non-blocking (poll-driven) DMA transfer mechanism for large framebuffer pushes.
 	/// - Store pin/host configuration so presets or templates can configure the bus once and reuse it.
 	/// 
 	/// Notes:
 	/// - The DMA path uses ESP-IDF `spi_device_queue_trans()` and requires polling via `DmaBusy()`.
-	/// - This class does not attempt to synchronize Arduino transactions with IDF transactions. In EGFX,
+	/// - This class does not attempt to synchronize Arduino transactions with IDF transactions. In INTEGERGLASS,
 	///   commands typically use the inline driver (`SPIClass`), while framebuffer bulk data may use DMA.
 	/// </summary>
 	class Esp32Spi : public SPIClass
@@ -59,7 +59,7 @@ namespace Egfx
 		bool TransAInUse = false;
 		bool TransBInUse = false;
 
-		// Pointer to the caller-provided buffer. EGFX guarantees it remains valid until push ends.
+		// Pointer to the caller-provided buffer. INTEGERGLASS guarantees it remains valid until push ends.
 		const uint8_t* Pending = nullptr;
 		size_t PendingOffset = 0;
 		size_t PendingRemaining = 0;
@@ -196,7 +196,7 @@ namespace Egfx
 			devcfg.queue_size = 2;
 			devcfg.flags = SPI_DEVICE_NO_DUMMY;
 
-			// Hardware CS if requested; otherwise caller toggles CS (common for EGFX drivers).
+			// Hardware CS if requested; otherwise caller toggles CS (common for INTEGERGLASS drivers).
 			devcfg.spics_io_num = (DmaUseHwCs && Ss >= 0) ? Ss : -1;
 
 			// Slight CS lead/lag can help some displays.

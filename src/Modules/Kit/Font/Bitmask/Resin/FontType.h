@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_KIT_FONT_BITMASK_RESIN_FONT_TYPE_h
-#define _EGFX_MODULES_KIT_FONT_BITMASK_RESIN_FONT_TYPE_h
+#ifndef _INTEGERGLASS_MODULES_KIT_FONT_BITMASK_RESIN_FONT_TYPE_h
+#define _INTEGERGLASS_MODULES_KIT_FONT_BITMASK_RESIN_FONT_TYPE_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 #include "Source.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

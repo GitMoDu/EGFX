@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_FILL_h
-#define _EGFX_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_FILL_h
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_FILL_h
+#define _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_CIRCLE_FILL_h
 
 #include "CircleLine.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

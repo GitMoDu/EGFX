@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  window.createEgfxVectorEditorData = function createData({ state, model, clamp, primitiveFor, primitiveByOpcode, point, normalizeNode, colorHex, paletteCppText, renderAll, setStatus, getElement }) {
+  window.createIntegerGlassVectorEditorData = function createData({ state, model, clamp, primitiveFor, primitiveByOpcode, point, normalizeNode, colorHex, paletteCppText, renderAll, setStatus, getElement }) {
 	function encodePoint(value) {
 	  const m = model();
 	  const x = clamp(value.x, 0, m.axisMax);

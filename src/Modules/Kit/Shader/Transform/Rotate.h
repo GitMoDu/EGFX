@@ -1,12 +1,12 @@
-#ifndef _EGFX_MODULES_KIT_SHADER_TRANSFORM_ROTATE_h
-#define _EGFX_MODULES_KIT_SHADER_TRANSFORM_ROTATE_h
+#ifndef _INTEGERGLASS_MODULES_KIT_SHADER_TRANSFORM_ROTATE_h
+#define _INTEGERGLASS_MODULES_KIT_SHADER_TRANSFORM_ROTATE_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 #include <IntegerTrigonometry8.h>
 #include <IntegerTrigonometry16.h>
 #include "Skew.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

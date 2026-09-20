@@ -28,5 +28,5 @@
 	});
   }
 
-  window.EgfxVectorEditorUi = { primitiveIcon, createActionButton, createToolPalette };
+  window.IntegerGlassVectorEditorUi = { primitiveIcon, createActionButton, createToolPalette };
 })();

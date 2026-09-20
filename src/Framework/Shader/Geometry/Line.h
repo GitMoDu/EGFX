@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_GEOMETRY_LINE_H
-#define _EGFX_FRAMEWORK_SHADER_GEOMETRY_LINE_H
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_LINE_H
+#define _INTEGERGLASS_FRAMEWORK_SHADER_GEOMETRY_LINE_H
 
 #include "Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

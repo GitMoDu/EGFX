@@ -1,11 +1,11 @@
-#ifndef _EGFX_ABSTRACT_FRAME_PAINTER_h
-#define _EGFX_ABSTRACT_FRAME_PAINTER_h
+#ifndef _INTEGERGLASS_ABSTRACT_FRAME_PAINTER_h
+#define _INTEGERGLASS_ABSTRACT_FRAME_PAINTER_h
 
 #include "../Model/ColorConverter.h"
 #include "../Model/IFrameBuffer.h"
 #include <IntegerSignal.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Abstract base class for rendering graphics primitives to a frame buffer with configurable color conversion, dimensions, and rotation.

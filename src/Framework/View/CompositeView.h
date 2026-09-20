@@ -1,11 +1,11 @@
-#ifndef _EGFX_FRAMEWORK_COMPOSITE_VIEW_h
-#define _EGFX_FRAMEWORK_COMPOSITE_VIEW_h
+#ifndef _INTEGERGLASS_FRAMEWORK_COMPOSITE_VIEW_h
+#define _INTEGERGLASS_FRAMEWORK_COMPOSITE_VIEW_h
 
 #include "Model.h"
 #include "Child.h"
 #include "../Shader/Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_WIRELESS_INDICATOR_ASSETS_h
-#define _EGFX_MODULES_WIRELESS_INDICATOR_ASSETS_h
+#ifndef _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_ASSETS_h
+#define _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_ASSETS_h
 
-#include "../../EgfxFramework.h"
+#include "../../IntegerGlassFramework.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

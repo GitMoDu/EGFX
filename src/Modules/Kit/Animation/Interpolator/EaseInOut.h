@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_KIT_ANIMATION_INTERPOLATOR_EASE_IN_OUT_h
-#define _EGFX_MODULES_KIT_ANIMATION_INTERPOLATOR_EASE_IN_OUT_h
+#ifndef _INTEGERGLASS_MODULES_KIT_ANIMATION_INTERPOLATOR_EASE_IN_OUT_h
+#define _INTEGERGLASS_MODULES_KIT_ANIMATION_INTERPOLATOR_EASE_IN_OUT_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

@@ -1,10 +1,10 @@
-#ifndef _EGFX_I_SCREEN_DRIVER_h
-#define _EGFX_I_SCREEN_DRIVER_h
+#ifndef _INTEGERGLASS_I_SCREEN_DRIVER_h
+#define _INTEGERGLASS_I_SCREEN_DRIVER_h
 
 #include "Model/RgbColor.h"
 #include "Model/GraphicsBuffer.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// Platform display communications interface type enumeration.

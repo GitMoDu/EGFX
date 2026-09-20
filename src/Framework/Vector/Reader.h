@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_VECTOR_READER_h
-#define _EGFX_FRAMEWORK_VECTOR_READER_h
+#ifndef _INTEGERGLASS_FRAMEWORK_VECTOR_READER_h
+#define _INTEGERGLASS_FRAMEWORK_VECTOR_READER_h
 
 #include "Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

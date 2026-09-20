@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_TERMINAL_WINDOW_LAYOUT_h
-#define _EGFX_MODULES_TERMINAL_WINDOW_LAYOUT_h
+#ifndef _INTEGERGLASS_MODULES_TERMINAL_WINDOW_LAYOUT_h
+#define _INTEGERGLASS_MODULES_TERMINAL_WINDOW_LAYOUT_h
 
 #include "Constant.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

@@ -1,10 +1,10 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_IMAGE_COLOR_SOURCE_h
-#define _EGFX_FRAMEWORK_SHADER_IMAGE_COLOR_SOURCE_h
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_IMAGE_COLOR_SOURCE_h
+#define _INTEGERGLASS_FRAMEWORK_SHADER_IMAGE_COLOR_SOURCE_h
 
 #include "../../../Image/Model.h"
 #include "../../../Vector/Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

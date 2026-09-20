@@ -1,9 +1,9 @@
-#ifndef _EGFX_SCREEN_DRIVERS_GC9107_h
-#define _EGFX_SCREEN_DRIVERS_GC9107_h
+#ifndef _INTEGERGLASS_SCREEN_DRIVERS_GC9107_h
+#define _INTEGERGLASS_SCREEN_DRIVERS_GC9107_h
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace GC9107
 	{

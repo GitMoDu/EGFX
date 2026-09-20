@@ -1,10 +1,10 @@
-#ifndef _EGFX_FRAMEWORK_VECTOR_DECODER_h
-#define _EGFX_FRAMEWORK_VECTOR_DECODER_h
+#ifndef _INTEGERGLASS_FRAMEWORK_VECTOR_DECODER_h
+#define _INTEGERGLASS_FRAMEWORK_VECTOR_DECODER_h
 
 #include "Model.h"
 #include "Reader.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

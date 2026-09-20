@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename InlineSpiScreenDriver,
 		const uint8_t spiChunkDivisor = 2>
@@ -25,7 +25,7 @@ namespace Egfx
 		size_t PushIndex = 0;
 
 	public:
-		TemplateScreenDriverSpiAsync(Egfx::SpiType& spi) : InlineSpiScreenDriver(spi) {}
+		TemplateScreenDriverSpiAsync(IntegerGlass::SpiType& spi) : InlineSpiScreenDriver(spi) {}
 
 		~TemplateScreenDriverSpiAsync() override = default;
 

@@ -1,12 +1,12 @@
-#ifndef _EGFX_MODULES_BATTERY_INDICATOR_DRAWABLE_h
-#define _EGFX_MODULES_BATTERY_INDICATOR_DRAWABLE_h
+#ifndef _INTEGERGLASS_MODULES_BATTERY_INDICATOR_DRAWABLE_h
+#define _INTEGERGLASS_MODULES_BATTERY_INDICATOR_DRAWABLE_h
 
 #include "Constant.h"
 #include "Layout.h"
 #include "Shader.h"
 
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

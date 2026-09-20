@@ -1,7 +1,7 @@
-#ifndef _EGFX_MODULES_WIRELESS_INDICATOR_VIEW_h
-#define _EGFX_MODULES_WIRELESS_INDICATOR_VIEW_h
+#ifndef _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_VIEW_h
+#define _INTEGERGLASS_MODULES_WIRELESS_INDICATOR_VIEW_h
 
-#include "../../EgfxFramework.h"
+#include "../../IntegerGlassFramework.h"
 #include <IntegerSignal.h>
 
 #include "Constant.h"
@@ -12,7 +12,7 @@
 #include "Drawables/Primitive.h"
 #include "Drawables/Bitmask.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

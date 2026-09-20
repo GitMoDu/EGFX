@@ -40,7 +40,7 @@
 		Info: 0xE946, Lock: 0xE72E, Question: 0xE897,
 		Shield: 0xEA18, Smiley: 0xE76E, SmileyHappy: 0x1F600, SmileyNeutral: 0xF62A, SmileySad: 0xE719, SmileyAngry: 0x1F620, Star: 0xE734, Unlock: 0xE785, User: 0xE77B, UserAdd: 0xE8FA, UserRemove: 0xE8F8, Users: 0xE716, Warning: 0xE7BA
 	};
-	window.EgfxVectorIconCatalog = names.map((name, index) => {
+	window.IntegerGlassVectorIconCatalog = names.map((name, index) => {
 		const symbol = symbolByName[name] || 0;
 		return { name, emoji: symbol ? String.fromCodePoint(symbol) : '□', glyph: symbol ? String.fromCodePoint(symbol) : '□', code: symbol, scalar: symbol, variant: 0, nodes: [] };
 	});

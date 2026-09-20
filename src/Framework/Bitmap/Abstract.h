@@ -1,10 +1,10 @@
-#ifndef _EGFX_FRAMEWORK_BITMAP_ABSTRACT_BITMAP_h
-#define _EGFX_FRAMEWORK_BITMAP_ABSTRACT_BITMAP_h
+#ifndef _INTEGERGLASS_FRAMEWORK_BITMAP_ABSTRACT_BITMAP_h
+#define _INTEGERGLASS_FRAMEWORK_BITMAP_ABSTRACT_BITMAP_h
 
 #include "Model.h"
 #include "Source.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

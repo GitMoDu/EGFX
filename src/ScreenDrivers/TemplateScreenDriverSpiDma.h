@@ -21,7 +21,7 @@
 #endif
 #endif
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename InlineSpiScreenDriver,
 		uint32_t pushSleepDuration,
@@ -57,7 +57,7 @@ namespace Egfx
 #endif
 
 	public:
-		TemplateScreenDriverSpiDma(Egfx::SpiType& spi)
+		TemplateScreenDriverSpiDma(IntegerGlass::SpiType& spi)
 			: InlineSpiScreenDriver(spi)
 		{}
 

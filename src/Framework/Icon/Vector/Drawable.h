@@ -1,10 +1,10 @@
-#ifndef _EGFX_FRAMEWORK_ICON_VECTOR_DRAWABLE_h
-#define _EGFX_FRAMEWORK_ICON_VECTOR_DRAWABLE_h
+#ifndef _INTEGERGLASS_FRAMEWORK_ICON_VECTOR_DRAWABLE_h
+#define _INTEGERGLASS_FRAMEWORK_ICON_VECTOR_DRAWABLE_h
 
 #include "../../Image/Vector/Drawable.h"
 #include "../Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

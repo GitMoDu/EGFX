@@ -1,5 +1,5 @@
-#ifndef _EGFX_SCREEN_DRIVERS_GC9A01_h
-#define _EGFX_SCREEN_DRIVERS_GC9A01_h
+#ifndef _INTEGERGLASS_SCREEN_DRIVERS_GC9A01_h
+#define _INTEGERGLASS_SCREEN_DRIVERS_GC9A01_h
 
 #include <stdint.h>
 
@@ -112,7 +112,7 @@ namespace GC9A01
 		static constexpr uint8_t C74[]{ 0x10, 0x85, 0x80, 0x00, 0x00, 0x4E, 0x00 };
 		static constexpr uint8_t C98[]{ 0x3E, 0x07 };
 
-		// Used by the driver. This is the “vendor init block”.
+		// Used by the driver. This is the ï¿½vendor init blockï¿½.
 		static constexpr RawCommand Sequence[] =
 		{
 			Cmd(0xEF),

@@ -1,4 +1,4 @@
-﻿const BitmaskFontDeclaration = (() => {
+const BitmaskFontDeclaration = (() => {
   function identifier(value, fallback) {
 	return (value || fallback).replace(/[^A-Za-z0-9_]/g, '_');
   }
@@ -23,14 +23,14 @@
 	});
 	const name = identifier(fontName, 'MyBitmaskFont');
 	return [
-	  '#include <EgfxFramework.h>',
+	  '#include <IntegerGlassFramework.h>',
 	  '',
 	  'struct ' + name,
 	  '{',
 	  '\tusing dimension_t = uint8_t;',
-	  '\tusing glyph_t = Egfx::Framework::Text::Bitmask::GlyphBitmask<dimension_t>;',
+	  '\tusing glyph_t = IntegerGlass::Framework::Text::Bitmask::GlyphBitmask<dimension_t>;',
 	  '',
-	  '\tstatic constexpr Egfx::Framework::Image::DataSourceTypeEnum DataSourceType = Egfx::Framework::Image::DataSourceTypeEnum::Flash;',
+	  '\tstatic constexpr IntegerGlass::Framework::Image::DataSourceTypeEnum DataSourceType = IntegerGlass::Framework::Image::DataSourceTypeEnum::Flash;',
 	  '',
 	  '\tvoid SetFontWidth(const dimension_t /*width*/) {}',
 	  '\tvoid SetFontHeight(const dimension_t /*height*/) {}',

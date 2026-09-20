@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_PROJECTION_CONTROL_SCROLL_h
-#define _EGFX_FRAMEWORK_PROJECTION_CONTROL_SCROLL_h
+#ifndef _INTEGERGLASS_FRAMEWORK_PROJECTION_CONTROL_SCROLL_h
+#define _INTEGERGLASS_FRAMEWORK_PROJECTION_CONTROL_SCROLL_h
 
 #include "../Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

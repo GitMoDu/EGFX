@@ -1,9 +1,9 @@
-#ifndef _EGFX_RGB_COLOR_h
-#define _EGFX_RGB_COLOR_h
+#ifndef _INTEGERGLASS_RGB_COLOR_h
+#define _INTEGERGLASS_RGB_COLOR_h
 
 #include "../Platform/Platform.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	using namespace IntegerSignal::FixedPoint::ScalarFraction;
 
@@ -274,11 +274,11 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Abstracts color construction from 3-3-2 to EGFX native rgb_color_t.
+		/// Abstracts color construction from 3-3-2 to INTEGERGLASS native rgb_color_t.
 		/// </summary>
 		inline constexpr rgb_color_t Color(const uint8_t color)
 		{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 			return Color888(color);
 #else
 			return Color565(color);
@@ -286,11 +286,11 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Abstracts color construction from 5-6-5 to EGFX native rgb_color_t.
+		/// Abstracts color construction from 5-6-5 to INTEGERGLASS native rgb_color_t.
 		/// </summary>
 		inline constexpr rgb_color_t Color(const uint16_t color)
 		{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 			return Color888(color);
 #else
 			return color;
@@ -298,11 +298,11 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Abstracts color construction from 8-8-8 to EGFX native rgb_color_t.
+		/// Abstracts color construction from 8-8-8 to INTEGERGLASS native rgb_color_t.
 		/// </summary>
 		inline constexpr rgb_color_t Color(const uint32_t color)
 		{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 			return color;
 #else
 			return Color565(color);
@@ -310,7 +310,7 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Abstracts color construction from 8-8-8 components to EGFX native rgb_color_t.
+		/// Abstracts color construction from 8-8-8 components to INTEGERGLASS native rgb_color_t.
 		/// </summary>
 		inline constexpr rgb_color_t Color(const uint8_t r, const uint8_t g, const uint8_t b)
 		{
@@ -318,11 +318,11 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Abstracts color construction from 5-6-5 to EGFX native rgb_color_t.
+		/// Abstracts color construction from 5-6-5 to INTEGERGLASS native rgb_color_t.
 		/// </summary>
 		inline constexpr rgb_color_t ColorFrom565(const uint8_t r, const uint8_t g, const uint8_t b)
 		{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 			return Color888(Color565From565(r, g, b));
 #else
 			return Color565From565(r, g, b);
@@ -330,7 +330,7 @@ namespace Egfx
 		}
 
 		/// <summary>
-		/// Converts HSV to EGFX native rgb_color_t.
+		/// Converts HSV to INTEGERGLASS native rgb_color_t.
 		/// </summary>
 		inline rgb_color_t ColorFromHSV(const angle_t hue, const uint8_t saturation, const uint8_t value)
 		{

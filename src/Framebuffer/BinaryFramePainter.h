@@ -1,9 +1,9 @@
-#ifndef _EGFX_BINARY_FRAME_PAINTER_h
-#define _EGFX_BINARY_FRAME_PAINTER_h
+#ifndef _INTEGERGLASS_BINARY_FRAME_PAINTER_h
+#define _INTEGERGLASS_BINARY_FRAME_PAINTER_h
 
 #include "AbstractFramePainter.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	/// <summary>
 	/// A lookup table for bit masks corresponding to each bit position in a byte.

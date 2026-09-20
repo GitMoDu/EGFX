@@ -1,11 +1,11 @@
-#ifndef _EGFX_FRAMEWORK_TEXT_VECTOR_DRAWABLE_h
-#define _EGFX_FRAMEWORK_TEXT_VECTOR_DRAWABLE_h
+#ifndef _INTEGERGLASS_FRAMEWORK_TEXT_VECTOR_DRAWABLE_h
+#define _INTEGERGLASS_FRAMEWORK_TEXT_VECTOR_DRAWABLE_h
 
 #include "Model.h"
 #include "../TextWalker.h"
 #include "../../Shader/Image/Vector/ImageShader.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

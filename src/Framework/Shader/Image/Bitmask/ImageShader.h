@@ -1,10 +1,10 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_IMAGE_BITMASK_IMAGE_SHADER_h
-#define _EGFX_FRAMEWORK_SHADER_IMAGE_BITMASK_IMAGE_SHADER_h
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_IMAGE_BITMASK_IMAGE_SHADER_h
+#define _INTEGERGLASS_FRAMEWORK_SHADER_IMAGE_BITMASK_IMAGE_SHADER_h
 
 #include "Unscaled.h"
 #include "Scaled.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

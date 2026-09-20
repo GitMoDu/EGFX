@@ -1,5 +1,5 @@
-#ifndef _EGFX_FRAMEWORK_SHADER_IMAGE_VECTOR_SHADER_h
-#define _EGFX_FRAMEWORK_SHADER_IMAGE_VECTOR_SHADER_h
+#ifndef _INTEGERGLASS_FRAMEWORK_SHADER_IMAGE_VECTOR_SHADER_h
+#define _INTEGERGLASS_FRAMEWORK_SHADER_IMAGE_VECTOR_SHADER_h
 
 #include "Model.h"
 #include "ColorSource.h"
@@ -9,7 +9,7 @@
 #include "../../Pixel/Shaders.h"
 #include "../../Geometry/CircleArc.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

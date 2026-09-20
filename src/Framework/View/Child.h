@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_VIEW_CHILD_h
-#define _EGFX_FRAMEWORK_VIEW_CHILD_h
+#ifndef _INTEGERGLASS_FRAMEWORK_VIEW_CHILD_h
+#define _INTEGERGLASS_FRAMEWORK_VIEW_CHILD_h
 
 #include "../Layout/Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

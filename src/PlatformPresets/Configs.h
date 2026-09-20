@@ -1,11 +1,11 @@
-#ifndef _EGFX_PLATFORM_PRESETS_CONFIGS_h
-#define _EGFX_PLATFORM_PRESETS_CONFIGS_h
+#ifndef _INTEGERGLASS_PLATFORM_PRESETS_CONFIGS_h
+#define _INTEGERGLASS_PLATFORM_PRESETS_CONFIGS_h
 
 #include <Arduino.h>
 #include <Wire.h>
 #include <SPI.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace PlatformPresets
 	{
@@ -16,7 +16,7 @@ namespace Egfx
 				static constexpr uint8_t SDA = UINT8_MAX;
 				static constexpr uint8_t SCL = UINT8_MAX;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
-				using InterfaceType = Egfx::WireType;
+				using InterfaceType = IntegerGlass::WireType;
 				static InterfaceType& Interface()
 				{
 					return Wire;
@@ -29,7 +29,7 @@ namespace Egfx
 				static constexpr uint8_t SDA = A4;
 				static constexpr uint8_t SCL = A5;
 				static constexpr uint8_t BACKLIGHT = A3;
-				using InterfaceType = Egfx::WireType;
+				using InterfaceType = IntegerGlass::WireType;
 				static InterfaceType& Interface()
 				{
 					return Wire;
@@ -42,7 +42,7 @@ namespace Egfx
 				static constexpr uint8_t DC = 9;
 				static constexpr uint8_t RESET = 8;
 				static constexpr uint8_t BACKLIGHT = 7;
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -58,7 +58,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = 21;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -72,7 +72,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = 20;
 				static constexpr uint8_t BACKLIGHT = 21;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -90,7 +90,7 @@ namespace Egfx
 				static constexpr uint8_t MOSI = 11;
 				static constexpr uint8_t MISO = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI1;
@@ -104,7 +104,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = UINT8_MAX;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI1;
@@ -122,7 +122,7 @@ namespace Egfx
 				static constexpr uint8_t MOSI = 19;
 				static constexpr uint8_t MISO = 12;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -138,7 +138,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = 23;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					static InterfaceType spi(VSPI);
@@ -161,7 +161,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = 23;
 				static constexpr uint8_t BACKLIGHT = 4;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 
 				static InterfaceType& Interface()
 				{
@@ -189,7 +189,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = D6;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -205,7 +205,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = D6;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -221,7 +221,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = 11;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -237,7 +237,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = PB8;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;
@@ -253,7 +253,7 @@ namespace Egfx
 				static constexpr uint8_t RESET = UINT8_MAX;
 				static constexpr uint8_t BACKLIGHT = UINT8_MAX;
 
-				using InterfaceType = Egfx::SpiType;
+				using InterfaceType = IntegerGlass::SpiType;
 				static InterfaceType& Interface()
 				{
 					return SPI;

@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const config = window.EgfxVectorEditorConfig;
-	const icons = window.EgfxVectorIconCatalog.map(icon => ({ ...icon, packed: [], nodes: [] }));
+  const config = window.IntegerGlassVectorEditorConfig;
+	const icons = window.IntegerGlassVectorIconCatalog.map(icon => ({ ...icon, packed: [], nodes: [] }));
 	const state = { width: 15, height: 15, inset: 0, columns: 8, selected: 0, setPreviewScale: 32 };
   const $ = id => document.getElementById(id);
   const clamp = (value, min, max) => Math.max(min, Math.min(max, Number(value) || 0));
@@ -214,7 +214,7 @@
 	  return mapped;
 	});
   canvas.width = outputWidth; canvas.height = outputHeight;
-	window.EgfxVectorRenderer.render(canvas.getContext('2d'), mappedNodes, outputWidth, outputHeight, 1, { angleMax: 14, renderScale: Math.max(scaleX, scaleY) });
+	window.IntegerGlassVectorRenderer.render(canvas.getContext('2d'), mappedNodes, outputWidth, outputHeight, 1, { angleMax: 14, renderScale: Math.max(scaleX, scaleY) });
   }
 
   function renderPreview() {
@@ -252,8 +252,8 @@
 	const assigned = icons.filter(icon => icon.packed.length);
 	const enumValues = assigned.map(icon => `\t\t${icon.name} = uint32_t(IconEnum::${icon.name}),`).join('\n');
 	let offset = 0;
-	const cases = assigned.map(icon => { const result = `\t\t\tcase Egfx::Framework::Icon::IconEnum::${icon.name}: return { ${asset}Data + ${offset}, ${icon.packed.length} };`; offset += icon.packed.length; return result; }).join('\n');
-	return `struct ${asset}\n{\n\tenum class SetIconEnum : uint32_t\n\t{\n${enumValues}\n\t};\n\n\tstatic constexpr uint8_t CanvasWidth = ${state.width};\n\tstatic constexpr uint8_t CanvasHeight = ${state.height};\n\tstatic constexpr uint8_t EdgeInset = ${state.inset};\n\n\tstatic constexpr IconSource GetIcon(const Egfx::Framework::Icon::IconEnum icon)\n\t{\n\t\tswitch (icon)\n\t\t{\n${cases}\n\t\t\tdefault: return {};\n\t\t}\n\t}\n};`;
+	const cases = assigned.map(icon => { const result = `\t\t\tcase IntegerGlass::Framework::Icon::IconEnum::${icon.name}: return { ${asset}Data + ${offset}, ${icon.packed.length} };`; offset += icon.packed.length; return result; }).join('\n');
+	return `struct ${asset}\n{\n\tenum class SetIconEnum : uint32_t\n\t{\n${enumValues}\n\t};\n\n\tstatic constexpr uint8_t CanvasWidth = ${state.width};\n\tstatic constexpr uint8_t CanvasHeight = ${state.height};\n\tstatic constexpr uint8_t EdgeInset = ${state.inset};\n\n\tstatic constexpr IconSource GetIcon(const IntegerGlass::Framework::Icon::IconEnum icon)\n\t{\n\t\tswitch (icon)\n\t\t{\n${cases}\n\t\t\tdefault: return {};\n\t\t}\n\t}\n};`;
   }
 
   function serializedSet() {
@@ -298,7 +298,7 @@
 	if (['canvasWidth', 'canvasHeight', 'inset', 'atlasColumns', 'assetName'].includes(event.target.id)) renderAll();
 	if (event.target.id === 'iconPreviewScale') { state.setPreviewScale = Number(event.target.value); renderAll(); }
   });
-	const defaultSource = window.EgfxVectorIconDefaults?.MockAtlas || '';
+	const defaultSource = window.IntegerGlassVectorIconDefaults?.MockAtlas || '';
   if (defaultSource) {
 	$('sourceInput').value = defaultSource;
 	importAtlasSource();

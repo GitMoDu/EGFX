@@ -1,9 +1,9 @@
-#ifndef _EGFX_I_FRAME_DRAW_h
-#define _EGFX_I_FRAME_DRAW_h
+#ifndef _INTEGERGLASS_I_FRAME_DRAW_h
+#define _INTEGERGLASS_I_FRAME_DRAW_h
 
 #include "IFrameBuffer.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	struct IFrameDraw
 	{

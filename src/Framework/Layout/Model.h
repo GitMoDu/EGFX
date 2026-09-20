@@ -1,15 +1,15 @@
-#ifndef _EGFX_FRAMEWORK_LAYOUT_MODEL_h
-#define _EGFX_FRAMEWORK_LAYOUT_MODEL_h
+#ifndef _INTEGERGLASS_FRAMEWORK_LAYOUT_MODEL_h
+#define _INTEGERGLASS_FRAMEWORK_LAYOUT_MODEL_h
 
-#include "../../EgfxCore.h"
+#include "../../IntegerGlassCore.h"
 #include "../Support.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{
 		/// <summary>
-		/// Base layout contract used by EGFX layout templates.
+		/// Base layout contract used by INTEGERGLASS layout templates.
 		///
 		/// Contract:
 		/// - A layout is a pure compile-time "rectangle provider" implemented via static constexpr functions.

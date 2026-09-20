@@ -1,5 +1,5 @@
-#ifndef _EGFX_SCREEN_DRIVERS_GC9107_SPI_h
-#define _EGFX_SCREEN_DRIVERS_GC9107_SPI_h
+#ifndef _INTEGERGLASS_SCREEN_DRIVERS_GC9107_SPI_h
+#define _INTEGERGLASS_SCREEN_DRIVERS_GC9107_SPI_h
 
 #include "AbstractScreenDriverSPI.h"
 #include "TemplateScreenDriverRtos.h"
@@ -7,7 +7,7 @@
 #include "TemplateScreenDriverSpiDma.h"
 #include "GC9107/GC9107.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename pixel_color_t,
 		const uint16_t width,
@@ -18,10 +18,10 @@ namespace Egfx
 		const uint8_t pinDC,
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
-	class AbstractScreenDriverGC9107_SPI : public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>
+	class AbstractScreenDriverGC9107_SPI : public AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>;
+		using BaseClass = AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(width, height), width, height, pinCS, pinDC, pinRST>;
 
 		static_assert(width <= GC9107::Width, "GC9107 panel width exceeded.");
 		static_assert(height <= GC9107::Height, "GC9107 panel height exceeded.");
@@ -42,7 +42,7 @@ namespace Egfx
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverGC9107_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverGC9107_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(GC9107::LimitedSpiSpeed(spiSpeed), MSBFIRST, SPI_MODE0)
 		{
@@ -222,14 +222,14 @@ namespace Egfx
 	>
 	using ScreenDriverGC9107_128x128x16_SPI_Rtos =
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverGC9107_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,
 		priority,
 		coreAffinity>;
 #else
-		TemplateScreenDriverRtos<Egfx::SpiType,
+		TemplateScreenDriverRtos<IntegerGlass::SpiType,
 		ScreenDriverGC9107_128x128x16_SPI<pinCS, pinDC, pinRST, spiSpeed>,
 		pushSleepDuration,
 		stackHeight,

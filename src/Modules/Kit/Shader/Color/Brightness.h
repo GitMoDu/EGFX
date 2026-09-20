@@ -1,9 +1,9 @@
-#ifndef _EGFX_MODULES_KIT_SHADER_COLOR_BRIGHTNESS_h		
-#define _EGFX_MODULES_KIT_SHADER_COLOR_BRIGHTNESS_h
+#ifndef _INTEGERGLASS_MODULES_KIT_SHADER_COLOR_BRIGHTNESS_h		
+#define _INTEGERGLASS_MODULES_KIT_SHADER_COLOR_BRIGHTNESS_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
@@ -87,7 +87,7 @@ namespace Egfx
 					private:
 						int8_t Shift = 0;
 
-#if !defined(EGFX_PLATFORM_HDR)
+#if !defined(INTEGERGLASS_PLATFORM_HDR)
 					private:
 						static constexpr uint8_t ADD_LIMIT_6 = 0x3F;
 						static constexpr uint8_t ADD_LIMIT_5 = 0x1F;
@@ -103,7 +103,7 @@ namespace Egfx
 						/// <param name="shift">[INT8_MIN+1; INT8_MAX] Absolute shift in RGB space.</param>
 						void SetLightenDarken(const int8_t shift)
 						{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 							Shift = shift;
 #else
 							Shift = shift / 4;
@@ -120,7 +120,7 @@ namespace Egfx
 
 							if (Shift > 0)
 							{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 								return Rgb::Color888(
 									LimitedAdd<UINT8_MAX>(Rgb::R(baseColor)),
 									LimitedAdd<UINT8_MAX>(Rgb::G(baseColor)),
@@ -134,7 +134,7 @@ namespace Egfx
 							}
 							else if (Shift < 0)
 							{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 								return Rgb::Color888(
 									LimitedSubtract(Rgb::R(baseColor)),
 									LimitedSubtract(Rgb::G(baseColor)),

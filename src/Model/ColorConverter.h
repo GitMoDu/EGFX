@@ -1,10 +1,10 @@
-#ifndef _EGFX_COLOR_CONVERTER_h
-#define _EGFX_COLOR_CONVERTER_h
+#ifndef _INTEGERGLASS_COLOR_CONVERTER_h
+#define _INTEGERGLASS_COLOR_CONVERTER_h
 
 #include "RgbColor.h"
 #include "GraphicsBuffer.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	struct AbstractColorConverter1
 	{
@@ -72,11 +72,11 @@ namespace Egfx
 	/// </summary>
 	struct ColorConverter8 : public AbstractColorConverter8<false>
 	{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 		/// <summary>
 		/// Convert 8-8-8 to 3-3-2 color.
 		/// </summary>
-		/// <param name="color">EGFX-native color.</param>
+		/// <param name="color">INTEGERGLASS-native color.</param>
 		/// <returns>Framebuffer-native color (8-8-8).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -104,11 +104,11 @@ namespace Egfx
 	/// </summary>
 	struct ColorConverter16 : public AbstractColorConverter16
 	{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 		/// <summary>
 		/// Convert 8-8-8 color to 5-6-5 color.
 		/// </summary>
-		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <param name="color">INTEGERGLASS-native color (8-8-8).</param>
 		/// <returns>Framebuffer-native color (5-6-5).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -118,7 +118,7 @@ namespace Egfx
 		/// <summary>
 		/// Passthrough 5-6-5 color.
 		/// </summary>
-		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <param name="color">INTEGERGLASS-native color (5-6-5).</param>
 		/// <returns>Framebuffer-native color (5-6-5).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -132,11 +132,11 @@ namespace Egfx
 	/// </summary>
 	struct ColorConverter32 : public AbstractColorConverter32
 	{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 		/// <summary>
 		/// Passthrough 8-8-8 color.
 		/// </summary>
-		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <param name="color">INTEGERGLASS-native color (8-8-8).</param>
 		/// <returns>Framebuffer-native color (8-8-8).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -147,7 +147,7 @@ namespace Egfx
 		/// <summary>
 		/// Convert 5-6-5 color to 8-8-8 color.
 		/// </summary>
-		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <param name="color">INTEGERGLASS-native color (5-6-5).</param>
 		/// <returns>Framebuffer-native color (8-8-8).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -161,7 +161,7 @@ namespace Egfx
 	/// </summary>
 	struct GrayScaleConverter8 : public AbstractColorConverter8<true>
 	{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 	private:
 		enum class Weights : uint8_t
 		{
@@ -176,7 +176,7 @@ namespace Egfx
 		/// <summary>
 		/// Converts native (8-8-8) color to 256 tones grayscale.
 		/// </summary>
-		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <param name="color">INTEGERGLASS-native color (8-8-8).</param>
 		/// <returns>Framebuffer-native color (8).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -189,7 +189,7 @@ namespace Egfx
 		/// <summary>
 		/// Converts native (5-6-5) color to 256 tones grayscale.
 		/// </summary>
-		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <param name="color">INTEGERGLASS-native color (5-6-5).</param>
 		/// <returns>Framebuffer-native color (8).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -203,11 +203,11 @@ namespace Egfx
 	/// </summary>
 	struct GrayScaleConverter4 : public AbstractColorConverter4
 	{
-#if defined(EGFX_PLATFORM_HDR)
+#if defined(INTEGERGLASS_PLATFORM_HDR)
 		/// <summary>
 		/// Converts 8-8-8 color to 16 tones grayscale.
 		/// </summary>
-		/// <param name="color">EGFX-native color (8-8-8).</param>
+		/// <param name="color">INTEGERGLASS-native color (8-8-8).</param>
 		/// <returns>Framebuffer-native color (4).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -217,7 +217,7 @@ namespace Egfx
 		/// <summary>
 		/// Converts 5-6-5 color to 16 tones grayscale.
 		/// </summary>
-		/// <param name="color">EGFX-native color (5-6-5).</param>
+		/// <param name="color">INTEGERGLASS-native color (5-6-5).</param>
 		/// <returns>Framebuffer-native color (4).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{
@@ -236,7 +236,7 @@ namespace Egfx
 		/// <summary>
 		/// Converts native (8-8-8, 5-6-5) color to 1 bit color.
 		/// </summary>
-		/// <param name="color">EGFX-native color (8-8-8, 5-6-5).</param>
+		/// <param name="color">INTEGERGLASS-native color (8-8-8, 5-6-5).</param>
 		/// <returns>Framebuffer-native color (1).</returns>
 		static constexpr color_t GetRawColor(const rgb_color_t color)
 		{

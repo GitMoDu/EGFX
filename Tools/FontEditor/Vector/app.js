@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
-  const M = window.EgfxVectorFontModel;
+  const M = window.IntegerGlassVectorFontModel;
 	const FONT_THICKNESS_SCALE = 64;
 	const DEFAULT_PALETTE = [[255, 255, 255], [98, 198, 255], [255, 128, 127], [126, 235, 167], [255, 210, 112], [202, 155, 255]];
   const state = { maxWidth: 8, height: 15, spaceWidth: 2, assetName: 'MyVectorFont', glyphs: [], selected: 0, selectedGlyph: 0, selectedNode: -1, activeTool: 'Point', fontPreviewScale: 32, palette: DEFAULT_PALETTE.map(color => [...color]) };
@@ -26,8 +26,8 @@
       for (let x = 0; x <= state.maxWidth; x++) { context.beginPath(); context.moveTo(x * scale, 0); context.lineTo(x * scale, state.height * scale); context.stroke(); }
       for (let y = 0; y <= state.height; y++) { context.beginPath(); context.moveTo(0, y * scale); context.lineTo(state.maxWidth * scale, y * scale); context.stroke(); }
     }
-    if (!glyph || !window.EgfxVectorRenderer) return;
-	window.EgfxVectorRenderer.render(context, glyph.nodes, Math.max(1, Math.round(canvas.width / scale)), Math.max(1, Math.round(canvas.height / scale)), scale, { angleMax: M.MAX_COORDINATE, renderScale, thicknessFraction: FONT_THICKNESS_SCALE, fixedFontThickness: true, fixedFontWeight: true, palette: state.palette });
+    if (!glyph || !window.IntegerGlassVectorRenderer) return;
+	window.IntegerGlassVectorRenderer.render(context, glyph.nodes, Math.max(1, Math.round(canvas.width / scale)), Math.max(1, Math.round(canvas.height / scale)), scale, { angleMax: M.MAX_COORDINATE, renderScale, thicknessFraction: FONT_THICKNESS_SCALE, fixedFontThickness: true, fixedFontWeight: true, palette: state.palette });
     const selectedItem = glyph.nodes[selectedNode];
     if (!selectedItem || selectedItem.x === undefined || selectedItem.y === undefined) return;
 	const marker = (x, y) => { const size = 10; const half = size / 2; context.fillStyle = '#111'; context.fillRect(x * scale + scale / 2 - half, y * scale + scale / 2 - half, size, size); context.strokeStyle = '#ff3bd4'; context.lineWidth = 2; context.strokeRect(x * scale + scale / 2 - half, y * scale + scale / 2 - half, size, size); };
@@ -38,13 +38,13 @@
 	function characterForGlyphId(id) { return state.glyphs.find(glyph => glyph.id === id)?.character || null; }
 	function addGlyphForCharacter(character) { const existing = glyphForCharacter(character); if (!existing) state.glyphs.push(makeGlyph(character)); state.selected = state.glyphs.findIndex(item => item.character === character); state.selectedGlyph = state.selected; state.selectedNode = selected().nodes.length ? 0 : -1; renderAll(); }
   function renderGlyphs() { AtlasEditorUi.renderKeyboard($('glyphList'), state, renderAll, addGlyphForCharacter, characterForGlyphId); $('glyphCount').textContent = `${state.glyphs.length} glyph${state.glyphs.length === 1 ? '' : 's'}`; }
-	function renderToolPalette() { const palette = $('toolPalette'); window.EgfxVectorEditorUi.createToolPalette(palette, [{ name: 'Select' }, ...M.PRIMITIVES], () => state.activeTool, tool => { state.activeTool = tool; renderToolPalette(); }); }
+	function renderToolPalette() { const palette = $('toolPalette'); window.IntegerGlassVectorEditorUi.createToolPalette(palette, [{ name: 'Select' }, ...M.PRIMITIVES], () => state.activeTool, tool => { state.activeTool = tool; renderToolPalette(); }); }
 	function renderNodes() {
 	const glyph = selected();
 	const editor = $('nodeEditor'); editor.replaceChildren();
 	const list = $('nodeList');
 	list.replaceChildren();
-	const primitiveIcon = window.EgfxVectorEditorUi.primitiveIcon;
+	const primitiveIcon = window.IntegerGlassVectorEditorUi.primitiveIcon;
 	const coordinateInput = (node, property, title) => {
 	  const input = document.createElement('input');
 	  input.type = 'number'; input.min = 0; input.max = 14; input.value = node[property] ?? 0; input.title = title;
@@ -153,7 +153,7 @@
 	  wrapper.append(title, canvas); container.append(wrapper);
 	});
   }
-	function renderAll() { ensureGlyphs(); $('maxWidth').value = state.maxWidth; $('height').value = state.height; $('spaceWidth').value = state.spaceWidth; $('assetName').value = state.assetName; $('sourceNamespace').value = state.sourceNamespace; $('fontPreviewScale').value = state.fontPreviewScale; $('fontPreviewScaleValue').textContent = `${state.fontPreviewScale} px`; renderToolPalette(); renderPalette(); renderGlyphs(); renderNodes(); renderPreview(); renderTextPreviews(); const output = EgfxVectorFontDeclaration.generate(state); $('cppOutput').value = output; $('fontOutput').value = output; }
+	function renderAll() { ensureGlyphs(); $('maxWidth').value = state.maxWidth; $('height').value = state.height; $('spaceWidth').value = state.spaceWidth; $('assetName').value = state.assetName; $('sourceNamespace').value = state.sourceNamespace; $('fontPreviewScale').value = state.fontPreviewScale; $('fontPreviewScaleValue').textContent = `${state.fontPreviewScale} px`; renderToolPalette(); renderPalette(); renderGlyphs(); renderNodes(); renderPreview(); renderTextPreviews(); const output = IntegerGlassVectorFontDeclaration.generate(state); $('cppOutput').value = output; $('fontOutput').value = output; }
   function parseCharacter(value) { const literal = value.slice(1, -1); if (literal === "\\\\") return '\\'; if (literal === "\\'") return "'"; return literal; }
 	function parseSource(source) {
 	const width = Number(source.match(/Width\s*=\s*(\d+)/)?.[1] || 8);
@@ -177,7 +177,7 @@
 	Object.assign(state, { maxWidth: width, height, spaceWidth, glyphs, selected: 0, selectedGlyph: 0, selectedNode: -1 });
   }
 	function loadDefaultAtlas() {
-	  const source = window.EgfxVectorFontDefaults?.Epoxy8x8 || '';
+	  const source = window.IntegerGlassVectorFontDefaults?.Epoxy8x8 || '';
 	  if (!source) return false;
 	  $('sourceInput').value = source;
 	  parseSource(source);

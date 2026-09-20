@@ -1,9 +1,9 @@
-#ifndef _EGFX_FRAMEWORK_IMAGE_BITMAP_DRAWABLE_h
-#define _EGFX_FRAMEWORK_IMAGE_BITMAP_DRAWABLE_h
+#ifndef _INTEGERGLASS_FRAMEWORK_IMAGE_BITMAP_DRAWABLE_h
+#define _INTEGERGLASS_FRAMEWORK_IMAGE_BITMAP_DRAWABLE_h
 
 #include "../../Shader/Image/Bitmap/ImageShader.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

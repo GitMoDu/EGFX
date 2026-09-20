@@ -1,11 +1,11 @@
-#ifndef _EGFX_MODULES_TERMINAL_WINDOW_VIEW_h
-#define _EGFX_MODULES_TERMINAL_WINDOW_VIEW_h
+#ifndef _INTEGERGLASS_MODULES_TERMINAL_WINDOW_VIEW_h
+#define _INTEGERGLASS_MODULES_TERMINAL_WINDOW_VIEW_h
 
-#include <EgfxFramework.h>
+#include <IntegerGlassFramework.h>
 #include "Drawable.h"
 #include "Buffer.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{
@@ -16,7 +16,7 @@ namespace Egfx
 				template<typename ParentLayout,
 					typename TextViewType,
 					typename Config>
-				class Terminal : public Egfx::Framework::View::AbstractView
+				class Terminal : public IntegerGlass::Framework::View::AbstractView
 				{
 				private:
 					static constexpr uint16_t FontWidth = Config::FontWidth;
@@ -26,14 +26,14 @@ namespace Egfx
 					static constexpr uint32_t NewLineAnimationDuration = Config::NewLineAnimationDuration;
 					static constexpr uint32_t CharacterRevealInterval = Config::CharacterRevealInterval;
 					static constexpr uint32_t CursorBlinkPeriod = Config::CursorBlinkPeriod;
-					using dimension_t = typename Egfx::Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t;
-					using signed_t = typename Egfx::Framework::AutoDimension::ByLayout<ParentLayout>::signed_t;
+					using dimension_t = typename IntegerGlass::Framework::AutoDimension::ByLayout<ParentLayout>::dimension_t;
+					using signed_t = typename IntegerGlass::Framework::AutoDimension::ByLayout<ParentLayout>::signed_t;
 					static constexpr dimension_t SpaceWidth = static_cast<dimension_t>(FontWidth);
 					static constexpr dimension_t LineStride = static_cast<dimension_t>(FontHeight + LineSpacing);
 					static constexpr size_t LineLengthValue = (static_cast<size_t>(ParentLayout::Width()) + Kerning) / (FontWidth + Kerning);
 					static constexpr size_t LineCountValue = (static_cast<size_t>(ParentLayout::Height()) + LineSpacing) / LineStride;
 					static constexpr size_t BufferCharacterCountValue = LineLengthValue * (LineCountValue + 1);
-					using count_t = typename Egfx::Modules::TerminalWindow::Definitions::CountType<
+					using count_t = typename IntegerGlass::Modules::TerminalWindow::Definitions::CountType<
 						BufferCharacterCountValue>::type;
 					static constexpr count_t LineLength = static_cast<count_t>(LineLengthValue);
 					static constexpr count_t LineCount = static_cast<count_t>(LineCountValue);
@@ -43,7 +43,7 @@ namespace Egfx
 					static constexpr size_t HalfScreenCharacterCount = ScreenCharacterCount / 2 > 0 ? ScreenCharacterCount / 2 : 1;
 
 				public:
-					using BufferType = Egfx::Modules::TerminalWindow::Buffer::TerminalBuffer<
+					using BufferType = IntegerGlass::Modules::TerminalWindow::Buffer::TerminalBuffer<
 						count_t, LineLength, LineCount>;
 
 					using ViewLayout = ParentLayout;
@@ -51,11 +51,11 @@ namespace Egfx
 				private:
 					char RenderBuffer[LineLength + 1]{};
 					BufferType BufferInstance{};
-					using RenderBufferType = Egfx::Modules::TerminalWindow::Buffer::RenderBuffer<
+					using RenderBufferType = IntegerGlass::Modules::TerminalWindow::Buffer::RenderBuffer<
 						BufferType, Config::DoubleBuffered>;
 					RenderBufferType RenderBufferInstance{ BufferInstance };
 					TextViewType TextViewInstance{};
-					using CursorDrawableType = Egfx::Modules::TerminalWindow::Drawable::Cursor<
+					using CursorDrawableType = IntegerGlass::Modules::TerminalWindow::Drawable::Cursor<
 						dimension_t, ParentLayout, FontHeight>;
 					CursorDrawableType CursorInstance{};
 					count_t CallIndex = 0;
@@ -206,7 +206,7 @@ namespace Egfx
 						return true;
 					}
 
-					bool Draw(Egfx::IFrameBuffer* frame) override
+					bool Draw(IntegerGlass::IFrameBuffer* frame) override
 					{
 						auto& text = TextViewInstance.Drawable();
 						const count_t lineLength = RenderBufferInstance.GetLineLength(CallIndex);

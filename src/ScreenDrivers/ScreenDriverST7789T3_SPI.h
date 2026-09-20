@@ -1,5 +1,5 @@
-#ifndef _EGFX_SCREEN_DRIVERS_ST7789T3_SPI_h
-#define _EGFX_SCREEN_DRIVERS_ST7789T3_SPI_h
+#ifndef _INTEGERGLASS_SCREEN_DRIVERS_ST7789T3_SPI_h
+#define _INTEGERGLASS_SCREEN_DRIVERS_ST7789T3_SPI_h
 
 #include "AbstractScreenDriverSPI.h"
 #include "TemplateScreenDriverRtos.h"
@@ -8,7 +8,7 @@
 #include "ST7789/ST7789.h"
 #include "ST7789/ST7789T3.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	template<typename pixel_color_t,
 		const uint16_t width,
@@ -20,11 +20,11 @@ namespace Egfx
 		const uint8_t pinRST,
 		const uint32_t spiSpeed>
 	class AbstractScreenDriverST7789T3_SPI :
-		public AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height),
+		public AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(width, height),
 		width, height, pinCS, pinDC, pinRST>
 	{
 	private:
-		using BaseClass = AbstractScreenDriverSPI<Egfx::GetFrameBufferSize<pixel_color_t>(width, height),
+		using BaseClass = AbstractScreenDriverSPI<IntegerGlass::GetFrameBufferSize<pixel_color_t>(width, height),
 			width, height, pinCS, pinDC, pinRST>;
 
 		static_assert(width <= ST7789::Width, "ST7789T3 panel width exceeded.");
@@ -33,7 +33,7 @@ namespace Egfx
 		SPISettings Settings;
 
 	public:
-		AbstractScreenDriverST7789T3_SPI(Egfx::SpiType& spi)
+		AbstractScreenDriverST7789T3_SPI(IntegerGlass::SpiType& spi)
 			: BaseClass(spi)
 			, Settings(ST7789T3::LimitedSpiSpeed(spiSpeed), MSBFIRST, SPI_MODE0)
 		{
@@ -167,7 +167,7 @@ namespace Egfx
 
 		void ConfigureAddressWindow()
 		{
-			// Full 240×320 window, no offsets.
+			// Full 240ï¿½320 window, no offsets.
 			const uint8_t caset[]{
 				0x00, 0x00,
 				0x00, uint8_t(width - 1)      // 0x00EF for 240
@@ -263,7 +263,7 @@ namespace Egfx
 		, const uint32_t coreAffinity = tskNO_AFFINITY
 #endif
 	>
-	using ScreenDriverST7789T3_240x320x16_SPI_Rtos = TemplateScreenDriverRtos<Egfx::SpiType, ScreenDriverST7789T3_240x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
+	using ScreenDriverST7789T3_240x320x16_SPI_Rtos = TemplateScreenDriverRtos<IntegerGlass::SpiType, ScreenDriverST7789T3_240x320x16_SPI<pinCS, pinDC, pinRST, spiSpeed>, pushSleepDuration, stackHeight, priority
 #if defined(TEMPLATE_SCREEN_DRIVER_RTOS_MULTI_CORE)
 		, coreAffinity
 #endif

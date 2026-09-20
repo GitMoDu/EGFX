@@ -1,11 +1,11 @@
-#ifndef _EGFX_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_PROJECTOR_h
-#define _EGFX_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_PROJECTOR_h
+#ifndef _INTEGERGLASS_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_PROJECTOR_h
+#define _INTEGERGLASS_FRAMEWORK_PROJECTION_PROJECTORS_PAGE_SLIDE_PROJECTOR_h
 
 #include "../../Model.h"
 #include "../../Control/Scroll.h"
 #include "../../Layout.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

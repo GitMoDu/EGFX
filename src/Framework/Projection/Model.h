@@ -1,11 +1,11 @@
-#ifndef _EGFX_FRAMEWORK_PROJECTION_MODEL_h
-#define _EGFX_FRAMEWORK_PROJECTION_MODEL_h
+#ifndef _INTEGERGLASS_FRAMEWORK_PROJECTION_MODEL_h
+#define _INTEGERGLASS_FRAMEWORK_PROJECTION_MODEL_h
 
 #include "../Layout/Model.h"
 #include "../Shader/Model.h"
 #include "../View/Model.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Framework
 	{

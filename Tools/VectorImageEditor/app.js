@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const { PRIMITIVES, PRIMITIVE_BY_NAME, PRIMITIVE_BY_OPCODE, QUADRANTS, DEFAULT_PALETTE, OUTPUT_MIN, OUTPUT_MAX, MODELS } = window.EgfxVectorEditorConfig;
-  const { scaleFactor, scaleCoordinate } = window.EgfxVectorEditorScale;
+  const { PRIMITIVES, PRIMITIVE_BY_NAME, PRIMITIVE_BY_OPCODE, QUADRANTS, DEFAULT_PALETTE, OUTPUT_MIN, OUTPUT_MAX, MODELS } = window.IntegerGlassVectorEditorConfig;
+  const { scaleFactor, scaleCoordinate } = window.IntegerGlassVectorEditorScale;
   const $ = id => document.getElementById(id);
   const DEFAULT_PACKED_IMAGE = '0xC5, 0xA2, 0xA0, 0x82, 0x42, 0x20, 0x11, 0x14, 0x08, 0xF2, 0x04, 0x35, 0x57, 0x77, 0x95, 0xB7, 0xC7, 0xE5, 0x85, 0x35, 0xF2, 0xE9, 0xD6, 0xF2, 0x23, 0x22, 0x33, 0xF2, 0x7A, 0x8B, 0xAB, 0xBA, 0xC9, 0xBA, 0xA9, 0xFD, 0x99, 0x51, 0xFB, 0x59, 0x57, 0x7B, 0x5E, 0x9E, 0xF2, 0xFB, 0xB9, 0x1B, 0xB3, 0x66, 0x75, 0xF2, 0xC5, 0xB6';
   const state = { model: '8', nodes: [{ primitive: 'Point', x: 1, y: 1 }, { primitive: 'Point', x: 6, y: 6 }], selected: 0, canvasWidth: 15, canvasHeight: 15, width: 128, height: 128, preserveCanvasRatio: false, thicknessFraction: 64, inset: 1, assetName: 'MyVector', activeTool: 'Point', palette: DEFAULT_PALETTE.map(color => [...color]), draft: null, dragStart: null, editDrag: null, trace: { image: null, visible: true, layer: 'background', opacity: .5 } };
@@ -20,7 +20,7 @@
   function primitiveFor(name) { return PRIMITIVE_BY_NAME.get(name) || PRIMITIVES[0]; }
   function colorHex(color) { return `#${color.map(value => value.toString(16).padStart(2, '0')).join('')}`; }
   function parseColor(value) { const match = /^#?([\da-f]{6})$/i.exec(value.trim()); return match ? [parseInt(match[1].slice(0, 2), 16), parseInt(match[1].slice(2, 4), 16), parseInt(match[1].slice(4, 6), 16)] : null; }
-  function paletteCppText() { const entries = state.palette.map(color => `Egfx::Rgb::Color(uint32_t(0x${colorHex(color).slice(1).toUpperCase()}))`).join(',\n        '); return `struct PaletteSource\n{\n    static constexpr Egfx::rgb_color_t Palette[${state.palette.length}]\n    {\n        ${entries}\n    };\n\n    static constexpr Egfx::rgb_color_t GetColor(const uint8_t colorIndex)\n    {\n        return Palette[colorIndex % ${state.palette.length}];\n    }\n};`; }
+  function paletteCppText() { const entries = state.palette.map(color => `IntegerGlass::Rgb::Color(uint32_t(0x${colorHex(color).slice(1).toUpperCase()}))`).join(',\n        '); return `struct PaletteSource\n{\n    static constexpr IntegerGlass::rgb_color_t Palette[${state.palette.length}]\n    {\n        ${entries}\n    };\n\n    static constexpr IntegerGlass::rgb_color_t GetColor(const uint8_t colorIndex)\n    {\n        return Palette[colorIndex % ${state.palette.length}];\n    }\n};`; }
   function point(x = 0, y = 0) { return { primitive: 'Point', x, y }; }
   function normalizeNode(node) {
     const primitive = primitiveFor(node.primitive);
@@ -47,7 +47,7 @@
     return select;
   }
   function angleInput(node, property, label) { return numberInput(node, property, label); }
-  const data = window.createEgfxVectorEditorData({ state, model, clamp, primitiveFor, primitiveByOpcode: PRIMITIVE_BY_OPCODE, point, normalizeNode, colorHex, paletteCppText, renderAll: () => renderAll(), setStatus, getElement: $ });
+  const data = window.createIntegerGlassVectorEditorData({ state, model, clamp, primitiveFor, primitiveByOpcode: PRIMITIVE_BY_OPCODE, point, normalizeNode, colorHex, paletteCppText, renderAll: () => renderAll(), setStatus, getElement: $ });
   const { cppText, importPacked, packedText, copyText } = data;
   function renderPalette() {
     const list = $('paletteList'); list.replaceChildren();
@@ -74,7 +74,7 @@
     state.nodes.slice(0, index + 1).forEach(node => { if (primitiveFor(node.primitive).name === 'SetColor') color = state.palette[node.value % state.palette.length] || color; });
     return colorHex(color);
   }
-  const { primitiveIcon, createActionButton, createToolPalette } = window.EgfxVectorEditorUi;
+  const { primitiveIcon, createActionButton, createToolPalette } = window.IntegerGlassVectorEditorUi;
   function renderNodeEditor() {
     const editor = $('nodeEditor'); editor.replaceChildren();
     const node = state.nodes[state.selected];
@@ -156,7 +156,7 @@
       return mapped;
     });
 
-    window.EgfxVectorRenderer.render(context, nodes, width, height, 1, {
+    window.IntegerGlassVectorRenderer.render(context, nodes, width, height, 1, {
       angleMax: Math.max(1, model().axisMax),
       palette: state.palette,
       renderScale: Math.max(scaleX, scaleY),

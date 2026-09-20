@@ -1,5 +1,5 @@
-#ifndef _EGFX_CORE_INCLUDE_h
-#define _EGFX_CORE_INCLUDE_h
+#ifndef _INTEGERGLASS_CORE_INCLUDE_h
+#define _INTEGERGLASS_CORE_INCLUDE_h
 
 // Core platform definitions.
 #include "Platform/Platform.h"

@@ -1,10 +1,10 @@
-#ifndef _EGFX_MODULES_TERMINAL_WINDOW_CONSTANT_h
-#define _EGFX_MODULES_TERMINAL_WINDOW_CONSTANT_h
+#ifndef _INTEGERGLASS_MODULES_TERMINAL_WINDOW_CONSTANT_h
+#define _INTEGERGLASS_MODULES_TERMINAL_WINDOW_CONSTANT_h
 
-#include "../../EgfxFramework.h"
+#include "../../IntegerGlassFramework.h"
 #include "../../Modules/Kit/Font/Bitmask/Contact/FontType.h"
 
-namespace Egfx
+namespace IntegerGlass
 {
 	namespace Modules
 	{

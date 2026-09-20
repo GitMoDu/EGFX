@@ -1,313 +1,495 @@
-# EGFX - Embedded Graphics Framework
+# IntegerGlass
 
-[![License](https://img.shields.io/github/license/GitMoDu/EGFX)](LICENSE)
+[![License](https://img.shields.io/github/license/GitMoDu/IntegerGlass)](LICENSE)
+[![Arduino library](https://img.shields.io/badge/Arduino-library-00979D?logo=arduino&logoColor=white)](library.properties)
 
-EGFX is a frame-buffer-based graphics framework designed for embedded systems with limited resources, targeting Arduino-compatible microcontrollers.
-It provides a complete graphics pipeline with hardware-accelerated display drivers, efficient rendering primitives, and a task-based architecture that avoids CPU hogging.
+IntegerGlass is a compile-time graphics framework and cooperative display engine for embedded systems.
 
-![Embedded Graphics Framework](https://github.com/GitMoDu/EGFX/blob/master/media/logo_splash_multi_screen.gif)
+![Embedded Graphics Framework](https://github.com/GitMoDu/IntegerGlass/blob/master/media/logo_splash_multi_screen.gif)
 
-## Overview
+It provides the pieces needed to build real interfaces on microcontroller displays:
 
-![Library Organization](https://github.com/GitMoDu/EGFX/blob/master/media/high_level_organization.png)
+- Frame buffers
+- Display drivers
+- Cooperative frame scheduling
+- Compile-time layouts
+- Stateful views
+- Drawable composition
+- Animation
+- Projection and scrolling
+- Shader pipelines
+- Bitmask, bitmap and vector graphics
+- Text and icon rendering
+- Reusable interface modules
 
-The library is organized into five main components:
+## The model
 
-| Component | Description |
-|-----------|-------------|
-| **[Framebuffer](src/Framebuffer/)** | Manages screen memory and rendering operations |
-| **[ScreenDrivers](src/ScreenDrivers/)** | Handles display communication over SPI/I2C with optional DMA, Async, and RTOS support |
-| **[DisplayEngine](src/DisplayEngine/)** | Orchestrates the complete graphics pipeline—managing the asynchronous draw cycle, frame timing, buffer flipping, and pushing frames to the display |
-| **[Framework](src/Framework/)** | Template-driven compile-time toolkit for building UIs: Drawables, Views, Layouts, Shaders, Fonts, and Text |
-| **[Modules](src/Modules/)** | Self-contained, reusable views built on top of the Framework |
+IntegerGlass is organized around a display engine and a composable view framework.
 
-### Key Features
+```text
+application
+    ↓
+view hierarchy
+    ↓
+drawables and shader pipelines
+    ↓
+frame buffer
+    ↓
+screen driver
+    ↓
+physical display
+```
 
-- **🎨 Frame-Buffer Architecture** — Full-frame rendering with monochrome (1-bit), low-color (8-bit), and full-color (16-bit RGB565) support
-- **⚡ Cooperative Task Scheduling** — Non-blocking draw calls using [TaskScheduler](https://github.com/arkhipenko/TaskScheduler) to maintain system responsiveness
-- **📊 Smart Frame Management** — Automatic frame synchronization, frame skip detection, and idle power saving
-- **🖥️ Multiple Display Support** — Ready-to-use drivers for popular OLED and LCD screens (SSD1306, SH1106, SSD1331, SSD1351, ST7735, ST7789)
-- **🧩 Compile-Time Framework** — Template-driven Drawables, Views, Layouts, and Shaders resolved entirely at compile time
-- **🔤 Rich Text Rendering** — Vector fonts (scalable), code fonts (hard-coded vector), and bitmask fonts (pixel-perfect)
-- **🔧 Memory Flexible** — Static or dynamic frame-buffer allocation with optional double-buffering
-- **📈 Performance Monitoring** — Real-time metrics for FPS, render time, push duration, and draw call analysis
+The display engine manages the frame cycle. The Framework determines what is rendered. Screen drivers handle communication with the display hardware.
 
-### Dependencies
+Rendering is cooperative: work can be spread across multiple scheduler passes instead of blocking the rest of the application.
 
-- [TaskScheduler](https://github.com/arkhipenko/TaskScheduler) — Cooperative task scheduling
-- [IntegerSignal](https://github.com/GitMoDu/IntegerSignal) — Fixed-point math, trigonometry, curves, and type utilities
+## Framework and Kit
 
----
+The library is divided conceptually into two layers.
 
-## 🧩 Framework
+### Framework
 
-The Framework (`src/Framework/`) is EGFX's compile-time toolkit for building UI elements. It is built on two core contracts—**Drawables** and **Views**—and extends outward through Layouts, Shaders, graphics subsystems, and text rendering.
+The Framework is the foundational rendering system. It provides the contracts and mechanisms for:
 
-### Drawables
+- Layout
+- Views
+- Drawables
+- Animation
+- Projection
+- Shader composition
+- Bitmask graphics
+- Bitmap graphics
+- Vector graphics
+- Text
+- Icons
+- Geometry
 
-Drawables are **passive renderers**: they draw their current state to a framebuffer in a single `Draw()` call, without any animation logic.
+The Framework does not require the application to use the library's supplied fonts, shapes, effects, or modules.
+
+## Views
+
+Views are the active layer of IntegerGlass. They coordinate drawables, child views, animation state, and multi-step rendering over time.
+
+A view can complete its work in one draw call or distribute it across several cooperative draw calls without blocking the scheduler.
+
+### `ViewAdapter`
+
+`ViewAdapter` is intended to be the single, final adaptation layer between a concrete view and the display engine's `IFrameDraw` interface.
+
+It avoids building inheritance chains merely to make a view compatible with the engine. Define the view itself, then wrap it once:
 
 ```cpp
-// Drawable contract
-struct Drawable {
-    void Draw(IFrameBuffer* frame) {}
-};
+using ScreenView =
+    IntegerGlass::Framework::View::ViewAdapter<MyView>;
+
+ScreenView View{};
+
+DisplayEngine.SetDrawer(&View);
 ```
 
-All graphics subsystems (bitmask, bitmap, vector, code) produce Drawables.
+The adapter owns the view instance and forwards the engine's draw-call contract to it. Application views can therefore focus on layout, composition, animation, and rendering rather than engine plumbing.
 
-### Views
+### View composition
 
-Views **orchestrate animation and composition** over time. A View may require multiple `DrawCall()` invocations to complete a single frame cycle, enabling cooperative rendering without blocking the CPU.
+The other view types are composition and lifecycle tools:
+
+- **`AbstractView`** provides the stateful view lifecycle. Derive from it when a view needs custom animation or sequencing through `ViewStep()`.
+- **`DrawablesView`** turns a compile-time collection of drawables into a view and dispatches them across draw calls.
+- **`CompositeView`** combines child views into a larger view.
+- **`SelectorView`** selects between view or content alternatives while preserving the surrounding view contract.
+
+Composite views do more than store child objects. They automatically handle the bookkeeping required for nested composition:
+
+- Child bounds are derived from the parent layout.
+- Bounds are forwarded to child views.
+- Parent-to-child coordinate translation is maintained.
+- Child views remain in their own local coordinate spaces.
+- Child progression and draw-cycle completion are coordinated.
+- Compile-time view accessors expose composed children without runtime lookup.
+- Template composition preserves the concrete types and layout information throughout the view tree.
+
+This allows a complex interface to be assembled from local views without manually forwarding rectangles, translations, draw-cycle state, or child access.
+
+A typical application view therefore has this shape:
+
+```text
+concrete view
+    ├── local layout
+    ├── local drawables
+    ├── local animation state
+    └── child views
+            └── child drawables
+```
+
+Only the final outer view needs to be adapted with `ViewAdapter`.
+
+## Layout
+
+IntegerGlass layouts describe the position and dimensions of content within a parent view.
+
+They are template-based and intended to be resolved at compile time rather than through a general-purpose runtime layout engine.
+
+Available layout components include:
+
+- `Grid`
+- `Weighted`
+- `Margin`
+- `Align`
+- `Translate`
+- `Combine`
+- `ConstrainedDimensions`
+- `ConstrainedRatio`
+
+Layouts provide the coordinate and bounds information used by views, drawables, and shader pipelines.
+
+## Animation and projection
+
+The Framework includes animation and projection support for dynamic interfaces.
+
+Animation provides:
+
+- Interpolators
+- Animators
+- Progress scaling
+- Time-based view state changes
+
+Projection provides:
+
+- Dynamic layout movement
+- Translation
+- Scrolling
+- Composite list views
+- Projection effects
+- Page-slide transitions
+
+These systems are designed to work with the view composition model and can be combined with drawables and shader pipelines through templates.
+
+## Graphics
+
+IntegerGlass supports multiple graphics representations.
+
+| Graphics type | Purpose |
+| --- | --- |
+| **Bitmask** | Compact 1-bit images and fonts with a small memory footprint. |
+| **Bitmap** | Pixel assets and text containing explicit color data. |
+| **Vector** | Encoded vector images, icons, and text. |
+| **Geometry** | Lines, rectangles, triangles, circles, rings, and arcs. |
+
+Each graphics subsystem provides the models and drawable/view types needed to integrate that representation into the Framework.
+
+## Shader pipelines
+
+IntegerGlass uses a compile-time shader pipeline:
+
+```text
+color source or palette
+    ↓
+color shader
+    ↓
+coordinate transform
+    ↓
+renderer
+```
+
+The first stage depends on the view and drawable type. It may use a procedural color source or a palette.
+
+Each stage is optional and composable. A drawable or geometry renderer can use a source or palette directly, apply color shading, transform the result, or combine all of those stages.
+
+Because the pipeline is template-based, unused stages can be represented by no-op types and optimized away. A drawable with no color shader or coordinate transform does not need to pay for an empty runtime effect layer; the compiler can reduce the composition to the corresponding direct path.
+
+The same pipeline model is used by images, icons, text, and geometry. IntegerGlass does not require a separate runtime effect graph or a separate shading path for each content type.
+
+## Vector
+
+Vector images, icons, and text share the same encoded-vector geometry pipeline.
+
+![Example Vector Image](https://github.com/GitMoDu/IntegerGlass/blob/master/media/image_vector_editor.png?raw=true)
+
+Compact vector data is decoded into primitives, which are rendered through the same pixel-shading pipeline as other drawable content. Depending on the view type, the pipeline uses either a color source or a palette, followed by optional color shading and coordinate transforms.
+
+```text
+encoded vector data
+    ↓
+primitive geometry
+    ↓
+shared pixel-shading pipeline
+```
+
+This keeps vector content on the shared rendering path instead of requiring a separate vector renderer.
+
+Vector geometry can therefore use the same:
+
+- Color source or palette selection
+- Color shading
+- Coordinate transforms
+- Viewport and bounds behavior
+- Compile-time no-op optimizations
+- Drawable and view composition rules
+
+## Text and icons
+
+Text rendering is generic. The text system is templated on a font drawer rather than tied to one particular font representation.
+
+![Example Vector Image](https://github.com/GitMoDu/IntegerGlass/blob/master/media/vector_font_preview.png?raw=true)
+
+This allows the same text and view concepts to cover:
+
+- Small fixed-pixel labels
+- Monospace text
+- Colored bitmap text
+- Scalable vector text
+- Interface icons
+
+## Reusable modules
+
+`<IntegerGlassModules.h>` includes reusable modules built on top of the Framework.
+
+### Kit
+
+The Kit is optional library-provided convenience content built on top of the Framework. It includes:
+
+#### Bitmask fonts for compact, pixel-oriented interfaces:
+- Contact — a small general-purpose font.
+- Sealant — a reduced uppercase and numeric font for compact status displays.
+- Threadlocker — a tiny uppercase font for very small screens.
+- Resin — a monospace 6×6 font suited to terminals and serial-style output.
+
+#### Bitmap fonts for colored text and subpixel-style designs:
+- ContactChromatic — a full-color bitmap version of the Contact style.
+- Cyanoacrylate — compact 1×5 and 2×5 subpixel fonts.
+
+#### Vector fonts for scalable text:
+- Epoxy — a full-featured encoded vector font with uppercase, lowercase, numbers, punctuation, and symbols.
+  
+#### Vector icons:
+- Silkscreen — an outline-style icon set for interface indicators and compact UI decoration.
+
+
+The Framework defines the system. The Kit provides useful ready-made building blocks for applications and examples.
+
+
+Available modules include:
+
+- **Logo** — static and animated logo/splash views.
+- **ExampleImages** — example bitmask, bitmap, and vector assets.
+- **FpsDisplay** — an FPS overlay that can be composed with another view.
+- **TerminalWindow** — a scrollable text terminal and `PrintAdapter`.
+- **BatteryIndicator** — battery-status UI.
+- **Timecode** — animated timecode text.
+- **Plot** — line, fill, bar, and selector-based plotting views.
+- **ProgressIndicator** — linear and circular determinate progress views.
+- **ProgressIndeterminate** — linear and circular indeterminate progress views.
+
+These modules are examples of higher-level components built on the Framework. They are optional; applications can use the Framework directly and create their own views and modules.
+
+## Display engine
+
+The display engine manages the frame lifecycle:
+
+```text
+clear frame
+    ↓
+execute draw calls
+    ↓
+synchronize frame
+    ↓
+push frame to display
+```
+
+The engine supports:
+
+- Static frame-buffer allocation
+- Dynamic frame-buffer allocation
+- Optional double buffering
+- Cooperative draw calls
+- Variable-refresh synchronization
+- Asynchronous buffer pushing where supported
+- DMA-oriented driver variants where supported
+- RTOS-oriented driver variants where supported
+- Performance logging
+
+The engine is designed to work with [TaskScheduler](https://github.com/arkhipenko/TaskScheduler).
+
+A view is attached to the engine through the `IFrameDraw` interface, normally using one final `ViewAdapter` wrapper.
+
+## Display drivers
+
+IntegerGlass currently includes drivers for common OLED and LCD controllers, including:
+
+- SSD1306
+- SH1106
+- SH1107
+- SSD1331
+- SSD1351
+- ST7735
+- ST7789
+- ST7789T3
+- GC9107
+- GC9A01
+
+The drivers cover I2C and SPI variants where supported.
+
+Drivers handle communication and frame pushing. They do not define the view hierarchy or rendering model; those responsibilities belong to the display engine and Framework.
+
+## Performance logging
+
+The display engine includes an optional performance logging task.
+
+Performance logging can be enabled with:
 
 ```cpp
-// View contract
-struct View {
-    bool DrawCall(IFrameBuffer* frame, const uint32_t frameTime, const uint16_t frameCounter) {
-        return true; // true = cycle complete
-    }
-};
+#define INTEGERGLASS_PERFORMANCE_LOG
+#define INTEGERGLASS_PERFORMANCE_LOG_DETAIL
 ```
 
-The Framework provides several View types:
+The logging task can report information such as:
 
-| View Type | Purpose |
-|-----------|---------|
-| **`ViewAdapter`** | Adapts a view to the engine's `IFrameDraw` interface; the view controls skip/completion through its draw-call result |
-| **`AbstractView`** | Base view with overridable `ViewStep()` for animation and sequential drawable dispatch |
-| **`DrawablesView`** | Manages a compile-time pack of Drawables, rendering them sequentially across draw calls |
-| **`CompositeView`** | Composes multiple child Views, advancing them sequentially within a single frame cycle |
-
-### Layouts
-
-The layout system computes positions and sizes **entirely at compile time**—zero runtime overhead.
-
-| Layout | Description |
-|--------|-------------|
-| **`Grid`** | Divides a region into equal rows and columns |
-| **`Weighted`** | Splits a region by proportional weights |
-| **`Margin`** | Applies inner margins to a region |
-| **`Align`** | Aligns an element within a region |
-| **`ConstrainedDimensions`** | Constrains an element to min/max dimensions |
-| **`ConstrainedRatio`** | Constrains an element to an aspect ratio |
-
-### Shaders
-
-The shader pipeline provides composable, template-driven effects:
-
-| Shader Category | Examples |
-|-----------------|----------|
-| **Color Sources** | Checkerboard, Gradient, AxisSplit |
-| **Color Shaders** | Invert, Brightness, Contrast, Saturation |
-| **Transform Shaders** | Translate, Crop, Orient, ScaleDown, Skew, Rotate, DitherMask |
-| **Pixel Shaders** | Per-pixel effects applied during rendering |
-| **Primitive Shaders** | Effects applied to shape primitives |
-
-Vector images, icons, and vector text use a shared pipeline: packed nodes are read by the vector decoder, scaled into signed local coordinates, and dispatched to the vector image shader for primitive rasterization. Geometry is clipped to the drawable bounds before coordinates enter the unsigned pixel and framebuffer APIs, preventing partially off-screen shapes from wrapping across the display.
-
-### Graphics Subsystems
-
-Each subsystem provides its own Model, Drawer, and Drawable templates:
-
-| Subsystem | Description |
-|-----------|-------------|
-| **Bitmask** | 1-bit sprites with template drawer and drawable; supports both Flash (ROM) and RAM sources |
-| **Bitmap** | Multi-color-mode bitmaps with template drawer and drawable; supports both Flash (ROM) and RAM sources |
-| **Vector** | Encoded vector shapes decoded into shared image, icon, and text drawables; supports compact packed assets and bounded primitive rasterization |
-| **Code** | Hard-coded vector drawing with cached intermediates |
-
-### Fonts & Text
-
-Fonts are built on top of graphics subsystems. The text system is a **generic writer templated on any font drawer**.
-
-| Font Type | Family | Description |
-|-----------|--------|-------------|
-| **Vector Font** | Epoxy (Full, Numbers) | Dynamically scalable, compact encoded vector format, configurable width/height/kerning |
-| **Vector Icons** | Silkscreen | Compact encoded icon set rendered through the shared vector image shader |
-| **Code Font** | RawBot | Hard-coded vector drawing with cached intermediates, configurable dimensions |
-| **Bitmask Font** | Contact (3×5, 5×5), Cyanoacrylate (1×5, 2×5) | Fixed-size pixel-perfect fonts with optional integer scaling, low memory footprint |
-
-### Modules
-
-Modules are **self-contained views** that bundle their own drawables, layouts, and assets. They are built entirely on the Framework and are ready to drop into any display engine setup.
-
-| Module | Description |
-|--------|-------------|
-| **FpsDisplay** | Real-time FPS overlay |
-| **EgfxLogo** | Animated EGFX logo splash |
-| **TerminalWindow** | Scrollable text terminal view |
-
----
-
-## 🖥️ Architecture
-
-### Engine State Flow
-
-```
-┌──────────┐      ┌───────────┐      ┌─────────┐      ┌──────────┐
-│  Clear   │ ───> │  Render   │ ───> │  Sync   │ ───> │   Push   │
-│  Buffer  │      │Draw Calls │      │         │      │to Screen │
-└──────────┘      └───────────┘      └─────────┘      └──────────┘
-     │                                                        │
-     └────────────────────────────────────────────────────────┘
-```
-
-### Key Concepts
-
-**Draw Calls**: Each visual element is rendered in a separate scheduler pass to avoid blocking the CPU. The engine automatically manages draw call sequencing.
-
-**Frame Synchronization**: The engine maintains target FPS with automatic frame skip detection and compensation.
-
-**Memory Efficiency**: Frame buffers can be statically allocated or dynamically managed based on your platform's capabilities.
-
-> **Note**: Frame-buffer rendering requires sufficient RAM to hold a complete frame. Ensure your MCU has adequate memory for your chosen resolution and color depth.
-
-### Display Drivers
-
-EGFX includes optimized drivers with optional DMA, Async, and RTOS variants:
-
-| Display | Color Depth | Interface |
-|---------|-------------|-----------|
-| **SSD1306** | Monochrome | I2C, SPI |
-| **SH1106** | Monochrome | SPI |
-| **SSD1331** | 8-bit, 16-bit | SPI |
-| **SSD1351** | 16-bit | SPI |
-| **ST7735** | 16-bit | SPI |
-| **ST7789** | 16-bit | SPI |
-
----
-
-## 📊 Performance Monitoring
-
-Enable real-time performance metrics with `PerformanceLogTask`:
-
-```cpp
-// Enable performance monitoring
-#define EGFX_PERFORMANCE_LOG
-#define EGFX_PERFORMANCE_LOG_DETAIL
-
-Egfx::PerformanceLogTask<2000> engineLog(scheduler, displayEngine);
-engineLog.Start();
-```
-
-Tracks:
-- Display FPS
-- Draw call count and longest duration
+- Display frame rate
+- Draw-call count
+- Longest draw-call duration
 - Frame-buffer clear duration
-- Render duration and CPU load
-- Push duration and occupancy
-- Idle duration (power saving)
+- Render duration
+- Push duration
+- Display occupancy
+- Idle duration
+- Estimated CPU load
 
----
+Use performance logging when tuning frame-buffer size, color depth, buffering mode, view composition, or display transport.
 
-## 🔧 Platform Support
+## Include headers
 
-EGFX supports multiple architectures with platform-specific optimizations:
+Use the umbrella headers for the main library layers:
 
-| Architecture | Examples |
-|-------------|----------|
-| **AVR** | Arduino Uno, Mega |
-| **ARM Cortex-M** | STM32F1, STM32F4, STM32H7 |
-| **ESP32** | ESP32, ESP32-S3 |
-| **RP2040/RP2350** | Raspberry Pi Pico |
-| **nRF52** | nRF52840 |
+| Header | Provides |
+| --- | --- |
+| `<IntegerGlassCore.h>` | Platform definitions, colors, display options, buffer sizing, and core interfaces. |
+| `<IntegerGlassFramebuffers.h>` | Frame-buffer implementations and double buffering. |
+| `<IntegerGlassScreenDrivers.h>` | Supported screen drivers and wrappers. |
+| `<IntegerGlassDisplayEngine.h>` | Display engine tasks, synchronization, and performance logging. |
+| `<IntegerGlassFramework.h>` | Foundational layouts, animation, projections, views, shaders, graphics, text, and vector support. |
+| `<IntegerGlassModules.h>` | The optional Kit and reusable modules. |
+| `<IntegerGlassPlatformPresets.h>` | Platform configuration presets. |
 
----
+## Getting started
 
-## 🚀 Getting Started
+The complete setup depends on the selected display, resolution, interface, and board. Start with [`examples/EngineDemo`](examples/EngineDemo) and its [`DisplayConfiguration.h`](examples/EngineDemo/DisplayConfiguration.h).
 
-### Basic Example
+The general setup sequence is:
 
-```cpp
-#include <TScheduler.hpp>
-#include <EgfxCore.h>
-#include <EgfxDisplayEngine.h>
-#include "DisplayConfiguration.h"
+1. Install IntegerGlass and its dependencies.
+2. Open `DisplayConfiguration.h`.
+3. Select the display controller and resolution.
+4. Configure the communication interface and board pins.
+5. Select static or dynamic frame-buffer storage.
+6. Select single or double buffering if appropriate.
+7. Create a concrete view.
+8. Wrap the outer view once with `ViewAdapter`.
+9. Attach the adapter to `DisplayEngineTask`.
+10. Run the scheduler from `loop()`.
 
-// Task scheduler
-TS::Scheduler scheduler;
+For a complete hardware-specific example, see:
 
-// Frame buffer
-uint8_t buffer[/* calculated size */];
-Egfx::BinaryFramebuffer<128, 64> framebuffer(buffer);
+- [`examples/EngineDemo/EngineDemo.ino`](examples/EngineDemo/EngineDemo.ino)
+- [`examples/EngineDemo/DisplayConfiguration.h`](examples/EngineDemo/DisplayConfiguration.h)
+- [`examples/TerminalDisplay/TerminalDisplay.ino`](examples/TerminalDisplay/TerminalDisplay.ino)
 
-// Screen driver (example: SSD1306 OLED)
-Egfx::ScreenDriverSSD1306_128x64x1_I2C screenDriver(Wire);
+## Examples
 
-// Display engine
-Egfx::DisplayEngineTask<decltype(framebuffer), decltype(screenDriver)>
-    displayEngine(scheduler, framebuffer, screenDriver);
+### EngineDemo
 
-void setup() {
-    Wire.begin();
-    displayEngine.Start();
-    displayEngine.SetSyncType(Egfx::DisplaySyncType::Vrr);
-}
+[`examples/EngineDemo`](examples/EngineDemo) demonstrates the display-engine integration:
 
-void loop() {
-    scheduler.execute();
-}
+- Multiple display configurations
+- Static frame-buffer allocation
+- Dynamic frame-buffer allocation
+- Optional double buffering
+- View adaptation through `ViewAdapter`
+- Animated logo rendering
+- Optional FPS display
+- Optional performance logging
+- Platform-aware setup and diagnostics
+
+### TerminalDisplay
+
+[`examples/TerminalDisplay`](examples/TerminalDisplay) turns serial input into a screen-backed terminal.
+
+It demonstrates:
+
+- Auto-sized terminal layouts
+- Monospace bitmask fonts
+- Scaled text rendering
+- The `TerminalWindow` module
+- `PrintAdapter`
+- Performance logging routed to the display
+- Serial-to-display loopback
+
+## Asset editors
+
+IntegerGlass includes browser-based asset editors under [`Tools`](Tools). They are local static web pages: open the relevant `index.html` file in a browser, edit the asset, and copy the generated source/declaration into your project or module.
+
+Available editors:
+
+| Editor | Purpose | Local page |
+| --- | --- | --- |
+| **Bitmap Font Editor** | Create and edit colored bitmap fonts. | [`Tools/FontEditor/Bitmap/index.html`](Tools/FontEditor/Bitmap/index.html) |
+| **Bitmask Font Editor** | Create compact 1-bit fonts for small displays. | [`Tools/FontEditor/Bitmask/index.html`](Tools/FontEditor/Bitmask/index.html) |
+| **Vector Font Editor** | Create encoded scalable vector fonts and export their declarations. | [`Tools/FontEditor/Vector/index.html`](Tools/FontEditor/Vector/index.html) |
+| **Vector Icon Editor** | Design and export vector icon sets. | [`Tools/VectorIconEditor/index.html`](Tools/VectorIconEditor/index.html) |
+| **Vector Image Editor** | Design, preview, transform, and export encoded vector images. | [`Tools/VectorImageEditor/index.html`](Tools/VectorImageEditor/index.html) |
+
+These editors do not require a server or build system. They are intended to be opened locally as HTML pages. The generated assets are designed for the corresponding IntegerGlass graphics systems:
+
+```text
+bitmap editor      → bitmap graphics and bitmap text
+bitmask editor     → bitmask graphics and bitmask text
+vector font editor → vector text
+vector icon editor → vector icons
+vector image editor→ vector images
 ```
 
-### Include Headers
+The editors are development tools rather than runtime dependencies. The resulting declarations and data can be compiled into an Arduino project and stored in program memory where appropriate.
 
-| Header | Contents |
-|--------|----------|
-| `<EgfxCore.h>` | Core model, interfaces, and color types |
-| `<EgfxFramebuffers.h>` | Framebuffer implementations |
-| `<EgfxScreenDrivers.h>` | All screen driver variants |
-| `<EgfxDisplayEngine.h>` | Display engine task |
-| `<EgfxFramework.h>` | Complete Framework: Layouts, Drawables, Views, Shaders, Fonts, and Text |
-| `<EgfxAssets.h>` | Built-in assets: shader presets, font families, and drawables |
-| `<EgfxModules.h>` | Built-in Modules: FpsDisplay, EgfxLogo, TerminalWindow |
+## Repository structure
 
----
-
-## 📂 Examples
-
-### [EngineDemo](examples/EngineDemo/)
-
-The recommended starting point. Each demo is automatically cycled and demonstrates best practices for implementing views:
-
-1. **LogoSplashDemo** — Animated EGFX logo using the EgfxLogo module
-2. **PrimitiveDemo** — Animated lines, rectangles, and triangles
-3. **VectorTextDemo** — Dynamic text with vector fonts and animated scaling
-4. **BitmaskTextDemo** — Fast text rendering with multiple scales
-5. **ImageDemo** — Full-color bitmap rendering with rotation and brightness. For Monochrome displays, the demo uses bitmask with rotation instead.
-
-#### Quick Start
-1. Open `DisplayConfiguration.h` and select your screen type
-2. Configure pin definitions for your platform
-3. Upload to your board
-4. Watch as demos automatically cycle
-
-### [TerminalDisplay](examples/TerminalDisplay/)
-
-A practical example using the **TerminalWindow** module to create a scrollable text display, demonstrating module-based UI composition.
-
----
-
-## 📁 Source Structure
-
-```
+```text
 src/
-├── Model/                  # Core interfaces (IFrameBuffer, IFrameDraw, IScreenDriver, IFrameEngine)
-├── Framebuffer/            # Framebuffer implementations (Template, DoubleBuffered)
-├── ScreenDrivers/          # Display drivers (SSD1306, SH1106, SSD1331, SSD1351, ST7735, ST7789)
-├── DisplayEngine/          # Display engine task and sync management
-├── Platform/               # Platform-specific optimizations
-├── PlatformPresets/        # Ready-to-use platform configurations
+├── Model/                         # Core interfaces, colors, display options, buffer sizing
+├── Framebuffer/                   # Frame-buffer implementations
+├── DisplayEngine/                 # Frame orchestration, synchronization, and logging
+├── ScreenDrivers/                 # Controller drivers and transport templates
+├── ScreenWrappers/                # Display-specific frame-buffer wrappers
+├── Platform/                      # Platform detection and behavior
+├── PlatformPresets/               # Reusable platform configurations
 ├── Framework/
-│   ├── Layout/             # Compile-time layouts (Grid, Weighted, Margin, Align, Constrained)
-│   ├── View/               # View system (ViewAdapter, AbstractView, DrawablesView, CompositeView)
-│   ├── Shader/             # Shader pipeline (Source, Color, Transform, Pixel, Primitive)
-│   ├── Bitmask/            # Bitmask graphics and font subsystem
-│   ├── Bitmap/             # Bitmap graphics subsystem
-│   ├── Vector/             # Packed vector reader, decoder, scaling, and coordinate contracts
-│   ├── Image/Vector/       # Vector image drawable and view integration
-│   ├── Icon/Vector/        # Vector icon drawable and view integration
-│   ├── Code/               # Code graphics and font subsystem
-│   ├── Text/               # Generic text writer (templated on any font drawer)
-│   └── Assets/             # Built-in assets (Drawables, Fonts, Shaders)
-└── Modules/                # Self-contained view modules (FpsDisplay, EgfxLogo, TerminalWindow)
+│   ├── Animation/                 # Interpolators and animators
+│   ├── Bitmap/                    # Bitmap graphics
+│   ├── Bitmask/                   # Bitmask graphics
+│   ├── Drawable/                  # Drawable contracts
+│   ├── Image/                     # Image drawables and views
+│   ├── Icon/                      # Icon models and views
+│   ├── Layout/                    # Compile-time layouts
+│   ├── Projection/                # Scrolling, projections, and transitions
+│   ├── Shader/                    # Shader pipeline components
+│   ├── Text/                      # Generic text and font integration
+│   ├── Vector/                    # Encoded-vector decoding
+│   └── View/                      # View lifecycle and composition
+└── Modules/
+    ├── Kit/                       # Optional library-provided conveniences
+    ├── BatteryIndicator/
+    ├── ExampleImages/
+    ├── FpsDisplay/
+    ├── Logo/
+    ├── Plot/
+    ├── ProgressIndicator/
+    ├── ProgressIndeterminate/
+    ├── TerminalWindow/
+    └── Timecode/
 ```
+
+
+## Dependencies
+
+- [TaskScheduler](https://github.com/arkhipenko/TaskScheduler)
+- [IntegerSignal](https://github.com/GitMoDu/IntegerSignal)
+

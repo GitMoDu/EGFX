@@ -22,7 +22,7 @@ It provides the pieces needed to build real interfaces on microcontroller displa
 - Text and icon rendering
 - Reusable interface modules
 
-[Video: Framework Showcase demo on Youtube.](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+[Video: Framework Showcase demo on Youtube.](https://www.youtube.com/watch?v=DonDuvwlY5M)
 
 ## The model
 
